@@ -1,0 +1,10 @@
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# VS Code / SQL tools
+.vs/
+
+# OS
+.DS_Store
+Thumbs.db
