@@ -1,3 +1,4 @@
+src/db/db.properties
 # IntelliJ IDEA
 .idea/
 *.iml
