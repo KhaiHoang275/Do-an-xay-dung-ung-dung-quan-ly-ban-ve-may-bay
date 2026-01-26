@@ -1,18 +1,15 @@
 package model;
 
 public class TuyenBay {
-    // 1. Chuyển tên biến sang camelCase và thêm từ khóa private
     private String maTuyenBay;
     private String sanBayDi;
     private String sanBayDen;
     private float khoangCach;
     private double giaGoc;
 
-    // Constructor rỗng
     public TuyenBay() {
     }
 
-    // Constructor đầy đủ tham số
     public TuyenBay(String maTuyenBay, String sanBayDi, String sanBayDen, float khoangCach, double giaGoc) {
         this.maTuyenBay = maTuyenBay;
         this.sanBayDi = sanBayDi;
@@ -21,8 +18,6 @@ public class TuyenBay {
         this.giaGoc = giaGoc;
     }
 
-    // Constructor sao chép
-    // Lưu ý: Đã sửa lỗi chính tả kiểu dữ liệu từ "Tuyen_Bay" thành "TuyenBay"
     public TuyenBay(TuyenBay tb) {
         this.maTuyenBay = tb.maTuyenBay;
         this.sanBayDi = tb.sanBayDi;
@@ -30,8 +25,6 @@ public class TuyenBay {
         this.khoangCach = tb.khoangCach;
         this.giaGoc = tb.giaGoc;
     }
-
-    // Getter và Setter theo chuẩn camelCase
 
     public String getMaTuyenBay() {
         return maTuyenBay;
