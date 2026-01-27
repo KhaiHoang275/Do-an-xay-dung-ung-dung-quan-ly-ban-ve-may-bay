@@ -64,8 +64,8 @@ public class NhanVien {
     } 
 
     public String toString() {
-        return maNV + " " + maNguoiDung + " " + hoten + " " + chucVu
-                + " " + ngayVaoLam; 
+        return " " + maNV + " " + maNguoiDung + " " + hoten + " " + chucVu
+                + " " + ngayVaoLam + " "; 
     }
 
 }
