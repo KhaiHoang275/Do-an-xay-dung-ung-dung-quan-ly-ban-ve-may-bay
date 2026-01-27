@@ -64,8 +64,8 @@ public class NhanVien {
     } 
 
     public String toString() {
-        return "NhanVien [maNV=" + maNV + ", maNguoiDung=" + maNguoiDung + ", hoten=" + hoten + ", chucVu=" + chucVu
-                + ", ngayVaoLam=" + ngayVaoLam + "]"; 
+        return maNV + " " + maNguoiDung + " " + hoten + " " + chucVu
+                + " " + ngayVaoLam; 
     }
 
 }

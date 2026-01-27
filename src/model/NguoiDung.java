@@ -95,9 +95,9 @@ public class NguoiDung {
     }
 
     public String toString() {
-        return "NguoiDung [maNguoiDung=" + maNguoiDung + ", username=" + username + ", password=" + password
-                + ", email=" + email + ", sdt=" + sdt + ", ngayTao=" + ngayTao + ", phan_quyen=" + phan_quyen
-                + ", trangThaiTK=" + trangThaiTK + "]";
+        return maNguoiDung + " " + username + " " + password
+                + " " + email + " " + sdt + " " + ngayTao + " " + phan_quyen
+                + " " + trangThaiTK;
     }
     
 }
