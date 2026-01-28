@@ -53,4 +53,8 @@ public class GheMayBay {
     public void setGia_Ghe(double gia_Ghe) {
         this.gia_Ghe = gia_Ghe;
     }
+
+    public String toString() {
+        return ma_Ghe + " " + ma_May_Bay + " " + so_Ghe + " " + gia_Ghe;
+    }
 }

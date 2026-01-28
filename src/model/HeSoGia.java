@@ -42,4 +42,8 @@ public class HeSoGia {
     public void setSo_Gio_Dat_Truoc(float so_Gio_Dat_Truoc) {
         this.so_Gio_Dat_Truoc = so_Gio_Dat_Truoc;
     }
+
+    public String toString() {
+        return ma_He_So_Gia + " " + he_So + " " + so_Gio_Dat_Truoc;
+    }
 }

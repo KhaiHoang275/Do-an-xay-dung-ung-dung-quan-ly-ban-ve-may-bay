@@ -42,4 +42,8 @@ public class HangVe {
     public void setHe_So_Hang_Ve(float he_So_Hang_Ve) {
         this.he_So_Hang_Ve = he_So_Hang_Ve;
     }
+
+    public String toString() {
+        return ma_Hang_Ve + " " + ten_Hang + " " + he_So_Hang_Ve;
+    }
 }
