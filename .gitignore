@@ -12,3 +12,7 @@ src/db/db.properties
 # OS
 .DS_Store
 Thumbs.db
+
+# Excel temp files
+~$*.xlsx
+
