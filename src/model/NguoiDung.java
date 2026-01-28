@@ -13,7 +13,7 @@ public class NguoiDung {
     private String trangThaiTK; 
 
     public NguoiDung() {
-        maNguoiDung = ""; 
+        maNguoiDung = "";
         username = ""; 
         password = ""; 
         email = ""; 
