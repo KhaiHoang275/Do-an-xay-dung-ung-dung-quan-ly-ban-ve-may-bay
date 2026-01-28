@@ -65,12 +65,7 @@ public class CTHoaDon {
     }
     @Override
     public String toString() {
-        return "CTHoaDon{" +
-                "maCTHD='" + maCTHD + '\'' +
-                ", maHoaDon='" + maHoaDon + '\'' +
-                ", maVe='" + maVe + '\'' +
-                ", soTien=" + soTien +
-                ", maNguoiDung='" + maNguoiDung + '\'' +
-                '}';
+        return " " + maCTHD + " " + maHoaDon + " " + maVe 
+                + " " + soTien + " " + maNguoiDung + " ";
     }
 }

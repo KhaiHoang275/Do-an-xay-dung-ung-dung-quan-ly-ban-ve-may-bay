@@ -42,10 +42,6 @@ public class DichVuBoSung {
     }
     @Override
     public String toString() {
-        return "DichVuBoSung{" +
-                "maDichVu='" + maDichVu + '\'' +
-                ", tenDichVu='" + tenDichVu + '\'' +
-                ", donGia=" + donGia +
-                '}';
+        return " " + maDichVu + " " + tenDichVu + " " + donGia + " ";
     }
 }

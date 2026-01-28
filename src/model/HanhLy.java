@@ -83,15 +83,9 @@ public class HanhLy {
     public void setGhiChu(String ghiChu) {
         this.ghiChu = ghiChu;
     }
+    @Override
     public String toString() {
-        return "HanhLy{" +
-                "maHanhLy='" + maHanhLy + '\'' +
-                ", maVe='" + maVe + '\'' +
-                ", soKg=" + soKg +
-                ", kichThuoc='" + kichThuoc + '\'' +
-                ", giaTien=" + giaTien +
-                ", trangThai='" + trangThai + '\'' +
-                ", ghiChu='" + ghiChu + '\'' +
-                '}';
+        return " " + maHanhLy + " " + maVe + " " + soKg + " " + kichThuoc 
+                + " " + giaTien + " " + trangThai + " " + ghiChu + " ";
     }
 }
