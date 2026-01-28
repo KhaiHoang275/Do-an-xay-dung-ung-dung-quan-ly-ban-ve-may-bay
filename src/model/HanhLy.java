@@ -83,4 +83,15 @@ public class HanhLy {
     public void setGhiChu(String ghiChu) {
         this.ghiChu = ghiChu;
     }
+    public String toString() {
+        return "HanhLy{" +
+                "maHanhLy='" + maHanhLy + '\'' +
+                ", maVe='" + maVe + '\'' +
+                ", soKg=" + soKg +
+                ", kichThuoc='" + kichThuoc + '\'' +
+                ", giaTien=" + giaTien +
+                ", trangThai='" + trangThai + '\'' +
+                ", ghiChu='" + ghiChu + '\'' +
+                '}';
+    }
 }

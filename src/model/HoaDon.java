@@ -97,4 +97,17 @@ public class HoaDon {
     public void setThue(BigDecimal thue) {
         this.thue = thue;
     }
+    @Override
+    public String toString() {
+        return "HoaDon{" +
+                "maHoaDon='" + maHoaDon + '\'' +
+                ", maPhieuDatVe='" + maPhieuDatVe + '\'' +
+                ", maNV='" + maNV + '\'' +
+                ", ngayLap=" + ngayLap +
+                ", tongTien=" + tongTien +
+                ", phuongThuc='" + phuongThuc + '\'' +
+                ", donViTienTe='" + donViTienTe + '\'' +
+                ", thue=" + thue +
+                '}';
+    }
 }

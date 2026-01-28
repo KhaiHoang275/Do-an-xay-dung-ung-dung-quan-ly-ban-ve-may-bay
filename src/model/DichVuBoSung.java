@@ -40,4 +40,12 @@ public class DichVuBoSung {
     public void setDonGia(BigDecimal donGia) {
         this.donGia = donGia;
     }
+    @Override
+    public String toString() {
+        return "DichVuBoSung{" +
+                "maDichVu='" + maDichVu + '\'' +
+                ", tenDichVu='" + tenDichVu + '\'' +
+                ", donGia=" + donGia +
+                '}';
+    }
 }

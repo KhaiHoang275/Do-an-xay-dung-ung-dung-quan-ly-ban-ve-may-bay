@@ -51,4 +51,13 @@ public class ChiTietDichVu {
     public void setThanhTien(BigDecimal thanhTien) {
         this.thanhTien = thanhTien;
     }
+    @Override
+    public String toString() {
+        return "ChiTietDichVu{" +
+                "maVe='" + maVe + '\'' +
+                ", maDichVu='" + maDichVu + '\'' +
+                ", soLuong=" + soLuong +
+                ", thanhTien=" + thanhTien +
+                '}';
+    }
 }

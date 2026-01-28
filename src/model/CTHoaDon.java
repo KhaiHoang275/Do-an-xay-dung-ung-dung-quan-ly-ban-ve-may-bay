@@ -63,4 +63,14 @@ public class CTHoaDon {
     public void setMaNguoiDung(String maNguoiDung) {
         this.maNguoiDung = maNguoiDung;
     }
+    @Override
+    public String toString() {
+        return "CTHoaDon{" +
+                "maCTHD='" + maCTHD + '\'' +
+                ", maHoaDon='" + maHoaDon + '\'' +
+                ", maVe='" + maVe + '\'' +
+                ", soTien=" + soTien +
+                ", maNguoiDung='" + maNguoiDung + '\'' +
+                '}';
+    }
 }
