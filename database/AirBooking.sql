@@ -1,7 +1,7 @@
 ﻿-- 1. TẠO DATABASE VÀ SỬ DỤNG
 CREATE DATABASE QLAirLine;
 GO
-USE QuanLyBanVeMayBay
+USE QLAirLine
 GO
 
 -- =======================================================
