@@ -64,7 +64,7 @@ public class TuyenBay {
 
     public void setGiaGoc(double giaGoc) {
         this.giaGoc = giaGoc;
-    }
+    } 
 
     public String toString() {
         return maTuyenBay + " "+ sanBayDi + " " + sanBayDen
