@@ -1,7 +1,6 @@
 package model;
 
 public class ChuyenBay {
-    // 1. Tên biến chuyển sang camelCase và thêm private
     private String maChuyenBay;
     private String maTuyenBay;
     private String maMayBay;
@@ -10,11 +9,8 @@ public class ChuyenBay {
     private String ngayGioDen;
     private boolean trangThai;
 
-    // Constructor rỗng
-    public ChuyenBay() {
-    }
+    public ChuyenBay() {}
 
-    // Constructor đầy đủ tham số (tham số cũng dùng camelCase)
     public ChuyenBay(String maChuyenBay, String maTuyenBay, String maMayBay, String maHeSoGia, String ngayGioDi, String ngayGioDen, boolean trangThai) {
         this.maChuyenBay = maChuyenBay;
         this.maTuyenBay = maTuyenBay;
@@ -25,7 +21,6 @@ public class ChuyenBay {
         this.trangThai = trangThai;
     }
 
-    // Constructor sao chép
     public ChuyenBay(ChuyenBay cb) {
         this.maChuyenBay = cb.maChuyenBay;
         this.maTuyenBay = cb.maTuyenBay;
@@ -35,8 +30,6 @@ public class ChuyenBay {
         this.ngayGioDen = cb.ngayGioDen;
         this.trangThai = cb.trangThai;
     }
-
-    // Getter và Setter tuân thủ camelCase
 
     public String getMaChuyenBay() {
         return maChuyenBay;
