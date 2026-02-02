@@ -193,14 +193,11 @@ CREATE TABLE ChiTietDichVu (
 );
 
 CREATE TABLE ChiTietHoaDon (
-    maChiTietHD VARCHAR(20) PRIMARY KEY,
     maHoaDon VARCHAR(20),
     maVe VARCHAR(20),
     soTien DECIMAL(18, 2),
-    maNguoiDung VARCHAR(20), -- Người thanh toán mục này
-    FOREIGN KEY (maHoaDon) REFERENCES HoaDon(maHoaDon),
-    FOREIGN KEY (maVe) REFERENCES VeBan(maVe),
-    FOREIGN KEY (maNguoiDung) REFERENCES NguoiDung(maNguoiDung)
+    PRIMARY KEY (maHoaDon) REFERENCES HoaDon(maHoaDon),
+    PRIMARY KEY (maVe) REFERENCES VeBan(maVe)
 );
 
 CREATE TABLE HanhLy (
