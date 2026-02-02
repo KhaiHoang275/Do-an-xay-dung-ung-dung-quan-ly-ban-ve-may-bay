@@ -201,7 +201,7 @@ CREATE TABLE ChiTietHoaDon (
 );
 
 CREATE TABLE HanhLy (
-    maHanhLy VARCHAR(20) PRIMARY KEY, -- Bag Tag
+    maHanhLy VARCHAR(20) PRIMARY KEY, 
     maVe VARCHAR(20),
     soKg DECIMAL(5, 2),
     kichThuoc VARCHAR(50),
