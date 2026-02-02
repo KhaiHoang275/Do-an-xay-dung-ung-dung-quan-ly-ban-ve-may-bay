@@ -214,20 +214,9 @@ CREATE TABLE HanhLy (
     FOREIGN KEY (maVe) REFERENCES VeBan(maVe)
 );
 
-CREATE TABLE HoanVe (
-    maHoanVe VARCHAR(20) PRIMARY KEY,
-    maVe VARCHAR(20),
-    nguoiPhuTrach VARCHAR(20), -- Mã Nhân Viên
-    trangThai NVARCHAR(50),
-    ngayYeuCau DATETIME,
-    ngayXuLy DATETIME,
-    lyDoHoan NVARCHAR(MAX),
-    FOREIGN KEY (maVe) REFERENCES VeBan(maVe),
-    FOREIGN KEY (nguoiPhuTrach) REFERENCES NhanVien(maNV)
-);
 
-CREATE TABLE DoiVe (
-    maDoiVe VARCHAR(20) PRIMARY KEY,
+CREATE TABLE GiaoDichVe (
+    maGD VARCHAR(20) PRIMARY KEY,
     maVeMoi VARCHAR(20),
     maVeCu VARCHAR(20),
     trangThai NVARCHAR(50),
