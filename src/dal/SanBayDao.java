@@ -4,7 +4,7 @@ import model.SanBay;
 import java.sql.*;
 import java.util.ArrayList;
 import db.*; 
-public class SanBayDao {
+public class SanBayDAO {
 
     public ArrayList<SanBay> selectAll() {
         ArrayList<SanBay> list = new ArrayList<>();

@@ -5,7 +5,7 @@ import java.sql.*;
 import java.util.ArrayList; 
 import db.*; 
 
-public class NguoiDungDao {
+public class NguoiDungDAO {
 
     public ArrayList<NguoiDung> selectAll() {
         ArrayList<NguoiDung> list = new ArrayList<>();

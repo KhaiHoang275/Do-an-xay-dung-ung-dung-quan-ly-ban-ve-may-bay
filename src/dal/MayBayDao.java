@@ -5,7 +5,7 @@ import java.sql.*;
 import java.util.ArrayList; 
 import db.*; 
 
-public class MayBayDao {
+public class MayBayDAO {
 
     public ArrayList<MayBay> selectAll() {
         ArrayList<MayBay> list = new ArrayList<>();
