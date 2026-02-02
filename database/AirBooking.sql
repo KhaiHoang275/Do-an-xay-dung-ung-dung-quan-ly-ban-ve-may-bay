@@ -80,7 +80,7 @@ CREATE TABLE ThongTinHanhKhach (
     hoChieu VARCHAR(20),
     ngaySinh DATE,
     gioiTinh NVARCHAR(10),
-    diemTichLuy INT,
+    diemTichLuy INT DEFAULT 0,
     FOREIGN KEY (maNguoiDung) REFERENCES NguoiDung(maNguoiDung),
     FOREIGN KEY (maThuHang) REFERENCES ThuHang(maThuHang)
 );
@@ -112,7 +112,7 @@ CREATE TABLE GheMayBay (
 );
 
 -- =======================================================
--- 4. TẠO CÁC BẢNG NGHIỆP VỤ CHÍNH (LEVEL 3)
+-- 4. TẠO CÁC BẢNG PHỤ THUỘC CẤP 2 (LEVEL 3)
 -- =======================================================
 
 CREATE TABLE ChuyenBay (
@@ -122,29 +122,29 @@ CREATE TABLE ChuyenBay (
     maHeSoGia VARCHAR(50),
     ngayGioDi DATETIME,
     ngayGioDen DATETIME,
-    trangThai NVARCHAR(50),
+    trangThai NVARCHAR(50), -- SCHEDULED, DELAYED, CANCELLED
     FOREIGN KEY (maTuyenBay) REFERENCES TuyenBay(maTuyenBay),
     FOREIGN KEY (maMayBay) REFERENCES MayBay(maMayBay),
     FOREIGN KEY (maHeSoGia) REFERENCES HeSoGia(maHeSoGia)
 );
 
 CREATE TABLE PhieuDatVe (
-    maPhieuDatVe VARCHAR(20) PRIMARY KEY,
-    maNguoiDung VARCHAR(20),
-    maNV VARCHAR(20), -- Có thể NULL nếu đặt online
-    thoiLuong INT,
-    ngayDat DATETIME,
+    maPhieuDatVe VARCHAR(20) PRIMARY KEY, -- Mã PNR
+    maNguoiDung VARCHAR(20), -- Người đặt
+    maNV VARCHAR(20), -- Nhân viên (nếu có)
+    maKhuyenMai VARCHAR(50),
+    thoiLuong INT, -- Phút giữ chỗ
+    ngayDat DATETIME DEFAULT GETDATE(),
     soLuongVe INT,
     tongTien DECIMAL(18, 2),
     trangThaiThanhToan NVARCHAR(50),
-    maKhuyenMai VARCHAR(50),
     FOREIGN KEY (maNguoiDung) REFERENCES NguoiDung(maNguoiDung),
     FOREIGN KEY (maNV) REFERENCES NhanVien(maNV),
     FOREIGN KEY (maKhuyenMai) REFERENCES KhuyenMai(maKhuyenMai)
 );
 
 -- =======================================================
--- 5. TẠO CÁC BẢNG CHI TIẾT & GIAO DỊCH (LEVEL 4)
+-- 5. TẠO CÁC BẢNG PHỤ THUỘC CẤP 3 (LEVEL 4)
 -- =======================================================
 
 CREATE TABLE VeBan (
@@ -154,16 +154,33 @@ CREATE TABLE VeBan (
     maHK VARCHAR(20),
     maHangVe VARCHAR(10),
     maGhe VARCHAR(20),
-    loaiVe NVARCHAR(50),
-    loaiHK NVARCHAR(50),
+    loaiVe NVARCHAR(20), -- ADULT, CHILD
+    loaiHK NVARCHAR(20),
     giaVe DECIMAL(18, 2),
-    trangThaiVe NVARCHAR(50),
+    trangThaiVe NVARCHAR(50), -- BOOKED, CHECKED_IN, USED
     FOREIGN KEY (maPhieuDatVe) REFERENCES PhieuDatVe(maPhieuDatVe),
     FOREIGN KEY (maChuyenBay) REFERENCES ChuyenBay(maChuyenBay),
     FOREIGN KEY (maHK) REFERENCES ThongTinHanhKhach(maHK),
     FOREIGN KEY (maHangVe) REFERENCES HangVe(maHangVe),
     FOREIGN KEY (maGhe) REFERENCES GheMayBay(maGhe)
 );
+
+CREATE TABLE HoaDon (
+    maHoaDon VARCHAR(20) PRIMARY KEY,
+    maPhieuDatVe VARCHAR(20),
+    maNV VARCHAR(20),
+    ngayLap DATETIME DEFAULT GETDATE(),
+    tongTien DECIMAL(18, 2),
+    phuongThuc NVARCHAR(50),
+    donViTienTe VARCHAR(10),
+    thue DECIMAL(18, 2),
+    FOREIGN KEY (maPhieuDatVe) REFERENCES PhieuDatVe(maPhieuDatVe),
+    FOREIGN KEY (maNV) REFERENCES NhanVien(maNV)
+);
+
+-- =======================================================
+-- 6. TẠO CÁC BẢNG CHI TIẾT & NGHIỆP VỤ SAU BÁN (LEVEL 5)
+-- =======================================================
 
 CREATE TABLE ChiTietDichVu (
     maVe VARCHAR(20),
@@ -175,67 +192,37 @@ CREATE TABLE ChiTietDichVu (
     FOREIGN KEY (maDichVu) REFERENCES DichVuBoSung(maDichVu)
 );
 
-CREATE TABLE HoaDon (
-    maHoaDon VARCHAR(20) PRIMARY KEY,
-    maPhieuDatVe VARCHAR(20),
-    maNV VARCHAR(20),
-    ngayLap DATETIME,
-    tongTien DECIMAL(18, 2),
-    phuongThuc NVARCHAR(50),
-    donViTienTe VARCHAR(10),
-    thue DECIMAL(18, 2),
-    FOREIGN KEY (maPhieuDatVe) REFERENCES PhieuDatVe(maPhieuDatVe),
-    FOREIGN KEY (maNV) REFERENCES NhanVien(maNV)
-);
-
-CREATE TABLE CTHoaDon (
-    maCTHD VARCHAR(20) PRIMARY KEY,
+CREATE TABLE ChiTietHoaDon (
     maHoaDon VARCHAR(20),
     maVe VARCHAR(20),
     soTien DECIMAL(18, 2),
-    maNguoiDung VARCHAR(20),
-    FOREIGN KEY (maHoaDon) REFERENCES HoaDon(maHoaDon),
-    FOREIGN KEY (maVe) REFERENCES VeBan(maVe),
-    FOREIGN KEY (maNguoiDung) REFERENCES NguoiDung(maNguoiDung)
-);
-
-CREATE TABLE HoanVe (
-    maHoanVe VARCHAR(20) PRIMARY KEY,
-    maVe VARCHAR(20),
-    nguoiPhuTrach VARCHAR(20),
-    trangThai NVARCHAR(50),
-    ngayYeuCau DATETIME,
-    ngayXuLy DATETIME,
-    lyDoHoan NVARCHAR(255),
-    FOREIGN KEY (maVe) REFERENCES VeBan(maVe),
-    FOREIGN KEY (nguoiPhuTrach) REFERENCES NhanVien(maNV)
+    PRIMARY KEY (maHoaDon) REFERENCES HoaDon(maHoaDon),
+    PRIMARY KEY (maVe) REFERENCES VeBan(maVe)
 );
 
 CREATE TABLE HanhLy (
-    maHanhLy VARCHAR(20) PRIMARY KEY,
+    maHanhLy VARCHAR(20) PRIMARY KEY, 
     maVe VARCHAR(20),
     soKg DECIMAL(5, 2),
     kichThuoc VARCHAR(50),
     giaTien DECIMAL(18, 2),
     trangThai NVARCHAR(50),
-    ghiChu NVARCHAR(255),
+    ghiChu NVARCHAR(MAX),
     FOREIGN KEY (maVe) REFERENCES VeBan(maVe)
 );
 
-CREATE TABLE LichSuDoiVe (
-    maLichSu VARCHAR(20) PRIMARY KEY,
-    maVe VARCHAR(20),
-    maChuyenBayCu VARCHAR(20),
-    maChuyenBayMoi VARCHAR(20),
-    maGheCu VARCHAR(20),
-    maGheMoi VARCHAR(20),
-    phiChenhLech DECIMAL(18, 2),
-    phiDoiVe DECIMAL(18, 2),
+
+CREATE TABLE GiaoDichVe (
+    maGD VARCHAR(20) PRIMARY KEY,
+    maVeMoi VARCHAR(20),
+    maVeCu VARCHAR(20),
+    trangThai INT Status, 
+    phi DECIMAL(18, 2),
+    phiChenhLech DECIMAL(18, 2), 
     lyDoDoi NVARCHAR(100),
-    ngayThucHien DATETIME,
-    FOREIGN KEY (maVe) REFERENCES VeBan(maVe),
-    FOREIGN KEY (maChuyenBayCu) REFERENCES ChuyenBay(maChuyenBay),
-    FOREIGN KEY (maChuyenBayMoi) REFERENCES ChuyenBay(maChuyenBay),
-    FOREIGN KEY (maGheCu) REFERENCES GheMayBay(maGhe),
-    FOREIGN KEY (maGheMoi) REFERENCES GheMayBay(maGhe)
+    ngayYeuCau DATETIME,
+    ngayXuLi DATETIME,
+    FOREIGN KEY (maVeMoi) REFERENCES VeBan(maVe),
+    FOREIGN KEY (maVeCu) REFERENCES VeBan(maVe)
 );
+GO
