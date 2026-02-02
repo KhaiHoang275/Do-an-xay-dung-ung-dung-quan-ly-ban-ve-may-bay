@@ -219,7 +219,7 @@ CREATE TABLE GiaoDichVe (
     maGD VARCHAR(20) PRIMARY KEY,
     maVeMoi VARCHAR(20),
     maVeCu VARCHAR(20),
-    trangThai NVARCHAR(50),
+    trangThai INT Status,
     phiChenhLech DECIMAL(18, 2),
     lyDoDoi NVARCHAR(100),
     ngayYeuCau DATETIME,
