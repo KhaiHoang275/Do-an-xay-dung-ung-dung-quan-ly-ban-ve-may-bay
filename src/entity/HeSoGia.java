@@ -1,4 +1,4 @@
-package model;
+package entity;
 
 public class HeSoGia {
     private String ma_He_So_Gia;

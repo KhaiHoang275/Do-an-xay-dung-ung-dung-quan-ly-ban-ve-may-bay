@@ -1,4 +1,4 @@
-package model;
+package entity;
 
 public class MayBay {
     private String maMayBay;

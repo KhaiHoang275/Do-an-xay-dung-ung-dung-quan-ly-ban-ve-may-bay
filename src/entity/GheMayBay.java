@@ -1,4 +1,4 @@
-package model;
+package entity;
 
 public class GheMayBay {
     private String ma_Ghe;

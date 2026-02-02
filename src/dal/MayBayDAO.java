@@ -1,6 +1,6 @@
 package dal;
 
-import model.MayBay;
+import entity.MayBay;
 import java.sql.*;
 import java.util.ArrayList; 
 import db.*; 

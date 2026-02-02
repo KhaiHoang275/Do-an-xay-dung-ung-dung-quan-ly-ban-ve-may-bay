@@ -1,6 +1,6 @@
 package dal;
 
-import model.SanBay;
+import entity.SanBay;
 import java.sql.*;
 import java.util.ArrayList;
 import db.*; 

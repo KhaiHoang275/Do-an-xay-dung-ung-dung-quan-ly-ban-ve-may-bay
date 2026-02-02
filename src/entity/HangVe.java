@@ -1,4 +1,4 @@
-package model;
+package entity;
 
 public class HangVe {
     private String ma_Hang_Ve;

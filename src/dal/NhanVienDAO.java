@@ -1,6 +1,6 @@
 package dal;
 
-import model.NhanVien;
+import entity.NhanVien;
 import java.sql.*;
 import java.util.ArrayList;
 import db.*; 
