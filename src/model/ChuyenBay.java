@@ -86,4 +86,9 @@ public class ChuyenBay {
     public void setTrangThai(boolean trangThai) {
         this.trangThai = trangThai;
     }
+
+    public String toString() {
+        return maChuyenBay + " " + maTuyenBay + " " + maMayBay + " "
+                + maHeSoGia + " " + ngayGioDi + " " + ngayGioDen + " " + trangThai;
+    }
 }
