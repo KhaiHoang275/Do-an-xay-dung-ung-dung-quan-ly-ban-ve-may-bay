@@ -7,7 +7,7 @@ public class VeBan {
     private String maPhieuDatVe;
     private String maChuyenBay;
     private String maHK;
-    private String maHangGhe;
+    private String maHangVe;
     private String maGhe;
     private String loaiVe;
     private String loaiHK;
@@ -21,20 +21,20 @@ public class VeBan {
         this.maPhieuDatVe = a.maPhieuDatVe;
         this.maChuyenBay = a.maChuyenBay;
         this.maHK = a.maHK;
-        this.maHangGhe = a.maHangGhe;
+        this.maHangVe = a.maHangVe;
         this.loaiVe = a.loaiVe;
         this.loaiHK = a.loaiHK;
         this.giaVe = a.giaVe;
         this.trangThaiVe = a.trangThaiVe;
     }
 
-    public VeBan(String maVe, String maPhieuDatVe, String maChuyenBay, String maHK, String maHangGhe, String maGhe,
+    public VeBan(String maVe, String maPhieuDatVe, String maChuyenBay, String maHK, String maHangVe, String maGhe,
             String loaiVe, String loaiHK, BigDecimal giaVe, String trangThaiVe) {
         this.maVe = maVe;
         this.maPhieuDatVe = maPhieuDatVe;
         this.maChuyenBay = maChuyenBay;
         this.maHK = maHK;
-        this.maHangGhe = maHangGhe;
+        this.maHangVe = maHangVe;
         this.maGhe = maGhe;
         this.loaiVe = loaiVe;
         this.loaiHK = loaiHK;
@@ -46,7 +46,7 @@ public class VeBan {
     @Override
     public String toString() {
         return maVe + " " + maPhieuDatVe + " " + maChuyenBay + " "
-                + maHK + " " + maHangGhe + " " + maGhe + " " + loaiVe + " " + loaiHK
+                + maHK + " " + maHangVe + " " + maGhe + " " + loaiVe + " " + loaiHK
                 + " " + giaVe + " " + trangThaiVe;
     }
 
@@ -82,12 +82,12 @@ public class VeBan {
         this.maHK = maHK;
     }
 
-    public String getMaHangGhe() {
-        return maHangGhe;
+    public String getMaHangVe() {
+        return maHangVe;
     }
 
-    public void setMaHangGhe(String maHangGhe) {
-        this.maHangGhe = maHangGhe;
+    public void setMaHangVe(String maHangVe) {
+        this.maHangVe = maHangVe;
     }
 
     public String getMaGhe() {
