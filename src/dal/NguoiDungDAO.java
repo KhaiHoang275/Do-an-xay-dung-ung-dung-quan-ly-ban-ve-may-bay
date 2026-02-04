@@ -98,5 +98,17 @@ public class NguoiDungDAO {
             e.printStackTrace();
         }
         return null; // Trả về null nếu sai
+    } 
+
+    public boolean delete(String mand) {
+        String sql = "DELETE FROM NguoiDung WHERE maNguoiDung=?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, mand);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }
