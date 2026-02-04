@@ -1,49 +1,51 @@
 package model;
 
 public class HangVe {
-    private String ma_Hang_Ve;
-    private String ten_Hang;
-    private float he_So_Hang_Ve;
+    private String maHangVe;
+    private String tenHang;
+    private float heSoHangVe;
 
-    public HangVe(){}
-
-    public HangVe(String ma_Hang_Ve, String ten_Hang, float he_So_Hang_Ve) {
-        this.ma_Hang_Ve = ma_Hang_Ve;
-        this.ten_Hang = ten_Hang;
-        this.he_So_Hang_Ve = he_So_Hang_Ve;
+    public HangVe() {
     }
 
-    public HangVe(HangVe a) {
-        this.ma_Hang_Ve = a.ma_Hang_Ve;
-        this.ten_Hang = a.ten_Hang;
-        this.he_So_Hang_Ve = a.he_So_Hang_Ve;
+    public HangVe(String maHangVe, String tenHang, float heSoHangVe) {
+        this.maHangVe = maHangVe;
+        this.tenHang = tenHang;
+        this.heSoHangVe = heSoHangVe;
     }
 
-    public String getMa_Hang_Ve() {
-        return ma_Hang_Ve;
+    public HangVe(HangVe other) {
+        this.maHangVe = other.maHangVe;
+        this.tenHang = other.tenHang;
+        this.heSoHangVe = other.heSoHangVe;
     }
 
-    public void setMa_Hang_Ve(String ma_Hang_Ve) {
-        this.ma_Hang_Ve = ma_Hang_Ve;
+    public String getMaHangVe() {
+        return maHangVe;
     }
 
-    public String getTen_Hang() {
-        return ten_Hang;
+    public void setMaHangVe(String maHangVe) {
+        this.maHangVe = maHangVe;
     }
 
-    public void setTen_Hang(String ten_Hang) {
-        this.ten_Hang = ten_Hang;
+    public String getTenHang() {
+        return tenHang;
     }
 
-    public float getHe_So_Hang_Ve() {
-        return he_So_Hang_Ve;
+    public void setTenHang(String tenHang) {
+        this.tenHang = tenHang;
     }
 
-    public void setHe_So_Hang_Ve(float he_So_Hang_Ve) {
-        this.he_So_Hang_Ve = he_So_Hang_Ve;
+    public float getHeSoHangVe() {
+        return heSoHangVe;
     }
 
+    public void setHeSoHangVe(float heSoHangVe) {
+        this.heSoHangVe = heSoHangVe;
+    }
+
+    @Override
     public String toString() {
-        return ma_Hang_Ve + " " + ten_Hang + " " + he_So_Hang_Ve;
+        return maHangVe + " " + tenHang + " " + heSoHangVe;
     }
 }
