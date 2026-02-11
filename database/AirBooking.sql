@@ -216,7 +216,7 @@ CREATE TABLE GiaoDichVe (
     maGD VARCHAR(20) PRIMARY KEY,
     maVeMoi VARCHAR(20),
     maVeCu VARCHAR(20),
-    trangThai INT,
+    trangThai VARCHAR(30),
     phi DECIMAL(18, 2),
     phiChenhLech DECIMAL(18, 2), 
     lyDoDoi NVARCHAR(100),

@@ -23,9 +23,9 @@ public class GiaoDichVeDAO {
         try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)){
             // ket noi sql
             ps.setString(1, gd.getMaGD()); // gán chuỗi vào từng dấu ?
-            ps.setString(2, gd.getMaVeCu());
-            ps.setString(3, gd.getMaVeMoi());
-            ps.setInt(4, gd.getTrangThai().ordinal()); // gán enum cho INT
+            ps.setString(2, gd.getMaVeMoi());
+            ps.setString(3, gd.getMaVeCu());
+            ps.setString(4, gd.getTrangThai().name()); // gán enum
             ps.setBigDecimal(5, gd.getPhi());
             ps.setBigDecimal(6, gd.getPhiChenhLech());
             ps.setString(7, gd.getLyDo());
@@ -97,7 +97,7 @@ public class GiaoDichVeDAO {
         try(Connection conn = DBConnection.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql)){
 
-            ps.setInt(1, tt.ordinal());
+            ps.setString(1, tt.name());
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()){
@@ -154,8 +154,8 @@ public class GiaoDichVeDAO {
             // ve
             ps.setString(1, gd.getMaVeCu());
             ps.setString(2, gd.getMaVeMoi());
-            //enum -> int
-            ps.setInt(3, gd.getTrangThai().ordinal());
+            //enum
+            ps.setString(3, gd.getTrangThai().name());
             //BigDecimal
             ps.setBigDecimal(4, gd.getPhi());
             ps.setBigDecimal(5, gd.getPhiChenhLech());
@@ -191,7 +191,7 @@ public class GiaoDichVeDAO {
         gd.setMaGD(rs.getString("maGD"));
         gd.setMaVeCu(rs.getString("maVeCu"));
         gd.setMaVeMoi(rs.getString("maVeMoi"));
-        gd.setTrangThai(TrangThaiGiaoDich.fromInt(rs.getInt("trangThai")));
+        gd.setTrangThai(TrangThaiGiaoDich.valueOf(rs.getString("trangThai")));
         gd.setPhi(rs.getBigDecimal("phi"));
         gd.setPhiChenhLech(rs.getBigDecimal("phiChenhLech"));
         gd.setLyDo(rs.getString("lyDoDoi"));
