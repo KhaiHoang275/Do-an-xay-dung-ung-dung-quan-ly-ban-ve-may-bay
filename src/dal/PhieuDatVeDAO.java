@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import db.DBConnection;
-import model.PhieuDatVe;
+import entity.PhieuDatVe;
 
 public class PhieuDatVeDAO {
     public ArrayList<PhieuDatVe> selectAll(){

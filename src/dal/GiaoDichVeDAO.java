@@ -109,6 +109,82 @@ public class GiaoDichVeDAO {
         return list;
     }
 
+    public GiaoDichVe findById(String maGD){  // trả về 1 object mà maGD là khóa chính
+        String sql = "SELECT * FROM GiaoDichVe WHERE maGD = ?"; // ? là placeholder (tránh SQL Injection) Chỉ lấy bản ghi có maGD tương ứng
+
+        try (Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)){
+
+            ps.setString(1, maGD); // gán giá trị cho dấu ?, 1 là ? đầu tiên
+             try (ResultSet rs  = ps.executeQuery()){
+                 if(rs.next()) return mapResultSet(rs);
+             }
+             //executeQuery() dùng cho SELECT
+            //
+            //Trả về ResultSet
+            //
+            //ResultSet chứa bảng kết quả
+            //
+            //Lại dùng try-with-resources để tự đóng rs
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public boolean update(GiaoDichVe gd){
+        String sql = """
+                UPDATE GiaoDichVe
+                SET maVeCu = ?,
+                    maVeMoi = ?,
+                    trangThai = ?,
+                    phi = ?,
+                    phiChenhLech = ?,
+                    lyDoDoi = ?,
+                    ngayYeuCau = ?,
+                    ngayXuLi = ?
+                 WHERE maGD = ?
+               """;
+
+        try (Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)){
+
+
+            // ve
+            ps.setString(1, gd.getMaVeCu());
+            ps.setString(2, gd.getMaVeMoi());
+            //enum -> int
+            ps.setInt(3, gd.getTrangThai().ordinal());
+            //BigDecimal
+            ps.setBigDecimal(4, gd.getPhi());
+            ps.setBigDecimal(5, gd.getPhiChenhLech());
+            //lydo
+            ps.setString(6, gd.getLyDo());
+            //ngayyeucau
+            if(gd.getNgayYeuCau() != null){
+                ps.setDate(7, Date.valueOf(gd.getNgayYeuCau()));
+            }else {
+                ps.setNull(7, Types.DATE);
+            }
+            //ngay xu ly
+            if(gd.getNgayXuLi() != null){
+                ps.setDate(8, Date.valueOf(gd.getNgayXuLi()));
+            }else{
+                ps.setNull(8, Types.DATE);
+            }
+
+            //WHERE maGD = ?
+            ps.setString(9, gd.getMaGD());
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     private GiaoDichVe mapResultSet(ResultSet rs) throws SQLException{
         // chuyển 1 dòng dữ liệu sql thành 1 object java
         GiaoDichVe gd = new GiaoDichVe(); // tạo object rỗng
