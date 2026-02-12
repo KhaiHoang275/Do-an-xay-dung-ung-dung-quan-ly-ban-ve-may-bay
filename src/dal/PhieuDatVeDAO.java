@@ -91,4 +91,32 @@ public class PhieuDatVeDAO {
         }
         return false;
     }
+
+    public PhieuDatVe selectById(String maPhieuDatVe){
+        PhieuDatVe dv = null;
+        String sql = "SELECT * FROM PhieuDatVe WHERE maPhieuDatVe=?";
+        try (Connection con = DBConnection.getConnection();
+            PreparedStatement ps = con.prepareStatement(sql)){
+                ps.setString(1, maPhieuDatVe);
+                try (ResultSet rs = ps.executeQuery()){
+                    if(rs.next()){
+                        dv = new PhieuDatVe();
+                        dv.setMaPhieuDatVe(rs.getString("maPhieuDatVe"));
+                        dv.setMaNguoiDung(rs.getString("maNguoiDung"));
+                        dv.setMaNV(rs.getString("maNV"));
+                        dv.setMaKhuyenMai(rs.getString("maKhuyenMai"));
+                        dv.setThoiLuong(rs.getInt("thoiLuong"));
+                        if (rs.getDate("ngayDat") != null) {
+                            dv.setNgayDat(rs.getDate("ngayDat").toLocalDate());
+                        }
+                        dv.setSoLuongVe(rs.getInt("soLuongVe"));
+                        dv.setTongTien(rs.getBigDecimal("tongTien"));
+                        dv.setTrangThaiThanhToan(rs.getString("trangThaiThanhToan"));
+                    }
+                }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return dv;
+    }
 }

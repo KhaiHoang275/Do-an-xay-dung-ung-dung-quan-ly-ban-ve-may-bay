@@ -72,7 +72,7 @@ public class VeBanDAO {
                 ps.setString(9, vb.getTrangThaiVe());
                 ps.setString(10, vb.getMaVe());
 
-                return ps.executeUpdate() > 0;    
+                return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -89,5 +89,31 @@ public class VeBanDAO {
             e.printStackTrace();
         }
         return false;
+    }
+
+    VeBan selectById(String maVe){
+        String sql = "SELECT * FROM VeBan WHERE maVe=?";
+        try (Connection con = DBConnection.getConnection();
+            PreparedStatement ps = con.prepareStatement(sql)){
+                ps.setString(1, maVe);
+                var rs = ps.executeQuery();
+                if(rs.next()){
+                    VeBan vb = new VeBan();
+                    vb.setMaVe(rs.getString("maVe"));
+                    vb.setMaPhieuDatVe(rs.getString("maPhieuDatVe"));
+                    vb.setMaChuyenBay(rs.getString("maChuyenBay"));
+                    vb.setMaHK(rs.getString("maHK"));
+                    vb.setMaHangVe(rs.getString("maHangVe"));
+                    vb.setMaGhe(rs.getString("maGhe"));
+                    vb.setLoaiVe(rs.getString("loaiVe"));
+                    vb.setLoaiHK(rs.getString("loaiHK"));
+                    vb.setGiaVe(rs.getBigDecimal("giaVe"));
+                    vb.setTrangThaiVe(rs.getString("trangThaiVe"));
+                    return vb;
+                }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
