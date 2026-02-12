@@ -91,7 +91,7 @@ public class VeBanDAO {
         return false;
     }
 
-    VeBan selectById(String maVe){
+    public VeBan selectById(String maVe){
         String sql = "SELECT * FROM VeBan WHERE maVe=?";
         try (Connection con = DBConnection.getConnection();
             PreparedStatement ps = con.prepareStatement(sql)){
