@@ -1,15 +1,17 @@
 package entity;
 
+import java.math.BigDecimal;
+
 public class GheMayBay {
     private String maGhe;
     private String maMayBay;
     private String soGhe;
-    private double giaGhe;
+    private BigDecimal giaGhe;
 
     public GheMayBay() {
     }
 
-    public GheMayBay(String maGhe, String maMayBay, String soGhe, double giaGhe) {
+    public GheMayBay(String maGhe, String maMayBay, String soGhe, BigDecimal giaGhe) {
         this.maGhe = maGhe;
         this.maMayBay = maMayBay;
         this.soGhe = soGhe;
@@ -47,11 +49,11 @@ public class GheMayBay {
         this.soGhe = soGhe;
     }
 
-    public double getGiaGhe() {
+    public BigDecimal getGiaGhe() {
         return giaGhe;
     }
 
-    public void setGiaGhe(double giaGhe) {
+    public void setGiaGhe(BigDecimal giaGhe) {
         this.giaGhe = giaGhe;
     }
 
