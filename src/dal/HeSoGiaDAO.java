@@ -10,8 +10,7 @@ import model.HeSoGia;
 
 public class HeSoGiaDAO {
 
-    // 1. Lấy danh sách tất cả Hệ số giá
-    public ArrayList<HeSoGia> getAllHeSoGia() {
+    public ArrayList<HeSoGia> selectAll() {
         ArrayList<HeSoGia> list = new ArrayList<>();
         String sql = "SELECT * FROM HeSoGia";
         
@@ -22,11 +21,8 @@ public class HeSoGiaDAO {
             while (rs.next()) {
                 HeSoGia hsg = new HeSoGia();
                 hsg.setMaHeSoGia(rs.getString("MaHeSoGia"));
-                
-                // Sử dụng getFloat để khớp với Entity
                 hsg.setHeSo(rs.getFloat("HeSo"));
                 hsg.setSoGioDatTruoc(rs.getFloat("SoGioDatTruoc"));
-                
                 list.add(hsg);
             }
         } catch (Exception e) {
@@ -35,7 +31,6 @@ public class HeSoGiaDAO {
         return list;
     }
 
-    // 2. Tìm Hệ số giá theo Mã (ID)
     public HeSoGia selectById(String maHeSoGia) {
         String sql = "SELECT * FROM HeSoGia WHERE MaHeSoGia = ?";
         
@@ -59,8 +54,7 @@ public class HeSoGiaDAO {
         return null;
     }
 
-    // 3. Thêm Hệ số giá mới
-    public boolean insertHeSoGia(HeSoGia hsg) {
+    public boolean insert(HeSoGia hsg) {
         String sql = "INSERT INTO HeSoGia (MaHeSoGia, HeSo, SoGioDatTruoc) VALUES (?, ?, ?)";
         
         try (Connection conn = DBConnection.getConnection();
@@ -77,8 +71,7 @@ public class HeSoGiaDAO {
         return false;
     }
 
-    // 4. Cập nhật Hệ số giá
-    public boolean updateHeSoGia(HeSoGia hsg) {
+    public boolean update(HeSoGia hsg) {
         String sql = "UPDATE HeSoGia SET HeSo = ?, SoGioDatTruoc = ? WHERE MaHeSoGia = ?";
         
         try (Connection conn = DBConnection.getConnection();
@@ -95,8 +88,7 @@ public class HeSoGiaDAO {
         return false;
     }
 
-    // 5. Xóa Hệ số giá
-    public boolean deleteHeSoGia(String maHeSoGia) {
+    public boolean delete(String maHeSoGia) {
         String sql = "DELETE FROM HeSoGia WHERE MaHeSoGia = ?";
         
         try (Connection conn = DBConnection.getConnection();

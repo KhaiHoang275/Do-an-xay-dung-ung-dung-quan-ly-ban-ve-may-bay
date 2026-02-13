@@ -9,7 +9,7 @@ import db.DBConnection;
 import model.HangVe;
 
 public class HangVeDAO {
-    public ArrayList<HangVe> getAllHangVe() {
+    public ArrayList<HangVe> selectAll() {
         ArrayList<HangVe> list = new ArrayList<>();
         String sql = "SELECT * FROM HangVe";
         
@@ -21,9 +21,7 @@ public class HangVeDAO {
                 HangVe hv = new HangVe();
                 hv.setMaHangVe(rs.getString("MaHangVe"));
                 hv.setTenHang(rs.getString("TenHang"));
-                
                 hv.setHeSoHangVe(rs.getFloat("HeSoHangVe"));
-                
                 list.add(hv);
             }
         } catch (Exception e) {
@@ -55,7 +53,7 @@ public class HangVeDAO {
         return null;
     }
 
-    public boolean insertHangVe(HangVe hv) {
+    public boolean insert(HangVe hv) {
         String sql = "INSERT INTO HangVe (MaHangVe, TenHang, HeSoHangVe) VALUES (?, ?, ?)";
         
         try (Connection conn = DBConnection.getConnection();
@@ -72,7 +70,7 @@ public class HangVeDAO {
         return false;
     }
 
-    public boolean updateHangVe(HangVe hv) {
+    public boolean update(HangVe hv) {
         String sql = "UPDATE HangVe SET TenHang = ?, HeSoHangVe = ? WHERE MaHangVe = ?";
         
         try (Connection conn = DBConnection.getConnection();
@@ -89,7 +87,7 @@ public class HangVeDAO {
         return false;
     }
 
-    public boolean deleteHangVe(String maHangVe) {
+    public boolean delete(String maHangVe) {
         String sql = "DELETE FROM HangVe WHERE MaHangVe = ?";
         
         try (Connection conn = DBConnection.getConnection();
