@@ -8,11 +8,11 @@ public class ChuyenBay {
     private String maHeSoGia;
     private LocalDateTime ngayGioDi;
     private LocalDateTime ngayGioDen;
-    private boolean trangThai;
+    private TrangThaiChuyenBay trangThai;
 
     public ChuyenBay() {}
 
-    public ChuyenBay(String maChuyenBay, String maTuyenBay, String maMayBay, String maHeSoGia, LocalDateTime ngayGioDi, LocalDateTime ngayGioDen, boolean trangThai) {
+    public ChuyenBay(String maChuyenBay, String maTuyenBay, String maMayBay, String maHeSoGia, LocalDateTime ngayGioDi, LocalDateTime ngayGioDen, TrangThaiChuyenBay trangThai) {
         this.maChuyenBay = maChuyenBay;
         this.maTuyenBay = maTuyenBay;
         this.maMayBay = maMayBay;
@@ -76,15 +76,15 @@ public class ChuyenBay {
         return ngayGioDen;
     }
 
-    public void setNgayGioDen(LocalDateTime  ngayGioDen) {
+    public void setNgayGioDen(LocalDateTime ngayGioDen) {
         this.ngayGioDen = ngayGioDen;
     }
 
-    public boolean isTrangThai() {
+    public TrangThaiChuyenBay getTrangThai() {
         return trangThai;
     }
 
-    public void setTrangThai(boolean trangThai) {
+    public void setTrangThai(TrangThaiChuyenBay trangThai) {
         this.trangThai = trangThai;
     }
 

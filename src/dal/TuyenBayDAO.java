@@ -2,25 +2,25 @@ package dal;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.ArrayList;
-
 
 import db.DBConnection;
 import model.TuyenBay;
 
 public class TuyenBayDAO {
-    public ArrayList<TuyenBay> getAllTuyenBay() {
+    public ArrayList<TuyenBay> selectAll() {
         ArrayList<TuyenBay> list = new ArrayList<>();
         String sql = "SELECT * FROM TuyenBay";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
-             var rs = ps.executeQuery()) {
+             ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 TuyenBay tb = new TuyenBay();
                 tb.setMaTuyenBay(rs.getString("MaTuyenBay"));
                 tb.setSanBayDi(rs.getString("SanBayDi"));
                 tb.setSanBayDen(rs.getString("SanBayDen"));
-                tb.setKhoangCach(rs.getFloat("KhoangCach"));
+                tb.setKhoangCach(rs.getFloat("KhoangCachKM")); 
                 tb.setGiaGoc(rs.getBigDecimal("GiaGoc"));
                 list.add(tb);
             }
@@ -30,8 +30,8 @@ public class TuyenBayDAO {
         return list;
     }
 
-    public boolean insertTuyenBay(TuyenBay tb) {
-        String sql = "INSERT INTO TuyenBay (MaTuyenBay, SanBayDi, SanBayDen, KhoangCach, GiaGoc) VALUES (?, ?, ?, ?, ?)";
+    public boolean insert(TuyenBay tb) {
+        String sql = "INSERT INTO TuyenBay (MaTuyenBay, SanBayDi, SanBayDen, KhoangCachKM, GiaGoc) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, tb.getMaTuyenBay());
@@ -47,8 +47,8 @@ public class TuyenBayDAO {
         return false;
     }
 
-    public boolean updateTuyenBay(TuyenBay tb) {
-        String sql = "UPDATE TuyenBay SET SanBayDi = ?, SanBayDen = ?, KhoangCach = ?, GiaGoc = ? WHERE MaTuyenBay = ?";
+    public boolean update(TuyenBay tb) {
+        String sql = "UPDATE TuyenBay SET SanBayDi = ?, SanBayDen = ?, KhoangCachKM = ?, GiaGoc = ? WHERE MaTuyenBay = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, tb.getSanBayDi());
@@ -64,13 +64,52 @@ public class TuyenBayDAO {
         return false;
     }
 
-    public boolean deleteTuyenBay(String maTuyenBay) {
+    public boolean delete(String maTuyenBay) {
         String sql = "DELETE FROM TuyenBay WHERE MaTuyenBay = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, maTuyenBay);
 
             return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public TuyenBay selectById(String id) {
+        String sql = "SELECT * FROM TuyenBay WHERE MaTuyenBay = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    TuyenBay tb = new TuyenBay();
+                    tb.setMaTuyenBay(rs.getString("MaTuyenBay"));
+                    tb.setSanBayDi(rs.getString("SanBayDi"));
+                    tb.setSanBayDen(rs.getString("SanBayDen"));
+                    tb.setKhoangCach(rs.getFloat("KhoangCachKM"));
+                    tb.setGiaGoc(rs.getBigDecimal("GiaGoc"));
+                    return tb;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public boolean isRouteExists(String sanBayDi, String sanBayDen) {
+        String sql = "SELECT COUNT(*) FROM TuyenBay WHERE SanBayDi = ? AND SanBayDen = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, sanBayDi);
+            ps.setString(2, sanBayDen);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0; 
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
