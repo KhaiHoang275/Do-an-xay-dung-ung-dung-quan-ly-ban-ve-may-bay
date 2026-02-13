@@ -6,8 +6,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import db.DBConnection;
-import model.ChuyenBay;
-import model.TrangThaiChuyenBay;
+import entity.ChuyenBay;
+import entity.TrangThaiChuyenBay;
 
 public class ChuyenBayDAO {
 
