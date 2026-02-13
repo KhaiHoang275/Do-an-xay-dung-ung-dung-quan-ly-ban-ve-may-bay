@@ -1,7 +1,9 @@
 package bll;
 import dal.GiaoDichVeDAO;
 import dal.VeBanDAO;
+import dal.HangVeDAO;
 import entity.GiaoDichVe;
+import entity.HangVe;
 import entity.VeBan;
 import entity.TrangThaiGiaoDich;
 import db.DBConnection;
@@ -24,10 +26,12 @@ import java.util.List;
 public class GiaoDichVeBUS {
     private GiaoDichVeDAO giaoDichVeDAO;
     private VeBanDAO veBanDAO;
+    private HangVeDAO hangVeDAO;
 
     public GiaoDichVeBUS() {
         this.giaoDichVeDAO = new GiaoDichVeDAO();
         this.veBanDAO = new VeBanDAO();
+        this.hangVeDAO = new HangVeDAO();
     }
 
     private boolean kiemTraVeTonTai(String maVe) {
@@ -89,21 +93,11 @@ public class GiaoDichVeBUS {
         VeBan veCu = veBanDAO.selectById(maVeCu);
         if(veCu == null) return BigDecimal.ZERO;
 
-        String hangVe = veCu.getMaHangVe();
+        HangVe hv = hangVeDAO.selectById(veCu.getMaHangVe());
+        if(hv == null) return BigDecimal.ZERO;
 
-        // Tính phí
-        // Hạng cao hơn -> phí thấp hơn (ưu đãi khách VIP)
-        if(hangVe.contains("Hạng Nhất")){
-            return new BigDecimal("100000"); //100k
-        }else if(hangVe.contains("Hạng Thương Gia")){
-            return new BigDecimal("150000");
-        }else if(hangVe.contains("Hạng Phổ Thông Đặc Biệt")){
-            return new BigDecimal("200000");
-        }else if(hangVe.contains("Hạng Phổ Thông Linh Hoạt")){
-            return new BigDecimal("250000");
-        }else { // hang pho thong
-            return new BigDecimal("300000");
-        }
+        BigDecimal phiCoBan = new BigDecimal("100000");
+        return phiCoBan.multiply(BigDecimal.valueOf(hv.getHeSoHangVe()));
     }
 
     /**
@@ -362,5 +356,58 @@ public class GiaoDichVeBUS {
     //====================================
     // D.METHODS TRA CỨU & TIỆN ÍCH
     //====================================
+    /**
+     * Lấy tất cả giao dịch
+     * @return Danh sách tất cả giao dịch
+     */
+    public List<GiaoDichVe> getAllGiaoDich(){
+        return giaoDichVeDAO.findAll();
+    }
 
+    /**
+     * Lấy giao dịch theo mã
+     * @param maGD Mã giao dịch
+     * @return Đối tượng GiaoDichVe hoặc null
+     */
+    public GiaoDichVe getGiaoDichById(String maGD){
+        return giaoDichVeDAO.findById(maGD);
+    }
+
+    /**
+     * Lấy danh sách giao dịch theo mã vé cũ
+     * @param maVeCu Mã vé cũ
+     * @return Danh sách giao dịch
+     */
+    public List<GiaoDichVe> getGiaoDichByMaVeCu (String maVeCu){
+        return giaoDichVeDAO.findByMaVeCu(maVeCu);
+    }
+
+    /**
+     * Lấy danh sách giao dịch theo trạng thái
+     * @param trangThai Trạng thái cần lọc
+     * @return Danh sách giao dịch
+     */
+    public List<GiaoDichVe> getGiaoDichByTrangThai (TrangThaiGiaoDich trangThai){
+        List<GiaoDichVe> result = new ArrayList<>();
+        List<GiaoDichVe> all  = giaoDichVeDAO.findAll();
+
+        for (GiaoDichVe gd : all){
+            if(gd.getTrangThai() == trangThai){
+                result.add(gd);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Xóa giao dịch (chỉ cho phép xóa khi chưa thanh toán)
+     * @param maGD Mã giao dịch cần xóa
+     * @return true nếu xóa thành công
+     * @throws IllegalStateException nếu giao dịch đã hoàn thành
+     */
+    public boolean xoaGiaoDich(String maGD){
+        // kiem tra trang thai trc khi xoa
+        validateChuaHoanThanh(maGD);
+        return giaoDichVeDAO.delete(maGD);
+    }
 }

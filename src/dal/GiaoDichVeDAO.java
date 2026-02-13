@@ -185,6 +185,23 @@ public class GiaoDichVeDAO {
         return false;
     }
 
+    public boolean delete(String maGD) {
+        String sql = "DELETE FROM GiaoDichVe WHERE maGD = ?";
+
+        try(Connection con = DBConnection.getConnection();
+            PreparedStatement ps = con.prepareStatement(sql)){
+
+            ps.setString(1, maGD);
+            int rowAffected = ps.executeUpdate();
+
+            return rowAffected > 0; // =1: xoa thanh cong, =0: khong co mã đó
+
+        }catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     private GiaoDichVe mapResultSet(ResultSet rs) throws SQLException{
         // chuyển 1 dòng dữ liệu sql thành 1 object java
         GiaoDichVe gd = new GiaoDichVe(); // tạo object rỗng
