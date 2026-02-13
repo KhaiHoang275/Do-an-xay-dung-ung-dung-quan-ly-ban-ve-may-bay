@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 
+
 import db.DBConnection;
 import model.TuyenBay;
 
@@ -20,7 +21,7 @@ public class TuyenBayDAO {
                 tb.setSanBayDi(rs.getString("SanBayDi"));
                 tb.setSanBayDen(rs.getString("SanBayDen"));
                 tb.setKhoangCach(rs.getFloat("KhoangCach"));
-                tb.setGiaGoc(rs.getDouble("GiaGoc"));
+                tb.setGiaGoc(rs.getBigDecimal("GiaGoc"));
                 list.add(tb);
             }
         } catch (Exception e) {
@@ -37,7 +38,7 @@ public class TuyenBayDAO {
             ps.setString(2, tb.getSanBayDi());
             ps.setString(3, tb.getSanBayDen());
             ps.setFloat(4, tb.getKhoangCach());
-            ps.setDouble(5, tb.getGiaGoc());
+            ps.setBigDecimal(5, tb.getGiaGoc());
 
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
@@ -53,7 +54,7 @@ public class TuyenBayDAO {
             ps.setString(1, tb.getSanBayDi());
             ps.setString(2, tb.getSanBayDen());
             ps.setFloat(3, tb.getKhoangCach());
-            ps.setDouble(4, tb.getGiaGoc());
+            ps.setBigDecimal(4, tb.getGiaGoc());
             ps.setString(5, tb.getMaTuyenBay());
 
             return ps.executeUpdate() > 0;

@@ -1,17 +1,18 @@
 package model;
+import java.time.LocalDateTime;
 
 public class ChuyenBay {
     private String maChuyenBay;
     private String maTuyenBay;
     private String maMayBay;
     private String maHeSoGia;
-    private String ngayGioDi;
-    private String ngayGioDen;
+    private LocalDateTime ngayGioDi;
+    private LocalDateTime ngayGioDen;
     private boolean trangThai;
 
     public ChuyenBay() {}
 
-    public ChuyenBay(String maChuyenBay, String maTuyenBay, String maMayBay, String maHeSoGia, String ngayGioDi, String ngayGioDen, boolean trangThai) {
+    public ChuyenBay(String maChuyenBay, String maTuyenBay, String maMayBay, String maHeSoGia, LocalDateTime ngayGioDi, LocalDateTime ngayGioDen, boolean trangThai) {
         this.maChuyenBay = maChuyenBay;
         this.maTuyenBay = maTuyenBay;
         this.maMayBay = maMayBay;
@@ -63,19 +64,19 @@ public class ChuyenBay {
         this.maHeSoGia = maHeSoGia;
     }
 
-    public String getNgayGioDi() {
+    public LocalDateTime getNgayGioDi() {
         return ngayGioDi;
     }
 
-    public void setNgayGioDi(String ngayGioDi) {
+    public void setNgayGioDi(LocalDateTime ngayGioDi) {
         this.ngayGioDi = ngayGioDi;
     }
 
-    public String getNgayGioDen() {
+    public LocalDateTime getNgayGioDen() {
         return ngayGioDen;
     }
 
-    public void setNgayGioDen(String ngayGioDen) {
+    public void setNgayGioDen(LocalDateTime  ngayGioDen) {
         this.ngayGioDen = ngayGioDen;
     }
 
