@@ -6,7 +6,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 
 import db.DBConnection;
-import entity.TuyenBay;
+import model.TuyenBay;
 
 public class TuyenBayDAO {
     public ArrayList<TuyenBay> selectAll() {

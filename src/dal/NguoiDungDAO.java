@@ -1,6 +1,6 @@
 package dal;
 
-import entity.NguoiDung;
+import model.NguoiDung;
 import java.sql.*;
 import java.util.ArrayList; 
 import db.*; 

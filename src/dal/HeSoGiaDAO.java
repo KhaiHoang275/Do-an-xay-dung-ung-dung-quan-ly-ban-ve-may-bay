@@ -6,7 +6,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 
 import db.DBConnection;
-import entity.HeSoGia;
+import model.HeSoGia;
 
 public class HeSoGiaDAO {
 

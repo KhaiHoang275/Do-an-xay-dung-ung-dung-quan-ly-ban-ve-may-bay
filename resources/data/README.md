@@ -4,7 +4,7 @@
 # Data Excel cho AirlineBookingSystem
 
 - data.xlsx: mock database
-- Mỗi sheet = 1 entity
+- Mỗi sheet = 1 model
 - Dòng 1 là header
 - Không đổi tên cột nếu chưa thống nhất nhóm
 

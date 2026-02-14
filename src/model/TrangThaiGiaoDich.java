@@ -1,4 +1,4 @@
-package entity;
+package model;
 
 public enum TrangThaiGiaoDich {
     CHO_XU_LY,  //0 - vua tao yeu cau

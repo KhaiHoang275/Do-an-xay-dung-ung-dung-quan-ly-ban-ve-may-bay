@@ -6,7 +6,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 
 import db.DBConnection;
-import entity.ThongTinHanhKhach;
+import model.ThongTinHanhKhach;
 
 public class ThongTinHanhKhachDAO {
     public ArrayList<ThongTinHanhKhach> selectAll(){

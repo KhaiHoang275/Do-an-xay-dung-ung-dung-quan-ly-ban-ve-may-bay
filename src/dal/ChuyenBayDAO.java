@@ -2,12 +2,11 @@ package dal;
 
 import java.sql.*;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import db.DBConnection;
-import entity.ChuyenBay;
-import entity.TrangThaiChuyenBay;
+import model.ChuyenBay;
+import model.TrangThaiChuyenBay;
 
 public class ChuyenBayDAO {
 

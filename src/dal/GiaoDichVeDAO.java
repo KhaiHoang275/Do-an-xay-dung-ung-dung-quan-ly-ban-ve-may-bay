@@ -1,14 +1,11 @@
 package dal;
-import entity.GiaoDichVe;
-import entity.TrangThaiGiaoDich;
+import model.GiaoDichVe;
+import model.TrangThaiGiaoDich;
 import db.DBConnection;
 
-import javax.swing.*;
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.math.BigDecimal;
 
 public class GiaoDichVeDAO {
     // === insert ===  : lưu 1 một giao dịch vé mới vào database (sql)

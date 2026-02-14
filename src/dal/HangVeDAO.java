@@ -6,7 +6,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 
 import db.DBConnection;
-import entity.HangVe;
+import model.HangVe;
 
 public class HangVeDAO {
     public ArrayList<HangVe> selectAll() {

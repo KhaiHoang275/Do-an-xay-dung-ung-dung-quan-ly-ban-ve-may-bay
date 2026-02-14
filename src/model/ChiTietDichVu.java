@@ -1,4 +1,4 @@
-package entity;
+package model;
 import java.math.BigDecimal;
 
 public class ChiTietDichVu {

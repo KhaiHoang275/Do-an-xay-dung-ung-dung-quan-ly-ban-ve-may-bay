@@ -5,7 +5,7 @@ import java.sql.PreparedStatement;
 import java.util.ArrayList;
 
 import db.DBConnection;
-import entity.VeBan;
+import model.VeBan;
 
 public class VeBanDAO {
     public ArrayList<VeBan> selectAll(){
