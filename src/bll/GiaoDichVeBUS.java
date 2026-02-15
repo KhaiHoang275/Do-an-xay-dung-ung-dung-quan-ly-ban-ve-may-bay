@@ -47,7 +47,7 @@ public class GiaoDichVeBUS {
     }
 
     private boolean validateVeMoiTonTai(String maVeMoi) {
-        if (kiemTraVeTonTai(maVeMoi)) {
+        if (!kiemTraVeTonTai(maVeMoi)) {
             throw new IllegalArgumentException("Vé mới không tồn tại trong hệ thống!");
         }
         return true;

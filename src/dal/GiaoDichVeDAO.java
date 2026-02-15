@@ -214,7 +214,7 @@ public class GiaoDichVeDAO {
         if(ngayYC != null)
             gd.setNgayYeuCau(ngayYC.toLocalDate());
 
-        Date ngayXL = rs.getDate("ngayXuLy");
+        Date ngayXL = rs.getDate("ngayXuLi");
         if(ngayXL != null)
             gd.setNgayXuLi(ngayXL.toLocalDate());
 
