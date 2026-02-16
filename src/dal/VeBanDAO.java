@@ -1,5 +1,6 @@
 package dal;
 
+import java.sql.Timestamp;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -187,5 +188,14 @@ public class VeBanDAO {
         return 0;
     }
 
-    
+    public Timestamp getThoiGianKhoiHanh(Connection conn, String maCB) throws SQLException {
+        String sql = "SELECT ThoiGianKhoiHanh FROM ChuyenBay WHERE MaChuyenBay = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maCB);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next())
+                return rs.getTimestamp(1);
+        }
+        return null;
+    }
 }
