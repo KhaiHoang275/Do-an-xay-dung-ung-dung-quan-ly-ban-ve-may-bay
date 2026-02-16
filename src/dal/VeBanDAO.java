@@ -209,4 +209,33 @@ public class VeBanDAO {
         }
         return false;
     }
+
+     public boolean checkSeatAvailable(String maChuyenBay, String maGhe) {
+
+        String sql = """
+                SELECT COUNT(*) 
+                FROM VeBan 
+                WHERE MaChuyenBay = ? 
+                AND MaGhe = ? 
+                AND TrangThai <> 'HUY'
+                """;
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, maChuyenBay);
+            ps.setString(2, maGhe);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1) == 0;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
 }
