@@ -2,6 +2,8 @@ package dal;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import db.DBConnection;
@@ -115,5 +117,52 @@ public class VeBanDAO {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public boolean checkAvailable(String maChuyenBay, String maGhe){
+        String sql = """
+                SELECT COUNT(*)
+                FROM VeBan
+                WHERE MaChuyenBay = ?
+                AND MaGhe = ?
+                AND TrangThaiVe <> 'Đã hủy'
+                """;
+
+        try (Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)){
+                ps.setString(1, maChuyenBay);
+                ps.setString(2, maGhe);
+
+                ResultSet rs = ps.executeQuery();
+                if(rs.next()){
+                    return rs.getInt(1) == 0;
+                }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean updateTrangThai(Connection conn, String maVe, String trangThai) throws SQLException{
+        String sql = "UPDATE VeBan SET TrangThaiVe = ? WHERE MaVe = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, trangThai);
+            ps.setString(2, maVe);
+
+            return ps.executeUpdate() > 0;
+        }
+    } 
+
+    public boolean truSoGhe(Connection conn, String maChuyenBay) throws SQLException {
+        String sql = """
+                UPDATE ChuyenBay 
+                SET SoGheTrong = SoGheTrong - 1
+                WHERE MaChuyenBay = ? AND SoGheTrong > 0
+                """;
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maChuyenBay);
+            return ps.executeUpdate() > 0;
+        }
     }
 }
