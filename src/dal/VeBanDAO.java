@@ -153,15 +153,11 @@ public class VeBanDAO {
         }
     } 
 
-    public boolean truSoGhe(Connection conn, String maChuyenBay) throws SQLException {
-        String sql = """
-                UPDATE ChuyenBay 
-                SET SoGheTrong = SoGheTrong - 1
-                WHERE MaChuyenBay = ? AND SoGheTrong > 0
-                """;
-
+    public boolean updateSoGheCon(Connection conn, String maCB, int soGheMoi) throws SQLException {
+        String sql = "UPDATE ChuyenBay SET SoGheCon = ? WHERE MaChuyenBay = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, maChuyenBay);
+            ps.setInt(1, soGheMoi);
+            ps.setString(2, maCB);
             return ps.executeUpdate() > 0;
         }
     }
