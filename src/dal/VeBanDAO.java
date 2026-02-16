@@ -165,4 +165,18 @@ public class VeBanDAO {
             return ps.executeUpdate() > 0;
         }
     }
+
+    public String generateMaVe(Connection conn) throws SQLException {
+        String sql = "SELECT MAX(MaVe) FROM VeBan";
+        try (PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next() && rs.getString(1) != null) {
+                String last = rs.getString(1).substring(2);
+                int num = Integer.parseInt(last) + 1;
+                return String.format("VB%03d", num);
+            }
+        }
+        return "VB001";
+    }
 }
