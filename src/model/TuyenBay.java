@@ -66,7 +66,7 @@ public class TuyenBay {
 
     public void setGiaGoc(BigDecimal giaGoc) {
         this.giaGoc = giaGoc;
-    } 
+    }
 
     public String toString() {
         return maTuyenBay + " "+ sanBayDi + " " + sanBayDen

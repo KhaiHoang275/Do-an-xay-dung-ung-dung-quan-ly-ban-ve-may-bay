@@ -10,7 +10,8 @@ public class ChuyenBay {
     private LocalDateTime ngayGioDen;
     private TrangThaiChuyenBay trangThai;
 
-    public ChuyenBay() {}
+    public ChuyenBay() {
+    }
 
     public ChuyenBay(String maChuyenBay, String maTuyenBay, String maMayBay, String maHeSoGia, LocalDateTime ngayGioDi, LocalDateTime ngayGioDen, TrangThaiChuyenBay trangThai) {
         this.maChuyenBay = maChuyenBay;
