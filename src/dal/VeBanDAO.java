@@ -175,4 +175,17 @@ public class VeBanDAO {
         }
         return "VB001";
     }
+
+    public int getSoGheCon(Connection conn, String maCB) throws SQLException {
+        String sql = "SELECT SoGheCon FROM ChuyenBay WHERE MaChuyenBay = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maCB);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next())
+                return rs.getInt(1);
+        }
+        return 0;
+    }
+
+    
 }
