@@ -60,4 +60,45 @@ public class VeBanBUS {
             if(conn != null) conn.close();
         }
     }
+
+    public boolean huyVe(String maVe) throws Exception{
+        if(maVe == null || maVe.isEmpty()) throw new Exception("Mã vé không hợp lệ!");
+
+        Connection conn = null;
+
+        try {
+            conn = DBConnection.getConnection();
+            conn.setAutoCommit(false);
+
+            VeBan vb = dao.selectById(maVe);
+            if(vb == null) throw new Exception("Vé không tồn tại!");
+
+            if("Đã hủy".equalsIgnoreCase(vb.getTrangThaiVe())) throw new Exception("Vé đã được hủy từ trước!");
+            
+            Timestamp tg = dao.getThoiGianKhoiHanh(conn, vb.getMaChuyenBay());
+            if(tg.toLocalDateTime().isBefore(LocalDateTime.now())) throw new Exception("Chuyến bay đã khởi hành, không thể hủy!");
+
+            boolean updated = dao.updateTrangThai(conn, maVe, "Đã hủy");
+            if(!updated){
+                conn.rollback();
+                return false;
+            }
+
+            int soGheCon = dao.getSoGheCon(conn, vb.getMaChuyenBay());
+            boolean updatedGhe = dao.updateSoGheCon(conn, vb.getMaChuyenBay(), soGheCon+1);
+
+            if(!updatedGhe){
+                conn.rollback();
+                return false;
+            }
+
+            conn.commit();
+            return true;
+        } catch (Exception e) {
+            if(conn != null) conn.rollback();
+            throw e;
+        } finally{
+            if(conn != null) conn.close();
+        }
+    }
 }
