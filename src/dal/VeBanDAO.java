@@ -198,4 +198,15 @@ public class VeBanDAO {
         }
         return null;
     }
+
+    public boolean chuyenBayExists(Connection conn, String maCB) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM ChuyenBay WHERE MaChuyenBay = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maCB);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next())
+                return rs.getInt(1) > 0;
+        }
+        return false;
+    }
 }
