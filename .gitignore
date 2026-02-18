@@ -16,3 +16,6 @@ Thumbs.db
 # Excel temp files
 ~$*.xlsx
 
+/nbproject/private/
+/build/
+/dist/
