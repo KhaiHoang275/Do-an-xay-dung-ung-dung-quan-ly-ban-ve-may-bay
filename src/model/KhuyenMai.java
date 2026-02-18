@@ -1,99 +1,119 @@
 package model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class KhuyenMai {
-    private String maKM;
-    private String tenKM;
-    private String loaiKM;
-    private double giaTri;
-    private LocalDate ngayBatDau;
-    private LocalDate ngayKetThuc;
-    private boolean trangThai;
 
+    private String maKhuyenMai;
+    private String tenKM;
+    private String moTa;
+
+    private String loaiKM;        //  → 'PHAN_TRAM', 'TIEN_CO_DINH'
+    private double giaTri;
+    private double donHangToiThieu;
+
+    private int soLuongTong;
+    private int soLuongDaDung;
+
+    private LocalDate ngayBD;      // cũ là ngayBD
+    private LocalDate ngayKT;     // cũ là ngayKT
+
+    private boolean apDungChoTatCa;
+    private String loaiKhachApDung;    // chuỗi phân cách bằng dấu phẩy
+
+    private int gioiHanMoiKhach;
+
+    private boolean trangThai;         // cũ có sẵn
+    private String nguoiTao;
+    private LocalDateTime ngayTao;
+
+    // Constructor mặc định
     public KhuyenMai() {}
 
-    public KhuyenMai(String maKM, String tenKM, String loaiKM,
-                     double giaTri, LocalDate ngayBatDau,
-                     LocalDate ngayKetThuc, boolean trangThai) {
-        this.maKM = maKM;
-        this.tenKM = tenKM;
-        this.loaiKM = loaiKM;
-        this.giaTri = giaTri;
-        this.ngayBatDau = ngayBatDau;
-        this.ngayKetThuc = ngayKetThuc;
-        this.trangThai = trangThai;
+    // Constructor đầy đủ (bạn tự thêm nếu cần)
+
+    // Getters & Setters (copy-paste từ đây)
+    public String getMaKhuyenMai() { return maKhuyenMai; }
+    public void setMaKhuyenMai(String maKhuyenMai) { this.maKhuyenMai = maKhuyenMai; }
+
+    public String getTenKhuyenMai() { return tenKM; }
+    public void setTenKhuyenMai(String tenKhuyenMai) { this.tenKM = tenKhuyenMai; }
+
+    public String getMoTa() { return moTa; }
+    public void setMoTa(String moTa) { this.moTa = moTa; }
+
+    public String getLoaiGiamGia() { return loaiKM; }
+    public void setLoaiGiamGia(String loaiKM) { this.loaiKM = loaiKM; }
+
+    public double getGiaTri() { return giaTri; }
+    public void setGiaTri(double giaTri) { this.giaTri = giaTri; }
+
+    public double getDonHangToiThieu() { return donHangToiThieu; }
+    public void setDonHangToiThieu(double donHangToiThieu) { this.donHangToiThieu = donHangToiThieu; }
+
+    public int getSoLuongTong() { return soLuongTong; }
+    public void setSoLuongTong(int soLuongTong) { this.soLuongTong = soLuongTong; }
+
+    public int getSoLuongDaDung() { return soLuongDaDung; }
+    public void setSoLuongDaDung(int soLuongDaDung) { this.soLuongDaDung = soLuongDaDung; }
+
+    public LocalDate getNgayBatDau() { return ngayBD; }
+    public void setNgayBatDau(LocalDate ngayBatDau) { this.ngayBD = ngayBatDau; }
+
+    public LocalDate getNgayKetThuc() { return ngayKT; }
+    public void setNgayKetThuc(LocalDate ngayKetThuc) { this.ngayKT = ngayKetThuc; }
+
+    public boolean isApDungChoTatCa() { return apDungChoTatCa; }
+    public void setApDungChoTatCa(boolean apDungChoTatCa) { this.apDungChoTatCa = apDungChoTatCa; }
+
+    public String getLoaiKhachApDung() { return loaiKhachApDung; }
+    public void setLoaiKhachApDung(String loaiKhachApDung) { this.loaiKhachApDung = loaiKhachApDung; }
+
+    public int getGioiHanMoiKhach() { return gioiHanMoiKhach; }
+    public void setGioiHanMoiKhach(int gioiHanMoiKhach) { this.gioiHanMoiKhach = gioiHanMoiKhach; }
+
+    public boolean isTrangThai() { return trangThai; }
+    public void setTrangThai(boolean trangThai) { this.trangThai = trangThai; }
+
+    public String getNguoiTao() { return nguoiTao; }
+    public void setNguoiTao(String nguoiTao) { this.nguoiTao = nguoiTao; }
+
+    public LocalDateTime getNgayTao() { return ngayTao; }
+    public void setNgayTao(LocalDateTime ngayTao) { this.ngayTao = ngayTao; }
+
+    // ────────────────────────────────────────────────
+    // Các method hỗ trợ logic
+    // ────────────────────────────────────────────────
+
+    public boolean isActive() {
+        LocalDate now = LocalDate.now();
+        return trangThai &&
+                now.isAfter(ngayBD.minusDays(1)) &&
+                now.isBefore(ngayKT.plusDays(1)) &&
+                (soLuongTong - soLuongDaDung > 0);
     }
 
-    public KhuyenMai(KhuyenMai km){
-        this.maKM = km.maKM;
-        this.tenKM = km.tenKM;
-        this.loaiKM = km.loaiKM;
-        this.giaTri = km.giaTri;
-        this.ngayBatDau = km.ngayBatDau;
-        this.ngayKetThuc = km.ngayKetThuc;
-        this.trangThai = km.trangThai;
+    public boolean isEligibleForCustomer(String loaiKhachHang) {
+        if (apDungChoTatCa) return true;
+        if (loaiKhachApDung == null || loaiKhachApDung.trim().isEmpty()) return false;
+
+        String[] allowedTypes = loaiKhachApDung.split(",");
+        for (String type : allowedTypes) {
+            if (type.trim().equalsIgnoreCase(loaiKhachHang)) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    public String getMaKM() {
-        return maKM;
-    }
-
-    public void setMaKM(String maKM) {
-        this.maKM = maKM;
-    }
-
-    public String getTenKM() {
-        return tenKM;
-    }
-
-    public void setTenKM(String tenKM) {
-        this.tenKM = tenKM;
-    }
-
-    public String getLoaiKM() {
-        return loaiKM;
-    }
-
-    public void setLoaiKM(String loaiKM) {
-        this.loaiKM = loaiKM;
-    }
-
-    public double getGiaTri() {
-        return giaTri;
-    }
-
-    public void setGiaTri(double giaTri) {
-        this.giaTri = giaTri;
-    }
-
-    public LocalDate getNgayBatDau() {
-        return ngayBatDau;
-    }
-
-    public void setNgayBatDau(LocalDate ngayBatDau) {
-        this.ngayBatDau = ngayBatDau;
-    }
-
-    public LocalDate getNgayKetThuc() {
-        return ngayKetThuc;
-    }
-
-    public void setNgayKetThuc(LocalDate ngayKetThuc) {
-        this.ngayKetThuc = ngayKetThuc;
-    }
-
-    public boolean isTrangThai() {
-        return trangThai;
-    }
-
-    public void setTrangThai(boolean trangThai) {
-        this.trangThai = trangThai;
-    }
-
+    @Override
     public String toString() {
-        return maKM + " " + tenKM + " " + loaiKM + " " +
-                giaTri + " " + ngayBatDau + " " +
-                ngayKetThuc + " " + trangThai;
+        return "KhuyenMai{" +
+                "maKhuyenMai='" + maKhuyenMai + '\'' +
+                ", tenKhuyenMai='" + tenKM + '\'' +
+                ", loaiKM='" + loaiKM + '\'' +
+                ", giaTri=" + giaTri +
+                '}';
     }
 }
