@@ -1,5 +1,6 @@
 package model;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -10,8 +11,8 @@ public class KhuyenMai {
     private String moTa;
 
     private String loaiKM;        //  → 'PHAN_TRAM', 'TIEN_CO_DINH'
-    private double giaTri;
-    private double donHangToiThieu;
+    private BigDecimal giaTri;
+    private BigDecimal donHangToiThieu;
 
     private int soLuongTong;
     private int soLuongDaDung;
@@ -37,20 +38,20 @@ public class KhuyenMai {
     public String getMaKhuyenMai() { return maKhuyenMai; }
     public void setMaKhuyenMai(String maKhuyenMai) { this.maKhuyenMai = maKhuyenMai; }
 
-    public String getTenKhuyenMai() { return tenKM; }
-    public void setTenKhuyenMai(String tenKhuyenMai) { this.tenKM = tenKhuyenMai; }
+    public String getTenKM() { return tenKM; }
+    public void setTenKM(String tenKhuyenMai) { this.tenKM = tenKhuyenMai; }
 
     public String getMoTa() { return moTa; }
     public void setMoTa(String moTa) { this.moTa = moTa; }
 
-    public String getLoaiGiamGia() { return loaiKM; }
-    public void setLoaiGiamGia(String loaiKM) { this.loaiKM = loaiKM; }
+    public String getLoaiKM() { return loaiKM; }
+    public void setLoaiKM(String loaiKM) { this.loaiKM = loaiKM; }
 
-    public double getGiaTri() { return giaTri; }
-    public void setGiaTri(double giaTri) { this.giaTri = giaTri; }
+    public BigDecimal getGiaTri() { return this.giaTri; }
+    public void setGiaTri(BigDecimal giaTri) { this.giaTri = giaTri; }
 
-    public double getDonHangToiThieu() { return donHangToiThieu; }
-    public void setDonHangToiThieu(double donHangToiThieu) { this.donHangToiThieu = donHangToiThieu; }
+    public BigDecimal getDonHangToiThieu() { return donHangToiThieu; }
+    public void setDonHangToiThieu(BigDecimal donHangToiThieu) { this.donHangToiThieu = donHangToiThieu; }
 
     public int getSoLuongTong() { return soLuongTong; }
     public void setSoLuongTong(int soLuongTong) { this.soLuongTong = soLuongTong; }
@@ -58,11 +59,11 @@ public class KhuyenMai {
     public int getSoLuongDaDung() { return soLuongDaDung; }
     public void setSoLuongDaDung(int soLuongDaDung) { this.soLuongDaDung = soLuongDaDung; }
 
-    public LocalDate getNgayBatDau() { return ngayBD; }
-    public void setNgayBatDau(LocalDate ngayBatDau) { this.ngayBD = ngayBatDau; }
+    public LocalDate getNgayBD() { return ngayBD; }
+    public void setNgayBD(LocalDate ngayBatDau) { this.ngayBD = ngayBatDau; }
 
-    public LocalDate getNgayKetThuc() { return ngayKT; }
-    public void setNgayKetThuc(LocalDate ngayKetThuc) { this.ngayKT = ngayKetThuc; }
+    public LocalDate getNgayKT() { return ngayKT; }
+    public void setNgayKT(LocalDate ngayKetThuc) { this.ngayKT = ngayKetThuc; }
 
     public boolean isApDungChoTatCa() { return apDungChoTatCa; }
     public void setApDungChoTatCa(boolean apDungChoTatCa) { this.apDungChoTatCa = apDungChoTatCa; }
