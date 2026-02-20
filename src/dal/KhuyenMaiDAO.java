@@ -33,7 +33,7 @@ public class KhuyenMaiDAO {
     }
 
     public KhuyenMai getById(String maKhuyenMai){
-        String sql = "SELECT * FROM KhuyenMai WHERE maKHuyenMai = ?";
+        String sql = "SELECT * FROM KhuyenMai WHERE maKhuyenMai = ?";
         KhuyenMai km = null;
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)){
@@ -163,9 +163,9 @@ public class KhuyenMaiDAO {
     public List<KhuyenMai> getKhuyenMaiDangHoatDong(){
         List<KhuyenMai> list = new ArrayList<>();
         LocalDate hienTai = LocalDate.now();
-        String sql = "SELECT * FROM KhuyenMai WHERE trangThai = 1" +
-                "AND ngayBD <= ? AND ngayKT >= ?" +
-                "soLuongDaDung < soLuongTong";
+        String sql = "SELECT * FROM KhuyenMai WHERE trangThai = 1 " +
+                "AND ngayBD <= ? AND ngayKT >= ? " +
+                "AND soLuongDaDung < soLuongTong";
         try(Connection conn = DBConnection.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql)){
             ps.setDate(1, Date.valueOf(hienTai));
@@ -221,7 +221,7 @@ public class KhuyenMaiDAO {
      */
     private boolean isLoaiKhachHopLe(String loaiKhachApDung, String loaiHanhKhach){
         if(loaiKhachApDung == null || loaiKhachApDung.trim().isEmpty()) return false;
-        String[] ds = loaiHanhKhach.split(",");
+        String[] ds = loaiKhachApDung.split(",");
         for(String loai : ds){
             if(loai.trim().equalsIgnoreCase(loaiHanhKhach)) return true;
         }

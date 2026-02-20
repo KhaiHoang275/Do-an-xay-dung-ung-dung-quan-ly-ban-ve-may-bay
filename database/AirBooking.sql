@@ -61,7 +61,7 @@ CREATE TABLE KhuyenMai (
     soLuongDaDung INT DEFAULT 0,
     apDungChoTatCa BIT DEFAULT 1,
     loaiKhachApDung VARCHAR(100) NULL,
-    gioiHangMoiKhach INT DEFAULT 1,
+    gioiHanMoiKhach INT DEFAULT 1,
     trangThai BIT DEFAULT 1,
     nguoiTao VARCHAR(20) NULL,
     ngayTao DATETIME DEFAULT GETDATE,
@@ -234,5 +234,31 @@ CREATE TABLE GiaoDichVe (
     ngayXuLi DATETIME,
     FOREIGN KEY (maVeMoi) REFERENCES VeBan(maVe),
     FOREIGN KEY (maVeCu) REFERENCES VeBan(maVe)
+);
+
+CREATE TABLE SuDungKhuyenMai (
+    id VARCHAR(20) PRIMARY KEY,                  -- SDKM0001
+
+    maKhuyenMai VARCHAR(20) NOT NULL,            -- FK -> KhuyenMai
+    maHanhKhach VARCHAR(20) NOT NULL,            -- FK -> HanhKhach
+
+    maGiaoDichVe VARCHAR(20) NULL,               -- dùng khi đổi vé
+    maPhieuDatVe VARCHAR(20) NULL,               -- dùng khi đặt vé
+
+    ngaySuDung DATETIME NOT NULL DEFAULT GETDATE(),
+
+    giaTriGiamThucTe DECIMAL(18,2) NOT NULL,     -- số tiền giảm thực tế
+
+    CONSTRAINT FK_SDKM_KhuyenMai
+        FOREIGN KEY (maKhuyenMai) REFERENCES KhuyenMai(maKhuyenMai),
+
+    CONSTRAINT FK_SDKM_HanhKhach
+        FOREIGN KEY (maHanhKhach) REFERENCES HanhKhach(maHanhKhach),
+
+    CONSTRAINT FK_SDKM_GiaoDichVe
+        FOREIGN KEY (maGiaoDichVe) REFERENCES GiaoDichVe(maGiaoDichVe),
+
+    CONSTRAINT FK_SDKM_PhieuDatVe
+        FOREIGN KEY (maPhieuDatVe) REFERENCES PhieuDatVe(maPhieuDatVe)
 );
 GO
