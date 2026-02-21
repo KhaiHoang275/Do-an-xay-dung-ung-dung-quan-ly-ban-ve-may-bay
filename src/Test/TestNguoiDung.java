@@ -2,7 +2,6 @@
 import dal.*;
 import model.NguoiDung;
 import java.util.ArrayList;
-import java.time.LocalDate;
 
 public class TestNguoiDung {
     public static void main(String[] args) {
