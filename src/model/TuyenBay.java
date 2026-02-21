@@ -1,16 +1,18 @@
 package model;
 
+import java.math.BigDecimal;
+
 public class TuyenBay {
     private String maTuyenBay;
     private String sanBayDi;
     private String sanBayDen;
     private float khoangCach;
-    private double giaGoc;
+    private BigDecimal giaGoc;
 
     public TuyenBay() {
     }
 
-    public TuyenBay(String maTuyenBay, String sanBayDi, String sanBayDen, float khoangCach, double giaGoc) {
+    public TuyenBay(String maTuyenBay, String sanBayDi, String sanBayDen, float khoangCach, BigDecimal giaGoc) {
         this.maTuyenBay = maTuyenBay;
         this.sanBayDi = sanBayDi;
         this.sanBayDen = sanBayDen;
@@ -58,13 +60,13 @@ public class TuyenBay {
         this.khoangCach = khoangCach;
     }
 
-    public double getGiaGoc() {
+    public BigDecimal getGiaGoc() {
         return giaGoc;
     }
 
-    public void setGiaGoc(double giaGoc) {
+    public void setGiaGoc(BigDecimal giaGoc) {
         this.giaGoc = giaGoc;
-    } 
+    }
 
     public String toString() {
         return maTuyenBay + " "+ sanBayDi + " " + sanBayDen

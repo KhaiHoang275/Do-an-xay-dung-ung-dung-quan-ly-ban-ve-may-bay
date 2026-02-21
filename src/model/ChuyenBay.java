@@ -1,17 +1,19 @@
 package model;
+import java.time.LocalDateTime;
 
 public class ChuyenBay {
     private String maChuyenBay;
     private String maTuyenBay;
     private String maMayBay;
     private String maHeSoGia;
-    private String ngayGioDi;
-    private String ngayGioDen;
-    private boolean trangThai;
+    private LocalDateTime ngayGioDi;
+    private LocalDateTime ngayGioDen;
+    private TrangThaiChuyenBay trangThai;
 
-    public ChuyenBay() {}
+    public ChuyenBay() {
+    }
 
-    public ChuyenBay(String maChuyenBay, String maTuyenBay, String maMayBay, String maHeSoGia, String ngayGioDi, String ngayGioDen, boolean trangThai) {
+    public ChuyenBay(String maChuyenBay, String maTuyenBay, String maMayBay, String maHeSoGia, LocalDateTime ngayGioDi, LocalDateTime ngayGioDen, TrangThaiChuyenBay trangThai) {
         this.maChuyenBay = maChuyenBay;
         this.maTuyenBay = maTuyenBay;
         this.maMayBay = maMayBay;
@@ -63,27 +65,32 @@ public class ChuyenBay {
         this.maHeSoGia = maHeSoGia;
     }
 
-    public String getNgayGioDi() {
+    public LocalDateTime getNgayGioDi() {
         return ngayGioDi;
     }
 
-    public void setNgayGioDi(String ngayGioDi) {
+    public void setNgayGioDi(LocalDateTime ngayGioDi) {
         this.ngayGioDi = ngayGioDi;
     }
 
-    public String getNgayGioDen() {
+    public LocalDateTime getNgayGioDen() {
         return ngayGioDen;
     }
 
-    public void setNgayGioDen(String ngayGioDen) {
+    public void setNgayGioDen(LocalDateTime ngayGioDen) {
         this.ngayGioDen = ngayGioDen;
     }
 
-    public boolean isTrangThai() {
+    public TrangThaiChuyenBay getTrangThai() {
         return trangThai;
     }
 
-    public void setTrangThai(boolean trangThai) {
+    public void setTrangThai(TrangThaiChuyenBay trangThai) {
         this.trangThai = trangThai;
+    }
+
+    public String toString() {
+        return maChuyenBay + " " + maTuyenBay + " " + maMayBay + " "
+                + maHeSoGia + " " + ngayGioDi + " " + ngayGioDen + " " + trangThai;
     }
 }
