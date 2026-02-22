@@ -16,6 +16,12 @@ Thumbs.db
 # Excel temp files
 ~$*.xlsx
 
+<<<<<<< HEAD
+/nbproject/private/
+/build/
+/dist/
+=======
 src/test/TestBUS.java
 
 
+>>>>>>> 37992c79d6eb2821d70e399f04a9378b5b53efe3
