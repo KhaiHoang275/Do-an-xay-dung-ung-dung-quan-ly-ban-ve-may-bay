@@ -1,0 +1,23 @@
+{
+    "java.project.sourcePaths": [
+        "src"
+    ],
+    "java.project.referencedLibraries": [
+        "d:\\uni\\nam2\\HK2\\JAVA\\Do-an-xay-dung-ung-dung-quan-ly-ban-ve-may-bay\\lib\\commons-collections4-4.4.jar",
+        "d:\\uni\\nam2\\HK2\\JAVA\\Do-an-xay-dung-ung-dung-quan-ly-ban-ve-may-bay\\lib\\jsvg-2.0.0.jar",
+        "d:\\uni\\nam2\\HK2\\JAVA\\Do-an-xay-dung-ung-dung-quan-ly-ban-ve-may-bay\\lib\\SparseBitSet-1.2.jar",
+        "d:\\uni\\nam2\\HK2\\JAVA\\Do-an-xay-dung-ung-dung-quan-ly-ban-ve-may-bay\\lib\\flatlaf-extras-3.7.jar",
+        "d:\\uni\\nam2\\HK2\\JAVA\\Do-an-xay-dung-ung-dung-quan-ly-ban-ve-may-bay\\lib\\commons-io-2.11.0.jar",
+        "d:\\uni\\nam2\\HK2\\JAVA\\Do-an-xay-dung-ung-dung-quan-ly-ban-ve-may-bay\\lib\\commons-compress-1.21.jar",
+        "d:\\uni\\nam2\\HK2\\JAVA\\Do-an-xay-dung-ung-dung-quan-ly-ban-ve-may-bay\\lib\\xmlbeans-5.1.1.jar",
+        "d:\\uni\\nam2\\HK2\\JAVA\\Do-an-xay-dung-ung-dung-quan-ly-ban-ve-may-bay\\lib\\commons-codec-1.15.jar",
+        "d:\\uni\\nam2\\HK2\\JAVA\\Do-an-xay-dung-ung-dung-quan-ly-ban-ve-may-bay\\lib\\poi-ooxml-full-5.2.3.jar",
+        "d:\\uni\\nam2\\HK2\\JAVA\\Do-an-xay-dung-ung-dung-quan-ly-ban-ve-may-bay\\lib\\curvesapi-1.07.jar",
+        "d:\\uni\\nam2\\HK2\\JAVA\\Do-an-xay-dung-ung-dung-quan-ly-ban-ve-may-bay\\lib\\poi-ooxml-5.2.3.jar",
+        "d:\\uni\\nam2\\HK2\\JAVA\\Do-an-xay-dung-ung-dung-quan-ly-ban-ve-may-bay\\lib\\log4j-api-2.18.0.jar",
+        "d:\\uni\\nam2\\HK2\\JAVA\\Do-an-xay-dung-ung-dung-quan-ly-ban-ve-may-bay\\lib\\flatlaf-3.7.jar",
+        "d:\\uni\\nam2\\HK2\\JAVA\\Do-an-xay-dung-ung-dung-quan-ly-ban-ve-may-bay\\lib\\poi-5.2.3.jar",
+        "d:\\uni\\nam2\\HK2\\JAVA\\Do-an-xay-dung-ung-dung-quan-ly-ban-ve-may-bay\\lib\\mssql-jdbc-13.2.1.jre11.jar",
+        "d:\\uni\\nam2\\HK2\\JAVA\\Do-an-xay-dung-ung-dung-quan-ly-ban-ve-may-bay\\lib\\commons-math3-3.6.1.jar"
+    ]
+}
