@@ -4,6 +4,8 @@ import dal.ThuHangDAO;
 import dal.ThongTinHanhKhachDAO;
 import model.ThuHang;
 
+import java.util.List;
+
 public class ThuHangBUS {
 
     private ThuHangDAO thuHangDAO;
@@ -79,5 +81,25 @@ public class ThuHangBUS {
         String hangHienTai = hanhKhachDAO.getMaThuHang(maHanhKhach);
 
         return th != null && !th.getMaThuHang().equals(hangHienTai);
+    }
+
+    // Các phương thức CRUD để hỗ trợ GUI
+    public List<ThuHang> getAll() {
+        return thuHangDAO.getAll();
+    }
+
+    public boolean insert(ThuHang th) {
+        // Có thể thêm logic business nếu cần, ví dụ kiểm tra điều kiện
+        return thuHangDAO.insert(th);
+    }
+
+    public boolean update(ThuHang th) {
+        // Có thể thêm logic business nếu cần
+        return thuHangDAO.update(th);
+    }
+
+    public boolean delete(String maThuHang) {
+        // Có thể thêm logic business, ví dụ kiểm tra nếu có khách hàng đang dùng hạng này
+        return thuHangDAO.delete(maThuHang);
     }
 }
