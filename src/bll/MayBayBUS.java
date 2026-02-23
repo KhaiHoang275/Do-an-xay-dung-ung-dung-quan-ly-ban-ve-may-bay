@@ -1,4 +1,4 @@
-package bus;
+package bll;
 
 import dal.MayBayDAO;
 import model.MayBay;
