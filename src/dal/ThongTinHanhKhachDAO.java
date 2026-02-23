@@ -93,4 +93,70 @@ public class ThongTinHanhKhachDAO {
         }
         return false;
     }
+
+    public int getDiemTichLuy(String maHanhKhach) {
+        String sql = "SELECT diemTichLuy FROM ThongTinHanhKhach WHERE maHK = ?";
+        int diem = 0;
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, maHanhKhach);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                diem = rs.getInt("diemTichLuy");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return diem;
+    }
+
+    public void updateDiemVaThuHang(String maHanhKhach, int diemMoi, String maThuHang) {
+
+        String sql = """
+            UPDATE ThongTinHanhKhach
+            SET diemTichLuy = ?,
+                maThuHang = ?
+            WHERE maHK = ?
+        """;
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, diemMoi);
+            ps.setString(2, maThuHang);
+            ps.setString(3, maHanhKhach);
+
+            ps.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String getMaThuHang(String maHanhKhach) {
+
+        String sql = "SELECT maThuHang FROM ThongTinHanhKhach WHERE maHK = ?";
+        String maThuHang = null;
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, maHanhKhach);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                maThuHang = rs.getString("maThuHang");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return maThuHang;
+    }
 } 
