@@ -20,7 +20,7 @@ public class NguoiDungBUS {
 
     public String themNguoiDung(NguoiDung nd) {
         if (nd.getMaNguoiDung().isEmpty() || nd.getUsername().isEmpty()) {
-            return "Mã người dùng và Tên đăng nhập không được để trống";
+            return "ID người dùng và tên đăng nhập không được để trống";
         }
         if (dao.insert(nd)) {
             return "Thêm thành công";
@@ -43,4 +43,12 @@ public class NguoiDungBUS {
         return "Xóa thất bại";
     }
     
+    public ArrayList<String> loadCombo(){
+        ArrayList<NguoiDung> list = dao.selectAll();
+        ArrayList<String> comboList = new ArrayList<>();
+        for (NguoiDung nd : list) {
+            comboList.add(nd.getMaNguoiDung());
+        }
+        return comboList;
+    }
 }

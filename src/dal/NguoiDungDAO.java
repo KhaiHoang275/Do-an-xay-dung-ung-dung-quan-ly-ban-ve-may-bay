@@ -38,7 +38,7 @@ public class NguoiDungDAO {
 
     public boolean insert(NguoiDung nd) {
         String sql = "INSERT INTO NguoiDung (maNguoiDung, username, password, email, sdt, phanQuyen, trangThaiTK) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        // Lưu ý: ngayTao để mặc định SQL tự sinh (DEFAULT GETDATE()) nên không cần insert
+
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             
