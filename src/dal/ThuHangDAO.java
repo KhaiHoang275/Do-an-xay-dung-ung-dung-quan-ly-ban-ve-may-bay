@@ -60,4 +60,58 @@ public class ThuHangDAO {
 
         return null;
     }
+
+    public boolean insert(ThuHang th){
+        String sql = """
+                INSERT INTO ThuHang 
+                (maThuHang, tenThuHang,
+                diemToiThieu, tiLeGiam)
+                VALUES (?, ?, ?, ?)
+        """;
+        try(Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)){
+            ps.setString(1, th.getMaThuHang());
+            ps.setString(2, th.getTenThuHang());
+            ps.setInt(3, th.getDiemToiThieu());
+            ps.setDouble(4, th.getTiLeGiam());
+
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean update(ThuHang th){
+        String sql = "UPDATE ThuHang SET tenThuHang = ?, diemToiThieu = ?, tiLeGiam = ? WHERE maThuHang = ?";
+        try(Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)){
+            ps.setString(1, th.getTenThuHang());
+            ps.setInt(2, th.getDiemToiThieu());
+            ps.setDouble(3, th.getTiLeGiam());
+            ps.setString(4, th.getMaThuHang());
+
+            int rowAffected = ps.executeUpdate();
+            return rowAffected > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean delete(String maThuHang ){
+        String sql = "DELETE FROM ThuHang WHERE maThuHang = ?";
+
+        try(Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)){
+            ps.setString(1, maThuHang);
+
+            int rowAffected = ps.executeUpdate();
+            return rowAffected > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }
