@@ -137,7 +137,7 @@ public class QuanLyThuHangPanel extends JPanel {
 
         btnXoa = new JButton("Xóa");
         btnXoa.setBackground(new Color(46, 204, 113));
-        btnXoa.setForeground(Color.WHITE);
+        btnXoa.setForeground(Color.BLACK);
         btnXoa.setFont(new Font("SansSerif", Font.BOLD, 16));
         btnXoa.setPreferredSize(new Dimension(120, 40));
         btnXoa.addActionListener(new ActionListener() {

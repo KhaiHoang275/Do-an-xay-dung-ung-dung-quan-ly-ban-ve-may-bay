@@ -159,4 +159,36 @@ public class ThongTinHanhKhachDAO {
 
         return maThuHang;
     }
-} 
+
+    public ThongTinHanhKhach getByMaHK(String maHK){
+        String sql = "SELECT * FROM ThongTinHanhKhach WHERE maHK = ?";
+        ThongTinHanhKhach tthk = null;
+        try (Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)){
+            ps.setString(1, maHK);
+            ResultSet rs = ps.executeQuery();
+
+            if(rs.next()){
+                tthk = new ThongTinHanhKhach();
+                tthk.setMaHK(rs.getString("maHK"));
+                tthk.setMaNguoiDung(rs.getString("maNguoiDung"));
+                tthk.setMaThuHang(rs.getString("maThuHang"));
+                tthk.setHoChieu(rs.getString("hoTen"));
+                tthk.setCccd(rs.getString("cccd"));
+                tthk.setHoChieu(rs.getString("hoChieu"));
+
+                if(rs.getDate("ngaySinh") != null){
+                    tthk.setNgaySinh(rs.getDate("ngaySinh").toLocalDate());
+                }
+                tthk.setGioiTinh(rs.getString("gioiTinh"));
+                tthk.setDiemTichLuy(rs.getInt("diemTichLuy"));
+
+                //tu dong tinh thu hang
+                tthk.capNhatLoaiHanhKhach();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return tthk;
+    }
+}

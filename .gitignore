@@ -31,4 +31,5 @@ src/test/TestThuHang.java
 
 src/test/TestQuanLyThuHangPanel.java
 src/test/TestPanelUserProfile.java
+src/test/TestQuanLyKhuyenMaiPanel.java
 

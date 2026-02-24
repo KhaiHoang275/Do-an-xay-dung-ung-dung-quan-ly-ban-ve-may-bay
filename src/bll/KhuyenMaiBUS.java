@@ -36,6 +36,10 @@ public class KhuyenMaiBUS {
         return khuyenMaiDAO.getById(maKhuyenMai);
     }
 
+    public boolean insert(KhuyenMai km) {
+        return khuyenMaiDAO.insert(km);
+    }
+
     //===============================
     //B. METHOD KIEM TRA VA TINH TOAN
     //===============================
