@@ -102,4 +102,12 @@ public class ThuHangBUS {
         // Có thể thêm logic business, ví dụ kiểm tra nếu có khách hàng đang dùng hạng này
         return thuHangDAO.delete(maThuHang);
     }
+
+    public boolean isExist(String ma) {
+        return thuHangDAO.selectById(ma) != null;
+    }
+
+    public boolean isTenExist(String ten) {
+        return thuHangDAO.selectByTen(ten) != null;
+    }
 }

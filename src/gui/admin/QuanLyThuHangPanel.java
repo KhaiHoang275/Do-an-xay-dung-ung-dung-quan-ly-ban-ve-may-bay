@@ -245,31 +245,57 @@ public class QuanLyThuHangPanel extends JPanel {
     }
 
     private void addThuHang() {
-        if (!validateInput()) return;
+        String error = validateThuHang(false);
 
-        ThuHang th = new ThuHang();
-        th.setMaThuHang(txtMaHang.getText().trim());
-        th.setTenThuHang(txtTenHang.getText().trim());
-        th.setDiemToiThieu(Integer.parseInt(txtDiemToiThieu.getText().trim()));
-        th.setTiLeGiam(Double.parseDouble(txtTiLeGiam.getText().trim()));
+        if(error != null){
+            JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
-        bus.insert(th);
-        loadDataTable();
-        clearForm();
+        ThuHang th = new ThuHang(
+                txtMaHang.getText().trim(),
+                txtTenHang.getText().trim(),
+                Integer.parseInt(txtDiemToiThieu.getText().trim()),
+                Double.parseDouble(txtTiLeGiam.getText().trim())
+        );
+
+        if(bus.insert(th)){
+            JOptionPane.showMessageDialog(this, "Thêm thành công!");
+            loadDataTable();
+            clearForm();
+        }else{
+            JOptionPane.showMessageDialog(this, "Thêm thất bại!");
+        }
     }
 
     private void updateThuHang() {
-        if (table.getSelectedRow() == -1) return;
+        int row = table.getSelectedRow();
+        if(row < 0){
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn hạng cần cập nhật");
+            return;
+        }
 
-        ThuHang th = new ThuHang();
-        th.setMaThuHang(txtMaHang.getText().trim());
-        th.setTenThuHang(txtTenHang.getText().trim());
-        th.setDiemToiThieu(Integer.parseInt(txtDiemToiThieu.getText().trim()));
-        th.setTiLeGiam(Double.parseDouble(txtTiLeGiam.getText().trim()));
+        String error = validateThuHang(true);
+        if(error != null){
+            JOptionPane.showMessageDialog(this,
+                    error,
+                    "Lỗi",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        ThuHang th = new ThuHang(
+                txtMaHang.getText().trim(),
+                txtTenHang.getText().trim(),
+                Integer.parseInt(txtDiemToiThieu.getText().trim()),
+                Double.parseDouble(txtTiLeGiam.getText().trim())
+        );
 
-        bus.update(th);
-        loadDataTable();
-        clearForm();
+        if(bus.update(th)){
+            JOptionPane.showMessageDialog(this, "Cập nhật thành công!");
+            loadDataTable();
+        } else {
+            JOptionPane.showMessageDialog(this, "Cập nhật thất bại!");
+        }
     }
 
     private void deleteThuHang() {
@@ -287,5 +313,60 @@ public class QuanLyThuHangPanel extends JPanel {
             loadDataTable();
             clearForm();
         }
+    }
+
+    private String validateThuHang(boolean isUpdate) {
+
+        String ma = txtMaHang.getText().trim();
+        String ten = txtTenHang.getText().trim();
+        String diemStr = txtDiemToiThieu.getText().trim();
+        String giamStr = txtTiLeGiam.getText().trim();
+
+        // ===== MÃ HẠNG =====
+        if (ma.isEmpty())
+            return "Mã hạng không được để trống!";
+
+        if (!ma.matches("^[A-Z]{3,10}$"))
+            return "Mã hạng chỉ gồm chữ in hoa (3-10 ký tự)!";
+
+        if (!isUpdate && bus.isExist(ma))
+            return "Mã hạng đã tồn tại!";
+
+        // ===== TÊN HẠNG =====
+        if (ten.isEmpty())
+            return "Tên hạng không được để trống!";
+
+        if (!isUpdate && bus.isTenExist(ten))
+            return "Tên hạng đã tồn tại!";
+
+        // ===== ĐIỂM =====
+        if (diemStr.isEmpty())
+            return "Điểm tối thiểu không được để trống!";
+
+        int diem;
+        try {
+            diem = Integer.parseInt(diemStr);
+        } catch (Exception e) {
+            return "Điểm tối thiểu phải là số nguyên!";
+        }
+
+        if (diem < 0)
+            return "Điểm tối thiểu không được âm!";
+
+        // ===== TỈ LỆ GIẢM =====
+        if (giamStr.isEmpty())
+            return "Tỉ lệ giảm không được để trống!";
+
+        double giam;
+        try {
+            giam = Double.parseDouble(giamStr);
+        } catch (Exception e) {
+            return "Tỉ lệ giảm phải là số!";
+        }
+
+        if (giam < 0 || giam > 100)
+            return "Tỉ lệ giảm phải từ 0 đến 100%!";
+
+        return null; // hợp lệ
     }
 }

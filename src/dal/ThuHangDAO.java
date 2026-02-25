@@ -114,4 +114,60 @@ public class ThuHangDAO {
         }
         return false;
     }
+
+    public ThuHang selectById(String maHang) {
+        ThuHang th = null;
+
+        String sql = "SELECT * FROM ThuHang WHERE maHang = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, maHang);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                th = new ThuHang(
+                        rs.getString("maHang"),
+                        rs.getString("tenHang"),
+                        rs.getInt("diemToiThieu"),
+                        rs.getDouble("tiLeGiam")
+                );
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return th;
+    }
+
+    public ThuHang selectByTen(String tenHang) {
+        ThuHang th = null;
+
+        String sql = "SELECT * FROM ThuHang WHERE tenHang = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, tenHang);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                th = new ThuHang(
+                        rs.getString("maHang"),
+                        rs.getString("tenHang"),
+                        rs.getInt("diemToiThieu"),
+                        rs.getDouble("tiLeGiam")
+                );
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return th;
+    }
 }
