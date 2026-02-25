@@ -96,7 +96,6 @@ public class AdminMainFrame extends JFrame {
         sidebar.add(menuPanel, BorderLayout.CENTER);
 
         setActiveButton(btnThuHang);
-        setActiveButton(btnKhuyenMai);
 
         return sidebar;
     }
@@ -107,6 +106,9 @@ public class AdminMainFrame extends JFrame {
         btn.setForeground(Color.WHITE);
         btn.setFont(new Font("Segoe UI", Font.BOLD, 16));
         btn.setFocusPainted(false);
+        btn.setBorderPainted(false);
+        btn.setContentAreaFilled(true);
+        btn.setOpaque(true);
         btn.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
         btn.setHorizontalAlignment(SwingConstants.LEFT);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));

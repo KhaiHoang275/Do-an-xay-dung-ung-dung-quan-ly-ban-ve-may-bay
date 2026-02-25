@@ -8,6 +8,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -28,6 +30,7 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
     private JComboBox<String> cboLoaiKM, cboTrangThai, cboApDungChoTatCa, cboLocTrangThai;
     private JSpinner spinnerNgayBD, spinnerNgayKT;
     private JButton btnThem, btnLuu, btnXoa, btnLamMoi;
+    private JTabbedPane tabbedPane;
 
     // ===== COLORS =====
     private final Color PRIMARY_COLOR = new Color(18, 32, 64);
@@ -53,11 +56,22 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
         // ===== HEADER =====
         add(createHeaderPanel(), BorderLayout.NORTH);
 
-        // ===== CENTER: TABLE =====
-        add(createTablePanel(), BorderLayout.CENTER);
+        // ===== TABBED PANE =====
+        tabbedPane = new JTabbedPane();
+        tabbedPane.setFont(new Font("Segoe UI", Font.BOLD, 14));
 
-        // ===== SOUTH: FORM =====
-        add(createFormPanel(), BorderLayout.SOUTH);
+        // Tab 1: Danh sách
+        JPanel listPanel = new JPanel(new BorderLayout());
+        listPanel.setBackground(Color.WHITE);
+        listPanel.add(createTablePanel(), BorderLayout.CENTER);
+
+        // Tab 2: Form
+        JPanel formPanel = createFormPanel();
+
+        tabbedPane.addTab("Danh sách khuyến mãi", listPanel);
+        tabbedPane.addTab("Tạo / Chỉnh sửa", formPanel);
+
+        add(tabbedPane, BorderLayout.CENTER);
     }
 
     // ========================================
@@ -72,7 +86,17 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
         ));
 
         // ===== TITLE =====
-        JLabel lblTitle = new JLabel("⚡ QUẢN LÝ VOUCHER");
+        ImageIcon icon = null;
+        try {
+            icon = new ImageIcon(
+                    new ImageIcon(getClass().getResource("/resources/icons/icons8-flash-24.png"))
+                            .getImage()
+                            .getScaledInstance(24, 24, Image.SCALE_SMOOTH)
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        JLabel lblTitle = new JLabel("QUẢN LÝ VOUCHER", icon, JLabel.LEFT);
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 24));
         lblTitle.setForeground(PRIMARY_COLOR);
 
@@ -87,7 +111,9 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
                 BorderFactory.createEmptyBorder(8, 12, 8, 12)
         ));
 
-        JButton btnTimKiem = createStyledButton("🔍 Tìm kiếm", SECONDARY_COLOR);
+        JButton btnTimKiem = createStyledButton("Tìm kiếm", SECONDARY_COLOR);
+        setButtonIcon(btnTimKiem, "/resources/icons/icons8-search-24.png");
+
         btnTimKiem.addActionListener(e -> timKiem());
 
         cboLocTrangThai = new JComboBox<>(new String[]{"Tất cả", "Hoạt động", "Không hoạt động"});
@@ -106,11 +132,18 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
 
         return headerPanel;
     }
+    private void setButtonIcon(JButton btn, String path) {
+        ImageIcon icon = new ImageIcon(getClass().getResource(path));
+        Image scaled = icon.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+        btn.setIcon(new ImageIcon(scaled));
+        btn.setIconTextGap(8);
+    }
 
     // ========================================
-    // TABLE PANEL
-    // ========================================
+// TABLE PANEL (HEADER NỔI BẬT)
+// ========================================
     private JPanel createTablePanel() {
+
         JPanel tablePanel = new JPanel(new BorderLayout(0, 10));
         tablePanel.setBackground(Color.WHITE);
         tablePanel.setBorder(BorderFactory.createCompoundBorder(
@@ -118,14 +151,29 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
                 BorderFactory.createEmptyBorder(15, 20, 15, 20)
         ));
 
-        // ===== TABLE TITLE =====
-        JLabel lblTableTitle = new JLabel("📋 DANH SÁCH MÃ KHUYẾN MÃI");
+        // ===== TITLE =====
+        ImageIcon icon = null;
+        try {
+            icon = new ImageIcon(
+                    new ImageIcon(getClass().getResource("/resources/icons/icons8-test-passed-24.png"))
+                            .getImage()
+                            .getScaledInstance(24, 24, Image.SCALE_SMOOTH)
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        JLabel lblTableTitle = new JLabel("DANH SÁCH MÃ KHUYẾN MÃI", icon, JLabel.LEFT);
         lblTableTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
         lblTableTitle.setForeground(PRIMARY_COLOR);
 
-        // ===== TABLE =====
-        String[] columns = {"Mã KM", "Tên KM", "Loại", "Giá trị", "ĐH tối thiểu",
-                "SL tổng", "Đã dùng", "Ngày BĐ", "Ngày KT", "Trạng thái"};
+        // ===== TABLE MODEL =====
+        String[] columns = {
+                "Mã KM", "Tên KM", "Loại", "Giá trị",
+                "ĐH tối thiểu", "SL tổng", "Đã dùng",
+                "Ngày BĐ", "Ngày KT", "Trạng thái"
+        };
+
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -137,25 +185,121 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
         table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         table.setRowHeight(35);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.setGridColor(new Color(230, 230, 230));
+        table.setGridColor(new Color(220, 220, 220));
         table.setShowGrid(true);
+        table.setSelectionBackground(new Color(45, 72, 140));
+        table.setSelectionForeground(Color.WHITE);
 
-        // ===== TABLE HEADER =====
+        // ===== POPUP MENU =====
+        JPopupMenu popupMenu = new JPopupMenu();
+
+        JMenuItem itemEdit = new JMenuItem("Chỉnh sửa");
+        JMenuItem itemDelete = new JMenuItem("Xóa");
+
+        popupMenu.add(itemEdit);
+        popupMenu.add(itemDelete);
+
+        // Click chuột phải
+        table.addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                showPopup(e);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                showPopup(e);
+            }
+
+            private void showPopup(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+
+                    int row = table.rowAtPoint(e.getPoint());
+
+                    if (row >= 0 && row < table.getRowCount()) {
+                        table.setRowSelectionInterval(row, row);
+                    } else {
+                        table.clearSelection();
+                        return;
+                    }
+
+                    popupMenu.show(e.getComponent(), e.getX(), e.getY());
+                }
+            }
+        });
+        itemEdit.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow != -1) {
+                hienThiChiTiet(); // đổ dữ liệu lên form
+                tabbedPane.setSelectedIndex(1); // chuyển sang tab form
+            }
+        });
+
+        itemDelete.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow == -1) return;
+
+            xoaKhuyenMai();
+        });
+        itemEdit.setIcon(new ImageIcon(getClass().getResource("/resources/icons/icons8-edit-16.png")));
+        itemDelete.setIcon(new ImageIcon(getClass().getResource("/resources/icons/icons8-trash-bin-16.png")));
+        // =========================================
+        // HEADER STYLE (CHỮ NỔI RÕ)
+        // =========================================
         JTableHeader header = table.getTableHeader();
-        header.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        header.setBackground(TABLE_HEADER_BG);
-        header.setForeground(Color.WHITE);
-        header.setPreferredSize(new Dimension(header.getWidth(), 40));
 
-        // ===== RENDERER (Zebra Striping) =====
+        header.setPreferredSize(new Dimension(header.getWidth(), 45));
+        header.setReorderingAllowed(false);
+
+        DefaultTableCellRenderer headerRenderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                                                           boolean isSelected, boolean hasFocus,
+                                                           int row, int column) {
+
+                JLabel lbl = (JLabel) super.getTableCellRendererComponent(
+                        table, value, isSelected, hasFocus, row, column);
+
+                lbl.setHorizontalAlignment(CENTER);
+                lbl.setFont(new Font("Segoe UI", Font.BOLD, 14));
+
+                // MÀU CHỮ NỔI
+                lbl.setForeground(Color.WHITE);
+
+                // NỀN XANH ĐẬM (PRIMARY)
+                lbl.setBackground(new Color(18, 32, 64));
+                lbl.setOpaque(true);
+
+                // Viền nhẹ giúp tách cột
+                lbl.setBorder(BorderFactory.createMatteBorder(
+                        0, 0, 1, 1, new Color(45, 72, 140)));
+
+                return lbl;
+            }
+        };
+
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setHeaderRenderer(headerRenderer);
+        }
+
+        // =========================================
+        // ZEBRA ROWS
+        // =========================================
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value,
-                                                           boolean isSelected, boolean hasFocus, int row, int column) {
-                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                                                           boolean isSelected, boolean hasFocus,
+                                                           int row, int column) {
+
+                Component c = super.getTableCellRendererComponent(
+                        table, value, isSelected, hasFocus, row, column);
+
                 if (!isSelected) {
-                    c.setBackground(row % 2 == 0 ? TABLE_ROW_EVEN : TABLE_ROW_ODD);
+                    c.setBackground(row % 2 == 0 ?
+                            new Color(245, 247, 250) : Color.WHITE);
                 }
+
                 setHorizontalAlignment(CENTER);
                 return c;
             }
@@ -196,7 +340,17 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
         ));
 
         // ===== FORM TITLE =====
-        JLabel lblFormTitle = new JLabel("✏️ FORM TẠO / CHỈNH SỬA KHUYẾN MÃI");
+        ImageIcon icon = null;
+        try {
+            icon = new ImageIcon(
+                    new ImageIcon(getClass().getResource("/resources/icons/icons8-application-24.png"))
+                            .getImage()
+                            .getScaledInstance(24, 24, Image.SCALE_SMOOTH)
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        JLabel lblFormTitle = new JLabel("FORM TẠO / CHỈNH SỬA KHUYẾN MÃI", icon, JLabel.LEFT);
         lblFormTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
         lblFormTitle.setForeground(PRIMARY_COLOR);
 
@@ -269,10 +423,15 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
         buttonPanel.setBackground(Color.WHITE);
 
-        btnThem = createStyledButton("➕ Thêm", SUCCESS_COLOR);
-        btnLuu = createStyledButton("💾 Lưu", SECONDARY_COLOR);
-        btnXoa = createStyledButton("🗑️ Xóa", DANGER_COLOR);
-        btnLamMoi = createStyledButton("🔄 Làm mới", ACCENT_COLOR);
+        btnThem = createStyledButton("Thêm", SUCCESS_COLOR);
+        btnLuu = createStyledButton("Lưu", SECONDARY_COLOR);
+        btnXoa = createStyledButton("Xóa", DANGER_COLOR);
+        btnLamMoi = createStyledButton("Làm mới", ACCENT_COLOR);
+
+        setButtonIcon(btnThem, "/resources/icons/icons8-add-24.png");
+        setButtonIcon(btnLuu, "/resources/icons/icons8-save-24.png");
+        setButtonIcon(btnXoa, "/resources/icons/icons8-delete-24.png");
+        setButtonIcon(btnLamMoi, "/resources/icons/icons8-reset-24.png");
 
         btnThem.addActionListener(e -> themKhuyenMai());
         btnLuu.addActionListener(e -> luuKhuyenMai());

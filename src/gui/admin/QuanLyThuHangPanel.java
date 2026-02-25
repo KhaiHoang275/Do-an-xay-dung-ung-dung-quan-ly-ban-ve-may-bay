@@ -5,201 +5,206 @@ import model.ThuHang;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
 public class QuanLyThuHangPanel extends JPanel {
+
     private JTable table;
     private DefaultTableModel tableModel;
-    private JTextField txtMaHang;
-    private JTextField txtTenHang;
-    private JTextField txtDiemToiThieu;
-    private JTextField txtTiLeGiam;
-    private JButton btnThem;
-    private JButton btnCapNhat;
-    private JButton btnXoa;
-    private JButton btnLamMoi;
-    private JButton btnThoat;
+    private JTextField txtMaHang, txtTenHang, txtDiemToiThieu, txtTiLeGiam;
+    private JButton btnThem, btnCapNhat, btnXoa, btnLamMoi, btnThoat;
     private ThuHangBUS bus;
+
+    // ====== MÀU HỆ THỐNG ======
+    private final Color PRIMARY = new Color(220, 38, 38);
+    private final Color BG_MAIN = new Color(245, 247, 250);
+    private final Color TABLE_HEADER = new Color(30, 41, 59);
+    private final Color BTN_ADD = new Color(34, 197, 94);
+    private final Color BTN_UPDATE = new Color(59, 130, 246);
+    private final Color BTN_DELETE = new Color(239, 68, 68);
+    private final Color BTN_REFRESH = new Color(168, 85, 247);
 
     public QuanLyThuHangPanel() {
         bus = new ThuHangBUS();
-        setLayout(new BorderLayout());
+        setLayout(new BorderLayout(20, 20));
+        setBackground(BG_MAIN);
+        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         initComponents();
         loadDataTable();
     }
 
     private void initComponents() {
-        // Thử set Look and Feel để giao diện đẹp hơn
+
+        // ===== TITLE =====
+        ImageIcon icon = null;
         try {
-            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+            icon = new ImageIcon(
+                    new ImageIcon(getClass().getResource("/resources/icons/icons8-ranking-24.png"))
+                            .getImage()
+                            .getScaledInstance(24, 24, Image.SCALE_SMOOTH)
+            );
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        // Phần tiêu đề
-        JLabel lblTitle = new JLabel("\uD83D\uDC68\u200D QUẢN LÝ THỨ HẠNG THÀNH VIÊN ✈\uFE0F");
-        lblTitle.setFont(new Font("SansSerif", Font.BOLD, 24));
-        lblTitle.setForeground(new Color(255, 215, 0));
-        lblTitle.setBackground(new Color(215, 25, 32));
-        lblTitle.setOpaque(true);
-        lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
+        JLabel lblTitle = new JLabel("QUẢN LÝ THỨ HẠNG THÀNH VIÊN", icon, JLabel.LEFT);
+        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        lblTitle.setForeground(PRIMARY);
         add(lblTitle, BorderLayout.NORTH);
 
-        // Phần bảng - Chiếm nhiều không gian hơn
+        // ===== TABLE CARD =====
+        JPanel tableCard = createCardPanel();
+        tableCard.setLayout(new BorderLayout());
+
         String[] columns = {"Mã hạng", "Tên hạng", "Điểm tối thiểu", "Tỉ lệ giảm (%)"};
         tableModel = new DefaultTableModel(columns, 0) {
-            @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
-        table = new JTable(tableModel);
-        table.getTableHeader().setBackground(Color.DARK_GRAY);
-        table.getTableHeader().setForeground(new Color(33, 33, 33));
-        table.setRowHeight(30);
-        table.setSelectionBackground(new Color(255, 255, 224)); // Vàng nhạt
-        table.setAutoCreateRowSorter(true);
-        table.setFont(new Font("SansSerif", Font.PLAIN, 14)); // Font lớn hơn cho bảng
 
-        // Sắp xếp theo điểm tối thiểu tăng dần mặc định
-        table.getRowSorter().toggleSortOrder(2); // Cột 2: Điểm tối thiểu
+        table = new JTable(tableModel);
+        styleTable();
 
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setPreferredSize(new Dimension(0, 300)); // Tăng chiều cao bảng
-        add(scrollPane, BorderLayout.CENTER);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        tableCard.add(scrollPane, BorderLayout.CENTER);
 
-        // Phần form - Làm lớn hơn
-        JPanel formPanel = new JPanel(new GridLayout(4, 2, 10, 10));
-        formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Padding
+        add(tableCard, BorderLayout.CENTER);
 
-        JLabel lblMaHang = new JLabel("Mã hạng:");
-        lblMaHang.setFont(new Font("SansSerif", Font.BOLD, 16));
-        formPanel.add(lblMaHang);
-        txtMaHang = new JTextField();
-        txtMaHang.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        // ===== FORM CARD =====
+        JPanel formCard = createCardPanel();
+        formCard.setLayout(new BorderLayout(20, 20));
+
+        JPanel formPanel = new JPanel(new GridLayout(4, 2, 15, 15));
+        formPanel.setOpaque(false);
+
+        txtMaHang = createTextField();
+        txtTenHang = createTextField();
+        txtDiemToiThieu = createTextField();
+        txtTiLeGiam = createTextField();
+
+        formPanel.add(createLabel("Mã hạng"));
         formPanel.add(txtMaHang);
-
-        JLabel lblTenHang = new JLabel("Tên hạng:");
-        lblTenHang.setFont(new Font("SansSerif", Font.BOLD, 16));
-        formPanel.add(lblTenHang);
-        txtTenHang = new JTextField();
-        txtTenHang.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        formPanel.add(createLabel("Tên hạng"));
         formPanel.add(txtTenHang);
-
-        JLabel lblDiem = new JLabel("Điểm tối thiểu:");
-        lblDiem.setFont(new Font("SansSerif", Font.BOLD, 16));
-        formPanel.add(lblDiem);
-        txtDiemToiThieu = new JTextField();
-        txtDiemToiThieu.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        formPanel.add(createLabel("Điểm tối thiểu"));
         formPanel.add(txtDiemToiThieu);
-
-        JLabel lblTiLe = new JLabel("Tỉ lệ giảm (%):");
-        lblTiLe.setFont(new Font("SansSerif", Font.BOLD, 16));
-        formPanel.add(lblTiLe);
-        txtTiLeGiam = new JTextField();
-        txtTiLeGiam.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        formPanel.add(createLabel("Tỉ lệ giảm (%)"));
         formPanel.add(txtTiLeGiam);
 
-        // Phần nút - Làm nút to hơn
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+        formCard.add(formPanel, BorderLayout.CENTER);
 
-        btnThem = new JButton("Thêm");
-        btnThem.setBackground(new Color(215, 25, 32)); // Đỏ
-        btnThem.setForeground(Color.WHITE);
-        btnThem.setFont(new Font("SansSerif", Font.BOLD, 16));
-        btnThem.setPreferredSize(new Dimension(120, 40)); // To hơn
-        btnThem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addThuHang();
-            }
-        });
+        // ===== BUTTON PANEL =====
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
+        buttonPanel.setOpaque(false);
+
+        btnThem = createButton("Thêm", BTN_ADD);
+        btnCapNhat = createButton("Cập nhật", BTN_UPDATE);
+        btnXoa = createButton("Xóa", BTN_DELETE);
+        btnLamMoi = createButton("Làm mới", BTN_REFRESH);
+        btnThoat = createButton("Thoát", Color.GRAY);
+
+        setButtonIcon(btnThem, "/resources/icons/icons8-add-24.png");
+        setButtonIcon(btnCapNhat, "/resources/icons/icons8-update-24.png");
+        setButtonIcon(btnXoa, "/resources/icons/icons8-delete-24.png");
+        setButtonIcon(btnLamMoi, "/resources/icons/icons8-erase-24.png");
+        setButtonIcon(btnThoat, "/resources/icons/icons8-close-24.png");
+
         buttonPanel.add(btnThem);
-
-        btnCapNhat = new JButton("Cập nhật");
-        btnCapNhat.setBackground(Color.YELLOW);
-        btnCapNhat.setForeground(Color.BLACK);
-        btnCapNhat.setFont(new Font("SansSerif", Font.BOLD, 16));
-        btnCapNhat.setPreferredSize(new Dimension(120, 40));
-        btnCapNhat.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                updateThuHang();
-            }
-        });
         buttonPanel.add(btnCapNhat);
-
-        btnXoa = new JButton("Xóa");
-        btnXoa.setBackground(new Color(46, 204, 113));
-        btnXoa.setForeground(Color.BLACK);
-        btnXoa.setFont(new Font("SansSerif", Font.BOLD, 16));
-        btnXoa.setPreferredSize(new Dimension(120, 40));
-        btnXoa.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                deleteThuHang();
-            }
-        });
         buttonPanel.add(btnXoa);
-
-        btnLamMoi = new JButton("Làm mới");
-        btnLamMoi.setBackground(new Color(115, 89, 182));
-        btnLamMoi.setForeground(Color.WHITE);
-        btnLamMoi.setFont(new Font("SansSerif", Font.BOLD, 16));
-        btnLamMoi.setPreferredSize(new Dimension(120, 40));
-        btnLamMoi.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                clearForm();
-            }
-        });
         buttonPanel.add(btnLamMoi);
-
-        btnThoat = new JButton("Thoát");
-        btnThoat.setFont(new Font("SansSerif", Font.BOLD, 16));
-        btnThoat.setPreferredSize(new Dimension(120, 40));
-        btnThoat.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Window window = SwingUtilities.getWindowAncestor(QuanLyThuHangPanel.this);
-                if (window != null) {
-                    window.dispose();
-                }
-            }
-        });
         buttonPanel.add(btnThoat);
 
-        // Panel south chứa form và button - Giới hạn chiều cao để cân đối
-        JPanel southPanel = new JPanel(new BorderLayout());
-        southPanel.add(formPanel, BorderLayout.NORTH);
-        southPanel.add(buttonPanel, BorderLayout.SOUTH);
-        southPanel.setPreferredSize(new Dimension(0, 250)); // Điều chỉnh chiều cao south
-        add(southPanel, BorderLayout.SOUTH);
+        formCard.add(buttonPanel, BorderLayout.SOUTH);
 
-        // Sự kiện click bảng
+        add(formCard, BorderLayout.SOUTH);
+
+        // ===== EVENTS =====
         table.addMouseListener(new MouseAdapter() {
-            @Override
             public void mouseClicked(MouseEvent e) {
                 fillFormFromTable();
-                txtMaHang.setEditable(false); // Không cho sửa mã khi cập nhật
+                txtMaHang.setEditable(false);
             }
         });
 
-        // Phân quyền: Giả sử có biến role
-        String role = "Admin"; // Thay bằng logic thực tế
-        if (!"Admin".equals(role)) {
-            btnThem.setEnabled(false);
-            btnCapNhat.setEnabled(false);
-            btnXoa.setEnabled(false);
-            btnLamMoi.setEnabled(false);
-        }
+        btnThem.addActionListener(e -> addThuHang());
+        btnCapNhat.addActionListener(e -> updateThuHang());
+        btnXoa.addActionListener(e -> deleteThuHang());
+        btnLamMoi.addActionListener(e -> clearForm());
+        btnThoat.addActionListener(e -> {
+            Window window = SwingUtilities.getWindowAncestor(this);
+            if (window != null) window.dispose();
+        });
     }
+
+
+    private void setButtonIcon(JButton btn, String path) {
+        ImageIcon icon = new ImageIcon(getClass().getResource(path));
+        Image scaled = icon.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+        btn.setIcon(new ImageIcon(scaled));
+        btn.setIconTextGap(8);
+    }
+    // ================= UI STYLE METHODS =================
+
+    private JPanel createCardPanel() {
+        JPanel panel = new JPanel();
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(230, 230, 230)),
+                BorderFactory.createEmptyBorder(20, 20, 20, 20)
+        ));
+        return panel;
+    }
+
+    private JLabel createLabel(String text) {
+        JLabel lbl = new JLabel(text);
+        lbl.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        return lbl;
+    }
+
+    private JTextField createTextField() {
+        JTextField txt = new JTextField();
+        txt.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txt.setPreferredSize(new Dimension(250, 35));
+        txt.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200)),
+                BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
+        return txt;
+    }
+
+    private JButton createButton(String text, Color bgColor) {
+        JButton btn = new JButton(text);
+        btn.setPreferredSize(new Dimension(120,40));
+        btn.setBackground(bgColor);
+        btn.setForeground(Color.WHITE);
+        btn.setFocusPainted(false);
+        btn.setBorderPainted(false);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        return btn;
+    }
+
+    private void styleTable() {
+        table.setRowHeight(35);
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        table.setSelectionBackground(new Color(45, 72, 140));
+        table.setSelectionForeground(Color.WHITE);
+        table.setGridColor(new Color(230, 230, 230));
+        table.setShowVerticalLines(false);
+
+        JTableHeader header = table.getTableHeader();
+        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        header.setBackground(TABLE_HEADER);
+        header.setForeground(Color.WHITE);
+        header.setPreferredSize(new Dimension(header.getWidth(), 40));
+    }
+
+    // ================= LOGIC =================
 
     public void loadDataTable() {
         tableModel.setRowCount(0);
@@ -214,106 +219,70 @@ public class QuanLyThuHangPanel extends JPanel {
         }
     }
 
-    public void fillFormFromTable() {
+    private void fillFormFromTable() {
         int row = table.getSelectedRow();
         if (row != -1) {
-            txtMaHang.setText((String) tableModel.getValueAt(row, 0));
-            txtTenHang.setText((String) tableModel.getValueAt(row, 1));
-            txtDiemToiThieu.setText(String.valueOf(tableModel.getValueAt(row, 2)));
-            txtTiLeGiam.setText(String.valueOf(tableModel.getValueAt(row, 3)));
+            txtMaHang.setText(tableModel.getValueAt(row, 0).toString());
+            txtTenHang.setText(tableModel.getValueAt(row, 1).toString());
+            txtDiemToiThieu.setText(tableModel.getValueAt(row, 2).toString());
+            txtTiLeGiam.setText(tableModel.getValueAt(row, 3).toString());
         }
     }
 
-    public void clearForm() {
+    private void clearForm() {
         txtMaHang.setText("");
         txtTenHang.setText("");
         txtDiemToiThieu.setText("");
         txtTiLeGiam.setText("");
-        table.clearSelection();
         txtMaHang.setEditable(true);
+        table.clearSelection();
     }
 
     private boolean validateInput() {
-        if (txtMaHang.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Mã hạng không được trống");
-            return false;
-        }
-        if (txtTenHang.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Tên hạng không được trống");
-            return false;
-        }
-        try {
-            int diem = Integer.parseInt(txtDiemToiThieu.getText().trim());
-            if (diem < 0) {
-                JOptionPane.showMessageDialog(this, "Điểm tối thiểu phải >= 0");
-                return false;
-            }
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Điểm tối thiểu phải là số nguyên");
-            return false;
-        }
-        try {
-            double tiLe = Double.parseDouble(txtTiLeGiam.getText().trim());
-            if (tiLe < 0 || tiLe > 100) {
-                JOptionPane.showMessageDialog(this, "Tỉ lệ giảm phải >= 0 và <= 100");
-                return false;
-            }
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Tỉ lệ giảm phải là số thực");
-            return false;
-        }
-        // Kiểm tra mã không trùng khi thêm mới
-        if (txtMaHang.isEditable()) {
-            for (int i = 0; i < tableModel.getRowCount(); i++) {
-                if (txtMaHang.getText().equals(tableModel.getValueAt(i, 0))) {
-                    JOptionPane.showMessageDialog(this, "Mã hạng đã tồn tại");
-                    return false;
-                }
-            }
-        }
+        if (txtMaHang.getText().trim().isEmpty()) return false;
+        if (txtTenHang.getText().trim().isEmpty()) return false;
         return true;
     }
 
-    public void addThuHang() {
-        if (validateInput()) {
-            ThuHang th = new ThuHang();
-            th.setMaThuHang(txtMaHang.getText().trim());
-            th.setTenThuHang(txtTenHang.getText().trim());
-            th.setDiemToiThieu(Integer.parseInt(txtDiemToiThieu.getText().trim()));
-            th.setTiLeGiam(Double.parseDouble(txtTiLeGiam.getText().trim()));
-            bus.insert(th);
-            loadDataTable();
-            clearForm();
-        }
+    private void addThuHang() {
+        if (!validateInput()) return;
+
+        ThuHang th = new ThuHang();
+        th.setMaThuHang(txtMaHang.getText().trim());
+        th.setTenThuHang(txtTenHang.getText().trim());
+        th.setDiemToiThieu(Integer.parseInt(txtDiemToiThieu.getText().trim()));
+        th.setTiLeGiam(Double.parseDouble(txtTiLeGiam.getText().trim()));
+
+        bus.insert(th);
+        loadDataTable();
+        clearForm();
     }
 
-    public void updateThuHang() {
-        int row = table.getSelectedRow();
-        if (row == -1) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn một dòng để cập nhật");
-            return;
-        }
-        if (validateInput()) {
-            ThuHang th = new ThuHang();
-            th.setMaThuHang(txtMaHang.getText().trim());
-            th.setTenThuHang(txtTenHang.getText().trim());
-            th.setDiemToiThieu(Integer.parseInt(txtDiemToiThieu.getText().trim()));
-            th.setTiLeGiam(Double.parseDouble(txtTiLeGiam.getText().trim()));
-            bus.update(th);
-            loadDataTable();
-            clearForm();
-        }
+    private void updateThuHang() {
+        if (table.getSelectedRow() == -1) return;
+
+        ThuHang th = new ThuHang();
+        th.setMaThuHang(txtMaHang.getText().trim());
+        th.setTenThuHang(txtTenHang.getText().trim());
+        th.setDiemToiThieu(Integer.parseInt(txtDiemToiThieu.getText().trim()));
+        th.setTiLeGiam(Double.parseDouble(txtTiLeGiam.getText().trim()));
+
+        bus.update(th);
+        loadDataTable();
+        clearForm();
     }
 
-    public void deleteThuHang() {
+    private void deleteThuHang() {
         int row = table.getSelectedRow();
-        if (row == -1) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn một dòng để xóa");
-            return;
-        }
-        int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn xóa?", "Xác nhận", JOptionPane.YES_NO_OPTION);
+        if (row == -1) return;
+
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Bạn có chắc muốn xóa?",
+                "Xác nhận",
+                JOptionPane.YES_NO_OPTION);
+
         if (confirm == JOptionPane.YES_OPTION) {
-            String ma = (String) tableModel.getValueAt(row, 0);
+            String ma = tableModel.getValueAt(row, 0).toString();
             bus.delete(ma);
             loadDataTable();
             clearForm();
