@@ -114,8 +114,7 @@ public class KhuyenMaiDAO {
                     loaiKhachApDung = ?,
                     gioiHanMoiKhach = ?,
                     trangThai = ?,
-                    nguoiTao = ?,
-                    ngayTao = ?
+                    nguoiTao = ?
                 WHERE maKhuyenMai = ?
                 """;
         try (Connection conn = DBConnection.getConnection();
@@ -134,14 +133,15 @@ public class KhuyenMaiDAO {
             ps.setInt(12, km.getGioiHanMoiKhach());
             ps.setBoolean(13, km.isTrangThai());
             ps.setString(14, km.getNguoiTao());
-            ps.setTimestamp(15, Timestamp.valueOf(km.getNgayTao()));
-            ps.setString(16, km.getMaKhuyenMai());
+            ps.setString(15, km.getMaKhuyenMai());
             int rowsUpdated = ps.executeUpdate();
             return rowsUpdated > 0;
         } catch (Exception e) {
             e.printStackTrace();
         }
         return false;
+
+
     }
 
     public boolean delete(KhuyenMai km){

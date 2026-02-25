@@ -40,6 +40,10 @@ public class KhuyenMaiBUS {
         return khuyenMaiDAO.insert(km);
     }
 
+    public boolean delete(KhuyenMai km){return khuyenMaiDAO.delete(km);}
+
+    public boolean update(KhuyenMai km){return khuyenMaiDAO.update(km);}
+
     //===============================
     //B. METHOD KIEM TRA VA TINH TOAN
     //===============================
@@ -282,5 +286,28 @@ public class KhuyenMaiBUS {
                     "Khách hàng đã vượt quá giới hạn sử dụng voucher này"
             );
         }
+    }
+
+    public String generateMaKM(){
+        List<KhuyenMai> list = khuyenMaiDAO.getAll();
+        if (list.isEmpty()) {
+            return "KM001";
+        }
+        int max = 0;
+        for(KhuyenMai km : list){
+            String ma = km.getMaKhuyenMai();
+            if(ma != null && ma.startsWith("KM")){
+                String numberPart = ma.substring(2);
+
+                try{
+                    int num = Integer.parseInt(numberPart);
+                    if(num > max) max = num;
+                }catch (NumberFormatException e){
+
+                }
+            }
+        }
+        int newNum = max + 1;
+        return String.format("KM%03d", newNum);
     }
 }

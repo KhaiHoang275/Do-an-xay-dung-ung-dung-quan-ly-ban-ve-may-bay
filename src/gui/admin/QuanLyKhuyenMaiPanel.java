@@ -22,6 +22,7 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
     // ===== BUSINESS LOGIC =====
     private KhuyenMaiBUS khuyenMaiBUS;
 
+    private boolean isEditMode = false;
     // ===== UI COMPONENTS =====
     private JTable table;
     private DefaultTableModel tableModel;
@@ -60,6 +61,7 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
         tabbedPane = new JTabbedPane();
         tabbedPane.setFont(new Font("Segoe UI", Font.BOLD, 14));
 
+
         // Tab 1: Danh sách
         JPanel listPanel = new JPanel(new BorderLayout());
         listPanel.setBackground(Color.WHITE);
@@ -70,6 +72,14 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
 
         tabbedPane.addTab("Danh sách khuyến mãi", listPanel);
         tabbedPane.addTab("Tạo / Chỉnh sửa", formPanel);
+
+        tabbedPane.addChangeListener(e -> {
+            if (tabbedPane.getSelectedIndex() == 1) { // Tab form
+                if (!isEditMode) {
+                    txtMaKM.setText(khuyenMaiBUS.generateMaKM());
+                }
+            }
+        });
 
         add(tabbedPane, BorderLayout.CENTER);
     }
@@ -310,14 +320,14 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
         }
 
         // ===== CLICK EVENT =====
-        table.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                if (e.getClickCount() == 1) {
-                    hienThiChiTiet();
-                }
-            }
-        });
+//        table.addMouseListener(new java.awt.event.MouseAdapter() {
+//            @Override
+//            public void mouseClicked(java.awt.event.MouseEvent e) {
+//                if (e.getClickCount() == 1) {
+//                    hienThiChiTiet();
+//                }
+//            }
+//        });
 
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1));
@@ -359,6 +369,8 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
         fieldsPanel.setBackground(Color.WHITE);
 
         txtMaKM = createTextField();
+        txtMaKM.setEditable(false);
+        txtMaKM.setBackground(new Color(240, 240, 240));
         txtTenKM = createTextField();
         txtMoTa = createTextField();
         txtGiaTri = createTextField();
@@ -522,6 +534,8 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
         int selectedRow = table.getSelectedRow();
         if (selectedRow == -1) return;
 
+        isEditMode = true; // ← ĐANG Ở CHẾ ĐỘ SỬA
+
         String maKM = tableModel.getValueAt(selectedRow, 0).toString();
         KhuyenMai km = khuyenMaiBUS.getById(maKM);
 
@@ -547,86 +561,138 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
 
             cboApDungChoTatCa.setSelectedItem(km.isApDungChoTatCa() ? "Có" : "Không");
             cboTrangThai.setSelectedItem(km.isTrangThai() ? "Hoạt động" : "Không hoạt động");
+
+//            tabbedPane.setSelectedIndex(1);
         }
     }
 
     private void themKhuyenMai() {
         try {
+            if (isEditMode) {
+                JOptionPane.showMessageDialog(this,
+                        "Bạn đang ở chế độ sửa. Hãy nhấn Lưu để cập nhật!",
+                        "Thông báo",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
             KhuyenMai km = layThongTinTuForm();
             km.setNgayTao(LocalDateTime.now());
-            km.setNguoiTao("admin"); // Có thể lấy từ session
+            km.setNguoiTao("admin");
+
             if (khuyenMaiBUS.insert(km)) {
-                JOptionPane.showMessageDialog(this, "Thêm khuyến mãi thành công!",
-                        "Thành công", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this,
+                        "Thêm khuyến mãi thành công!",
+                        "Thành công",
+                        JOptionPane.INFORMATION_MESSAGE);
+
                 loadData();
                 lamMoi();
+                txtMaKM.setText(khuyenMaiBUS.generateMaKM());
+
             } else {
-                JOptionPane.showMessageDialog(this, "Thêm khuyến mãi thất bại!",
-                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this,
+                        "Thêm thất bại!",
+                        "Lỗi",
+                        JOptionPane.ERROR_MESSAGE);
             }
+
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Lỗi: " + e.getMessage(),
-                    "Lỗi", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    e.getMessage(),
+                    "Lỗi",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
+
     private void luuKhuyenMai() {
+
+        if (!isEditMode) {
+            JOptionPane.showMessageDialog(this,
+                    "Bạn chưa chọn khuyến mãi để sửa!",
+                    "Cảnh báo",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
         try {
             KhuyenMai km = layThongTinTuForm();
 
-            dal.KhuyenMaiDAO dao = new dal.KhuyenMaiDAO();
-            if (dao.update(km)) {
-                JOptionPane.showMessageDialog(this, "Cập nhật khuyến mãi thành công!",
-                        "Thành công", JOptionPane.INFORMATION_MESSAGE);
+            if (khuyenMaiBUS.update(km)) {
+
+                JOptionPane.showMessageDialog(this,
+                        "Cập nhật thành công!",
+                        "Thành công",
+                        JOptionPane.INFORMATION_MESSAGE);
+
                 loadData();
+                lamMoi();
+                isEditMode = false;
+                txtMaKM.setText(khuyenMaiBUS.generateMaKM());
+
+
             } else {
-                JOptionPane.showMessageDialog(this, "Cập nhật khuyến mãi thất bại!",
-                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this,
+                        "Cập nhật thất bại!",
+                        "Lỗi",
+                        JOptionPane.ERROR_MESSAGE);
             }
+
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Lỗi: " + e.getMessage(),
-                    "Lỗi", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    e.getMessage(),
+                    "Lỗi",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void xoaKhuyenMai() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn khuyến mãi cần xóa!",
-                    "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "Vui lòng chọn khuyến mãi cần xóa!",
+                    "Cảnh báo",
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         int confirm = JOptionPane.showConfirmDialog(this,
                 "Bạn có chắc chắn muốn xóa khuyến mãi này?",
-                "Xác nhận", JOptionPane.YES_NO_OPTION);
-
+                "Xác nhận",
+                JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
             try {
                 String maKM = tableModel.getValueAt(selectedRow, 0).toString();
                 KhuyenMai km = new KhuyenMai();
                 km.setMaKhuyenMai(maKM);
 
-                dal.KhuyenMaiDAO dao = new dal.KhuyenMaiDAO();
-                if (dao.delete(km)) {
-                    JOptionPane.showMessageDialog(this, "Xóa khuyến mãi thành công!",
-                            "Thành công", JOptionPane.INFORMATION_MESSAGE);
+                if (khuyenMaiBUS.delete(km)) { // Thêm delete vào BUS
+                    JOptionPane.showMessageDialog(this,
+                            "Xóa khuyến mãi thành công!",
+                            "Thành công",
+                            JOptionPane.INFORMATION_MESSAGE);
                     loadData();
                     lamMoi();
                 } else {
-                    JOptionPane.showMessageDialog(this, "Xóa khuyến mãi thất bại!",
-                            "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this,
+                            "Xóa khuyến mãi thất bại! Có thể đang được sử dụng.",
+                            "Lỗi",
+                            JOptionPane.ERROR_MESSAGE);
                 }
             } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Lỗi: " + e.getMessage(),
-                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this,
+                        "Lỗi hệ thống: " + e.getMessage(),
+                        "Lỗi",
+                        JOptionPane.ERROR_MESSAGE);
             }
         }
     }
 
     private void lamMoi() {
+        isEditMode = false;
+
         txtMaKM.setText("");
-        txtMaKM.setEditable(true);
         txtTenKM.setText("");
         txtMoTa.setText("");
         txtGiaTri.setText("");
@@ -705,24 +771,89 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
 
     private KhuyenMai layThongTinTuForm() {
         KhuyenMai km = new KhuyenMai();
-        km.setMaKhuyenMai(txtMaKM.getText().trim());
-        km.setTenKM(txtTenKM.getText().trim());
-        km.setMoTa(txtMoTa.getText().trim());
+
+        // Kiểm tra required fields
+        String maKM = txtMaKM.getText().trim();
+        if (maKM.isEmpty()) {
+            throw new IllegalArgumentException("Mã KM không được để trống!");
+        }
+        km.setMaKhuyenMai(maKM);
+
+        String tenKM = txtTenKM.getText().trim();
+        if (tenKM.isEmpty()) {
+            throw new IllegalArgumentException("Tên KM không được để trống!");
+        }
+        km.setTenKM(tenKM);
+
+        km.setMoTa(txtMoTa.getText().trim()); // Optional, không bắt buộc
+
         km.setLoaiKM(cboLoaiKM.getSelectedItem().toString());
-        km.setGiaTri(new BigDecimal(txtGiaTri.getText().trim()));
-        km.setDonHangToiThieu(new BigDecimal(txtDonHangToiThieu.getText().trim()));
-        km.setSoLuongTong(Integer.parseInt(txtSoLuongTong.getText().trim()));
-        km.setSoLuongDaDung(Integer.parseInt(txtSoLuongDaDung.getText().trim()));
-        km.setGioiHanMoiKhach(Integer.parseInt(txtGioiHanMoiKhach.getText().trim()));
 
-        km.setLoaiKhachApDung(txtLoaiKhachApDung.getText().trim());
+        // Kiểm tra số: BigDecimal, phải dương
+        try {
+            BigDecimal giaTri = new BigDecimal(txtGiaTri.getText().trim());
+            if (giaTri.compareTo(BigDecimal.ZERO) <= 0) {
+                throw new IllegalArgumentException("Giá trị phải là số dương!");
+            }
+            km.setGiaTri(giaTri);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Giá trị phải là số hợp lệ (ví dụ: 10.5)!");
+        }
 
-        //chuyen doi Date tu JSpinner sang LocalDate
+        try {
+            BigDecimal donHangToiThieu = new BigDecimal(txtDonHangToiThieu.getText().trim());
+            if (donHangToiThieu.compareTo(BigDecimal.ZERO) < 0) {
+                throw new IllegalArgumentException("Đơn hàng tối thiểu không được âm!");
+            }
+            km.setDonHangToiThieu(donHangToiThieu);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Đơn hàng tối thiểu phải là số hợp lệ!");
+        }
+
+        // Kiểm tra số integer: phải dương hoặc >=0
+        try {
+            int soLuongTong = Integer.parseInt(txtSoLuongTong.getText().trim());
+            if (soLuongTong <= 0) {
+                throw new IllegalArgumentException("Số lượng tổng phải lớn hơn 0!");
+            }
+            km.setSoLuongTong(soLuongTong);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Số lượng tổng phải là số nguyên hợp lệ!");
+        }
+
+        try {
+            int soLuongDaDung = Integer.parseInt(txtSoLuongDaDung.getText().trim());
+            if (soLuongDaDung < 0) {
+                throw new IllegalArgumentException("Số lượng đã dùng không được âm!");
+            }
+            km.setSoLuongDaDung(soLuongDaDung);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Số lượng đã dùng phải là số nguyên hợp lệ!");
+        }
+
+        try {
+            int gioiHanMoiKhach = Integer.parseInt(txtGioiHanMoiKhach.getText().trim());
+            if (gioiHanMoiKhach <= 0) {
+                throw new IllegalArgumentException("Giới hạn mỗi khách phải lớn hơn 0!");
+            }
+            km.setGioiHanMoiKhach(gioiHanMoiKhach);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Giới hạn mỗi khách phải là số nguyên hợp lệ!");
+        }
+
+        km.setLoaiKhachApDung(txtLoaiKhachApDung.getText().trim()); // Optional
+
+        // Ngày: BD <= KT
         java.util.Date dateNgayBD = (java.util.Date) spinnerNgayBD.getValue();
-        km.setNgayBD(new java.sql.Date(dateNgayBD.getTime()).toLocalDate());
+        LocalDate ngayBD = new java.sql.Date(dateNgayBD.getTime()).toLocalDate();
+        java.util.Date dateNgayKT = (java.util.Date) spinnerNgayKT.getValue();
+        LocalDate ngayKT = new java.sql.Date(dateNgayKT.getTime()).toLocalDate();
 
-        java.util.Date dateNgayKT  =(java.util.Date) spinnerNgayKT.getValue();
-        km.setNgayKT(new java.sql.Date(dateNgayKT.getTime()).toLocalDate());
+        if (ngayBD.isAfter(ngayKT)) {
+            throw new IllegalArgumentException("Ngày bắt đầu phải trước hoặc bằng ngày kết thúc!");
+        }
+        km.setNgayBD(ngayBD);
+        km.setNgayKT(ngayKT);
 
         km.setApDungChoTatCa(cboApDungChoTatCa.getSelectedItem().toString().equals("Có"));
         km.setTrangThai(cboTrangThai.getSelectedItem().toString().equals("Hoạt động"));
