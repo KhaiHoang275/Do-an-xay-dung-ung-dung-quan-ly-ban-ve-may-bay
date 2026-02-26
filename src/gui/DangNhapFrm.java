@@ -2,7 +2,8 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package gui;
+package gui; 
+
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 /**
  *
@@ -58,9 +59,11 @@ public class DangNhapFrm extends javax.swing.JFrame {
         LablePassword.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
         LablePassword.setText("Password:");
 
+        btnGoogleAcc.setBackground(new java.awt.Color(204, 204, 204));
         btnGoogleAcc.setText("Google");
         btnGoogleAcc.addActionListener(this::btnGoogleAccActionPerformed);
 
+        btnFacebookAcc.setBackground(new java.awt.Color(204, 204, 204));
         btnFacebookAcc.setText("Facebook");
         btnFacebookAcc.addActionListener(this::btnFacebookAccActionPerformed);
 
@@ -72,11 +75,12 @@ public class DangNhapFrm extends javax.swing.JFrame {
 
         btnSignIn.setText("Đăng ký");
 
+        btnConfirm.setBackground(new java.awt.Color(255, 255, 51));
         btnConfirm.setFont(new java.awt.Font("Arial", 3, 14)); // NOI18N
         btnConfirm.setText("Nhập\n");
 
         LableTitle.setFont(new java.awt.Font("Times New Roman", 1, 40)); // NOI18N
-        LableTitle.setForeground(new java.awt.Color(76, 222, 229));
+        LableTitle.setForeground(new java.awt.Color(255, 0, 0));
         LableTitle.setText("ĐĂNG NHẬP TÀI KHOẢN ");
 
         PasswordField.setText("jPasswordField1");

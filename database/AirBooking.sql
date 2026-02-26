@@ -193,11 +193,12 @@ CREATE TABLE ChiTietDichVu (
 );
 
 CREATE TABLE ChiTietHoaDon (
-    maHoaDon VARCHAR(20),
+    maCTHoaDon VARCHAR(20),
     maVe VARCHAR(20),
     soTien DECIMAL(18, 2),
-    PRIMARY KEY (maHoaDon) REFERENCES HoaDon(maHoaDon),
-    PRIMARY KEY (maVe) REFERENCES VeBan(maVe)
+    PRIMARY KEY (maHoaDon, maVe),
+    FOREIGN KEY (maHoaDon) REFERENCES HoaDon(maHoaDon),
+    FOREIGN KEY (maVe) REFERENCES VeBan(maVe)
 );
 
 CREATE TABLE HanhLy (

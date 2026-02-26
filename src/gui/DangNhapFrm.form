@@ -160,6 +160,9 @@
         </Component>
         <Component class="javax.swing.JButton" name="btnGoogleAcc">
           <Properties>
+            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="cc" green="cc" red="cc" type="rgb"/>
+            </Property>
             <Property name="text" type="java.lang.String" value="Google"/>
           </Properties>
           <Events>
@@ -168,6 +171,9 @@
         </Component>
         <Component class="javax.swing.JButton" name="btnFacebookAcc">
           <Properties>
+            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="cc" green="cc" red="cc" type="rgb"/>
+            </Property>
             <Property name="text" type="java.lang.String" value="Facebook"/>
           </Properties>
           <Events>
@@ -197,6 +203,9 @@
         </Component>
         <Component class="javax.swing.JButton" name="btnConfirm">
           <Properties>
+            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="33" green="ff" red="ff" type="rgb"/>
+            </Property>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Arial" size="14" style="3"/>
             </Property>
@@ -209,7 +218,7 @@
               <Font name="Times New Roman" size="40" style="1"/>
             </Property>
             <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="e5" green="de" red="4c" type="rgb"/>
+              <Color blue="0" green="0" red="ff" type="rgb"/>
             </Property>
             <Property name="text" type="java.lang.String" value="&#x110;&#x102;NG NH&#x1eac;P T&#xc0;I KHO&#x1ea2;N "/>
           </Properties>

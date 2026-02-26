@@ -52,7 +52,12 @@ public class SanBay {
         return thanhPho; 
     }
 
-    public String toString(){
-        return maSanBay + " " + tenSanBay + " " + quocGia + " " + thanhPho;
+    @Override
+    public String toString() {
+        
+        if (maSanBay == null || maSanBay.isEmpty()) {
+            return thanhPho; 
+        }
+        return thanhPho + " (" + maSanBay + ")";
     } 
 }
