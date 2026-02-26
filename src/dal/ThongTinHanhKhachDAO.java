@@ -191,4 +191,34 @@ public class ThongTinHanhKhachDAO {
         }
         return tthk;
     }
+
+    public ThongTinHanhKhach selectByMaNguoiDung(String maNguoiDung){
+        String sql = "SELECT * FROM ThongTinHanhKhach WHERE maNguoiDung = ?";
+        try(Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)){
+            ps.setString(1, maNguoiDung);
+            ResultSet rs = ps.executeQuery();
+
+            if(rs.next()){
+                ThongTinHanhKhach tthk = new ThongTinHanhKhach();
+
+                tthk.setMaHK(rs.getString("maHK"));
+                tthk.setMaNguoiDung(rs.getString("maNguoiDung"));
+                tthk.setMaThuHang(rs.getString("maThuHang"));
+                tthk.setHoTen(rs.getString("hoTen"));
+                tthk.setCccd(rs.getString("cccd"));
+                tthk.setHoChieu(rs.getString("hoChieu"));
+                if(rs.getDate("ngaySinh") != null){
+                    tthk.setNgaySinh(rs.getDate("ngaySinh").toLocalDate());
+                }
+                tthk.setGioiTinh(rs.getString("gioiTinh"));
+                tthk.setDiemTichLuy(rs.getInt("diemTichLuy"));
+
+                return tthk;
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

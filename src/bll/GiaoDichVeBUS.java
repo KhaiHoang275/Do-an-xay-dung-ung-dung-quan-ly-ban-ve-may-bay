@@ -1,16 +1,12 @@
 package bll;
-import dal.GiaoDichVeDAO;
-import dal.VeBanDAO;
-import dal.HangVeDAO;
-import model.GiaoDichVe;
-import model.HangVe;
-import model.VeBan;
-import model.TrangThaiGiaoDich;
+import dal.*;
+import model.*;
 import db.DBConnection;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,11 +22,19 @@ public class GiaoDichVeBUS {
     private GiaoDichVeDAO giaoDichVeDAO;
     private VeBanDAO veBanDAO;
     private HangVeDAO hangVeDAO;
+    private ChuyenBayDAO chuyenBayDAO;
+    private ThongTinHanhKhachDAO thongTinHanhKhachDAO;
+    private NguoiDungDAO nguoiDungDAO;
+    private ThuHangDAO thuHangDAO;
 
     public GiaoDichVeBUS() {
         this.giaoDichVeDAO = new GiaoDichVeDAO();
         this.veBanDAO = new VeBanDAO();
         this.hangVeDAO = new HangVeDAO();
+        this.chuyenBayDAO = new ChuyenBayDAO();
+        this.thongTinHanhKhachDAO = new ThongTinHanhKhachDAO();
+        this.nguoiDungDAO = new NguoiDungDAO();
+        this.thuHangDAO = new ThuHangDAO();
     }
 
     private boolean kiemTraVeTonTai(String maVe) {
@@ -408,5 +412,114 @@ public class GiaoDichVeBUS {
         // kiem tra trang thai trc khi xoa
         validateChuaHoanThanh(maGD);
         return giaoDichVeDAO.delete(maGD);
+    }
+
+    public boolean kiemTraDuDieuKienDoiVe(String maVe, String maNguoiDung) { // kiểm tra đủ điều kiện đổi vé
+
+        // 1 Lấy vé
+        VeBan ve = veBanDAO.selectById(maVe);
+        if (ve == null) return false;
+
+        // Lay chuyen bay de co NgayGioDi
+        ChuyenBay cb = chuyenBayDAO.selectById(ve.getMaChuyenBay());
+        if(cb == null) return false;
+
+        LocalDate ngayBay = cb.getNgayGioDi().toLocalDate();
+        LocalDate today = LocalDate.now();
+        long soNgay = ChronoUnit.DAYS.between(today, ngayBay);
+
+        // Lấy giá vé
+        BigDecimal giaVe = ve.getGiaVe();
+
+        //Lay thong tin hanh khach
+         ThongTinHanhKhach tthk = thongTinHanhKhachDAO.selectByMaNguoiDung(maNguoiDung);
+         if(tthk == null) return false;
+
+         String hang = tthk.getLoaiHanhKhach(); // Silver / Gold/ Platinum
+
+        switch (hang.toUpperCase()) {
+
+            case "SILVER":
+                return soNgay >= 5 && giaVe.compareTo(new BigDecimal("2000000")) > 0;
+
+            case "GOLD":
+                return soNgay >= 3 && giaVe.compareTo(new BigDecimal("1000000")) > 0;
+
+            case "PLATINUM":
+                return soNgay >= 2;
+
+            default:
+                return false;
+        }
+    }
+
+    public String kiemTraDieuKienDoiVe(String maVe, String maNguoiDung){
+        VeBan ve = veBanDAO.selectById(maVe);
+        if(ve == null){
+            return "Vé không tồn tại";
+        }
+        ThongTinHanhKhach tthkCuaVe = thongTinHanhKhachDAO.getByMaHK(ve.getMaHK());
+        if (tthkCuaVe == null) {
+            return "Không tìm thấy thông tin hành khách của vé.";
+        }
+        if(!tthkCuaVe.getMaNguoiDung().equals(maNguoiDung)){
+            return "Vé không thuộc về người dùng này";
+        }
+
+        NguoiDung nd = nguoiDungDAO.getByMaNguoiDung(maNguoiDung);
+        if(nd == null) return "Người dùng không tồn tại";
+
+        ThongTinHanhKhach tthk = thongTinHanhKhachDAO.selectByMaNguoiDung(maNguoiDung);
+        if(tthk == null) return "Không tìm thấy thông tin khách hàng";
+        ThuHang th = thuHangDAO.selectById(tthk.getMaThuHang());
+        if(th == null) return "Không xác định được hạng thành viên";
+
+        ChuyenBay cb = chuyenBayDAO.selectById(ve.getMaChuyenBay());
+        if(cb == null) return "Không tìm thấy chuyến bay";
+
+        LocalDate ngayBay = cb.getNgayGioDi().toLocalDate();
+        LocalDate homNay = LocalDate.now();
+
+        long soNgay = ChronoUnit.DAYS.between(homNay, ngayBay);
+        if(soNgay < 0){
+            return "Chuyến bay đã khởi hành";
+        }
+
+        BigDecimal giaVe = ve.getGiaVe();
+        String tenHang = th.getTenThuHang().toLowerCase();
+
+        // ================= SILVER =================
+        if (tenHang.equals("silver")) {
+
+            if (soNgay < 5) {
+                return "Hạng Silver chỉ được đổi vé khi còn ít nhất 5 ngày.";
+            }
+
+            if (giaVe.compareTo(new BigDecimal("2000000")) <= 0) {
+                return "Hạng Silver chỉ đổi vé khi giá vé trên 2.000.000.";
+            }
+
+        }
+        // ================= GOLD =================
+        else if (tenHang.equals("gold")) {
+
+            if (soNgay < 3) {
+                return "Hạng Gold chỉ được đổi vé khi còn ít nhất 3 ngày.";
+            }
+
+            if (giaVe.compareTo(new BigDecimal("1000000")) <= 0) {
+                return "Hạng Gold chỉ đổi vé khi giá vé trên 1.000.000.";
+            }
+
+        }
+        // ================= PLATINUM =================
+        else if (tenHang.equals("platinum")) {
+
+            if (soNgay < 2) {
+                return "Hạng Platinum chỉ được đổi vé khi còn ít nhất 2 ngày.";
+            }
+        }
+
+        return "OK";
     }
 }
