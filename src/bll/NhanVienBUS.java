@@ -1,4 +1,4 @@
-package bus;
+package bll;
 
 import dal.NhanVienDAO;
 import model.NhanVien;

@@ -18,8 +18,8 @@ public class DangNhapFrm extends javax.swing.JFrame {
      */
     public DangNhapFrm() {
         initComponents(); 
-        btnGoogleAcc.setIcon(new FlatSVGIcon("svgmaterials/icons/bxl-google.svg", 24, 24)); 
-        btnFacebookAcc.setIcon(new FlatSVGIcon("svgmaterials/icons/bxl-facebook.svg", 24, 24));  
+        btnGoogleAcc.setIcon(new FlatSVGIcon("svgmaterials/icons/bxl-google.svg", 24, 24));
+        btnFacebookAcc.setIcon(new FlatSVGIcon("svgmaterials/icons/bxl-facebook.svg", 24, 24));
  
         btnGoogleAcc.setIconTextGap(10);
         btnFacebookAcc.setIconTextGap(10);
