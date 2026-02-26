@@ -17,7 +17,7 @@ public class MainFrame extends javax.swing.JFrame {
      */
     public MainFrame() {
         initComponents();   
-        
+        setupLogo();
         gui.custom.UIHelper.loadSanBayToComboBox(cbCities, cbCities1);
         setupCurrencyComboBox(); 
         setupHanhKhachPopup();  
@@ -41,7 +41,7 @@ public class MainFrame extends javax.swing.JFrame {
 
     public MainFrame(model.NguoiDung nd) {
         initComponents();  
-        
+        setupLogo();
         gui.custom.UIHelper.loadSanBayToComboBox(cbCities, cbCities1);
         setupCurrencyComboBox(); 
         setupHanhKhachPopup(); 
@@ -75,14 +75,6 @@ public class MainFrame extends javax.swing.JFrame {
 
         btnGChuyenBay = new javax.swing.ButtonGroup();
         pnlHeader = new javax.swing.JPanel();
-        jPanel2 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        pnlMenuHeader = new javax.swing.JPanel();
-        btnKhuyenMai = new javax.swing.JButton();
-        btnDatCho = new javax.swing.JButton();
-        btnLogin = new javax.swing.JButton();
-        btnSignin = new javax.swing.JButton();
-        cbDonViTienTe = new javax.swing.JComboBox<>();
         pnlContent = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         btnVeMB = new javax.swing.JButton();
@@ -104,99 +96,18 @@ public class MainFrame extends javax.swing.JFrame {
         jButton3 = new javax.swing.JButton();
         btnHanhKhach = new javax.swing.JButton();
         pnlMultiCities = new javax.swing.JPanel();
+        jPanel2 = new javax.swing.JPanel();
+        pnlMenuHeader = new javax.swing.JPanel();
+        btnKhuyenMai = new javax.swing.JButton();
+        btnDatCho = new javax.swing.JButton();
+        btnLogin = new javax.swing.JButton();
+        btnSignin = new javax.swing.JButton();
+        cbDonViTienTe = new javax.swing.JComboBox<>();
+        jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         pnlHeader.setBackground(new java.awt.Color(255, 0, 51));
-
-        jPanel2.setBackground(new java.awt.Color(255, 0, 51));
-
-        jLabel1.setFont(new java.awt.Font("VNI-Franko", 0, 40)); // NOI18N
-        jLabel1.setText("AirLiner");
-
-        pnlMenuHeader.setBackground(new java.awt.Color(255, 0, 51));
-
-        btnKhuyenMai.setBackground(new java.awt.Color(255, 255, 0));
-        btnKhuyenMai.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
-        btnKhuyenMai.setText("Khuyến mãi");
-
-        btnDatCho.setBackground(new java.awt.Color(255, 255, 51));
-        btnDatCho.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
-        btnDatCho.setText("Đặt chỗ");
-
-        btnLogin.setBackground(new java.awt.Color(255, 255, 51));
-        btnLogin.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
-        btnLogin.setText("Đăng nhập");
-
-        btnSignin.setBackground(new java.awt.Color(255, 255, 51));
-        btnSignin.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
-        btnSignin.setText("Đăng ký");
-        btnSignin.setMaximumSize(new java.awt.Dimension(83, 33));
-        btnSignin.setMinimumSize(new java.awt.Dimension(83, 33));
-        btnSignin.addActionListener(this::btnSigninActionPerformed);
-
-        cbDonViTienTe.setBackground(new java.awt.Color(255, 255, 51));
-        cbDonViTienTe.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
-        cbDonViTienTe.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { " VND | VI", " USD | EN" }));
-        cbDonViTienTe.addActionListener(this::cbDonViTienTeActionPerformed);
-
-        javax.swing.GroupLayout pnlMenuHeaderLayout = new javax.swing.GroupLayout(pnlMenuHeader);
-        pnlMenuHeader.setLayout(pnlMenuHeaderLayout);
-        pnlMenuHeaderLayout.setHorizontalGroup(
-            pnlMenuHeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pnlMenuHeaderLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(cbDonViTienTe, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(btnKhuyenMai)
-                .addGap(18, 18, 18)
-                .addComponent(btnDatCho, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(btnLogin)
-                .addGap(18, 18, 18)
-                .addComponent(btnSignin, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(20, Short.MAX_VALUE))
-        );
-        pnlMenuHeaderLayout.setVerticalGroup(
-            pnlMenuHeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pnlMenuHeaderLayout.createSequentialGroup()
-                .addGroup(pnlMenuHeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlMenuHeaderLayout.createSequentialGroup()
-                        .addGap(15, 15, 15)
-                        .addGroup(pnlMenuHeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(btnDatCho, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnKhuyenMai, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnLogin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnSignin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(pnlMenuHeaderLayout.createSequentialGroup()
-                        .addGap(17, 17, 17)
-                        .addComponent(cbDonViTienTe, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addContainerGap(542, Short.MAX_VALUE)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(68, 68, 68)
-                .addComponent(pnlMenuHeader, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(430, 430, 430))
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(14, 14, 14)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(pnlMenuHeader, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
-        pnlHeader.add(jPanel2);
-
         getContentPane().add(pnlHeader, java.awt.BorderLayout.NORTH);
 
         pnlContent.setBackground(new java.awt.Color(255, 255, 255));
@@ -223,7 +134,7 @@ public class MainFrame extends javax.swing.JFrame {
                 .addComponent(btnDiary)
                 .addGap(18, 18, 18)
                 .addComponent(jButton1)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(600, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -304,7 +215,7 @@ public class MainFrame extends javax.swing.JFrame {
                         .addComponent(jRadioButton1)
                         .addGap(18, 18, 18)
                         .addComponent(jRadioButton2)))
-                .addGap(97, 97, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addComponent(btnHanhKhach)
@@ -321,7 +232,7 @@ public class MainFrame extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(jButton3))
                             .addComponent(jCheckBox1))))
-                .addContainerGap(127, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -358,35 +269,126 @@ public class MainFrame extends javax.swing.JFrame {
         pnlMultiCities.setLayout(pnlMultiCitiesLayout);
         pnlMultiCitiesLayout.setHorizontalGroup(
             pnlMultiCitiesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addGap(0, 1357, Short.MAX_VALUE)
         );
         pnlMultiCitiesLayout.setVerticalGroup(
             pnlMultiCitiesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 316, Short.MAX_VALUE)
+            .addGap(0, 321, Short.MAX_VALUE)
+        );
+
+        jPanel2.setBackground(new java.awt.Color(255, 0, 51));
+
+        pnlMenuHeader.setBackground(new java.awt.Color(255, 0, 51));
+
+        btnKhuyenMai.setBackground(new java.awt.Color(255, 255, 0));
+        btnKhuyenMai.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
+        btnKhuyenMai.setText("Khuyến mãi");
+
+        btnDatCho.setBackground(new java.awt.Color(255, 255, 51));
+        btnDatCho.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
+        btnDatCho.setText("Đặt chỗ");
+
+        btnLogin.setBackground(new java.awt.Color(255, 255, 51));
+        btnLogin.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
+        btnLogin.setText("Đăng nhập");
+
+        btnSignin.setBackground(new java.awt.Color(255, 255, 51));
+        btnSignin.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
+        btnSignin.setText("Đăng ký");
+        btnSignin.setMaximumSize(new java.awt.Dimension(83, 33));
+        btnSignin.setMinimumSize(new java.awt.Dimension(83, 33));
+        btnSignin.addActionListener(this::btnSigninActionPerformed);
+
+        cbDonViTienTe.setBackground(new java.awt.Color(255, 255, 51));
+        cbDonViTienTe.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
+        cbDonViTienTe.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { " VND | VI", " USD | EN" }));
+        cbDonViTienTe.addActionListener(this::cbDonViTienTeActionPerformed);
+
+        javax.swing.GroupLayout pnlMenuHeaderLayout = new javax.swing.GroupLayout(pnlMenuHeader);
+        pnlMenuHeader.setLayout(pnlMenuHeaderLayout);
+        pnlMenuHeaderLayout.setHorizontalGroup(
+            pnlMenuHeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlMenuHeaderLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(cbDonViTienTe, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(btnKhuyenMai)
+                .addGap(18, 18, 18)
+                .addComponent(btnDatCho, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(btnLogin)
+                .addGap(18, 18, 18)
+                .addComponent(btnSignin, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(20, Short.MAX_VALUE))
+        );
+        pnlMenuHeaderLayout.setVerticalGroup(
+            pnlMenuHeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlMenuHeaderLayout.createSequentialGroup()
+                .addGroup(pnlMenuHeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlMenuHeaderLayout.createSequentialGroup()
+                        .addGap(15, 15, 15)
+                        .addGroup(pnlMenuHeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnDatCho, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnKhuyenMai, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnLogin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnSignin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(pnlMenuHeaderLayout.createSequentialGroup()
+                        .addGap(17, 17, 17)
+                        .addComponent(cbDonViTienTe, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        jLabel1.setFont(new java.awt.Font("VNI-Franko", 0, 40)); // NOI18N
+        jLabel1.setText("AirLiner");
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addGap(216, 216, 216)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 371, Short.MAX_VALUE)
+                .addComponent(pnlMenuHeader, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(430, 430, 430))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(14, 14, 14)
+                .addComponent(pnlMenuHeader, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addComponent(jLabel1)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout pnlContentLayout = new javax.swing.GroupLayout(pnlContent);
         pnlContent.setLayout(pnlContentLayout);
         pnlContentLayout.setHorizontalGroup(
             pnlContentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlContentLayout.createSequentialGroup()
-                .addContainerGap(1004, Short.MAX_VALUE)
+            .addGroup(pnlContentLayout.createSequentialGroup()
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 571, Short.MAX_VALUE))
+            .addGroup(pnlContentLayout.createSequentialGroup()
+                .addGap(105, 105, 105)
                 .addGroup(pnlContentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addComponent(pnlMultiCities, javax.swing.GroupLayout.DEFAULT_SIZE, 1357, Short.MAX_VALUE)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(117, 117, 117))
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         pnlContentLayout.setVerticalGroup(
             pnlContentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlContentLayout.createSequentialGroup()
-                .addContainerGap()
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(pnlMultiCities, javax.swing.GroupLayout.PREFERRED_SIZE, 316, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(185, Short.MAX_VALUE))
+                .addComponent(pnlMultiCities, javax.swing.GroupLayout.PREFERRED_SIZE, 321, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(186, Short.MAX_VALUE))
         );
 
         pnlMultiCities.getAccessibleContext().setAccessibleName("");
@@ -477,9 +479,9 @@ public class MainFrame extends javax.swing.JFrame {
         public String getText() { return text; }
         public javax.swing.Icon getIcon() { return icon; }
 
-        @Override
+        @Override 
         public String toString() { return text; } 
-    } 
+    }  
 
     private void setupHanhKhachPopup() {
      
@@ -523,7 +525,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JButton btnMoreCities; 
 
     private void loadDanhSachSanBay() {
-        danhSachSanBayGoc = new bus.SanBayBUS().getAllSanBay();
+        danhSachSanBayGoc = new bll.SanBayBUS().getAllSanBay();
     }
 
     private void setupHoTroChonSanBay(javax.swing.JComboBox cbTu, javax.swing.JComboBox cbDen, javax.swing.JButton btnSwap) {
@@ -831,7 +833,30 @@ public class MainFrame extends javax.swing.JFrame {
         }
         pnlMultiCities.revalidate();
         pnlMultiCities.repaint();
+    } 
+
+    private void setupLogo() {
+        
+        jLabel1.setText(""); 
+        
+        try {
+            
+            javax.swing.ImageIcon originalIcon = new javax.swing.ImageIcon("src/resources/images/logos.png");
+            
+            
+            if (originalIcon.getIconWidth() > 0) {
+                
+                java.awt.Image scaledImg = originalIcon.getImage().getScaledInstance(-1, 100, java.awt.Image.SCALE_SMOOTH);
+                jLabel1.setIcon(new javax.swing.ImageIcon(scaledImg));
+            } else {
+                System.out.println("Báo động: Không tìm thấy ảnh tại src/resources/images");
+                jLabel1.setText("AirLiner");
+            }
+        } catch (Exception e) {
+            System.out.println("Lỗi hiển thị logo: " + e.getMessage());
+        }
     }
+
 
     private void setupBusinessLogic() {
         loadDanhSachSanBay();

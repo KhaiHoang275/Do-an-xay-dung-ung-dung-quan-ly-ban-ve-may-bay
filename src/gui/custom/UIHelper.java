@@ -1,7 +1,7 @@
 package gui.custom;
 
 import model.SanBay;
-import bus.SanBayBUS;
+import bll.SanBayBUS;
 import java.util.ArrayList;
 import javax.swing.JComboBox;
 

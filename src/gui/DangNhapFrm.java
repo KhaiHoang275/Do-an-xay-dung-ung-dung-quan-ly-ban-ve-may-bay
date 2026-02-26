@@ -189,7 +189,7 @@ public class DangNhapFrm extends javax.swing.JFrame {
     String user = Username.getText();
     String pass = new String(PasswordField.getPassword()); 
 
-    bus.NguoiDungBUS bus = new bus.NguoiDungBUS();
+    bll.NguoiDungBUS bus = new bll.NguoiDungBUS();
     model.NguoiDung nd = bus.checkLogin(user, pass);
 
     if (nd != null) {
