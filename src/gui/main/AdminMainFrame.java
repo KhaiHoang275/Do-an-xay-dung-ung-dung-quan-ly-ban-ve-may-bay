@@ -1,5 +1,6 @@
 package gui.main;
 
+import gui.admin.QuanLyKhuyenMaiPanel;
 import gui.admin.QuanLyThuHangPanel;
 
 import javax.swing.*;
@@ -71,27 +72,6 @@ public class AdminMainFrame extends JFrame {
         }
 
         sidebar.add(logoPanel, BorderLayout.NORTH);
-//        JPanel logoPanel = new JPanel();
-//        logoPanel.setBackground(SIDEBAR_COLOR);
-//        logoPanel.setLayout(new BorderLayout());
-//        logoPanel.setBorder(BorderFactory.createEmptyBorder(30, 0, 30, 0));
-//
-//        ImageIcon icon = new ImageIcon(
-//                getClass().getResource("/resources/images/logox120.png") // nhớ: KHÔNG /resources
-//        );
-//
-//        Image scaledImage = icon.getImage().getScaledInstance(
-//                120, 120, // kích thước đẹp cho sidebar 230px
-//                Image.SCALE_SMOOTH
-//        );
-//
-//        JLabel logoLabel = new JLabel(new ImageIcon(scaledImage));
-//        logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
-//
-//        logoPanel.add(logoLabel, BorderLayout.CENTER);
-//
-//        sidebar.add(logoPanel, BorderLayout.NORTH);
-
         // ===== MENU PANEL =====
         JPanel menuPanel = new JPanel();
         menuPanel.setBackground(SIDEBAR_COLOR);
@@ -104,7 +84,14 @@ public class AdminMainFrame extends JFrame {
             showPanel(new QuanLyThuHangPanel());
         });
 
+        JButton btnKhuyenMai = createSidebarButton("Quản lý khuyến mãi", "/resources/icons/voucher.png");
+        btnKhuyenMai.addActionListener(e ->{
+            setActiveButton(btnKhuyenMai);
+            showPanel(new QuanLyKhuyenMaiPanel());
+        });
+
         menuPanel.add(btnThuHang);
+        menuPanel.add(btnKhuyenMai);
 
         sidebar.add(menuPanel, BorderLayout.CENTER);
 
@@ -119,6 +106,9 @@ public class AdminMainFrame extends JFrame {
         btn.setForeground(Color.WHITE);
         btn.setFont(new Font("Segoe UI", Font.BOLD, 16));
         btn.setFocusPainted(false);
+        btn.setBorderPainted(false);
+        btn.setContentAreaFilled(true);
+        btn.setOpaque(true);
         btn.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
         btn.setHorizontalAlignment(SwingConstants.LEFT);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
