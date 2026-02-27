@@ -26,6 +26,12 @@ public class PhieuDatVePanel extends JPanel {
     private JTable table;
     private DefaultTableModel tableModel;
 
+    private JTable tableVe;
+    private DefaultTableModel modelVe;
+
+    private JScrollPane spVe;  
+    private JPanel panelVe;    
+
     private final ChuyenBayBUS chuyenBayBUS = new ChuyenBayBUS();
     private final PhieuDatVeDAO phieuDAO = new PhieuDatVeDAO();
     private final VeBanDAO veBanDAO = new VeBanDAO();
@@ -33,9 +39,18 @@ public class PhieuDatVePanel extends JPanel {
     public PhieuDatVePanel() {
         setLayout(new BorderLayout(10, 10));
         add(initForm(), BorderLayout.NORTH);
-        add(initTable(), BorderLayout.CENTER);
+
+       JPanel centerPanel = new JPanel();
+        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+
+        centerPanel.add(initTable()); 
+        centerPanel.add(initTableVe());   
+
+        add(centerPanel, BorderLayout.CENTER);
+
         loadTable();
         capNhatTongTien();
+        ganSuKienClickPhieu();
     }
 
     private JPanel initForm() {
@@ -132,6 +147,42 @@ public class PhieuDatVePanel extends JPanel {
         return new JScrollPane(table);
     }
 
+    private JPanel initTableVe() {
+
+        modelVe = new DefaultTableModel(
+                new String[]{"Mã vé", "Loại HK", "Loại vé", "Giá vé"},
+                0
+        ) {
+            @Override
+            public boolean isCellEditable(int r, int c) {
+                return false;
+            }
+        };
+
+        tableVe = new JTable(modelVe);
+
+        spVe = new JScrollPane(tableVe);
+
+        JButton btnThoat = new JButton("Thoát");
+        btnThoat.addActionListener(e -> {
+            modelVe.setRowCount(0);
+            panelVe.setVisible(false); 
+        });
+
+        JPanel top = new JPanel(new BorderLayout());
+        top.add(new JLabel("Danh sách vé"), BorderLayout.WEST);
+        top.add(btnThoat, BorderLayout.EAST);
+
+        panelVe = new JPanel(new BorderLayout());
+        panelVe.setBorder(BorderFactory.createTitledBorder(""));
+        panelVe.add(top, BorderLayout.NORTH);
+        panelVe.add(spVe, BorderLayout.CENTER);
+
+        panelVe.setVisible(false);
+
+        return panelVe;
+    }
+
     private void loadTable() {
         tableModel.setRowCount(0);
         List<PhieuDatVe> list = phieuDAO.selectAll();
@@ -196,7 +247,7 @@ public class PhieuDatVePanel extends JPanel {
             v.setMaHangVe(null);
             v.setMaGhe(null);
 
-            veBanDAO.insert(v);
+            veBanDAO.insert(v); 
         }
     }
 
@@ -205,5 +256,40 @@ public class PhieuDatVePanel extends JPanel {
         lblTreEm.setText("0");
         lblEmBe.setText("0");
         dongBo();
+    }
+
+    private void ganSuKienClickPhieu() {
+        table.getSelectionModel().addListSelectionListener(e -> {
+            if (e.getValueIsAdjusting()) return;
+
+            int row = table.getSelectedRow();
+            if (row == -1) {
+                panelVe.setVisible(false);
+                return;
+            }
+
+            String maPhieu = tableModel.getValueAt(row, 0).toString();
+
+            loadVeTheoPhieu(maPhieu);
+
+            panelVe.setVisible(true);
+            panelVe.revalidate();
+            panelVe.repaint();
+        });
+    }
+
+    private void loadVeTheoPhieu(String maPhieu) {
+        modelVe.setRowCount(0);
+
+        List<VeBan> list = veBanDAO.selectByMaPhieuDatVe(maPhieu);
+
+        for (VeBan v : list) {
+            modelVe.addRow(new Object[]{
+                v.getMaVe(),
+                v.getLoaiHK(),
+                v.getLoaiVe(),
+                v.getGiaVe()
+            });
+        }
     }
 }
