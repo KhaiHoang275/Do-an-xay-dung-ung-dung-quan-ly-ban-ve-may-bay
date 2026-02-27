@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 import db.DBConnection;
 import model.VeBan;
@@ -239,5 +240,32 @@ public class VeBanDAO {
         }
 
         return false;
+    }
+
+    public List<VeBan> selectByMaPhieuDatVe(String maPhieu) {
+        List<VeBan> list = new ArrayList<>();
+        String sql = "SELECT * FROM VeBan WHERE maPhieuDatVe = ?";
+
+        try (Connection con = DBConnection.getConnection();
+            PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, maPhieu);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                VeBan v = new VeBan();
+                v.setMaVe(rs.getString("maVe"));
+                v.setMaPhieuDatVe(rs.getString("maPhieuDatVe"));
+                v.setMaChuyenBay(rs.getString("maChuyenBay"));
+                v.setLoaiHK(rs.getString("loaiHK"));
+                v.setLoaiVe(rs.getString("loaiVe"));
+                v.setGiaVe(rs.getBigDecimal("giaVe"));
+                v.setTrangThaiVe(rs.getString("trangThaiVe"));
+                list.add(v);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 }
