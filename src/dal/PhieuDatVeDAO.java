@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import javax.swing.JOptionPane;
+
 import db.DBConnection;
 import model.PhieuDatVe;
 
@@ -38,23 +40,27 @@ public class PhieuDatVeDAO {
         return list;
     } 
 
-    public boolean insert(PhieuDatVe dv){
-        String sql = "INSERT INTO PhieuDatVe (maPhieuDatVe, maNguoiDung, maNV, maKhuyenMai, thoiLuong, ngayDat, soLuongVe, tongTien, trangThaiThanhToan) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try (Connection con = DBConnection.getConnection();
-            PreparedStatement ps = con.prepareStatement(sql)){
-                ps.setString(1, dv.getMaPhieuDatVe());
-                ps.setString(2, dv.getMaNguoiDung());
-                ps.setString(3, dv.getMaNV());
-                ps.setString(4, dv.getMaKhuyenMai());
-                ps.setInt(5, dv.getThoiLuong());
-                ps.setDate(6, java.sql.Date.valueOf(dv.getNgayDat()));
-                ps.setInt(7, dv.getSoLuongVe());
-                ps.setBigDecimal(8, dv.getTongTien());
-                ps.setString(9, dv.getTrangThaiThanhToan());
+    public boolean insert(PhieuDatVe p) {
+        String sql = "INSERT INTO PhieuDatVe " +
+                "(maPhieuDatVe, ngayDat, soLuongVe, tongTien, trangThaiThanhToan) " +
+                "VALUES (?, ?, ?, ?, ?)";
 
-                return ps.executeUpdate() > 0;    
+        try (Connection con = DBConnection.getConnection()) {
+
+            String maPhieu = generateMaPhieuDatVe(con);
+            p.setMaPhieuDatVe(maPhieu);        
+
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setString(1, p.getMaPhieuDatVe());
+            ps.setDate(2, java.sql.Date.valueOf(p.getNgayDat()));
+            ps.setInt(3, p.getSoLuongVe());
+            ps.setBigDecimal(4, p.getTongTien());
+            ps.setString(5, p.getTrangThaiThanhToan());
+
+            return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, e.getMessage());
         }
         return false;
     }
@@ -118,5 +124,19 @@ public class PhieuDatVeDAO {
             e.printStackTrace();
         }
         return dv;
+    }
+
+    public String generateMaPhieuDatVe(Connection conn) throws SQLException {
+        String sql = "SELECT MAX(maPhieuDatVe) FROM PhieuDatVe";
+        try (PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next() && rs.getString(1) != null) {
+                String last = rs.getString(1).substring(3); // ← FIX Ở ĐÂY
+                int num = Integer.parseInt(last) + 1;
+                return String.format("PDV%03d", num);
+            }
+        }
+        return "PDV001";
     }
 }

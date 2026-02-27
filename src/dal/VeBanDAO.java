@@ -39,9 +39,11 @@ public class VeBanDAO {
     }
 
     public boolean insert(VeBan vb){
-        String sql = "INSERT INTO VeBan (maVe, maPhieuDatVe, maChuyenBay, maHK, maHangVe, maGhe, loaiVe, loaiHK, giaVe, trangThaiVe) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try (Connection con = DBConnection.getConnection();
-            PreparedStatement ps = con.prepareStatement(sql)){
+        String sql = "INSERT INTO VeBan (maVe, maPhieuDatve, maChuyenBay, maHK, maHangVe, maGhe, loaiVe, loaiHK, giaVe, trangThaiVe) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        try (Connection con = DBConnection.getConnection()){
+            String maVe = generateMaVe(con);
+            vb.setMaVe(maVe);
+            PreparedStatement ps = con.prepareStatement(sql);
                 ps.setString(1, vb.getMaVe());
                 ps.setString(2, vb.getMaPhieuDatVe());
                 ps.setString(3, vb.getMaChuyenBay());
@@ -171,10 +173,10 @@ public class VeBanDAO {
             if (rs.next() && rs.getString(1) != null) {
                 String last = rs.getString(1).substring(2);
                 int num = Integer.parseInt(last) + 1;
-                return String.format("VB%03d", num);
+                return String.format("VE%03d", num);
             }
         }
-        return "VB001";
+        return "VE001";
     }
 
     public int getSoGheCon(Connection conn, String maCB) throws SQLException {
