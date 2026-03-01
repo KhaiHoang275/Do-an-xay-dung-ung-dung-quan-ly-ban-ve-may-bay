@@ -341,7 +341,7 @@ public class MainFrame extends javax.swing.JFrame {
 
         btnDatCho.setBackground(new java.awt.Color(255, 255, 51));
         btnDatCho.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
-        btnDatCho.setText("Đặt chỗ");
+        btnDatCho.setText("Đặt chỗ của tôi");
 
         btnLogin.setBackground(new java.awt.Color(255, 255, 51));
         btnLogin.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
@@ -364,12 +364,12 @@ public class MainFrame extends javax.swing.JFrame {
         pnlMenuHeaderLayout.setHorizontalGroup(
             pnlMenuHeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlMenuHeaderLayout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(2, 2, 2)
                 .addComponent(cbDonViTienTe, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(btnKhuyenMai)
                 .addGap(18, 18, 18)
-                .addComponent(btnDatCho, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(btnDatCho)
                 .addGap(18, 18, 18)
                 .addComponent(btnLogin)
                 .addGap(18, 18, 18)
@@ -379,17 +379,13 @@ public class MainFrame extends javax.swing.JFrame {
         pnlMenuHeaderLayout.setVerticalGroup(
             pnlMenuHeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlMenuHeaderLayout.createSequentialGroup()
+                .addGap(15, 15, 15)
                 .addGroup(pnlMenuHeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlMenuHeaderLayout.createSequentialGroup()
-                        .addGap(15, 15, 15)
-                        .addGroup(pnlMenuHeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(btnDatCho, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnKhuyenMai, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnLogin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnSignin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(pnlMenuHeaderLayout.createSequentialGroup()
-                        .addGap(17, 17, 17)
-                        .addComponent(cbDonViTienTe, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(cbDonViTienTe, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnKhuyenMai, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnDatCho, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnLogin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnSignin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -424,7 +420,7 @@ public class MainFrame extends javax.swing.JFrame {
             pnlContentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlContentLayout.createSequentialGroup()
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 571, Short.MAX_VALUE))
+                .addGap(0, 540, Short.MAX_VALUE))
             .addGroup(pnlContentLayout.createSequentialGroup()
                 .addGap(105, 105, 105)
                 .addGroup(pnlContentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
