@@ -17,7 +17,8 @@ public class MainFrame extends javax.swing.JFrame {
      */
     public MainFrame() {
         initComponents();    
-        setupLogo();
+        setupLogo(); 
+        applyTheme();
         gui.custom.UIHelper.loadSanBayToComboBox(cbCities, cbCities1);
         setupCurrencyComboBox(); 
         setupHanhKhachPopup();  
@@ -47,7 +48,8 @@ public class MainFrame extends javax.swing.JFrame {
 
 
     public MainFrame(model.NguoiDung nd) {
-        initComponents();  
+        initComponents();   
+        applyTheme();
         setupLogo();
         gui.custom.UIHelper.loadSanBayToComboBox(cbCities, cbCities1);
         setupCurrencyComboBox(); 
@@ -478,7 +480,43 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {                                           
         // TODO add your handling code here:
-    }                                           
+    }                   
+    
+    private void applyTheme() {
+        java.awt.Color PRIMARY_COLOR = new java.awt.Color(18, 32, 64);
+        java.awt.Color ACCENT_COLOR = new java.awt.Color(255, 193, 7);
+        java.awt.Color BG_MAIN = new java.awt.Color(245, 247, 250);
+
+        pnlHeader.setBackground(PRIMARY_COLOR);
+        jPanel2.setBackground(PRIMARY_COLOR);
+        pnlMenuHeader.setBackground(PRIMARY_COLOR);
+
+        jLabel1.setForeground(java.awt.Color.WHITE);
+
+        btnKhuyenMai.setBackground(PRIMARY_COLOR);
+        btnKhuyenMai.setForeground(java.awt.Color.WHITE);
+        btnKhuyenMai.setBorderPainted(false);
+
+        btnDatCho.setBackground(PRIMARY_COLOR);
+        btnDatCho.setForeground(java.awt.Color.WHITE);
+        btnDatCho.setBorderPainted(false);
+
+        btnLogin.setBackground(PRIMARY_COLOR);
+        btnLogin.setForeground(java.awt.Color.WHITE);
+        btnLogin.setBorderPainted(false);
+
+        cbDonViTienTe.setBackground(PRIMARY_COLOR);
+        cbDonViTienTe.setForeground(java.awt.Color.WHITE);
+
+        btnSignin.setBackground(ACCENT_COLOR);
+        btnSignin.setForeground(PRIMARY_COLOR);
+        btnSignin.setBorderPainted(false);
+
+        pnlContent.setBackground(BG_MAIN);
+
+        jButton3.setBackground(ACCENT_COLOR);
+        jButton3.setForeground(PRIMARY_COLOR);
+    }
 
     private void setupCurrencyComboBox() {
         javax.swing.JComboBox rawCombo = cbDonViTienTe;
@@ -953,30 +991,31 @@ public class MainFrame extends javax.swing.JFrame {
     
         btnSearchMulti = new javax.swing.JButton("Tìm chuyến bay");
         btnSearchMulti.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 18));
-        btnSearchMulti.setBackground(new java.awt.Color(255, 102, 0)); // Màu cam đặc trưng Traveloka
+        btnSearchMulti.setBackground(new java.awt.Color(255, 193, 7)); // ACCENT_COLOR
+        btnSearchMulti.setForeground(new java.awt.Color(18, 32, 64));  // PRIMARY_COLOR
         btnSearchMulti.setForeground(java.awt.Color.WHITE);
         btnSearchMulti.setPreferredSize(new java.awt.Dimension(200, 50));
         
     
         pnlButtonWrapper.add(btnMoreCities, java.awt.BorderLayout.WEST);
         pnlButtonWrapper.add(btnSearchMulti, java.awt.BorderLayout.EAST);
-        // SỰ KIỆN CHỌN NHIỀU THÀNH PHỐ
+   
         jRadioButton2.addActionListener(e -> {
             if(jRadioButton2.isSelected()) {
-                anHienHangGoc.accept(false); // Ảo thuật: Giấu sạch hàng tĩnh đi
+                anHienHangGoc.accept(false); 
                 
                 pnlMultiCities.removeAll(); 
                 listNgayExtra.clear();
                 listBtnXoa.clear();
                 
-                // NHUỘM XÁM PANEL ĐỂ HỢP NHẤT VỚI KHỐI TRÊN
+         
                 pnlMultiCities.setOpaque(true);
                 pnlMultiCities.setBackground(jPanel3.getBackground());
                 
                 pnlMultiCities.add(pnlButtonWrapper);
                 pnlMultiCities.setVisible(true);
                 
-                // Tự động đẻ ra 2 chuyến bay chuẩn Traveloka
+    
                 taoHangChuyenBayMoi(); 
                 taoHangChuyenBayMoi(); 
             }

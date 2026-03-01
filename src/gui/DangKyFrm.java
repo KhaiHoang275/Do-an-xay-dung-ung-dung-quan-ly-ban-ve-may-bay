@@ -17,7 +17,26 @@ public class DangKyFrm extends javax.swing.JFrame {
      * Creates new form DangKyFrm
      */
     public DangKyFrm() {
-        initComponents(); 
+        initComponents();  
+        java.awt.Color PRIMARY_COLOR = new java.awt.Color(18, 32, 64);
+    java.awt.Color SECONDARY_COLOR = new java.awt.Color(45, 72, 140);
+    java.awt.Color SUCCESS_COLOR = new java.awt.Color(76, 175, 80);
+    java.awt.Color DANGER_COLOR = new java.awt.Color(244, 67, 54);
+    java.awt.Color BG_MAIN = new java.awt.Color(245, 247, 250); 
+
+    this.getContentPane().setBackground(BG_MAIN);
+    LoginLable.setBackground(java.awt.Color.WHITE);
+
+    LableTitle.setForeground(PRIMARY_COLOR);
+
+    btnConfirm.setBackground(SUCCESS_COLOR);
+    btnConfirm.setForeground(java.awt.Color.WHITE);
+
+    btnReturn.setBackground(SECONDARY_COLOR);
+    btnReturn.setForeground(java.awt.Color.WHITE);
+
+    btnExit.setBackground(DANGER_COLOR);
+    btnExit.setForeground(java.awt.Color.WHITE);
         defaultBorder = NameAccount.getBorder();
         lbErrorUsNa.setText(" ");
         lbErrorName.setText(" ");
