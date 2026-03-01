@@ -71,4 +71,12 @@ public class ChuyenBayBUS {
     public ChuyenBay getChuyenBayById(String maChuyenBay) {
         return chuyenBayDAO.selectById(maChuyenBay);
     }
+
+    public boolean capNhatChuyenBay(ChuyenBay cb) {
+        return chuyenBayDAO.update(cb);
+    }
+
+    public boolean xoaChuyenBay(String maChuyenBay) {
+        return chuyenBayDAO.delete(maChuyenBay);
+    }
 }

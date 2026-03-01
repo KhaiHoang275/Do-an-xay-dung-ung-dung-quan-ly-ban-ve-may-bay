@@ -6,17 +6,17 @@ public class TuyenBay {
     private String maTuyenBay;
     private String sanBayDi;
     private String sanBayDen;
-    private float khoangCach;
+    private float khoangCachKM;
     private BigDecimal giaGoc;
 
     public TuyenBay() {
     }
 
-    public TuyenBay(String maTuyenBay, String sanBayDi, String sanBayDen, float khoangCach, BigDecimal giaGoc) {
+    public TuyenBay(String maTuyenBay, String sanBayDi, String sanBayDen, float khoangCachKM, BigDecimal giaGoc) {
         this.maTuyenBay = maTuyenBay;
         this.sanBayDi = sanBayDi;
         this.sanBayDen = sanBayDen;
-        this.khoangCach = khoangCach;
+        this.khoangCachKM = khoangCachKM;
         this.giaGoc = giaGoc;
     }
 
@@ -24,7 +24,7 @@ public class TuyenBay {
         this.maTuyenBay = tb.maTuyenBay;
         this.sanBayDi = tb.sanBayDi;
         this.sanBayDen = tb.sanBayDen;
-        this.khoangCach = tb.khoangCach;
+        this.khoangCachKM = tb.khoangCachKM;
         this.giaGoc = tb.giaGoc;
     }
 
@@ -53,11 +53,11 @@ public class TuyenBay {
     }
 
     public float getKhoangCach() {
-        return khoangCach;
+        return khoangCachKM;
     }
 
-    public void setKhoangCach(float khoangCach) {
-        this.khoangCach = khoangCach;
+    public void setKhoangCach(float khoangCachKM) {
+        this.khoangCachKM = khoangCachKM;
     }
 
     public BigDecimal getGiaGoc() {
@@ -66,10 +66,10 @@ public class TuyenBay {
 
     public void setGiaGoc(BigDecimal giaGoc) {
         this.giaGoc = giaGoc;
-    }
+    } 
 
     public String toString() {
         return maTuyenBay + " "+ sanBayDi + " " + sanBayDen
-                + " " + khoangCach + " " + giaGoc;
+                + " " + khoangCachKM + " " + giaGoc;
     }
 }
