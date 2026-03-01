@@ -2,6 +2,8 @@ package gui.main;
 
 import gui.admin.QuanLyKhuyenMaiPanel;
 import gui.admin.QuanLyThuHangPanel;
+import gui.admin.TuyenBayPanel;
+import gui.admin.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -90,8 +92,43 @@ public class AdminMainFrame extends JFrame {
             showPanel(new QuanLyKhuyenMaiPanel());
         });
 
+        JButton btnTuyenBay = createSidebarButton("Quản lý tuyến bay", "/resources/icons/tuyenbay.png"); 
+        btnTuyenBay.addActionListener(e -> {
+            setActiveButton(btnTuyenBay);
+            showPanel(new TuyenBayPanel()); 
+        });
+
+        JButton btnChuyenBay = createSidebarButton("Quản lý chuyến bay", "/resources/icons/flight.png");
+        btnChuyenBay.addActionListener(e -> {
+            setActiveButton(btnChuyenBay);
+            showPanel(new ChuyenBayPanel());
+        });
+
+        JButton btnHeSoGia = createSidebarButton("Quản lý hệ số giá", "/resources/icons/price.png");
+        btnHeSoGia.addActionListener(e -> {
+            setActiveButton(btnHeSoGia);
+            showPanel(new HeSoGiaPanel());
+        });
+
+        JButton btnHangVe = createSidebarButton("Quản lý hạng vé", "/resources/icons/hangve.png");
+        btnHangVe.addActionListener(e -> {
+            setActiveButton(btnHangVe);
+            showPanel(new HangVePanel());
+        });
+
+        JButton btnGheMayBay = createSidebarButton("Quản lý ghế máy bay", "/resources/icons/chair.png");
+        btnGheMayBay.addActionListener(e -> {
+            setActiveButton(btnGheMayBay);
+            showPanel(new GheMayBayPanel());
+        });
+
+        menuPanel.add(btnChuyenBay);
+        menuPanel.add(btnTuyenBay);
         menuPanel.add(btnThuHang);
         menuPanel.add(btnKhuyenMai);
+        menuPanel.add(btnHeSoGia);
+        menuPanel.add(btnHangVe);
+        menuPanel.add(btnGheMayBay);
 
         sidebar.add(menuPanel, BorderLayout.CENTER);
 
