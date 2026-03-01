@@ -74,7 +74,7 @@ public class GheMayBayPanel extends JPanel {
             titleIcon = new ImageIcon(new ImageIcon(getClass().getResource("/resources/icons/icons8-airline-seat-24.png"))
                             .getImage().getScaledInstance(24, 24, Image.SCALE_SMOOTH));
         } catch (Exception e) {}
-        JLabel lblTitle = new JLabel("QUẢN LÝ GHẾ MÁY BAY (TẠO HÀNG LOẠT)", titleIcon, JLabel.LEFT);
+        JLabel lblTitle = new JLabel("QUẢN LÝ GHẾ MÁY BAY", titleIcon, JLabel.LEFT);
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 22));
         lblTitle.setForeground(PRIMARY);
         
@@ -150,15 +150,15 @@ public class GheMayBayPanel extends JPanel {
         formPanel.add(txtGiaGhe);
         
         // Hàng 2: Dùng cho tạo hàng loạt
-        formPanel.add(createLabel("Tiền Tố Dãy (VD: A, B, VIP) - Để tạo loạt:"));
+        formPanel.add(createLabel("Tiền Tố Dãy:"));
         formPanel.add(txtTienTo);
         formPanel.add(createLabel("Số Lượng Ghế Cần Tạo (VD: 50):"));
         formPanel.add(txtSoLuong);
 
         // Hàng 3: Dùng cho thao tác đơn lẻ
-        formPanel.add(createLabel("Mã Ghế (Chỉ xem/xóa):"));
+        formPanel.add(createLabel("Mã Ghế:"));
         formPanel.add(txtMaGhe);
-        formPanel.add(createLabel("Số Ghế (Dùng khi sửa 1 ghế):"));
+        formPanel.add(createLabel("Số Ghế:"));
         formPanel.add(txtSoGhe);
 
         // Ép width cho form đẹp hơn
