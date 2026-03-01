@@ -15,7 +15,7 @@ CREATE TABLE NguoiDung (
     email VARCHAR(100),
     sdt VARCHAR(20),
     ngayTao DATETIME DEFAULT GETDATE(),
-    phanQuyen NVARCHAR(50), -- Admin, NhanVien, KhachHang
+    phanQuyen NVARCHAR(50), -- Admin, KhachHang
     trangThaiTK NVARCHAR(50)
 );
 
@@ -91,6 +91,7 @@ CREATE TABLE ThongTinHanhKhach (
     ngaySinh DATE,
     gioiTinh NVARCHAR(10),
     diemTichLuy INT DEFAULT 0,
+    loaiHanhKhach VARCHAR(20),
     FOREIGN KEY (maNguoiDung) REFERENCES NguoiDung(maNguoiDung),
     FOREIGN KEY (maThuHang) REFERENCES ThuHang(maThuHang)
 );

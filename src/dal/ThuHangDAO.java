@@ -118,7 +118,7 @@ public class ThuHangDAO {
     public ThuHang selectById(String maHang) {
         ThuHang th = null;
 
-        String sql = "SELECT * FROM ThuHang WHERE maHang = ?";
+        String sql = "SELECT * FROM ThuHang WHERE maThuHang = ?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -129,8 +129,8 @@ public class ThuHangDAO {
 
             if (rs.next()) {
                 th = new ThuHang(
-                        rs.getString("maHang"),
-                        rs.getString("tenHang"),
+                        rs.getString("maThuHang"),
+                        rs.getString("tenThuHang"),
                         rs.getInt("diemToiThieu"),
                         rs.getDouble("tiLeGiam")
                 );
@@ -146,7 +146,7 @@ public class ThuHangDAO {
     public ThuHang selectByTen(String tenHang) {
         ThuHang th = null;
 
-        String sql = "SELECT * FROM ThuHang WHERE tenHang = ?";
+        String sql = "SELECT * FROM ThuHang WHERE tenThuHang = ?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -157,8 +157,8 @@ public class ThuHangDAO {
 
             if (rs.next()) {
                 th = new ThuHang(
-                        rs.getString("maHang"),
-                        rs.getString("tenHang"),
+                        rs.getString("maThuHang"),
+                        rs.getString("tenThuHang"),
                         rs.getInt("diemToiThieu"),
                         rs.getDouble("tiLeGiam")
                 );

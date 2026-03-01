@@ -20,7 +20,7 @@ import java.util.List;
 
 public class GiaoDichVeBUS {
     private GiaoDichVeDAO giaoDichVeDAO;
-    private VeBanDAO veBanDAO;
+    public VeBanDAO veBanDAO;
     private HangVeDAO hangVeDAO;
     private ChuyenBayDAO chuyenBayDAO;
     private ThongTinHanhKhachDAO thongTinHanhKhachDAO;
@@ -92,7 +92,7 @@ public class GiaoDichVeBUS {
      * @param maVeCu Mã vé cũ
      * @return Phí giao dịch
      */
-    private BigDecimal tinhPhiGiaoDich(String maVeCu){
+    public BigDecimal tinhPhiGiaoDich(String maVeCu){
         VeBan veCu = veBanDAO.selectById(maVeCu);
         if(veCu == null) return BigDecimal.ZERO;
 
@@ -110,7 +110,7 @@ public class GiaoDichVeBUS {
      * @param maVeCu Mã vé cũ
      * @return Phí chênh lệch
      */
-    private BigDecimal tinhPhiChenhLech(String maVeMoi, String maVeCu){
+    public BigDecimal tinhPhiChenhLech(String maVeMoi, String maVeCu){
         VeBan veMoi = veBanDAO.selectById(maVeMoi);
         VeBan veCu = veBanDAO.selectById(maVeCu);
 
@@ -414,44 +414,44 @@ public class GiaoDichVeBUS {
         return giaoDichVeDAO.delete(maGD);
     }
 
-    public boolean kiemTraDuDieuKienDoiVe(String maVe, String maNguoiDung) { // kiểm tra đủ điều kiện đổi vé
-
-        // 1 Lấy vé
-        VeBan ve = veBanDAO.selectById(maVe);
-        if (ve == null) return false;
-
-        // Lay chuyen bay de co NgayGioDi
-        ChuyenBay cb = chuyenBayDAO.selectById(ve.getMaChuyenBay());
-        if(cb == null) return false;
-
-        LocalDate ngayBay = cb.getNgayGioDi().toLocalDate();
-        LocalDate today = LocalDate.now();
-        long soNgay = ChronoUnit.DAYS.between(today, ngayBay);
-
-        // Lấy giá vé
-        BigDecimal giaVe = ve.getGiaVe();
-
-        //Lay thong tin hanh khach
-         ThongTinHanhKhach tthk = thongTinHanhKhachDAO.selectByMaNguoiDung(maNguoiDung);
-         if(tthk == null) return false;
-
-         String hang = tthk.getLoaiHanhKhach(); // Silver / Gold/ Platinum
-
-        switch (hang.toUpperCase()) {
-
-            case "SILVER":
-                return soNgay >= 5 && giaVe.compareTo(new BigDecimal("2000000")) > 0;
-
-            case "GOLD":
-                return soNgay >= 3 && giaVe.compareTo(new BigDecimal("1000000")) > 0;
-
-            case "PLATINUM":
-                return soNgay >= 2;
-
-            default:
-                return false;
-        }
-    }
+//    public boolean kiemTraDuDieuKienDoiVe(String maVe, String maNguoiDung) { // kiểm tra đủ điều kiện đổi vé
+//
+//        // 1 Lấy vé
+//        VeBan ve = veBanDAO.selectById(maVe);
+//        if (ve == null) return false;
+//
+//        // Lay chuyen bay de co NgayGioDi
+//        ChuyenBay cb = chuyenBayDAO.selectById(ve.getMaChuyenBay());
+//        if(cb == null) return false;
+//
+//        LocalDate ngayBay = cb.getNgayGioDi().toLocalDate();
+//        LocalDate today = LocalDate.now();
+//        long soNgay = ChronoUnit.DAYS.between(today, ngayBay);
+//
+//        // Lấy giá vé
+//        BigDecimal giaVe = ve.getGiaVe();
+//
+//        //Lay thong tin hanh khach
+//         ThongTinHanhKhach tthk = thongTinHanhKhachDAO.selectByMaNguoiDung(maNguoiDung);
+//         if(tthk == null) return false;
+//
+//         String hang = tthk.getLoaiHanhKhach(); // Silver / Gold/ Platinum
+//
+//        switch (hang.toUpperCase()) {
+//
+//            case "SILVER":
+//                return soNgay >= 5 && giaVe.compareTo(new BigDecimal("2000000")) > 0;
+//
+//            case "GOLD":
+//                return soNgay >= 3 && giaVe.compareTo(new BigDecimal("1000000")) > 0;
+//
+//            case "PLATINUM":
+//                return soNgay >= 2;
+//
+//            default:
+//                return false;
+//        }
+//    }
 
     public String kiemTraDieuKienDoiVe(String maVe, String maNguoiDung){
         VeBan ve = veBanDAO.selectById(maVe);
@@ -469,9 +469,9 @@ public class GiaoDichVeBUS {
         NguoiDung nd = nguoiDungDAO.getByMaNguoiDung(maNguoiDung);
         if(nd == null) return "Người dùng không tồn tại";
 
-        ThongTinHanhKhach tthk = thongTinHanhKhachDAO.selectByMaNguoiDung(maNguoiDung);
-        if(tthk == null) return "Không tìm thấy thông tin khách hàng";
-        ThuHang th = thuHangDAO.selectById(tthk.getMaThuHang());
+//        ThongTinHanhKhach tthk = thongTinHanhKhachDAO.selectByMaNguoiDung(maNguoiDung);
+//        if(tthk == null) return "Không tìm thấy thông tin khách hàng";
+        ThuHang th = thuHangDAO.selectById(tthkCuaVe.getMaThuHang());
         if(th == null) return "Không xác định được hạng thành viên";
 
         ChuyenBay cb = chuyenBayDAO.selectById(ve.getMaChuyenBay());
@@ -521,5 +521,25 @@ public class GiaoDichVeBUS {
         }
 
         return "OK";
+    }
+
+    public List <VeBan> danhSachVeCoTheDoi(String maNguoiDung){
+        ThongTinHanhKhach tthk = thongTinHanhKhachDAO.selectByMaNguoiDung(maNguoiDung);
+        if(tthk == null) return new ArrayList<>();
+
+        return veBanDAO.selectVeCoTheDoi(tthk.getMaHK());
+    }
+
+    /**
+     * Lấy giá vé theo mã vé
+     * @param maVe Mã vé
+     * @return Giá vé (BigDecimal)
+     */
+    public BigDecimal tinhGiaVe(String maVe) {
+        VeBan ve = veBanDAO.selectById(maVe);
+        if (ve == null) {
+            return BigDecimal.ZERO;
+        }
+        return ve.getGiaVe();
     }
 }

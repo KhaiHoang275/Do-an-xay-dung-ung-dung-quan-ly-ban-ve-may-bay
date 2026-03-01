@@ -15,10 +15,10 @@ public class ThongTinHanhKhach {
     private int diemTichLuy;
 
     // Field mới thêm
-    private String loaiHanhKhach;  // Silver, Gold, Platinum, Diamond
+    private String loaiHanhKhach;  //Loại tuổi: Nguoi lon, Tre em, Em be
 
     public ThongTinHanhKhach() {
-        this.loaiHanhKhach = "Silver";  // mặc định khi tạo mới
+
     }
 
     // Constructor copy
@@ -48,8 +48,7 @@ public class ThongTinHanhKhach {
         this.gioiTinh = gioiTinh;
         this.ngaySinh = ngaySinh;
         this.diemTichLuy = diemTichLuy;
-        this.loaiHanhKhach = (loaiHanhKhach != null && !loaiHanhKhach.isEmpty())
-                ? loaiHanhKhach : "Silver";
+        this.loaiHanhKhach = loaiHanhKhach;
     }
 
     // Getters & Setters (cũ giữ nguyên, thêm mới cho loaiHanhKhach)
@@ -89,19 +88,16 @@ public class ThongTinHanhKhach {
         this.loaiHanhKhach = loaiHanhKhach;
     }
 
-    // Phương thức tiện ích: tính hạng dựa trên điểm (dùng trong BUS hoặc khi cần)
-    public void capNhatLoaiHanhKhach() {
-        if (diemTichLuy >= 10000) {
-            loaiHanhKhach = "Diamond";
-        } else if (diemTichLuy >= 5000) {
-            loaiHanhKhach = "Platinum";
+    // Phương thức tiện ích: tính hạng thành viên dựa trên điểm (nếu cần dùng riêng, không set loaiHanhKhach)
+    public String tinhHangThanhVien() {
+        if (diemTichLuy >= 4500) {
+            return "Platinum";
         } else if (diemTichLuy >= 2000) {
-            loaiHanhKhach = "Gold";
+            return "Gold";
         } else {
-            loaiHanhKhach = "Silver";
+            return "Silver";
         }
     }
-
     @Override
     public String toString() {
         return "ThongTinHanhKhach{" +
