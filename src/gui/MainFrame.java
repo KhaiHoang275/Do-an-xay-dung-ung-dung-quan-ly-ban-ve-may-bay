@@ -11,12 +11,12 @@ package gui;
 public class MainFrame extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(MainFrame.class.getName());
-
+    
     /**
      * Creates new form LichBayFrm
      */
     public MainFrame() {
-        initComponents();   
+        initComponents();    
         setupLogo();
         gui.custom.UIHelper.loadSanBayToComboBox(cbCities, cbCities1);
         setupCurrencyComboBox(); 
@@ -32,7 +32,14 @@ public class MainFrame extends javax.swing.JFrame {
             jButton2.setIcon(new com.formdev.flatlaf.extras.FlatSVGIcon("svgmaterials/icons/bx-transfer.svg", 24, 24));
         } catch (Exception e) {
             System.out.println("Lỗi icon đổi chiều");
-        }
+        } 
+        for(java.awt.event.ActionListener al : btnLogin.getActionListeners()) btnLogin.removeActionListener(al);
+        btnLogin.addActionListener(e -> {
+            DangNhapFrm frm = new DangNhapFrm();
+            frm.setLocationRelativeTo(this); 
+            frm.setVisible(true);
+       
+        });
     } 
 
 
@@ -53,8 +60,56 @@ public class MainFrame extends javax.swing.JFrame {
         this.userHienTai = nd;
         setTitle("AirLiner - Xin chào: " + userHienTai.getUsername()); 
         
+        btnSignin.setVisible(false);
         
-        btnLogin.setVisible(false);
+        String chuCaiDau = "U";
+        if (userHienTai.getUsername() != null && !userHienTai.getUsername().isEmpty()) {
+            chuCaiDau = userHienTai.getUsername().substring(0, 1).toUpperCase();
+        }
+        
+        java.awt.Color[] palette = {
+            new java.awt.Color(234, 67, 53),
+            new java.awt.Color(52, 168, 83),
+            new java.awt.Color(66, 133, 244),
+            new java.awt.Color(251, 188, 5),
+            new java.awt.Color(156, 39, 176),
+            new java.awt.Color(0, 150, 136),
+            new java.awt.Color(255, 112, 67)
+        };
+        
+        int randomIndex = new java.util.Random().nextInt(palette.length);
+        
+        btnLogin.setText(chuCaiDau); 
+        btnLogin.setToolTipText("Hồ sơ của: " + userHienTai.getUsername()); 
+        btnLogin.setBackground(palette[randomIndex]); 
+        btnLogin.setForeground(java.awt.Color.WHITE); 
+        btnLogin.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 22)); 
+        btnLogin.putClientProperty("JButton.buttonType", "roundRect");
+        
+        javax.swing.JPopupMenu avatarMenu = new javax.swing.JPopupMenu();
+        javax.swing.JMenuItem itemThongTin = new javax.swing.JMenuItem("Thông tin người dùng");
+        javax.swing.JMenuItem itemLichSu = new javax.swing.JMenuItem("Lịch sử đặt vé");
+        javax.swing.JMenuItem itemDangXuat = new javax.swing.JMenuItem("Đăng xuất");
+
+        itemThongTin.addActionListener(e -> javax.swing.JOptionPane.showMessageDialog(this, "Đang xây dựng form Thông tin người dùng..."));
+        itemLichSu.addActionListener(e -> javax.swing.JOptionPane.showMessageDialog(this, "Đang xây dựng form Lịch sử đặt vé..."));
+        
+        itemDangXuat.addActionListener(e -> {
+            java.util.prefs.Preferences prefs = java.util.prefs.Preferences.userNodeForPackage(gui.DangNhapFrm.class);
+            prefs.remove("saved_user");
+            prefs.remove("saved_pass");
+            
+            new MainFrame().setVisible(true);
+            this.dispose();
+        });
+
+        avatarMenu.add(itemThongTin);
+        avatarMenu.add(itemLichSu);
+        avatarMenu.addSeparator();
+        avatarMenu.add(itemDangXuat);
+
+        for(java.awt.event.ActionListener al : btnLogin.getActionListeners()) btnLogin.removeActionListener(al);
+        btnLogin.addActionListener(e -> avatarMenu.show(btnLogin, 0, btnLogin.getHeight()));
         btnSignin.setVisible(false); 
 
         jButton2.setText(""); 
@@ -400,7 +455,9 @@ public class MainFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnSigninActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSigninActionPerformed
-        // TODO add your handling code here:
+        DangKyFrm frm = new DangKyFrm();
+        frm.setLocationRelativeTo(this); 
+        frm.setVisible(true);
     }//GEN-LAST:event_btnSigninActionPerformed
 
     private void cbDonViTienTeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbDonViTienTeActionPerformed
@@ -978,7 +1035,21 @@ public class MainFrame extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new MainFrame().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> {
+            java.util.prefs.Preferences prefs = java.util.prefs.Preferences.userNodeForPackage(gui.DangNhapFrm.class);
+            String savedUser = prefs.get("saved_user", null);
+            String savedPass = prefs.get("saved_pass", null);
+            
+            if (savedUser != null && savedPass != null) {
+                bll.NguoiDungBUS bus = new bll.NguoiDungBUS();
+                model.NguoiDung nd = bus.checkLogin(savedUser, savedPass);
+                if (nd != null) {
+                    new MainFrame(nd).setVisible(true);
+                    return;
+                }
+            }
+            new MainFrame().setVisible(true);
+        });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
