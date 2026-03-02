@@ -38,7 +38,7 @@ public class NguoiDungDAO {
 
     public boolean insert(NguoiDung nd) {
         String sql = "INSERT INTO NguoiDung (maNguoiDung, username, password, email, sdt, phanQuyen, trangThaiTK) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        // Lưu ý: ngayTao để mặc định SQL tự sinh (DEFAULT GETDATE()) nên không cần insert
+
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             
@@ -111,4 +111,29 @@ public class NguoiDungDAO {
         }
         return false;
     }
+
+    public NguoiDung getByMaNguoiDung(String maNguoiDung) {
+        String sql = "SELECT * FROM NguoiDung WHERE maNguoiDung = ?";
+        NguoiDung nd = null;
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maNguoiDung);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                nd = new NguoiDung();
+                nd.setMaNguoiDung(rs.getString("maNguoiDung"));
+                nd.setUsername(rs.getString("username"));
+                nd.setPassword(rs.getString("password"));
+                nd.setEmail(rs.getString("email"));
+                nd.setSoDienThoai(rs.getString("sdt"));
+                if (rs.getTimestamp("ngayTao") != null) {
+                    nd.setNgayTao(rs.getTimestamp("ngayTao").toLocalDateTime().toLocalDate());
+                }
+                nd.setPhanQuyen(rs.getString("phanQuyen"));
+                nd.setTrangThaiTK(rs.getString("trangThaiTK"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return nd;}
 }

@@ -203,7 +203,7 @@ CREATE TABLE ChiTietDichVu (
 );
 
 CREATE TABLE ChiTietHoaDon (
-    maHoaDon VARCHAR(20),
+    maCTHoaDon VARCHAR(20),
     maVe VARCHAR(20),
     soTien DECIMAL(18, 2),
 
