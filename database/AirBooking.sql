@@ -14,7 +14,8 @@ CREATE TABLE NguoiDung (
     password VARCHAR(255) NOT NULL,
     email VARCHAR(100),
     sdt VARCHAR(20),
-    ngayTao DATETIME DEFAULT GETDATE(),
+    ngayTao DATETIME DEFAULT GETDATE(), 
+    thanhPho NVARCHAR(50),
     phanQuyen NVARCHAR(50), -- Admin, NhanVien, KhachHang
     trangThaiTK enum('ACTIVE', 'INACTIVE') DEFAULT 'ACTIVE'
 );
@@ -79,7 +80,8 @@ CREATE TABLE KhuyenMai (
 CREATE TABLE DichVuBoSung (
     maDichVu VARCHAR(20) PRIMARY KEY,
     tenDichVu NVARCHAR(100),
-    donGia DECIMAL(18, 2)
+    donGia DECIMAL(18, 2) 
+    trangThai Enum('ACTIVE', 'INACTIVE') DEFAULT 'ACTIVE'
 );
 
 -- =======================================================
