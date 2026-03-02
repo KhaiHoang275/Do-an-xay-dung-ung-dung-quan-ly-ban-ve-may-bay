@@ -277,9 +277,7 @@ public class DangNhapFrm extends javax.swing.JFrame {
     }                                             
 
     private void btnSignInActionPerformed(java.awt.event.ActionEvent evt) {                                                                                                                                                                         
-        DangKyFrm frm = new DangKyFrm();
-        frm.setLocationRelativeTo(null); 
-        frm.setVisible(true);
+        new MainFrame().setVisible(true); 
         this.dispose();
 
     }                                          

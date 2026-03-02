@@ -60,7 +60,8 @@ public class DangKyFrm extends javax.swing.JFrame {
         btnSeeCnPass.addActionListener(e -> togglePassword(confirmPass, btnSeeCnPass));
         
         btnExit.addActionListener(e -> {
-            this.dispose(); 
+            new MainFrame().setVisible(true); 
+            this.dispose();
         });
         
         btnReturn.addActionListener(e -> {
