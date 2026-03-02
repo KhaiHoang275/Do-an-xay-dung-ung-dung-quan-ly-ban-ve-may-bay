@@ -2,27 +2,86 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package gui; 
+package gui;
 
 import com.formdev.flatlaf.extras.FlatSVGIcon;
+
 /**
  *
  * @author DellU
  */
 public class DangNhapFrm extends javax.swing.JFrame {
-    
+    private javax.swing.border.Border defaultBorder;
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(DangNhapFrm.class.getName());
 
     /**
      * Creates new form DangNhapFrm
      */
     public DangNhapFrm() {
-        initComponents(); 
+        initComponents();   
+
+        java.awt.Color PRIMARY_COLOR = new java.awt.Color(18, 32, 64);
+        java.awt.Color SECONDARY_COLOR = new java.awt.Color(45, 72, 140);
+        java.awt.Color ACCENT_COLOR = new java.awt.Color(255, 193, 7);
+        java.awt.Color SUCCESS_COLOR = new java.awt.Color(76, 175, 80);
+        java.awt.Color BG_MAIN = new java.awt.Color(245, 247, 250); 
+
+        this.getContentPane().setBackground(BG_MAIN);
+    LoginLable.setBackground(java.awt.Color.WHITE);
+
+    
+    LableTitle.setForeground(PRIMARY_COLOR);
+
+   
+    btnConfirm.setBackground(SUCCESS_COLOR);
+    btnConfirm.setForeground(java.awt.Color.WHITE);
+
+    btnSignIn.setBackground(ACCENT_COLOR);
+    btnSignIn.setForeground(PRIMARY_COLOR);
+
+    btnReturn.setBackground(SECONDARY_COLOR);
+    btnReturn.setForeground(java.awt.Color.WHITE);
+    
+  
+    btnGoogleAcc.setBackground(java.awt.Color.WHITE);
+    btnGoogleAcc.setForeground(PRIMARY_COLOR);
+    btnFacebookAcc.setBackground(java.awt.Color.WHITE);
+    btnFacebookAcc.setForeground(PRIMARY_COLOR);
+        btnSignIn.addActionListener(this::btnSignInActionPerformed);
+        btnReturn.addActionListener(this::btnReturnActionPerformed);
         btnGoogleAcc.setIcon(new FlatSVGIcon("svgmaterials/icons/bxl-google.svg", 24, 24));
         btnFacebookAcc.setIcon(new FlatSVGIcon("svgmaterials/icons/bxl-facebook.svg", 24, 24));
  
         btnGoogleAcc.setIconTextGap(10);
-        btnFacebookAcc.setIconTextGap(10);
+        btnFacebookAcc.setIconTextGap(10);  
+
+        this.setLocationRelativeTo(null); 
+        this.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE); 
+
+        PasswordField1.setText(""); 
+        PasswordField1.putClientProperty("JTextField.placeholderText", "Nhập mật khẩu..."); 
+        NameAccount.putClientProperty("JTextField.placeholderText", "Nhập Username...");
+
+        defaultBorder = NameAccount.getBorder();
+
+        NameAccount.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) thucHienDangNhap();
+            }
+        });
+
+        PasswordField1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) thucHienDangNhap();
+            }
+        }); 
+
+        this.setLayout(new java.awt.BorderLayout()); 
+        this.add(LoginLable, java.awt.BorderLayout.CENTER); 
+        this.pack(); 
+        this.setResizable(false); 
+        this.setLocationRelativeTo(null);
+
     }
 
     /**
@@ -35,118 +94,140 @@ public class DangNhapFrm extends javax.swing.JFrame {
     private void initComponents() {
 
         LoginLable = new gui.custom.RoundedPanel();
-        Username = new javax.swing.JTextField();
-        LableUsername = new javax.swing.JLabel();
         LablePassword = new javax.swing.JLabel();
         btnGoogleAcc = new javax.swing.JButton();
         btnFacebookAcc = new javax.swing.JButton();
-        rBtnRemember = new javax.swing.JRadioButton();
         btnReturn = new javax.swing.JButton();
-        btnSignIn = new javax.swing.JButton();
         btnConfirm = new javax.swing.JButton();
         LableTitle = new javax.swing.JLabel();
-        PasswordField = new javax.swing.JPasswordField();
+        jLabel1 = new javax.swing.JLabel();
+        NameAccount = new javax.swing.JTextField();
+        PasswordField1 = new javax.swing.JPasswordField();
+        btnSignIn = new javax.swing.JButton();
+        rbtnRemember = new javax.swing.JRadioButton();
+        lblErrorPass = new javax.swing.JLabel();
+        lblErrorUser = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         LoginLable.setBackground(new java.awt.Color(255, 255, 255));
 
-        Username.addActionListener(this::UsernameActionPerformed);
-
-        LableUsername.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
-        LableUsername.setText("Username: ");
-
         LablePassword.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
         LablePassword.setText("Password:");
 
         btnGoogleAcc.setBackground(new java.awt.Color(204, 204, 204));
+        btnGoogleAcc.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         btnGoogleAcc.setText("Google");
         btnGoogleAcc.addActionListener(this::btnGoogleAccActionPerformed);
 
         btnFacebookAcc.setBackground(new java.awt.Color(204, 204, 204));
+        btnFacebookAcc.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         btnFacebookAcc.setText("Facebook");
         btnFacebookAcc.addActionListener(this::btnFacebookAccActionPerformed);
 
-        rBtnRemember.setFont(new java.awt.Font("Arial", 2, 14)); // NOI18N
-        rBtnRemember.setText("Ghi nhớ mật khẩu");
-        rBtnRemember.addActionListener(this::rBtnRememberActionPerformed);
-
         btnReturn.setText("Quay lại\n");
-
-        btnSignIn.setText("Đăng ký");
-
+        btnConfirm.addActionListener(this::btnConfirmActionPerformed);
         btnConfirm.setBackground(new java.awt.Color(255, 255, 51));
         btnConfirm.setFont(new java.awt.Font("Arial", 3, 14)); // NOI18N
-        btnConfirm.setText("Nhập\n");
+        btnConfirm.setText("Nhập");
 
         LableTitle.setFont(new java.awt.Font("Times New Roman", 1, 40)); // NOI18N
         LableTitle.setForeground(new java.awt.Color(255, 0, 0));
-        LableTitle.setText("ĐĂNG NHẬP TÀI KHOẢN ");
+        LableTitle.setText("ĐĂNG NHẬP TÀI KHOẢN");
 
-        PasswordField.setText("jPasswordField1");
+        jLabel1.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
+        jLabel1.setText("Username:");
+
+        NameAccount.addActionListener(this::NameAccountActionPerformed);
+
+        PasswordField1.setText("jPasswordField1");
+
+        btnSignIn.setText("Đăng ký");
+
+        rbtnRemember.setFont(new java.awt.Font("Arial", 2, 14)); // NOI18N
+        rbtnRemember.setText("Ghi nhớ tài khoản");
+
+        lblErrorPass.setFont(new java.awt.Font("Arial", 2, 14)); // NOI18N
+        lblErrorPass.setForeground(new java.awt.Color(255, 0, 51));
+
+        lblErrorUser.setFont(new java.awt.Font("Arial", 2, 14)); // NOI18N
+        lblErrorUser.setForeground(new java.awt.Color(255, 0, 51));
 
         javax.swing.GroupLayout LoginLableLayout = new javax.swing.GroupLayout(LoginLable);
         LoginLable.setLayout(LoginLableLayout);
         LoginLableLayout.setHorizontalGroup(
             LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, LoginLableLayout.createSequentialGroup()
-                .addContainerGap(55, Short.MAX_VALUE)
+            .addGroup(LoginLableLayout.createSequentialGroup()
                 .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, LoginLableLayout.createSequentialGroup()
-                        .addComponent(LableTitle)
-                        .addGap(53, 53, 53))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, LoginLableLayout.createSequentialGroup()
-                        .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(LoginLableLayout.createSequentialGroup()
+                        .addGap(101, 101, 101)
+                        .addComponent(LableTitle))
+                    .addGroup(LoginLableLayout.createSequentialGroup()
+                        .addGap(138, 138, 138)
+                        .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(LoginLableLayout.createSequentialGroup()
-                                .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(rBtnRemember)
-                                    .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                        .addComponent(btnSignIn)
-                                        .addComponent(btnGoogleAcc, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGap(18, 18, 18)
-                                .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(btnConfirm, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(LoginLableLayout.createSequentialGroup()
-                                        .addGap(6, 6, 6)
-                                        .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(btnReturn)
-                                            .addComponent(btnFacebookAcc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
+                                .addGap(42, 42, 42)
+                                .addComponent(rbtnRemember)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(btnConfirm, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(LoginLableLayout.createSequentialGroup()
                                 .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(LablePassword)
-                                    .addComponent(LableUsername, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                    .addComponent(btnGoogleAcc, javax.swing.GroupLayout.PREFERRED_SIZE, 169, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(btnSignIn, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(42, 42, 42)
+                                .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(btnFacebookAcc, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(btnReturn, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, LoginLableLayout.createSequentialGroup()
+                                .addGap(86, 86, 86)
                                 .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(Username, javax.swing.GroupLayout.DEFAULT_SIZE, 179, Short.MAX_VALUE)
-                                    .addComponent(PasswordField))))
-                        .addGap(158, 158, 158))))
+                                    .addComponent(LablePassword, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(NameAccount, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(PasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE))))))
+                .addContainerGap(83, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, LoginLableLayout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(lblErrorUser)
+                    .addComponent(lblErrorPass))
+                .addGap(124, 124, 124))
         );
         LoginLableLayout.setVerticalGroup(
             LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(LoginLableLayout.createSequentialGroup()
-                .addGap(25, 25, 25)
                 .addComponent(LableTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(38, 38, 38)
-                .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(LableUsername)
-                    .addComponent(Username, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(LoginLableLayout.createSequentialGroup()
+                        .addGap(33, 33, 33)
+                        .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel1)
+                            .addComponent(NameAccount, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(19, 19, 19))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, LoginLableLayout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(lblErrorUser)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
                 .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(LablePassword)
-                    .addComponent(PasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(PasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lblErrorPass)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnConfirm, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(rbtnRemember))
                 .addGap(18, 18, 18)
                 .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(rBtnRemember)
-                    .addComponent(btnConfirm, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 49, Short.MAX_VALUE)
+                    .addComponent(btnFacebookAcc, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnGoogleAcc, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
                 .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnGoogleAcc)
-                    .addComponent(btnFacebookAcc))
-                .addGap(80, 80, 80)
-                .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnReturn)
-                    .addComponent(btnSignIn))
-                .addGap(20, 20, 20))
+                    .addComponent(btnReturn, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnSignIn, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(136, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -154,60 +235,106 @@ public class DangNhapFrm extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(33, 33, 33)
+                .addGap(60, 60, 60)
                 .addComponent(LoginLable, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(133, Short.MAX_VALUE))
+                .addContainerGap(156, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(17, 17, 17)
+                .addContainerGap()
                 .addComponent(LoginLable, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(374, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void UsernameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UsernameActionPerformed
+    private void NameAccountActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NameAccountActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_UsernameActionPerformed
-
-    private void rBtnRememberActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rBtnRememberActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_rBtnRememberActionPerformed
-
-    private void btnGoogleAccActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGoogleAccActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnGoogleAccActionPerformed
+    }//GEN-LAST:event_NameAccountActionPerformed
 
     private void btnFacebookAccActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFacebookAccActionPerformed
-        // TODO add your handling code here:
+        try {
+            java.awt.Desktop.getDesktop().browse(new java.net.URI("https://www.facebook.com/login/"));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
     }//GEN-LAST:event_btnFacebookAccActionPerformed
-    
-    private void btnConfirmActionPerformed(java.awt.event.ActionEvent evt) {                                           
-    String user = Username.getText();
-    String pass = new String(PasswordField.getPassword()); 
 
-    bll.NguoiDungBUS bus = new bll.NguoiDungBUS();
-    model.NguoiDung nd = bus.checkLogin(user, pass);
+    private void btnGoogleAccActionPerformed(java.awt.event.ActionEvent evt) {                                             
+        try {
+            java.awt.Desktop.getDesktop().browse(new java.net.URI("https://accounts.google.com/"));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
 
-    if (nd != null) {
-        javax.swing.JOptionPane.showMessageDialog(this, 
-            "Đăng nhập thành công!\nXin chào: " + nd.getUsername(), 
-            "Thông báo", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+    }                                              
+
+    private void btnReturnActionPerformed(java.awt.event.ActionEvent evt) {                                                                                                                                                                           
+        this.dispose();  
+    }                                             
+
+    private void btnSignInActionPerformed(java.awt.event.ActionEvent evt) {                                                                                                                                                                         
+        new MainFrame().setVisible(true); 
+        this.dispose();
+
+    }                                          
+
+    private void btnConfirmActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConfirmActionPerformed
+        thucHienDangNhap();
+    }//GEN-LAST:event_btnConfirmActionPerformed
+    private void thucHienDangNhap() {
+        NameAccount.setBorder(defaultBorder);
+        PasswordField1.setBorder(defaultBorder);
+        lblErrorUser.setText(" ");
+        lblErrorPass.setText(" ");
+
+        String user = NameAccount.getText().trim();
+        String pass = new String(PasswordField1.getPassword());
+
+        boolean hasError = false;
+
+        if (user.isEmpty()) {
+            NameAccount.setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.RED, 2));
+            lblErrorUser.setText("* Chưa nhập tên tài khoản");
+            hasError = true;
+        }
+        if (pass.isEmpty()) {
+            PasswordField1.setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.RED, 2));
+            lblErrorPass.setText("* Chưa nhập mật khẩu");
+            hasError = true;
+        }
+
+        if (hasError) return;
+
+        bll.NguoiDungBUS bus = new bll.NguoiDungBUS();
+        model.NguoiDung nd = bus.checkLogin(user, pass);
+
+        if (nd != null) { 
+            if (rbtnRemember.isSelected()) {
+                java.util.prefs.Preferences prefs = java.util.prefs.Preferences.userNodeForPackage(DangNhapFrm.class);
+                prefs.put("saved_user", user);
+                prefs.put("saved_pass", pass);
+            }
+            javax.swing.JOptionPane.showMessageDialog(this, "Đăng nhập thành công!\nXin chào: " + nd.getUsername(), "Thông báo", javax.swing.JOptionPane.INFORMATION_MESSAGE);
         
-        new MainFrame(nd).setVisible(true);
-        this.dispose(); 
-    } else {
-        javax.swing.JOptionPane.showMessageDialog(this, 
-            "Sai tên đăng nhập hoặc mật khẩu!", 
-            "Lỗi", javax.swing.JOptionPane.ERROR_MESSAGE);
+            for (java.awt.Window window : java.awt.Window.getWindows()) {
+                window.dispose();
+            }
             
-        PasswordField.setText("");
-        Username.requestFocus(); 
+            new MainFrame(nd).setVisible(true);
+             
+        } else {
+            NameAccount.setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.RED, 2));
+            PasswordField1.setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.RED, 2));
+            lblErrorPass.setText("* Sai tên đăng nhập hoặc mật khẩu");
+            PasswordField1.setText("");
+            NameAccount.requestFocus();
+        }
     }
-}
+
     /**
      * @param args the command line arguments
      */
@@ -236,15 +363,17 @@ public class DangNhapFrm extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel LablePassword;
     private javax.swing.JLabel LableTitle;
-    private javax.swing.JLabel LableUsername;
     private javax.swing.JPanel LoginLable;
-    private javax.swing.JPasswordField PasswordField;
-    private javax.swing.JTextField Username;
+    private javax.swing.JTextField NameAccount;
+    private javax.swing.JPasswordField PasswordField1;
     private javax.swing.JButton btnConfirm;
     private javax.swing.JButton btnFacebookAcc;
     private javax.swing.JButton btnGoogleAcc;
     private javax.swing.JButton btnReturn;
     private javax.swing.JButton btnSignIn;
-    private javax.swing.JRadioButton rBtnRemember;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel lblErrorPass;
+    private javax.swing.JLabel lblErrorUser;
+    private javax.swing.JRadioButton rbtnRemember;
     // End of variables declaration//GEN-END:variables
 }

@@ -41,7 +41,7 @@ public class ThongTinHanhKhachDAO {
     }
 
     public boolean insert(ThongTinHanhKhach tthk){
-        String sql = "INSERT INTO ThongTinHanhKhach (maHK, maNguoiDung, maThuHang, hoTen, cccd, hoChieu, ngaySinh, gioiTinh, diemTichLuy) VALUE (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO ThongTinHanhKhach (maHK, maNguoiDung, maThuHang, hoTen, cccd, hoChieu, ngaySinh, gioiTinh, diemTichLuy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection con = DBConnection.getConnection();
             PreparedStatement ps = con.prepareStatement(sql)){
                 ps.setString(1, tthk.getMaHK());
@@ -173,7 +173,7 @@ public class ThongTinHanhKhachDAO {
                 tthk.setMaHK(rs.getString("maHK"));
                 tthk.setMaNguoiDung(rs.getString("maNguoiDung"));
                 tthk.setMaThuHang(rs.getString("maThuHang"));
-                tthk.setHoChieu(rs.getString("hoTen"));
+                tthk.setHoTen(rs.getString("hoTen"));
                 tthk.setCccd(rs.getString("cccd"));
                 tthk.setHoChieu(rs.getString("hoChieu"));
 
