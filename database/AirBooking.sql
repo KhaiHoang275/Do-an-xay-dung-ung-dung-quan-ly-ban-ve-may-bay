@@ -64,7 +64,7 @@ CREATE TABLE KhuyenMai (
     gioiHanMoiKhach INT DEFAULT 1,
     trangThai BIT DEFAULT 1,
     nguoiTao VARCHAR(20) NULL,
-    ngayTao DATETIME DEFAULT GETDATE,
+    ngayTao DATETIME DEFAULT GETDATE(),
     ngayBD DATETIME,
     ngayKT DATETIME,
     giaTri DECIMAL(18, 2), 
@@ -206,7 +206,9 @@ CREATE TABLE ChiTietHoaDon (
     maCTHoaDon VARCHAR(20),
     maVe VARCHAR(20),
     soTien DECIMAL(18, 2),
+
     PRIMARY KEY (maHoaDon, maVe),
+
     FOREIGN KEY (maHoaDon) REFERENCES HoaDon(maHoaDon),
     FOREIGN KEY (maVe) REFERENCES VeBan(maVe)
 );

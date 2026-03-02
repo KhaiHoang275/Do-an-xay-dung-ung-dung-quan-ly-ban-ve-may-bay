@@ -1,8 +1,10 @@
 package dal;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import db.DBConnection;
@@ -101,5 +103,26 @@ public class HeSoGiaDAO {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public BigDecimal layHeSoGia(String maChuyenBay) {
+        String sql = """
+            SELECT hsg.heSo
+            FROM ChuyenBay cb
+            JOIN HeSoGia hsg ON cb.maHeSoGia = hsg.maHeSoGia
+            WHERE cb.maChuyenBay = ?
+        """;
+
+        try (Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maChuyenBay);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getBigDecimal("heSo");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return BigDecimal.ONE;
     }
 }
