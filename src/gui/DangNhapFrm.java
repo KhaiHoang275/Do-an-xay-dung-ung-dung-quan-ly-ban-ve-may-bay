@@ -273,14 +273,18 @@ public class DangNhapFrm extends javax.swing.JFrame {
     }                                              
 
     private void btnReturnActionPerformed(java.awt.event.ActionEvent evt) {                                                                                                                                                                           
+        
+        new MainFrame().setVisible(true);
         this.dispose();  
     }                                             
 
     private void btnSignInActionPerformed(java.awt.event.ActionEvent evt) {                                                                                                                                                                         
-        new MainFrame().setVisible(true); 
+        
+        DangKyFrm frm = new DangKyFrm();
+        frm.setLocationRelativeTo(null); 
+        frm.setVisible(true);
         this.dispose();
-
-    }                                          
+    }                                      
 
     private void btnConfirmActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConfirmActionPerformed
         thucHienDangNhap();

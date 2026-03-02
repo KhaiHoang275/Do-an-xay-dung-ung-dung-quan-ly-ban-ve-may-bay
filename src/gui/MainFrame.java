@@ -971,15 +971,21 @@ public class MainFrame extends javax.swing.JFrame {
         capNhatGiaoDienMultiCity();
     }
 
-    private void capNhatGiaoDienMultiCity() {
-        
+    private void capNhatGiaoDienMultiCity() { 
         boolean hienNutXoa = listBtnXoa.size() > 2; 
         for (javax.swing.JButton btn : listBtnXoa) {
             btn.setVisible(hienNutXoa);
-        }
+        } 
+
         pnlMultiCities.revalidate();
         pnlMultiCities.repaint();
-        this.pack();
+        
+        if (this.getExtendedState() != java.awt.Frame.MAXIMIZED_BOTH) {
+            this.pack(); 
+        } else {
+            this.revalidate();
+            this.repaint();
+        }
     } 
 
     private void setupLogo() {
@@ -1035,16 +1041,16 @@ public class MainFrame extends javax.swing.JFrame {
     pnlMultiCities.setMaximumSize(new java.awt.Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE)); 
     
         java.util.function.Consumer<Boolean> anHienHangGoc = (isHien) -> {
-            jLabel2.setVisible(isHien);       // Chữ Từ
-            jLabel3.setVisible(isHien);       // Chữ Đến
-            cbCities.setVisible(isHien);      // Ô Từ
-            jButton2.setVisible(isHien);      // Nút <=>
-            cbCities1.setVisible(isHien);     // Ô Đến
-            jLabel4.setVisible(isHien);       // Chữ Ngày đi
-            jFormattedTextField1.setVisible(isHien); // Ô Ngày đi
-            jCheckBox1.setVisible(isHien);    // Checkbox Khứ hồi
-            jFormattedTextField2.setVisible(isHien); // Ô Ngày về
-            jButton3.setVisible(isHien);      // NÚT TÌM KIẾM CŨ
+            jLabel2.setVisible(isHien);  
+            jLabel3.setVisible(isHien); 
+            cbCities.setVisible(isHien);     
+            jButton2.setVisible(isHien);     
+            cbCities1.setVisible(isHien);     
+            jLabel4.setVisible(isHien);      
+            jFormattedTextField1.setVisible(isHien); 
+            jCheckBox1.setVisible(isHien);   
+            jFormattedTextField2.setVisible(isHien); 
+            jButton3.setVisible(isHien);    
         };
 
 
@@ -1090,10 +1096,9 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
         
-        // SỰ KIỆN QUAY LẠI MỘT CHIỀU
         jRadioButton1.addActionListener(e -> {
             if(jRadioButton1.isSelected()) {
-                anHienHangGoc.accept(true); // Trả lại hàng tĩnh
+                anHienHangGoc.accept(true); 
                 jCheckBox1.setSelected(false);
                 jFormattedTextField2.setEnabled(false);
                 pnlMultiCities.setVisible(false);
@@ -1114,51 +1119,39 @@ public class MainFrame extends javax.swing.JFrame {
             }
         }); 
 
-        // ==========================================================
-        // 1. SỬA LAYOUT HEADER (ĐẨY MENU SANG GÓC PHẢI)
-        // ==========================================================
-        jPanel2.setLayout(new java.awt.BorderLayout());
-        jPanel2.removeAll(); // Xóa cấu trúc GroupLayout cũ của NetBeans
         
-        // Gói Logo và đẩy sang trái (cách lề 50px)
-        javax.swing.JPanel logoWrapper = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 50, 10));
+        jPanel2.setLayout(new java.awt.BorderLayout());
+        jPanel2.removeAll(); 
+        javax.swing.JPanel logoWrapper = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 200, 10));
         logoWrapper.setOpaque(false);
         logoWrapper.add(jLabel1);
-        
-        // Gói Menu và đẩy sang phải (cách lề 50px)
-        javax.swing.JPanel menuWrapper = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 50, 10));
+
+        javax.swing.JPanel menuWrapper = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 100, 10));
         menuWrapper.setOpaque(false);
         menuWrapper.add(pnlMenuHeader);
         
         jPanel2.add(logoWrapper, java.awt.BorderLayout.WEST);
         jPanel2.add(menuWrapper, java.awt.BorderLayout.EAST);
 
-        // ==========================================================
-        // 2. SỬA THỨ TỰ PANEL & ÉP KHUNG ĐẶT VÉ VÀO GIỮA
-        // ==========================================================
-        pnlContent.removeAll(); // Xóa sạch để tự tay xếp lại thứ tự từ trên xuống
+        pnlContent.removeAll();
         pnlContent.setLayout(new javax.swing.BoxLayout(pnlContent, javax.swing.BoxLayout.Y_AXIS));
 
-        // Đặt kích thước chiều rộng cố định (VD: 1100px) để form gọn gàng, không bị tràn màn hình
-        int contentWidth = 1100;
+        int contentWidth = 1200;
         
-        jPanel2.setMaximumSize(new java.awt.Dimension(Integer.MAX_VALUE, 75)); // Header Logo luôn full viền
-        jPanel1.setMaximumSize(new java.awt.Dimension(contentWidth, 60)); // Tabs (Vé máy bay, Cẩm nang...)
-        jPanel3.setMaximumSize(new java.awt.Dimension(contentWidth, jPanel3.getPreferredSize().height)); // Form Một chiều
-        pnlMultiCities.setMaximumSize(new java.awt.Dimension(contentWidth, Integer.MAX_VALUE)); // Form Nhiều thành phố
-
-        // Ra lệnh cho các Panel phải đứng ở chính giữa màn hình (Center)
+        jPanel2.setMaximumSize(new java.awt.Dimension(Integer.MAX_VALUE, 120)); 
+        jPanel1.setMaximumSize(new java.awt.Dimension(contentWidth, 60));
+        jPanel3.setMaximumSize(new java.awt.Dimension(contentWidth, jPanel3.getPreferredSize().height)); 
+        pnlMultiCities.setMaximumSize(new java.awt.Dimension(contentWidth, Integer.MAX_VALUE)); 
         jPanel2.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT);
         jPanel1.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT);
         jPanel3.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT);
         pnlMultiCities.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT);
 
-        // ADD LẠI THEO ĐÚNG THỨ TỰ TỪ TRÊN XUỐNG DƯỚI (Fix lỗi đảo lộn)
-        pnlContent.add(jPanel2);                                 // 1. Header trên cùng
-        pnlContent.add(javax.swing.Box.createVerticalStrut(20)); // (Khoảng trống)
-        pnlContent.add(jPanel1);                                 // 2. Dải nút Menu (Vé Máy Bay...)
-        pnlContent.add(jPanel3);                                 // 3. Khung vé 1 chiều
-        pnlContent.add(pnlMultiCities);                          // 4. Khung vé Nhiều thành phố
+        pnlContent.add(jPanel2); 
+        pnlContent.add(javax.swing.Box.createVerticalStrut(20)); 
+        pnlContent.add(jPanel1);                      
+        pnlContent.add(jPanel3);                           
+        pnlContent.add(pnlMultiCities);                    
     } 
 
    
