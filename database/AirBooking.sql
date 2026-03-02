@@ -97,7 +97,8 @@ CREATE TABLE ThongTinHanhKhach (
     hoChieu VARCHAR(20),
     ngaySinh DATE,
     gioiTinh NVARCHAR(10),
-    diemTichLuy INT DEFAULT 0, 
+    diemTichLuy INT DEFAULT 0,  
+    loaiHanhKhach VARCHAR(20), 
     trangThai Enum('ACTIVE', 'INACTIVE') DEFAULT 'ACTIVE',
     FOREIGN KEY (maNguoiDung) REFERENCES NguoiDung(maNguoiDung),
     FOREIGN KEY (maThuHang) REFERENCES ThuHang(maThuHang)
