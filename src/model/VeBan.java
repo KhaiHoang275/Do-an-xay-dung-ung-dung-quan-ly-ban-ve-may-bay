@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 public class VeBan {
     private String maVe;
-    private String maPhieuDatVe;
+    private String maPhieuDatVe; 
     private String maChuyenBay;
     private String maHK;
     private String maHangVe;
@@ -45,7 +45,7 @@ public class VeBan {
 
     @Override
     public String toString() {
-        return maVe + " " + maPhieuDatVe + " " + maChuyenBay + " "
+        return maVe + " " + " " + maChuyenBay + " "
                 + maHK + " " + maHangVe + " " + maGhe + " " + loaiVe + " " + loaiHK
                 + " " + giaVe + " " + trangThaiVe;
     }
@@ -129,6 +129,4 @@ public class VeBan {
     public void setTrangThaiVe(String trangThaiVe) {
         this.trangThaiVe = trangThaiVe;
     }
-
-    
 }

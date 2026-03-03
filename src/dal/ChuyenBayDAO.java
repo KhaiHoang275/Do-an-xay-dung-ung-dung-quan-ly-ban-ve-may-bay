@@ -1,5 +1,6 @@
 package dal;
 
+import java.math.BigDecimal;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -178,10 +179,30 @@ public class ChuyenBayDAO {
             } catch (IllegalArgumentException e) {
                 // Nếu DB lưu chuỗi lạ không có trong Enum, gán mặc định
                 cb.setTrangThai(TrangThaiChuyenBay.SCHEDULED);
-                System.err.println("Lỗi convert Enum trạng thái: " + statusStr);
             }
         }
         
         return cb;
+    }
+
+    public BigDecimal layGiaCoBan(String maChuyenBay) {
+        String sql = """
+            SELECT tb.giaGoc
+            FROM ChuyenBay cb
+            JOIN TuyenBay tb ON cb.maTuyenBay = tb.maTuyenBay
+            WHERE cb.maChuyenBay = ?
+        """;
+
+        try (Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maChuyenBay);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getBigDecimal("giaCoBan");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return BigDecimal.ZERO;
     }
 }

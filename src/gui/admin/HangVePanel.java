@@ -72,7 +72,7 @@ public class HangVePanel extends JPanel {
         txtTimKiem.setPreferredSize(new Dimension(200, 35));
         
         btnTimKiem = new JButton("Tìm kiếm");
-        btnTimKiem.setPreferredSize(new Dimension(100, 35));
+        btnTimKiem.setPreferredSize(new Dimension(130, 35));
         btnTimKiem.setBackground(TABLE_HEADER);
         btnTimKiem.setForeground(Color.WHITE);
         btnTimKiem.setFont(new Font("Segoe UI", Font.BOLD, 13));
