@@ -8,16 +8,18 @@ public class TuyenBay {
     private String sanBayDen;
     private float khoangCachKM;
     private BigDecimal giaGoc;
+    private TrangThaiTuyenBay trangThai;
 
     public TuyenBay() {
     }
 
-    public TuyenBay(String maTuyenBay, String sanBayDi, String sanBayDen, float khoangCachKM, BigDecimal giaGoc) {
+    public TuyenBay(String maTuyenBay, String sanBayDi, String sanBayDen, float khoangCachKM, BigDecimal giaGoc, TrangThaiTuyenBay trangThai) {
         this.maTuyenBay = maTuyenBay;
         this.sanBayDi = sanBayDi;
         this.sanBayDen = sanBayDen;
         this.khoangCachKM = khoangCachKM;
         this.giaGoc = giaGoc;
+        this.trangThai = trangThai; 
     }
 
     public TuyenBay(TuyenBay tb) {
@@ -26,6 +28,7 @@ public class TuyenBay {
         this.sanBayDen = tb.sanBayDen;
         this.khoangCachKM = tb.khoangCachKM;
         this.giaGoc = tb.giaGoc;
+        this.trangThai = tb.trangThai;
     }
 
     public String getMaTuyenBay() {
@@ -52,11 +55,11 @@ public class TuyenBay {
         this.sanBayDen = sanBayDen;
     }
 
-    public float getKhoangCach() {
+    public float getKhoangCachKM() {
         return khoangCachKM;
     }
 
-    public void setKhoangCach(float khoangCachKM) {
+    public void setKhoangCachKM(float khoangCachKM) {
         this.khoangCachKM = khoangCachKM;
     }
 
@@ -68,8 +71,17 @@ public class TuyenBay {
         this.giaGoc = giaGoc;
     } 
 
+    public TrangThaiTuyenBay getTrangThai() {
+        return trangThai;
+    }
+
+    public void setTrangThai(TrangThaiTuyenBay trangThai) {
+        this.trangThai = trangThai;
+    }
+
+    @Override
     public String toString() {
         return maTuyenBay + " "+ sanBayDi + " " + sanBayDen
-                + " " + khoangCachKM + " " + giaGoc;
+                + " " + khoangCachKM + " " + giaGoc + " " + trangThai;
     }
 }

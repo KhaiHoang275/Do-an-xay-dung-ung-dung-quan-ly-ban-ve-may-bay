@@ -277,4 +277,25 @@ CREATE TABLE SuDungKhuyenMai (
     CONSTRAINT FK_SDKM_PhieuDatVe
         FOREIGN KEY (maPhieuDatVe) REFERENCES PhieuDatVe(maPhieuDatVe)
 );
+
+-- Trạng thái chuyến bay
+ALTER TABLE ChuyenBay
+ADD CONSTRAINT DF_ChuyenBay_TrangThai
+DEFAULT 'CHUA_KHOI_HANH' FOR trangThai;
+
+-- Trạng thái ghế
+ALTER TABLE GheMayBay
+ADD trangThai VARCHAR(50) DEFAULT 'TRONG';
+
+-- Trạng thái hạng vé
+ALTER TABLE HangVe
+ADD trangThai VARCHAR(50) DEFAULT 'HOAT_DONG';
+
+-- Trạng thái hệ số giá
+ALTER TABLE HeSoGia
+ADD trangThai VARCHAR(50) DEFAULT 'HOAT_DONG';
+
+-- Trạng thái tuyến bay
+ALTER TABLE TuyenBay
+ADD trangThai VARCHAR(50) DEFAULT 'HOAT_DONG';
 GO

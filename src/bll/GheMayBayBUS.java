@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import dal.GheMayBayDAO;
 import model.GheMayBay;
+import model.TrangThaiGhe;
 
 public class GheMayBayBUS {
     private GheMayBayDAO gheMayBayDAO;
@@ -17,7 +18,10 @@ public class GheMayBayBUS {
         return gheMayBayDAO.selectAll();
     }
 
-    // Hàm quan trọng để GUI vẽ sơ đồ ghế
+    public ArrayList<GheMayBay> getGheTrongThungRac() {
+        return gheMayBayDAO.selectThungRac();
+    }
+
     public ArrayList<GheMayBay> getGheByMayBay(String maMayBay) {
         if (maMayBay == null || maMayBay.trim().isEmpty()) {
             return new ArrayList<>();
@@ -43,40 +47,62 @@ public class GheMayBayBUS {
             throw new IllegalArgumentException("Số ghế không được để trống!");
         }
         if (ghe.getGiaGhe() == null || ghe.getGiaGhe().compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Giá ghế phải lớn hơn hoặc bằng 0!");
+            throw new IllegalArgumentException("Giá ghế không được nhỏ hơn 0!");
         }
 
-        // Logic chống trùng lặp: Kiểm tra xem máy bay này đã có số ghế (VD: "1A") này chưa
+        if (gheMayBayDAO.selectById(ghe.getMaGhe()) != null) {
+            throw new IllegalArgumentException("Mã ghế '" + ghe.getMaGhe() + "' đã tồn tại!");
+        }
+
         ArrayList<GheMayBay> danhSachGheHienTai = gheMayBayDAO.selectByMayBay(ghe.getMaMayBay());
         for (GheMayBay g : danhSachGheHienTai) {
             if (g.getSoGhe().equalsIgnoreCase(ghe.getSoGhe())) {
-                throw new IllegalArgumentException("Số ghế " + ghe.getSoGhe() + " đã tồn tại trên máy bay " + ghe.getMaMayBay() + "!");
+                throw new IllegalArgumentException("Số ghế " + ghe.getSoGhe() + " đã tồn tại trên máy bay này!");
             }
         }
 
-        // Kiểm tra xem Mã Ghế (PK) đã tồn tại trong DB chưa
-        if (gheMayBayDAO.selectById(ghe.getMaGhe()) != null) {
-            throw new IllegalArgumentException("Mã ghế (ID) đã tồn tại trong hệ thống!");
+        if (ghe.getTrangThai() == null) {
+            ghe.setTrangThai(TrangThaiGhe.TRONG);
         }
 
         return gheMayBayDAO.insert(ghe);
     }
 
-    public boolean capNhatGhe(GheMayBay ghe) throws IllegalArgumentException {
-        if (ghe.getMaGhe() == null || ghe.getMaGhe().trim().isEmpty()) {
-            throw new IllegalArgumentException("Mã ghế không hợp lệ!");
+    public void taoGheHangLoat(String maMayBay, int soLuong, String tienTo, BigDecimal giaGhe) throws IllegalArgumentException {
+        if (maMayBay == null || maMayBay.trim().isEmpty()) {
+            throw new IllegalArgumentException("Vui lòng chọn máy bay!");
         }
+        if (soLuong <= 0) {
+            throw new IllegalArgumentException("Số lượng ghế phải lớn hơn 0!");
+        }
+        if (tienTo == null || tienTo.trim().isEmpty()) {
+            throw new IllegalArgumentException("Tiền tố ghế không được để trống!");
+        }
+        
+        for (int i = 1; i <= soLuong; i++) {
+            String soGhe = tienTo + i; 
+            String maGhe = maMayBay + "_" + soGhe; 
+            
+            GheMayBay ghe = new GheMayBay(maGhe, maMayBay, soGhe, giaGhe, TrangThaiGhe.TRONG);
+            
+            try {
+                themGhe(ghe); 
+            } catch (IllegalArgumentException e) {
+                System.out.println("Bỏ qua ghế: " + soGhe);
+            }
+        }
+    }
+
+    public boolean capNhatGhe(GheMayBay ghe) throws IllegalArgumentException {
         if (ghe.getSoGhe() == null || ghe.getSoGhe().trim().isEmpty()) {
             throw new IllegalArgumentException("Số ghế không được để trống!");
         }
         if (ghe.getGiaGhe() == null || ghe.getGiaGhe().compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Giá ghế phải lớn hơn hoặc bằng 0!");
+            throw new IllegalArgumentException("Giá ghế không được nhỏ hơn 0!");
         }
 
-        // Logic chống trùng lặp (khi sửa số ghế, phải đảm bảo số ghế mới không trùng với các ghế KHÁC trên cùng máy bay)
         ArrayList<GheMayBay> danhSachGheHienTai = gheMayBayDAO.selectByMayBay(ghe.getMaMayBay());
         for (GheMayBay g : danhSachGheHienTai) {
-            // Bỏ qua chính cái ghế đang được cập nhật (so sánh qua MaGhe)
             if (!g.getMaGhe().equals(ghe.getMaGhe()) && g.getSoGhe().equalsIgnoreCase(ghe.getSoGhe())) {
                 throw new IllegalArgumentException("Số ghế " + ghe.getSoGhe() + " đã bị trùng với một ghế khác trên máy bay này!");
             }
@@ -92,18 +118,24 @@ public class GheMayBayBUS {
         return gheMayBayDAO.delete(maGhe);
     }
 
-    // Hàm tìm kiếm phục vụ thanh Search trên giao diện
-    public ArrayList<GheMayBay> timKiemGhe(String keyword) {
+    public boolean khoiPhucGhe(String maGhe) {
+        if (maGhe == null || maGhe.trim().isEmpty()) {
+            return false;
+        }
+        return gheMayBayDAO.restore(maGhe);
+    }
+
+    public ArrayList<GheMayBay> timKiemGhe(String keyword, boolean isTrash) {
         ArrayList<GheMayBay> ketQua = new ArrayList<>();
-        ArrayList<GheMayBay> tatCaGhe = getAllGheMayBay();
+        ArrayList<GheMayBay> source = isTrash ? getGheTrongThungRac() : getAllGheMayBay();
 
         if (keyword == null || keyword.trim().isEmpty()) {
-            return tatCaGhe;
+            return source;
         }
 
         String lowerKeyword = keyword.toLowerCase().trim();
 
-        for (GheMayBay ghe : tatCaGhe) {
+        for (GheMayBay ghe : source) {
             if (ghe.getMaGhe().toLowerCase().contains(lowerKeyword) ||
                 ghe.getMaMayBay().toLowerCase().contains(lowerKeyword) ||
                 ghe.getSoGhe().toLowerCase().contains(lowerKeyword)) {
@@ -112,32 +144,5 @@ public class GheMayBayBUS {
             }
         }
         return ketQua;
-    }
-
-    // Thêm hàm này vào GheMayBayBUS
-    public void taoGheHangLoat(String maMayBay, int soLuong, String tienTo, BigDecimal giaGhe) throws IllegalArgumentException {
-        if (maMayBay == null || maMayBay.trim().isEmpty()) {
-            throw new IllegalArgumentException("Vui lòng chọn máy bay!");
-        }
-        if (soLuong <= 0) {
-            throw new IllegalArgumentException("Số lượng ghế phải lớn hơn 0!");
-        }
-        if (tienTo == null || tienTo.trim().isEmpty()) {
-            throw new IllegalArgumentException("Tiền tố ghế không được để trống!");
-        }
-        
-        for (int i = 1; i <= soLuong; i++) {
-            String soGhe = tienTo + i; // Tạo số ghế, VD: A1, A2...
-            String maGhe = maMayBay + "_" + soGhe; // Tạo mã ghế duy nhất, VD: MB01_A1
-            
-            GheMayBay ghe = new GheMayBay(maGhe, maMayBay, soGhe, giaGhe);
-            
-            try {
-                themGhe(ghe); 
-            } catch (IllegalArgumentException e) {
-                // Nếu gặp lỗi trùng (do đã tạo trước đó), có thể bỏ qua hoặc thông báo
-                System.out.println("Bỏ qua ghế bị trùng: " + soGhe);
-            }
-        }
     }
 }

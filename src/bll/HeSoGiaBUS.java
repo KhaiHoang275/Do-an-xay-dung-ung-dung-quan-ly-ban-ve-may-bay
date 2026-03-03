@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import dal.HeSoGiaDAO;
 import model.HeSoGia;
+import model.TrangThaiHeSoGia;
 
 public class HeSoGiaBUS {
     private HeSoGiaDAO heSoGiaDAO;
@@ -12,12 +13,14 @@ public class HeSoGiaBUS {
         this.heSoGiaDAO = new HeSoGiaDAO();
     }
 
-    // 1. Lấy toàn bộ danh sách Hệ số giá
     public ArrayList<HeSoGia> getAllHeSoGia() {
         return heSoGiaDAO.selectAll();
     }
 
-    // 2. Lấy Hệ số giá theo Mã
+    public ArrayList<HeSoGia> getHeSoGiaTrongThungRac() {
+        return heSoGiaDAO.selectThungRac();
+    }
+
     public HeSoGia getHeSoGiaById(String maHeSoGia) {
         if (maHeSoGia == null || maHeSoGia.trim().isEmpty()) {
             return null;
@@ -25,13 +28,10 @@ public class HeSoGiaBUS {
         return heSoGiaDAO.selectById(maHeSoGia);
     }
 
-    // 3. Thêm Hệ số giá mới
     public boolean themHeSoGia(HeSoGia hsg) throws IllegalArgumentException {
-        // Kiểm tra dữ liệu rỗng
         if (hsg.getMaHeSoGia() == null || hsg.getMaHeSoGia().trim().isEmpty()) {
             throw new IllegalArgumentException("Mã hệ số giá không được để trống!");
         }
-        // Kiểm tra số âm/số 0
         if (hsg.getHeSo() <= 0) {
             throw new IllegalArgumentException("Hệ số giá phải lớn hơn 0!");
         }
@@ -39,15 +39,17 @@ public class HeSoGiaBUS {
             throw new IllegalArgumentException("Số giờ đặt trước không được là số âm!");
         }
         
-        // Kiểm tra trùng Mã hệ số giá
         if (heSoGiaDAO.selectById(hsg.getMaHeSoGia()) != null) {
             throw new IllegalArgumentException("Mã hệ số giá '" + hsg.getMaHeSoGia() + "' đã tồn tại trong hệ thống!");
+        }
+
+        if (hsg.getTrangThai() == null) {
+            hsg.setTrangThai(TrangThaiHeSoGia.HOAT_DONG);
         }
 
         return heSoGiaDAO.insert(hsg);
     }
 
-    // 4. Cập nhật Hệ số giá
     public boolean capNhatHeSoGia(HeSoGia hsg) throws IllegalArgumentException {
         if (hsg.getHeSo() <= 0) {
             throw new IllegalArgumentException("Hệ số giá phải lớn hơn 0!");
@@ -59,7 +61,6 @@ public class HeSoGiaBUS {
         return heSoGiaDAO.update(hsg);
     }
 
-    // 5. Xóa Hệ số giá
     public boolean xoaHeSoGia(String maHeSoGia) {
         if (maHeSoGia == null || maHeSoGia.trim().isEmpty()) {
             return false;
@@ -67,19 +68,24 @@ public class HeSoGiaBUS {
         return heSoGiaDAO.delete(maHeSoGia);
     }
 
-    // 6. Tìm kiếm Hệ số giá (Dùng cho thanh Search)
-    public ArrayList<HeSoGia> timKiemHeSoGia(String keyword) {
+    public boolean khoiPhucHeSoGia(String maHeSoGia) {
+        if (maHeSoGia == null || maHeSoGia.trim().isEmpty()) {
+            return false;
+        }
+        return heSoGiaDAO.restore(maHeSoGia);
+    }
+
+    public ArrayList<HeSoGia> timKiemHeSoGia(String keyword, boolean isTrash) {
         ArrayList<HeSoGia> ketQua = new ArrayList<>();
-        ArrayList<HeSoGia> tatCaHSG = getAllHeSoGia();
+        ArrayList<HeSoGia> source = isTrash ? getHeSoGiaTrongThungRac() : getAllHeSoGia();
 
         if (keyword == null || keyword.trim().isEmpty()) {
-            return tatCaHSG;
+            return source;
         }
 
         String lowerKeyword = keyword.toLowerCase().trim();
 
-        for (HeSoGia hsg : tatCaHSG) {
-            // Tìm kiếm theo Mã Hệ Số Giá
+        for (HeSoGia hsg : source) {
             if (hsg.getMaHeSoGia().toLowerCase().contains(lowerKeyword) ||
                 String.valueOf(hsg.getSoGioDatTruoc()).contains(lowerKeyword)) {
                 
