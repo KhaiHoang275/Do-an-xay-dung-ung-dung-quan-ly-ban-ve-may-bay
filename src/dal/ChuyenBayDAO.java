@@ -177,7 +177,7 @@ public class ChuyenBayDAO {
         String statusStr = rs.getString("TrangThai");
         if (statusStr != null) {
             try {
-                cb.setTrangThai(TrangThaiChuyenBay.valueOf(statusStr));
+                cb.setTrangThai(TrangThaiChuyenBay.valueOf(statusStr.toUpperCase()));
             } catch (IllegalArgumentException e) {
                 cb.setTrangThai(TrangThaiChuyenBay.CHUA_KHOI_HANH);
             }
