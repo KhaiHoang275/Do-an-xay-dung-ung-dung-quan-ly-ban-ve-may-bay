@@ -415,7 +415,7 @@ public class DangKyFrm extends javax.swing.JFrame {
         String maND = "ND" + randomID; 
         
         bll.NguoiDungBUS bus = new bll.NguoiDungBUS();
-        model.NguoiDung ndNew = new model.NguoiDung(maND, user, pass, "", "", java.time.LocalDate.now(), "KhachHang", "HoatDong");
+        model.NguoiDung ndNew = new model.NguoiDung(maND, user, pass, "", "", java.time.LocalDate.now(), "KhachHang", "HoatDong", "");
         
         String result = bus.themNguoiDung(ndNew);
         

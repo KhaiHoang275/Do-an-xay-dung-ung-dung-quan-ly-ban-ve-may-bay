@@ -27,6 +27,7 @@ public class NguoiDungDAO {
                 }
                 
                 nd.setPhanQuyen(rs.getString("phanQuyen"));
+                nd.setThanhPho(rs.getString("thanhPho"));
                 nd.setTrangThaiTK(rs.getString("trangThaiTK"));
                 list.add(nd);
             }
@@ -37,7 +38,7 @@ public class NguoiDungDAO {
     }
 
     public boolean insert(NguoiDung nd) {
-        String sql = "INSERT INTO NguoiDung (maNguoiDung, username, password, email, sdt, phanQuyen, trangThaiTK) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO NguoiDung (maNguoiDung, username, password, email, sdt, phanQuyen, thanhPho, trangThaiTK) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -48,7 +49,8 @@ public class NguoiDungDAO {
             ps.setString(4, nd.getEmail());
             ps.setString(5, nd.getSoDienThoai());
             ps.setString(6, nd.getPhanQuyen());
-            ps.setString(7, nd.getTrangThaiTK());
+            ps.setString(7, nd.getThanhPho());
+            ps.setString(8, nd.getTrangThaiTK());
             
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -58,7 +60,7 @@ public class NguoiDungDAO {
     }
 
     public boolean update(NguoiDung nd) {
-        String sql = "UPDATE NguoiDung SET email=?, sdt=?, phanQuyen=?, trangThaiTK=? WHERE maNguoiDung=?";
+        String sql = "UPDATE NguoiDung SET email=?, sdt=?, phanQuyen=?, thanhPho=?, trangThaiTK=? WHERE maNguoiDung=?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             
@@ -143,7 +145,8 @@ public class NguoiDungDAO {
                 nd.setSoDienThoai(rs.getString("sdt"));
                 if (rs.getTimestamp("ngayTao") != null) {
                     nd.setNgayTao(rs.getTimestamp("ngayTao").toLocalDateTime().toLocalDate());
-                }
+                } 
+                nd.setThanhPho(rs.getString("thanhPho"));
                 nd.setPhanQuyen(rs.getString("phanQuyen"));
                 nd.setTrangThaiTK(rs.getString("trangThaiTK"));
             }
