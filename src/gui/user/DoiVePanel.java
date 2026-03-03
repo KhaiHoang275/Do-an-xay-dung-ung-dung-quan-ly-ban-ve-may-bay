@@ -71,10 +71,48 @@ public class DoiVePanel extends JPanel {
     private void initComponents() {
 
         // ===== TITLE =====
+        ImageIcon leftIcon = null;
+        ImageIcon rightIcon = null;
+
+        try {
+            leftIcon = new ImageIcon(
+                    new ImageIcon(getClass().getResource("/resources/icons/icons8-update-24.png"))
+                            .getImage()
+                            .getScaledInstance(22, 22, Image.SCALE_SMOOTH)
+            );
+
+            rightIcon = new ImageIcon(
+                    new ImageIcon(getClass().getResource("/resources/icons/icons8-plane-24.png"))
+                            .getImage()
+                            .getScaledInstance(22, 22, Image.SCALE_SMOOTH)
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Panel chứa title (căn giữa, không chiếm nhiều chiều cao)
+        JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        titlePanel.setOpaque(false);
+
+        JLabel lblLeftIcon = new JLabel(leftIcon);
+
         JLabel lblTitle = new JLabel("ĐỔI VÉ MÁY BAY");
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 26));
         lblTitle.setForeground(PRIMARY);
-        add(lblTitle, BorderLayout.NORTH);
+
+        JLabel lblRightIcon = new JLabel(rightIcon);
+
+        titlePanel.add(lblLeftIcon);
+        titlePanel.add(lblTitle);
+        titlePanel.add(lblRightIcon);
+
+        // Wrapper kiểm soát padding trên dưới
+        JPanel northWrapper = new JPanel(new BorderLayout());
+        northWrapper.setOpaque(false);
+        northWrapper.setBorder(BorderFactory.createEmptyBorder(8, 0, 8, 0));
+        northWrapper.add(titlePanel, BorderLayout.CENTER);
+
+        add(northWrapper, BorderLayout.NORTH);
 
         JPanel card = createCardPanel();
         card.setLayout(new BorderLayout(25, 25));
