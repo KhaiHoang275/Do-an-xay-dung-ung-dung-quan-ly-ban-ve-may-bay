@@ -2,6 +2,7 @@ package gui.admin;
 
 import bll.HeSoGiaBUS;
 import model.HeSoGia;
+import model.TrangThaiHeSoGia;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -14,20 +15,14 @@ import java.util.ArrayList;
 
 public class HeSoGiaPanel extends JPanel {
 
-    // ===== UI COMPONENTS =====
     private JTable table;
     private DefaultTableModel tableModel;
-    private JTextField txtMaHeSoGia, txtHeSo, txtSoGioDatTruoc;
-    private JButton btnThem, btnSua, btnXoa, btnLamMoi;
-    
-    // Thanh tìm kiếm
-    private JTextField txtTimKiem;
-    private JButton btnTimKiem;
+    private JTextField txtMaHeSoGia, txtHeSo, txtSoGioDatTruoc, txtTimKiem;
+    private JComboBox<String> cbTrangThai, cboHienThi;
+    private JButton btnThem, btnSua, btnXoa, btnLamMoi, btnTimKiem;
 
-    // ===== BUSINESS LOGIC =====
     private HeSoGiaBUS heSoGiaBUS;
 
-    // ====== MÀU HỆ THỐNG (ĐỒNG BỘ) ======
     private final Color PRIMARY = new Color(220, 38, 38);
     private final Color BG_MAIN = new Color(245, 247, 250);
     private final Color TABLE_HEADER = new Color(30, 41, 59);
@@ -48,17 +43,11 @@ public class HeSoGiaPanel extends JPanel {
     }
 
     private void initComponents() {
-
-        // ========================================
-        // 1. HEADER (TITLE & SEARCH)
-        // ========================================
         JPanel headerPanel = new JPanel(new BorderLayout(10, 10));
         headerPanel.setOpaque(false);
 
-        // Title
         ImageIcon titleIcon = null;
         try {
-            // Thay icon tag/price cho phù hợp
             titleIcon = new ImageIcon(new ImageIcon(getClass().getResource("/resources/icons/voucher.png"))
                             .getImage().getScaledInstance(24, 24, Image.SCALE_SMOOTH));
         } catch (Exception e) {}
@@ -66,11 +55,11 @@ public class HeSoGiaPanel extends JPanel {
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 24));
         lblTitle.setForeground(PRIMARY);
         
-        // Search
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         searchPanel.setOpaque(false);
+        
         txtTimKiem = createTextField();
-        txtTimKiem.setPreferredSize(new Dimension(200, 35));
+        txtTimKiem.setPreferredSize(new Dimension(180, 35)); 
         
         btnTimKiem = new JButton("Tìm kiếm");
         btnTimKiem.setPreferredSize(new Dimension(130, 35));
@@ -80,22 +69,25 @@ public class HeSoGiaPanel extends JPanel {
         btnTimKiem.setFocusPainted(false);
         try { setButtonIcon(btnTimKiem, "/resources/icons/icons8-search-24.png", 16); } catch (Exception e){}
 
-        searchPanel.add(new JLabel("Tìm (Mã HSG/Giờ):"));
+        cboHienThi = new JComboBox<>(new String[]{"Đang hiển thị", "Thùng rác"});
+        cboHienThi.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        cboHienThi.setPreferredSize(new Dimension(130, 35));
+
         searchPanel.add(txtTimKiem);
         searchPanel.add(btnTimKiem);
+        searchPanel.add(Box.createHorizontalStrut(10));
+        searchPanel.add(new JLabel("Chế độ:"));
+        searchPanel.add(cboHienThi);
 
-        headerPanel.add(lblTitle, BorderLayout.WEST);
+        headerPanel.add(lblTitle, BorderLayout.CENTER); 
         headerPanel.add(searchPanel, BorderLayout.EAST);
         
         add(headerPanel, BorderLayout.NORTH);
 
-        // ========================================
-        // 2. TABLE CARD (CENTER)
-        // ========================================
         JPanel tableCard = createCardPanel();
         tableCard.setLayout(new BorderLayout());
 
-        String[] columns = {"Mã Hệ Số Giá", "Hệ Số (Tỷ lệ nhân)", "Số Giờ Đặt Trước (h)"};
+        String[] columns = {"Mã Hệ Số Giá", "Hệ Số (Tỷ lệ nhân)", "Số Giờ Đặt Trước (h)", "Trạng Thái"};
         tableModel = new DefaultTableModel(columns, 0) {
             public boolean isCellEditable(int row, int column) { return false; }
         };
@@ -109,9 +101,6 @@ public class HeSoGiaPanel extends JPanel {
 
         add(tableCard, BorderLayout.CENTER);
 
-        // ========================================
-        // 3. FORM CARD (SOUTH)
-        // ========================================
         JPanel formCard = createCardPanel();
         formCard.setLayout(new BorderLayout(20, 20));
 
@@ -121,22 +110,22 @@ public class HeSoGiaPanel extends JPanel {
         txtMaHeSoGia = createTextField();
         txtHeSo = createTextField();
         txtSoGioDatTruoc = createTextField();
+        
+        cbTrangThai = new JComboBox<>(new String[]{"Hoạt động", "Tạm ngưng", "Đã xóa"});
+        cbTrangThai.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
-        // Hàng 1
         formPanel.add(createLabel("Mã Hệ Số Giá:"));
         formPanel.add(txtMaHeSoGia);
         formPanel.add(createLabel("Hệ Số (VD: 1.2):"));
         formPanel.add(txtHeSo);
         
-        // Hàng 2
         formPanel.add(createLabel("Số Giờ Đặt Trước (h):"));
         formPanel.add(txtSoGioDatTruoc);
-        formPanel.add(new JLabel()); // Căn layout
-        formPanel.add(new JLabel()); // Căn layout
+        formPanel.add(createLabel("Trạng Thái:"));
+        formPanel.add(cbTrangThai);
 
         formCard.add(formPanel, BorderLayout.CENTER);
 
-        // ===== BUTTON PANEL =====
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
         buttonPanel.setOpaque(false);
 
@@ -160,15 +149,9 @@ public class HeSoGiaPanel extends JPanel {
         formCard.add(buttonPanel, BorderLayout.SOUTH);
         add(formCard, BorderLayout.SOUTH);
 
-        // ========================================
-        // 4. EVENTS
-        // ========================================
         setupListeners();
     }
 
-    // ========================================
-    // UI STYLE METHODS
-    // ========================================
     private JPanel createCardPanel() {
         JPanel panel = new JPanel();
         panel.setBackground(Color.WHITE);
@@ -221,7 +204,6 @@ public class HeSoGiaPanel extends JPanel {
         header.setForeground(Color.WHITE);
         header.setPreferredSize(new Dimension(header.getWidth(), 40));
         
-        // Căn giữa nội dung cột
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
         for(int i = 0; i < table.getColumnCount(); i++){
@@ -236,22 +218,39 @@ public class HeSoGiaPanel extends JPanel {
         btn.setIconTextGap(8);
     }
 
-    // ========================================
-    // LOGIC & DATA METHODS
-    // ========================================
+    private String hienThiTrangThai(TrangThaiHeSoGia status) {
+        if (status == null) return "Hoạt động";
+        switch (status) {
+            case HOAT_DONG: return "Hoạt động";
+            case TAM_NGUNG: return "Tạm ngưng";
+            case DA_XOA: return "Đã xóa";
+            default: return "Hoạt động";
+        }
+    }
+
+    private TrangThaiHeSoGia layTrangThaiTuUI(String uiValue) {
+        if (uiValue == null) return TrangThaiHeSoGia.HOAT_DONG;
+        switch (uiValue) {
+            case "Hoạt động": return TrangThaiHeSoGia.HOAT_DONG;
+            case "Tạm ngưng": return TrangThaiHeSoGia.TAM_NGUNG;
+            case "Đã xóa": return TrangThaiHeSoGia.DA_XOA;
+            default: return TrangThaiHeSoGia.HOAT_DONG;
+        }
+    }
+
     private void loadDataToTable(ArrayList<HeSoGia> list) {
         tableModel.setRowCount(0); 
         for (HeSoGia hsg : list) {
             tableModel.addRow(new Object[]{
                 hsg.getMaHeSoGia(),
                 hsg.getHeSo(),
-                hsg.getSoGioDatTruoc()
+                hsg.getSoGioDatTruoc(),
+                hienThiTrangThai(hsg.getTrangThai())
             });
         }
     }
 
     private void setupListeners() {
-        // 1. Click bảng đổ dữ liệu lên form
         table.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 int row = table.getSelectedRow();
@@ -260,12 +259,33 @@ public class HeSoGiaPanel extends JPanel {
                     txtHeSo.setText(tableModel.getValueAt(row, 1).toString());
                     txtSoGioDatTruoc.setText(tableModel.getValueAt(row, 2).toString());
                     
+                    String trangThaiTrenBang = tableModel.getValueAt(row, 3).toString();
+                    cbTrangThai.setSelectedItem(trangThaiTrenBang);
+                    
                     txtMaHeSoGia.setEditable(false); 
                 }
             }
         });
 
-        // 2. Nút Thêm
+        cboHienThi.addActionListener(e -> {
+            boolean isTrash = cboHienThi.getSelectedIndex() == 1;
+            if (isTrash) {
+                btnThem.setEnabled(false);
+                btnSua.setText("Khôi phục");
+                btnSua.setBackground(new Color(76, 175, 80)); 
+                btnXoa.setEnabled(false);
+                cbTrangThai.setEnabled(false);
+                loadDataToTable(heSoGiaBUS.getHeSoGiaTrongThungRac());
+            } else {
+                btnThem.setEnabled(true);
+                btnSua.setText("Cập nhật");
+                btnSua.setBackground(BTN_UPDATE);
+                btnXoa.setEnabled(true);
+                cbTrangThai.setEnabled(true);
+                loadDataToTable(heSoGiaBUS.getAllHeSoGia());
+            }
+        });
+
         btnThem.addActionListener(e -> {
             try {
                 HeSoGia hsg = getFormInput();
@@ -280,13 +300,25 @@ public class HeSoGiaPanel extends JPanel {
             }
         });
 
-        // 3. Nút Sửa
         btnSua.addActionListener(e -> {
             try {
                 if (txtMaHeSoGia.getText().trim().isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "Vui lòng chọn hệ số giá trên bảng để cập nhật!");
+                    JOptionPane.showMessageDialog(this, "Vui lòng chọn hệ số giá trên bảng!");
                     return;
                 }
+
+                String maHeSoGia = txtMaHeSoGia.getText().trim();
+
+                if (cboHienThi.getSelectedIndex() == 1) {
+                    if (heSoGiaBUS.khoiPhucHeSoGia(maHeSoGia)) {
+                        JOptionPane.showMessageDialog(this, "Khôi phục hệ số giá thành công!");
+                        btnLamMoi.doClick();
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Khôi phục thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    }
+                    return;
+                }
+
                 HeSoGia hsg = getFormInput();
                 if (heSoGiaBUS.capNhatHeSoGia(hsg)) {
                     JOptionPane.showMessageDialog(this, "Cập nhật hệ số giá thành công!");
@@ -299,7 +331,6 @@ public class HeSoGiaPanel extends JPanel {
             }
         });
 
-        // 4. Nút Xóa
         btnXoa.addActionListener(e -> {
             int row = table.getSelectedRow();
             if (row < 0) {
@@ -314,27 +345,32 @@ public class HeSoGiaPanel extends JPanel {
                     JOptionPane.showMessageDialog(this, "Xóa thành công!");
                     btnLamMoi.doClick();
                 } else {
-                    JOptionPane.showMessageDialog(this, "Xóa thất bại! Có thể hệ số giá này đang được sử dụng ở Chuyến bay.", "Lỗi DB", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Xóa thất bại!", "Lỗi DB", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
 
-        // 5. Nút Làm Mới
         btnLamMoi.addActionListener(e -> {
             txtMaHeSoGia.setText("");
             txtHeSo.setText("");
             txtSoGioDatTruoc.setText("");
             txtTimKiem.setText("");
+            cbTrangThai.setSelectedIndex(0);
             
             txtMaHeSoGia.setEditable(true);
             table.clearSelection();
-            loadDataToTable(heSoGiaBUS.getAllHeSoGia());
+
+            if (cboHienThi.getSelectedIndex() == 1) {
+                loadDataToTable(heSoGiaBUS.getHeSoGiaTrongThungRac());
+            } else {
+                loadDataToTable(heSoGiaBUS.getAllHeSoGia());
+            }
         });
 
-        // 6. Nút Tìm Kiếm
         btnTimKiem.addActionListener(e -> {
             String keyword = txtTimKiem.getText();
-            ArrayList<HeSoGia> ketQua = heSoGiaBUS.timKiemHeSoGia(keyword);
+            boolean isTrash = cboHienThi.getSelectedIndex() == 1;
+            ArrayList<HeSoGia> ketQua = heSoGiaBUS.timKiemHeSoGia(keyword, isTrash);
             loadDataToTable(ketQua);
         });
     }
@@ -357,6 +393,8 @@ public class HeSoGiaPanel extends JPanel {
             throw new Exception("Số giờ đặt trước phải là số hợp lệ!");
         }
 
-        return new HeSoGia(maHSG, heSo, soGio);
+        TrangThaiHeSoGia trangThai = layTrangThaiTuUI(cbTrangThai.getSelectedItem().toString());
+
+        return new HeSoGia(maHSG, heSo, soGio, trangThai);
     }
 }

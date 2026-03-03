@@ -2,8 +2,9 @@ package gui.admin;
 
 import bll.TuyenBayBUS;
 import bll.SanBayBUS;
-import model.TuyenBay;
 import model.SanBay;
+import model.TrangThaiTuyenBay;
+import model.TuyenBay;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -17,22 +18,15 @@ import java.util.ArrayList;
 
 public class TuyenBayPanel extends JPanel {
 
-    // ===== UI COMPONENTS =====
     private JTable table;
     private DefaultTableModel tableModel;
-    private JTextField txtMaTuyenBay, txtKhoangCach, txtGiaGoc;
-    private JComboBox<String> cbSanBayDi, cbSanBayDen;
-    private JButton btnThem, btnSua, btnXoa, btnLamMoi;
-    
-    // Thanh tìm kiếm
-    private JTextField txtTimKiem;
-    private JButton btnTimKiem;
+    private JTextField txtMaTuyenBay, txtKhoangCach, txtGiaGoc, txtTimKiem;
+    private JComboBox<String> cbSanBayDi, cbSanBayDen, cbTrangThai, cboHienThi;
+    private JButton btnThem, btnSua, btnXoa, btnLamMoi, btnTimKiem;
 
-    // ===== BUSINESS LOGIC =====
     private TuyenBayBUS tuyenBayBUS;
     private SanBayBUS sanBayBUS;
 
-    // ====== MÀU HỆ THỐNG (ĐỒNG BỘ VỚI CÁC PANEL KHÁC) ======
     private final Color PRIMARY = new Color(220, 38, 38);
     private final Color BG_MAIN = new Color(245, 247, 250);
     private final Color TABLE_HEADER = new Color(30, 41, 59);
@@ -55,17 +49,11 @@ public class TuyenBayPanel extends JPanel {
     }
 
     private void initComponents() {
-
-        // ========================================
-        // 1. HEADER (TITLE & SEARCH)
-        // ========================================
         JPanel headerPanel = new JPanel(new BorderLayout(10, 10));
         headerPanel.setOpaque(false);
 
-        // Title
         ImageIcon titleIcon = null;
         try {
-            // Nhớ chuẩn bị icon máy bay hoặc bản đồ ở đường dẫn này
             titleIcon = new ImageIcon(new ImageIcon(getClass().getResource("/resources/icons/voucher.png"))
                             .getImage().getScaledInstance(24, 24, Image.SCALE_SMOOTH));
         } catch (Exception e) {}
@@ -73,7 +61,6 @@ public class TuyenBayPanel extends JPanel {
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 24));
         lblTitle.setForeground(PRIMARY);
         
-        // Search
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         searchPanel.setOpaque(false);
         txtTimKiem = createTextField();
@@ -87,22 +74,26 @@ public class TuyenBayPanel extends JPanel {
         btnTimKiem.setFocusPainted(false);
         try { setButtonIcon(btnTimKiem, "/resources/icons/icons8-search-24.png", 16); } catch (Exception e){}
 
-        searchPanel.add(new JLabel("Tìm (Mã/Nơi đi/Nơi đến):"));
+        cboHienThi = new JComboBox<>(new String[]{"Đang hiển thị", "Thùng rác"});
+        cboHienThi.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        cboHienThi.setPreferredSize(new Dimension(150, 35));
+
+        // searchPanel.add(new JLabel("Tìm (Mã/Nơi đi/Nơi đến):"));
         searchPanel.add(txtTimKiem);
         searchPanel.add(btnTimKiem);
+        searchPanel.add(Box.createHorizontalStrut(10));
+        searchPanel.add(new JLabel("Chế độ:"));
+        searchPanel.add(cboHienThi);
 
         headerPanel.add(lblTitle, BorderLayout.WEST);
         headerPanel.add(searchPanel, BorderLayout.EAST);
         
         add(headerPanel, BorderLayout.NORTH);
 
-        // ========================================
-        // 2. TABLE CARD (CENTER)
-        // ========================================
         JPanel tableCard = createCardPanel();
         tableCard.setLayout(new BorderLayout());
 
-        String[] columns = {"Mã Tuyến Bay", "Sân Bay Đi", "Sân Bay Đến", "Khoảng Cách (km)", "Giá Gốc (VNĐ)"};
+        String[] columns = {"Mã Tuyến Bay", "Sân Bay Đi", "Sân Bay Đến", "Khoảng Cách (km)", "Giá Gốc (VNĐ)", "Trạng Thái"};
         tableModel = new DefaultTableModel(columns, 0) {
             public boolean isCellEditable(int row, int column) { return false; }
         };
@@ -116,9 +107,6 @@ public class TuyenBayPanel extends JPanel {
 
         add(tableCard, BorderLayout.CENTER);
 
-        // ========================================
-        // 3. FORM CARD (SOUTH)
-        // ========================================
         JPanel formCard = createCardPanel();
         formCard.setLayout(new BorderLayout(20, 20));
 
@@ -128,10 +116,15 @@ public class TuyenBayPanel extends JPanel {
         txtMaTuyenBay = createTextField();
         txtKhoangCach = createTextField();
         txtGiaGoc = createTextField();
+        
         cbSanBayDi = new JComboBox<>();
         cbSanBayDi.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        
         cbSanBayDen = new JComboBox<>();
         cbSanBayDen.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+
+        cbTrangThai = new JComboBox<>(new String[]{"Hoạt động", "Tạm ngưng", "Đã xóa"});
+        cbTrangThai.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
         formPanel.add(createLabel("Mã Tuyến Bay:"));
         formPanel.add(txtMaTuyenBay);
@@ -145,12 +138,11 @@ public class TuyenBayPanel extends JPanel {
 
         formPanel.add(createLabel("Sân Bay Đến:"));
         formPanel.add(cbSanBayDen);
-        formPanel.add(new JLabel()); // Căn layout
-        formPanel.add(new JLabel());
+        formPanel.add(createLabel("Trạng Thái:"));
+        formPanel.add(cbTrangThai);
 
         formCard.add(formPanel, BorderLayout.CENTER);
 
-        // ===== BUTTON PANEL =====
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
         buttonPanel.setOpaque(false);
 
@@ -174,15 +166,9 @@ public class TuyenBayPanel extends JPanel {
         formCard.add(buttonPanel, BorderLayout.SOUTH);
         add(formCard, BorderLayout.SOUTH);
 
-        // ========================================
-        // 4. EVENTS
-        // ========================================
         setupListeners();
     }
 
-    // ========================================
-    // UI STYLE METHODS
-    // ========================================
     private JPanel createCardPanel() {
         JPanel panel = new JPanel();
         panel.setBackground(Color.WHITE);
@@ -212,7 +198,7 @@ public class TuyenBayPanel extends JPanel {
 
     private JButton createButton(String text, Color bgColor) {
         JButton btn = new JButton(text);
-        btn.setPreferredSize(new Dimension(130, 40));
+        btn.setPreferredSize(new Dimension(140, 40));
         btn.setBackground(bgColor);
         btn.setForeground(Color.WHITE);
         btn.setFocusPainted(false);
@@ -235,7 +221,6 @@ public class TuyenBayPanel extends JPanel {
         header.setForeground(Color.WHITE);
         header.setPreferredSize(new Dimension(header.getWidth(), 40));
         
-        // Căn giữa nội dung cột
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
         for(int i = 0; i < table.getColumnCount(); i++){
@@ -250,9 +235,26 @@ public class TuyenBayPanel extends JPanel {
         btn.setIconTextGap(8);
     }
 
-    // ========================================
-    // LOGIC & DATA METHODS
-    // ========================================
+    private String hienThiTrangThai(TrangThaiTuyenBay status) {
+        if (status == null) return "Hoạt động";
+        switch (status) {
+            case HOAT_DONG: return "Hoạt động";
+            case TAM_NGUNG: return "Tạm ngưng";
+            case DA_XOA: return "Đã xóa";
+            default: return "Hoạt động";
+        }
+    }
+
+    private TrangThaiTuyenBay layTrangThaiTuUI(String uiValue) {
+        if (uiValue == null) return TrangThaiTuyenBay.HOAT_DONG;
+        switch (uiValue) {
+            case "Hoạt động": return TrangThaiTuyenBay.HOAT_DONG;
+            case "Tạm ngưng": return TrangThaiTuyenBay.TAM_NGUNG;
+            case "Đã xóa": return TrangThaiTuyenBay.DA_XOA;
+            default: return TrangThaiTuyenBay.HOAT_DONG;
+        }
+    }
+
     private void loadSanBayToComboBox() {
         cbSanBayDi.removeAllItems();
         cbSanBayDen.removeAllItems();
@@ -272,8 +274,9 @@ public class TuyenBayPanel extends JPanel {
                 tb.getMaTuyenBay(),
                 tb.getSanBayDi(),
                 tb.getSanBayDen(),
-                tb.getKhoangCach(),
-                tb.getGiaGoc()
+                tb.getKhoangCachKM(),
+                tb.getGiaGoc(),
+                hienThiTrangThai(tb.getTrangThai())
             });
         }
     }
@@ -288,7 +291,6 @@ public class TuyenBayPanel extends JPanel {
     }
 
     private void setupListeners() {
-        // 1. Click bảng đổ dữ liệu lên form
         table.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 int row = table.getSelectedRow();
@@ -303,12 +305,33 @@ public class TuyenBayPanel extends JPanel {
                     txtKhoangCach.setText(tableModel.getValueAt(row, 3).toString());
                     txtGiaGoc.setText(tableModel.getValueAt(row, 4).toString());
                     
+                    String trangThaiTrenBang = tableModel.getValueAt(row, 5).toString();
+                    cbTrangThai.setSelectedItem(trangThaiTrenBang);
+                    
                     txtMaTuyenBay.setEditable(false); 
                 }
             }
         });
 
-        // 2. Nút Thêm
+        cboHienThi.addActionListener(e -> {
+            boolean isTrash = cboHienThi.getSelectedIndex() == 1;
+            if (isTrash) {
+                btnThem.setEnabled(false);
+                btnSua.setText("Khôi phục");
+                btnSua.setBackground(new Color(76, 175, 80)); 
+                btnXoa.setEnabled(false);
+                cbTrangThai.setEnabled(false);
+                loadDataToTable(tuyenBayBUS.getTuyenBayTrongThungRac());
+            } else {
+                btnThem.setEnabled(true);
+                btnSua.setText("Cập nhật");
+                btnSua.setBackground(BTN_UPDATE);
+                btnXoa.setEnabled(true);
+                cbTrangThai.setEnabled(true);
+                loadDataToTable(tuyenBayBUS.getAllTuyenBay());
+            }
+        });
+
         btnThem.addActionListener(e -> {
             try {
                 TuyenBay tb = getFormInput();
@@ -323,13 +346,24 @@ public class TuyenBayPanel extends JPanel {
             }
         });
 
-        // 3. Nút Sửa
         btnSua.addActionListener(e -> {
             try {
-                if (txtMaTuyenBay.getText().trim().isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "Vui lòng chọn tuyến bay trên bảng để cập nhật!");
+                String maTuyenBay = txtMaTuyenBay.getText().trim();
+                if (maTuyenBay.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Vui lòng chọn tuyến bay trên bảng!");
                     return;
                 }
+
+                if (cboHienThi.getSelectedIndex() == 1) {
+                    if (tuyenBayBUS.khoiPhucTuyenBay(maTuyenBay)) {
+                        JOptionPane.showMessageDialog(this, "Khôi phục tuyến bay thành công!");
+                        btnLamMoi.doClick();
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Khôi phục thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    }
+                    return;
+                }
+
                 TuyenBay tb = getFormInput();
                 if (tuyenBayBUS.capNhatTuyenBay(tb)) {
                     JOptionPane.showMessageDialog(this, "Cập nhật tuyến bay thành công!");
@@ -342,7 +376,6 @@ public class TuyenBayPanel extends JPanel {
             }
         });
 
-        // 4. Nút Xóa
         btnXoa.addActionListener(e -> {
             int row = table.getSelectedRow();
             if (row < 0) {
@@ -357,29 +390,34 @@ public class TuyenBayPanel extends JPanel {
                     JOptionPane.showMessageDialog(this, "Xóa thành công!");
                     btnLamMoi.doClick();
                 } else {
-                    JOptionPane.showMessageDialog(this, "Xóa thất bại! Có thể tuyến bay đang có chuyến bay hoạt động.", "Lỗi DB", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Xóa thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
 
-        // 5. Nút Làm Mới
         btnLamMoi.addActionListener(e -> {
             txtMaTuyenBay.setText("");
             txtKhoangCach.setText("");
             txtGiaGoc.setText("");
             txtTimKiem.setText("");
+            cbTrangThai.setSelectedIndex(0);
             if(cbSanBayDi.getItemCount() > 0) cbSanBayDi.setSelectedIndex(0);
             if(cbSanBayDen.getItemCount() > 0) cbSanBayDen.setSelectedIndex(0);
             
             txtMaTuyenBay.setEditable(true);
             table.clearSelection();
-            loadDataToTable(tuyenBayBUS.getAllTuyenBay());
+
+            if (cboHienThi.getSelectedIndex() == 1) {
+                loadDataToTable(tuyenBayBUS.getTuyenBayTrongThungRac());
+            } else {
+                loadDataToTable(tuyenBayBUS.getAllTuyenBay());
+            }
         });
 
-        // 6. Nút Tìm Kiếm
         btnTimKiem.addActionListener(e -> {
             String keyword = txtTimKiem.getText();
-            ArrayList<TuyenBay> ketQua = tuyenBayBUS.timKiemTuyenBay(keyword);
+            boolean isTrash = cboHienThi.getSelectedIndex() == 1;
+            ArrayList<TuyenBay> ketQua = tuyenBayBUS.timKiemTuyenBay(keyword, isTrash);
             loadDataToTable(ketQua);
         });
     }
@@ -395,7 +433,7 @@ public class TuyenBayPanel extends JPanel {
         try {
             khoangCach = Float.parseFloat(txtKhoangCach.getText().trim());
         } catch (NumberFormatException e) {
-            throw new Exception("Khoảng cách phải là số nguyên hoặc số thực!");
+            throw new Exception("Khoảng cách phải là số!");
         }
 
         BigDecimal giaGoc = BigDecimal.ZERO;
@@ -405,6 +443,8 @@ public class TuyenBayPanel extends JPanel {
             throw new Exception("Giá gốc phải là số hợp lệ!");
         }
 
-        return new TuyenBay(maTB, sbDi, sbDen, khoangCach, giaGoc);
+        TrangThaiTuyenBay trangThai = layTrangThaiTuUI(cbTrangThai.getSelectedItem().toString());
+
+        return new TuyenBay(maTB, sbDi, sbDen, khoangCach, giaGoc, trangThai);
     }
 }

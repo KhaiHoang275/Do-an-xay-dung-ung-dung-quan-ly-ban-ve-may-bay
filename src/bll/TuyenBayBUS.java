@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 
 import dal.TuyenBayDAO;
+import model.TrangThaiTuyenBay;
 import model.TuyenBay;
 
 public class TuyenBayBUS {
@@ -15,6 +16,10 @@ public class TuyenBayBUS {
 
     public ArrayList<TuyenBay> getAllTuyenBay() {
         return tuyenBayDAO.selectAll();
+    }
+
+    public ArrayList<TuyenBay> getTuyenBayTrongThungRac() {
+        return tuyenBayDAO.selectThungRac();
     }
 
     public TuyenBay getTuyenBayById(String maTuyenBay) {
@@ -37,11 +42,15 @@ public class TuyenBayBUS {
             throw new IllegalArgumentException("Tuyến bay từ " + tb.getSanBayDi() + " đến " + tb.getSanBayDen() + " đã tồn tại!");
         }
 
-        if (tb.getKhoangCach() <= 0) {
+        if (tb.getKhoangCachKM() <= 0) {
             throw new IllegalArgumentException("Khoảng cách phải lớn hơn 0!");
         }
         if (tb.getGiaGoc() == null || tb.getGiaGoc().compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Giá gốc phải lớn hơn 0!");
+        }
+
+        if (tb.getTrangThai() == null) {
+            tb.setTrangThai(TrangThaiTuyenBay.HOAT_DONG);
         }
 
         return tuyenBayDAO.insert(tb);
@@ -52,7 +61,7 @@ public class TuyenBayBUS {
             throw new IllegalArgumentException("Sân bay đi và sân bay đến không được trùng nhau!");
         }
 
-        if (tb.getKhoangCach() <= 0) {
+        if (tb.getKhoangCachKM() <= 0) {
             throw new IllegalArgumentException("Khoảng cách phải lớn hơn 0!");
         }
         
@@ -71,20 +80,24 @@ public class TuyenBayBUS {
         return tuyenBayDAO.delete(maTuyenBay);
     }
 
-    // 6. Tìm kiếm tuyến bay (Theo Mã, Sân bay đi, Sân bay đến)
-    public ArrayList<TuyenBay> timKiemTuyenBay(String keyword) {
+    public boolean khoiPhucTuyenBay(String maTuyenBay) {
+        if (maTuyenBay == null || maTuyenBay.trim().isEmpty()) {
+            return false;
+        }
+        return tuyenBayDAO.restore(maTuyenBay);
+    }
+
+    public ArrayList<TuyenBay> timKiemTuyenBay(String keyword, boolean isTrash) {
         ArrayList<TuyenBay> ketQua = new ArrayList<>();
-        ArrayList<TuyenBay> tatCaTuyenBay = getAllTuyenBay(); // Lấy tất cả lên
+        ArrayList<TuyenBay> source = isTrash ? getTuyenBayTrongThungRac() : getAllTuyenBay();
         
         if (keyword == null || keyword.trim().isEmpty()) {
-            return tatCaTuyenBay; // Nếu không nhập gì thì trả về toàn bộ
+            return source;
         }
         
-        // Đưa từ khóa về chữ thường để tìm kiếm không phân biệt hoa/thường
         String lowerKeyword = keyword.toLowerCase().trim();
 
-        for (TuyenBay tb : tatCaTuyenBay) {
-            // Nếu từ khóa xuất hiện trong Mã, Sân bay đi, hoặc Sân bay đến thì đưa vào danh sách kết quả
+        for (TuyenBay tb : source) {
             if (tb.getMaTuyenBay().toLowerCase().contains(lowerKeyword) ||
                 tb.getSanBayDi().toLowerCase().contains(lowerKeyword) ||
                 tb.getSanBayDen().toLowerCase().contains(lowerKeyword)) {

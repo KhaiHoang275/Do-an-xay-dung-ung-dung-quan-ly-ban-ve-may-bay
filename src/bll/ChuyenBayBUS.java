@@ -11,6 +11,7 @@ import dal.HeSoGiaDAO;
 import dal.HangVeDAO;
 import model.ChuyenBay;
 import model.TuyenBay;
+import model.TrangThaiChuyenBay;
 import model.HeSoGia;
 import model.HangVe;
 
@@ -27,8 +28,17 @@ public class ChuyenBayBUS {
         this.hangVeDAO = new HangVeDAO();
     }
 
-    public boolean themChuyenBay(ChuyenBay chuyenBay) {
-        return chuyenBayDAO.insert(chuyenBay);
+    public boolean themChuyenBay(ChuyenBay cb) throws IllegalArgumentException {
+        if (cb.getMaChuyenBay() == null || cb.getMaChuyenBay().trim().isEmpty()) {
+            throw new IllegalArgumentException("Mã chuyến bay không được để trống!");
+        }
+        if (chuyenBayDAO.selectById(cb.getMaChuyenBay()) != null) {
+            throw new IllegalArgumentException("Mã chuyến bay đã tồn tại!");
+        }
+        if (cb.getTrangThai() == null) {
+            cb.setTrangThai(TrangThaiChuyenBay.CHUA_KHOI_HANH);
+        }
+        return chuyenBayDAO.insert(cb);
     }
 
     public ArrayList<ChuyenBay> searchChuyenBay(String from, String to, String dateStr) {
@@ -36,21 +46,16 @@ public class ChuyenBayBUS {
             LocalDate date = LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             return chuyenBayDAO.searchFlight(from, to, date);
         } catch (Exception e) {
-            System.err.println("Lỗi định dạng ngày. Vui lòng nhập yyyy-MM-dd");
             return new ArrayList<>(); 
         }
     }
 
     public BigDecimal tinhGiaVe(String maChuyenBay, String maHangVe) {
         ChuyenBay cb = chuyenBayDAO.selectById(maChuyenBay);
-        if (cb == null) {
-            throw new IllegalArgumentException("Chuyến bay không tồn tại");
-        }
+        if (cb == null) throw new IllegalArgumentException("Chuyến bay không tồn tại");
 
         TuyenBay tb = tuyenBayDAO.selectById(cb.getMaTuyenBay());
-        if (tb == null) {
-            throw new IllegalArgumentException("Tuyến bay không tồn tại");
-        }
+        if (tb == null) throw new IllegalArgumentException("Tuyến bay không tồn tại");
         BigDecimal giaGoc = tb.getGiaGoc();
 
         HeSoGia hsg = heSoGiaDAO.selectById(cb.getMaHeSoGia());
@@ -59,13 +64,15 @@ public class ChuyenBayBUS {
         HangVe hv = hangVeDAO.selectById(maHangVe);
         BigDecimal heSoHangVe = (hv != null) ? BigDecimal.valueOf(hv.getHeSoHangVe()) : BigDecimal.ONE;
 
-        BigDecimal giaVe = giaGoc.multiply(heSoGia).multiply(heSoHangVe);
-        
-        return giaVe;
+        return giaGoc.multiply(heSoGia).multiply(heSoHangVe);
     }
 
     public ArrayList<ChuyenBay> getAllChuyenBay() {
         return chuyenBayDAO.selectAll();
+    }
+
+    public ArrayList<ChuyenBay> getChuyenBayTrongThungRac() {
+        return chuyenBayDAO.selectThungRac();
     }
 
     public ChuyenBay getChuyenBayById(String maChuyenBay) {
@@ -77,6 +84,32 @@ public class ChuyenBayBUS {
     }
 
     public boolean xoaChuyenBay(String maChuyenBay) {
+        if (maChuyenBay == null || maChuyenBay.trim().isEmpty()) return false;
         return chuyenBayDAO.delete(maChuyenBay);
+    }
+
+    public boolean khoiPhucChuyenBay(String maChuyenBay) {
+        if (maChuyenBay == null || maChuyenBay.trim().isEmpty()) return false;
+        return chuyenBayDAO.restore(maChuyenBay);
+    }
+
+    public ArrayList<ChuyenBay> timKiemChuyenBay(String keyword, TrangThaiChuyenBay filterStatus, boolean isTrash) {
+        ArrayList<ChuyenBay> source = isTrash ? getChuyenBayTrongThungRac() : getAllChuyenBay();
+        ArrayList<ChuyenBay> result = new ArrayList<>();
+        
+        String lowerKeyword = (keyword == null) ? "" : keyword.toLowerCase().trim();
+
+        for (ChuyenBay cb : source) {
+            boolean matchKeyword = cb.getMaChuyenBay().toLowerCase().contains(lowerKeyword) ||
+                                   cb.getMaTuyenBay().toLowerCase().contains(lowerKeyword) ||
+                                   cb.getMaMayBay().toLowerCase().contains(lowerKeyword);
+                                   
+            boolean matchStatus = (filterStatus == null) || (cb.getTrangThai() == filterStatus);
+
+            if (matchKeyword && matchStatus) {
+                result.add(cb);
+            }
+        }
+        return result;
     }
 }

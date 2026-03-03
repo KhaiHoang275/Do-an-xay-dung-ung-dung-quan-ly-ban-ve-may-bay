@@ -7,12 +7,13 @@ import java.util.ArrayList;
 
 import db.DBConnection;
 import model.HeSoGia;
+import model.TrangThaiHeSoGia;
 
 public class HeSoGiaDAO {
 
     public ArrayList<HeSoGia> selectAll() {
         ArrayList<HeSoGia> list = new ArrayList<>();
-        String sql = "SELECT * FROM HeSoGia";
+        String sql = "SELECT * FROM HeSoGia WHERE TrangThai != 'DA_XOA' OR TrangThai IS NULL";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
@@ -23,6 +24,41 @@ public class HeSoGiaDAO {
                 hsg.setMaHeSoGia(rs.getString("MaHeSoGia"));
                 hsg.setHeSo(rs.getFloat("HeSo"));
                 hsg.setSoGioDatTruoc(rs.getFloat("SoGioDatTruoc"));
+                
+                String statusStr = rs.getString("TrangThai");
+                if (statusStr != null) {
+                    hsg.setTrangThai(TrangThaiHeSoGia.valueOf(statusStr));
+                } else {
+                    hsg.setTrangThai(TrangThaiHeSoGia.HOAT_DONG);
+                }
+                list.add(hsg);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public ArrayList<HeSoGia> selectThungRac() {
+        ArrayList<HeSoGia> list = new ArrayList<>();
+        String sql = "SELECT * FROM HeSoGia WHERE TrangThai = 'DA_XOA'";
+        
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            
+            while (rs.next()) {
+                HeSoGia hsg = new HeSoGia();
+                hsg.setMaHeSoGia(rs.getString("MaHeSoGia"));
+                hsg.setHeSo(rs.getFloat("HeSo"));
+                hsg.setSoGioDatTruoc(rs.getFloat("SoGioDatTruoc"));
+                
+                String statusStr = rs.getString("TrangThai");
+                if (statusStr != null) {
+                    hsg.setTrangThai(TrangThaiHeSoGia.valueOf(statusStr));
+                } else {
+                    hsg.setTrangThai(TrangThaiHeSoGia.HOAT_DONG);
+                }
                 list.add(hsg);
             }
         } catch (Exception e) {
@@ -45,6 +81,13 @@ public class HeSoGiaDAO {
                     hsg.setMaHeSoGia(rs.getString("MaHeSoGia"));
                     hsg.setHeSo(rs.getFloat("HeSo"));
                     hsg.setSoGioDatTruoc(rs.getFloat("SoGioDatTruoc"));
+                    
+                    String statusStr = rs.getString("TrangThai");
+                    if (statusStr != null) {
+                        hsg.setTrangThai(TrangThaiHeSoGia.valueOf(statusStr));
+                    } else {
+                        hsg.setTrangThai(TrangThaiHeSoGia.HOAT_DONG);
+                    }
                     return hsg;
                 }
             }
@@ -55,7 +98,7 @@ public class HeSoGiaDAO {
     }
 
     public boolean insert(HeSoGia hsg) {
-        String sql = "INSERT INTO HeSoGia (MaHeSoGia, HeSo, SoGioDatTruoc) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO HeSoGia (MaHeSoGia, HeSo, SoGioDatTruoc, TrangThai) VALUES (?, ?, ?, ?)";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -63,6 +106,7 @@ public class HeSoGiaDAO {
             ps.setString(1, hsg.getMaHeSoGia());
             ps.setFloat(2, hsg.getHeSo());
             ps.setFloat(3, hsg.getSoGioDatTruoc());
+            ps.setString(4, hsg.getTrangThai() != null ? hsg.getTrangThai().name() : TrangThaiHeSoGia.HOAT_DONG.name());
 
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
@@ -72,14 +116,15 @@ public class HeSoGiaDAO {
     }
 
     public boolean update(HeSoGia hsg) {
-        String sql = "UPDATE HeSoGia SET HeSo = ?, SoGioDatTruoc = ? WHERE MaHeSoGia = ?";
+        String sql = "UPDATE HeSoGia SET HeSo = ?, SoGioDatTruoc = ?, TrangThai = ? WHERE MaHeSoGia = ?";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             
             ps.setFloat(1, hsg.getHeSo());
             ps.setFloat(2, hsg.getSoGioDatTruoc());
-            ps.setString(3, hsg.getMaHeSoGia());
+            ps.setString(3, hsg.getTrangThai() != null ? hsg.getTrangThai().name() : TrangThaiHeSoGia.HOAT_DONG.name());
+            ps.setString(4, hsg.getMaHeSoGia());
 
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
@@ -89,7 +134,22 @@ public class HeSoGiaDAO {
     }
 
     public boolean delete(String maHeSoGia) {
-        String sql = "DELETE FROM HeSoGia WHERE MaHeSoGia = ?";
+        String sql = "UPDATE HeSoGia SET TrangThai = 'DA_XOA' WHERE MaHeSoGia = ?";
+        
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setString(1, maHeSoGia);
+            
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean restore(String maHeSoGia) {
+        String sql = "UPDATE HeSoGia SET TrangThai = 'HOAT_DONG' WHERE MaHeSoGia = ?";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
