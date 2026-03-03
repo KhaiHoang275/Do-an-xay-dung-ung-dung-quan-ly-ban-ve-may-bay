@@ -148,4 +148,11 @@ public class ChuyenBayBUS {
         }
         return list;
     }
+    public boolean capNhatChuyenBay(ChuyenBay cb) {
+        return chuyenBayDAO.update(cb);
+    }
+
+    public boolean xoaChuyenBay(String maChuyenBay) {
+        return chuyenBayDAO.delete(maChuyenBay);
+    }
 }
