@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 import db.DBConnection;
 import model.VeBan;
@@ -39,9 +40,11 @@ public class VeBanDAO {
     }
 
     public boolean insert(VeBan vb){
-        String sql = "INSERT INTO VeBan (maVe, maPhieuDatVe, maChuyenBay, maHK, maHangVe, maGhe, loaiVe, loaiHK, giaVe, trangThaiVe) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try (Connection con = DBConnection.getConnection();
-            PreparedStatement ps = con.prepareStatement(sql)){
+        String sql = "INSERT INTO VeBan (maVe, maPhieuDatve, maChuyenBay, maHK, maHangVe, maGhe, loaiVe, loaiHK, giaVe, trangThaiVe) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        try (Connection con = DBConnection.getConnection()){
+            String maVe = generateMaVe(con);
+            vb.setMaVe(maVe);
+            PreparedStatement ps = con.prepareStatement(sql);
                 ps.setString(1, vb.getMaVe());
                 ps.setString(2, vb.getMaPhieuDatVe());
                 ps.setString(3, vb.getMaChuyenBay());
@@ -171,10 +174,10 @@ public class VeBanDAO {
             if (rs.next() && rs.getString(1) != null) {
                 String last = rs.getString(1).substring(2);
                 int num = Integer.parseInt(last) + 1;
-                return String.format("VB%03d", num);
+                return String.format("VE%03d", num);
             }
         }
-        return "VB001";
+        return "VE001";
     }
 
     public int getSoGheCon(Connection conn, String maCB) throws SQLException {
@@ -237,5 +240,74 @@ public class VeBanDAO {
         }
 
         return false;
+    }
+
+    public List<VeBan> selectVeCoTheDoi(String maHK) {
+        List<VeBan> list = new ArrayList<>();
+        String sql = """
+                       SELECT v.*
+                       FROM VeBan v
+                       JOIN ChuyenBay cb ON v.maChuyenBay = cb.maChuyenBay
+                       JOIN PhieuDatVe pdv ON v.maPhieuDatVe = pdv.maPhieuDatVe
+                       WHERE v.maHK = ?
+                         AND v.trangThaiVe IN (N'Đã xuất', N'Chưa sử dụng')
+                         AND pdv.trangThaiThanhToan = N'Đã thanh toán'
+                         AND cb.trangThai <> N'Đã bay'
+                         AND cb.ngayGioDi > GETDATE()       
+                """;
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maHK);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                VeBan ve = new VeBan();
+
+                ve.setMaVe(rs.getString("maVe"));
+                ve.setMaPhieuDatVe(rs.getString("maPhieuDatVe"));
+                ve.setMaChuyenBay(rs.getString("maChuyenBay"));
+                ve.setMaHK(rs.getString("maHK"));
+                ve.setMaHangVe(rs.getString("maHangVe"));
+                ve.setMaGhe(rs.getString("maGhe"));
+                ve.setLoaiVe(rs.getString("loaiVe"));
+                ve.setLoaiHK(rs.getString("loaiHK"));
+                ve.setGiaVe(rs.getBigDecimal("giaVe"));
+                ve.setTrangThaiVe(rs.getString("trangThaiVe"));
+
+                list.add(ve);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public List<VeBan> selectByMaPhieuDatVe(String maPhieu) {
+        List<VeBan> list = new ArrayList<>();
+        String sql = "SELECT * FROM VeBan WHERE maPhieuDatVe = ?";
+
+        try (Connection con = DBConnection.getConnection();
+            PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, maPhieu);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                VeBan v = new VeBan();
+                v.setMaVe(rs.getString("maVe"));
+                v.setMaPhieuDatVe(rs.getString("maPhieuDatVe"));
+                v.setMaChuyenBay(rs.getString("maChuyenBay"));
+                v.setLoaiHK(rs.getString("loaiHK"));
+                v.setLoaiVe(rs.getString("loaiVe"));
+                v.setGiaVe(rs.getBigDecimal("giaVe"));
+                v.setTrangThaiVe(rs.getString("trangThaiVe"));
+                list.add(v);
+            }
+        } catch (Exception e) {
+
+            e.printStackTrace();
+        }
+        return list;
     }
 }

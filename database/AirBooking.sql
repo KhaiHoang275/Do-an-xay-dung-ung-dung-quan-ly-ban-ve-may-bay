@@ -14,41 +14,47 @@ CREATE TABLE NguoiDung (
     password VARCHAR(255) NOT NULL,
     email VARCHAR(100),
     sdt VARCHAR(20),
-    ngayTao DATETIME DEFAULT GETDATE(),
+    ngayTao DATETIME DEFAULT GETDATE(), 
+    thanhPho NVARCHAR(50),
     phanQuyen NVARCHAR(50), -- Admin, NhanVien, KhachHang
-    trangThaiTK NVARCHAR(50)
+    trangThaiTK enum('ACTIVE', 'INACTIVE') DEFAULT 'ACTIVE'
 );
 
 CREATE TABLE ThuHang (
     maThuHang VARCHAR(20) PRIMARY KEY,
     tenThuHang NVARCHAR(50),
-    diem INT,
-    uuDai NVARCHAR(MAX)
+    diem INT, 
+    trangThai Enum('ACTIVE', 'INACTIVE') DEFAULT 'ACTIVE',
+    uuDai NVARCHAR(MAX) 
 );
 
 CREATE TABLE SanBay (
     maSanBay VARCHAR(10) PRIMARY KEY, -- VD: SGN, HAN
     tenSanBay NVARCHAR(100),
     quocGia NVARCHAR(50),
-    thanhPho NVARCHAR(50)
+    thanhPho NVARCHAR(50),
+    trangThai Enum('ACTIVE', 'INACTIVE') DEFAULT 'ACTIVE'
 );
 
 CREATE TABLE MayBay (
     maMayBay VARCHAR(20) PRIMARY KEY,
     soHieu VARCHAR(20), -- VD: VN-A321
-    hangSanXuat NVARCHAR(50),
+    hangSanXuat NVARCHAR(50), 
+    trangThai Enum('ACTIVE', 'INACTIVE') DEFAULT 'ACTIVE',
     tongSoGhe INT
 );
 
 CREATE TABLE HangVe (
     maHangVe VARCHAR(10) PRIMARY KEY, -- VD: ECO, BUS
     tenHang NVARCHAR(50),
-    heSoHangVe DECIMAL(5, 2)
+    heSoHangVe DECIMAL(5, 2), 
+    trangThai Enum('ACTIVE', 'INACTIVE') DEFAULT 'ACTIVE'
 );
 
 CREATE TABLE HeSoGia (
     maHeSoGia VARCHAR(50) PRIMARY KEY, 
-    heSo DECIMAL(5, 2),
+    heSo DECIMAL(5, 2), 
+    trangThai Enum('ACTIVE', 'INACTIVE') DEFAULT 'ACTIVE',
     soGioDatTruoc DECIMAL(18, 2)
 );
 
@@ -62,9 +68,9 @@ CREATE TABLE KhuyenMai (
     apDungChoTatCa BIT DEFAULT 1,
     loaiKhachApDung VARCHAR(100) NULL,
     gioiHanMoiKhach INT DEFAULT 1,
-    trangThai BIT DEFAULT 1,
+    trangThai Enum('ACTIVE', 'EXPIRED', 'CANCELLED') DEFAULT 'ACTIVE',
     nguoiTao VARCHAR(20) NULL,
-    ngayTao DATETIME DEFAULT GETDATE,
+    ngayTao DATETIME DEFAULT GETDATE(),
     ngayBD DATETIME,
     ngayKT DATETIME,
     giaTri DECIMAL(18, 2), 
@@ -74,7 +80,8 @@ CREATE TABLE KhuyenMai (
 CREATE TABLE DichVuBoSung (
     maDichVu VARCHAR(20) PRIMARY KEY,
     tenDichVu NVARCHAR(100),
-    donGia DECIMAL(18, 2)
+    donGia DECIMAL(18, 2) 
+    trangThai Enum('ACTIVE', 'INACTIVE') DEFAULT 'ACTIVE'
 );
 
 -- =======================================================
@@ -90,7 +97,9 @@ CREATE TABLE ThongTinHanhKhach (
     hoChieu VARCHAR(20),
     ngaySinh DATE,
     gioiTinh NVARCHAR(10),
-    diemTichLuy INT DEFAULT 0,
+    diemTichLuy INT DEFAULT 0,  
+    loaiHanhKhach VARCHAR(20), 
+    trangThai Enum('ACTIVE', 'INACTIVE') DEFAULT 'ACTIVE',
     FOREIGN KEY (maNguoiDung) REFERENCES NguoiDung(maNguoiDung),
     FOREIGN KEY (maThuHang) REFERENCES ThuHang(maThuHang)
 );
@@ -99,7 +108,8 @@ CREATE TABLE NhanVien (
     maNV VARCHAR(20) PRIMARY KEY,
     maNguoiDung VARCHAR(20),
     chucVu NVARCHAR(50),
-    ngayVaoLam DATE,
+    ngayVaoLam DATE, 
+    trangThaiLamViec Enum('ACTIVE', 'INACTIVE') DEFAULT 'ACTIVE',
     FOREIGN KEY (maNguoiDung) REFERENCES NguoiDung(maNguoiDung)
 );
 
@@ -108,7 +118,8 @@ CREATE TABLE TuyenBay (
     sanBayDi VARCHAR(10),
     sanBayDen VARCHAR(10),
     khoangCachKM DECIMAL(18, 2),
-    giaGoc DECIMAL(18, 2),
+    giaGoc DECIMAL(18, 2), 
+    trangThai Enum('ACTIVE', 'INACTIVE') DEFAULT 'ACTIVE',
     FOREIGN KEY (sanBayDi) REFERENCES SanBay(maSanBay),
     FOREIGN KEY (sanBayDen) REFERENCES SanBay(maSanBay)
 );
@@ -117,7 +128,8 @@ CREATE TABLE GheMayBay (
     maGhe VARCHAR(20) PRIMARY KEY,
     maMayBay VARCHAR(20),
     soGhe VARCHAR(10),
-    giaGhe DECIMAL(18, 2),
+    giaGhe DECIMAL(18, 2), 
+    trangThai Enum('AVAILABLE', 'BOOKED', 'MAINTENANCE') DEFAULT 'AVAILABLE',
     FOREIGN KEY (maMayBay) REFERENCES MayBay(maMayBay)
 );
 
@@ -132,7 +144,7 @@ CREATE TABLE ChuyenBay (
     maHeSoGia VARCHAR(50),
     ngayGioDi DATETIME,
     ngayGioDen DATETIME,
-    trangThai NVARCHAR(50), -- SCHEDULED, DELAYED, CANCELLED
+    trangThai Enum('SCHEDULED', 'DELAYED', 'CANCELLED', 'COMPLETED') DEFAULT 'SCHEDULED',
     FOREIGN KEY (maTuyenBay) REFERENCES TuyenBay(maTuyenBay),
     FOREIGN KEY (maMayBay) REFERENCES MayBay(maMayBay),
     FOREIGN KEY (maHeSoGia) REFERENCES HeSoGia(maHeSoGia)
@@ -147,7 +159,7 @@ CREATE TABLE PhieuDatVe (
     ngayDat DATETIME DEFAULT GETDATE(),
     soLuongVe INT,
     tongTien DECIMAL(18, 2),
-    trangThaiThanhToan NVARCHAR(50),
+    trangThaiThanhToan Enum('PENDING', 'PAID', 'CANCELLED') DEFAULT 'PENDING',
     FOREIGN KEY (maNguoiDung) REFERENCES NguoiDung(maNguoiDung),
     FOREIGN KEY (maNV) REFERENCES NhanVien(maNV),
     FOREIGN KEY (maKhuyenMai) REFERENCES KhuyenMai(maKhuyenMai)
@@ -167,7 +179,7 @@ CREATE TABLE VeBan (
     loaiVe NVARCHAR(20), -- ADULT, CHILD
     loaiHK NVARCHAR(20),
     giaVe DECIMAL(18, 2),
-    trangThaiVe NVARCHAR(50), -- BOOKED, CHECKED_IN, USED
+    trangThaiVe Enum('BOOKED', 'CHECKED_IN', 'USED') DEFAULT 'BOOKED',
     FOREIGN KEY (maPhieuDatVe) REFERENCES PhieuDatVe(maPhieuDatVe),
     FOREIGN KEY (maChuyenBay) REFERENCES ChuyenBay(maChuyenBay),
     FOREIGN KEY (maHK) REFERENCES ThongTinHanhKhach(maHK),
@@ -183,7 +195,8 @@ CREATE TABLE HoaDon (
     tongTien DECIMAL(18, 2),
     phuongThuc NVARCHAR(50),
     donViTienTe VARCHAR(10),
-    thue DECIMAL(18, 2),
+    thue DECIMAL(18, 2), 
+    trangThai Enum('PENDING', 'PAID', 'CANCELLED') DEFAULT 'PENDING',
     FOREIGN KEY (maPhieuDatVe) REFERENCES PhieuDatVe(maPhieuDatVe),
     FOREIGN KEY (maNV) REFERENCES NhanVien(maNV)
 );
@@ -206,7 +219,9 @@ CREATE TABLE ChiTietHoaDon (
     maCTHoaDon VARCHAR(20),
     maVe VARCHAR(20),
     soTien DECIMAL(18, 2),
+
     PRIMARY KEY (maHoaDon, maVe),
+
     FOREIGN KEY (maHoaDon) REFERENCES HoaDon(maHoaDon),
     FOREIGN KEY (maVe) REFERENCES VeBan(maVe)
 );
@@ -217,7 +232,7 @@ CREATE TABLE HanhLy (
     soKg DECIMAL(5, 2),
     kichThuoc VARCHAR(50),
     giaTien DECIMAL(18, 2),
-    trangThai NVARCHAR(50),
+    trangThai Enum('CHECKED_IN', 'LOADED', 'UNLOADED', 'CLAIMED') DEFAULT 'CHECKED_IN',
     ghiChu NVARCHAR(MAX),
     FOREIGN KEY (maVe) REFERENCES VeBan(maVe)
 );
@@ -227,7 +242,7 @@ CREATE TABLE GiaoDichVe (
     maGD VARCHAR(20) PRIMARY KEY,
     maVeMoi VARCHAR(20),
     maVeCu VARCHAR(20),
-    trangThai VARCHAR(30),
+    trangThai Enum('DOI_VE', 'HUY_VE') NOT NULL,
     phi DECIMAL(18, 2),
     phiChenhLech DECIMAL(18, 2), 
     lyDoDoi NVARCHAR(100),
@@ -249,7 +264,7 @@ CREATE TABLE SuDungKhuyenMai (
     ngaySuDung DATETIME NOT NULL DEFAULT GETDATE(),
 
     giaTriGiamThucTe DECIMAL(18,2) NOT NULL,     -- số tiền giảm thực tế
-
+    trangThai Enum('APPLIED', 'EXPIRED', 'CANCELLED') DEFAULT 'APPLIED',
     CONSTRAINT FK_SDKM_KhuyenMai
         FOREIGN KEY (maKhuyenMai) REFERENCES KhuyenMai(maKhuyenMai),
 
@@ -262,4 +277,25 @@ CREATE TABLE SuDungKhuyenMai (
     CONSTRAINT FK_SDKM_PhieuDatVe
         FOREIGN KEY (maPhieuDatVe) REFERENCES PhieuDatVe(maPhieuDatVe)
 );
+
+-- Trạng thái chuyến bay
+ALTER TABLE ChuyenBay
+ADD CONSTRAINT DF_ChuyenBay_TrangThai
+DEFAULT 'CHUA_KHOI_HANH' FOR trangThai;
+
+-- Trạng thái ghế
+ALTER TABLE GheMayBay
+ADD trangThai VARCHAR(50) DEFAULT 'TRONG';
+
+-- Trạng thái hạng vé
+ALTER TABLE HangVe
+ADD trangThai VARCHAR(50) DEFAULT 'HOAT_DONG';
+
+-- Trạng thái hệ số giá
+ALTER TABLE HeSoGia
+ADD trangThai VARCHAR(50) DEFAULT 'HOAT_DONG';
+
+-- Trạng thái tuyến bay
+ALTER TABLE TuyenBay
+ADD trangThai VARCHAR(50) DEFAULT 'HOAT_DONG';
 GO

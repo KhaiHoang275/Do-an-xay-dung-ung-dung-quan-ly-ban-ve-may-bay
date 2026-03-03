@@ -44,7 +44,7 @@ public class NguoiDungDAO {
             
             ps.setString(1, nd.getMaNguoiDung());
             ps.setString(2, nd.getUsername());
-            ps.setString(3, nd.getPassword()); // Nên mã hóa trước khi truyền vào đây
+            ps.setString(3, nd.getPassword()); 
             ps.setString(4, nd.getEmail());
             ps.setString(5, nd.getSoDienThoai());
             ps.setString(6, nd.getPhanQuyen());
@@ -75,7 +75,22 @@ public class NguoiDungDAO {
         return false;
     }
 
-    // Hàm kiểm tra đăng nhập
+    public boolean isUsernameExists(String username) {
+        String sql = "SELECT COUNT(*) FROM NguoiDung WHERE username = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, username);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
     public NguoiDung checkLogin(String username, String password) {
         String sql = "SELECT * FROM NguoiDung WHERE username=? AND password=?";
         try (Connection conn = DBConnection.getConnection();
@@ -91,13 +106,13 @@ public class NguoiDungDAO {
                     nd.setUsername(rs.getString("username"));
                     nd.setPhanQuyen(rs.getString("phanQuyen"));
                     nd.setTrangThaiTK(rs.getString("trangThaiTK"));
-                    return nd; // Trả về đối tượng nếu đúng
+                    return nd; 
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null; // Trả về null nếu sai
+        return null; 
     } 
 
     public boolean delete(String mand) {

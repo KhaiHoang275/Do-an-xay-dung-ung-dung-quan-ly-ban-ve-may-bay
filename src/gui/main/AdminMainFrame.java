@@ -4,6 +4,8 @@ import gui.admin.QuanLyKhuyenMaiPanel;
 import gui.admin.QuanLyThuHangPanel;
 import gui.admin.TuyenBayPanel;
 import gui.admin.*;
+import gui.user.DoiVePanel;
+import org.apache.xmlbeans.impl.values.JavaHexBinaryHolder;
 
 import javax.swing.*;
 import java.awt.*;
@@ -122,6 +124,13 @@ public class AdminMainFrame extends JFrame {
             showPanel(new GheMayBayPanel());
         });
 
+        JButton btnDoiVe = createSidebarButton("Quản lý đổi vé",
+            "/resources/icons/icons8-changeticket-24.png");
+        btnDoiVe.addActionListener(e -> {
+            setActiveButton(btnDoiVe);
+            showPanel(new QuanLyDoiVePanel());
+        });
+
         menuPanel.add(btnChuyenBay);
         menuPanel.add(btnTuyenBay);
         menuPanel.add(btnThuHang);
@@ -129,10 +138,11 @@ public class AdminMainFrame extends JFrame {
         menuPanel.add(btnHeSoGia);
         menuPanel.add(btnHangVe);
         menuPanel.add(btnGheMayBay);
+        menuPanel.add(btnDoiVe);
 
         sidebar.add(menuPanel, BorderLayout.CENTER);
 
-        setActiveButton(btnThuHang);
+        setActiveButton(btnChuyenBay);
 
         return sidebar;
     }

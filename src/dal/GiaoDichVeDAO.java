@@ -11,8 +11,8 @@ public class GiaoDichVeDAO {
     // === insert ===  : lưu 1 một giao dịch vé mới vào database (sql)
     public boolean insert(GiaoDichVe gd){
         String sql = """
-            INSERT INTO GiaoDichVe 
-            (maGD, maVeCu, maVeMoi, trangThai, phi, phiChenhLech, lyDoDoi, ngayYeuCau, ngayXuLi)
+            INSERT INTO GiaoDichVe  
+            (maGD, maVeMoi, maVeCu, trangThai, phi, phiChenhLech, lyDoDoi, ngayYeuCau, ngayXuLi)
             VALUES(?, ?, ?, ?, ?, ?, ?, ? ,?)
         """;
         // '?' : placeholder(chỗ trống), mỗi ? tương ứng 1 cột
