@@ -23,20 +23,17 @@ import java.util.Date;
 
 public class ChuyenBayPanel extends JPanel {
 
-    // ===== UI COMPONENTS =====
     private JTable table;
     private DefaultTableModel tableModel;
     private JTextField txtMaChuyenBay, txtTimKiem;
-    private JComboBox<String> cbTuyenBay, cbMayBay, cbTrangThai;
+    private JComboBox<String> cbTuyenBay, cbMayBay, cbTrangThai, cbTimKiemTrangThai, cboHienThi;
     private JSpinner spinnerGioDi, spinnerGioDen;
     private JButton btnThem, btnSua, btnXoa, btnLamMoi, btnTimKiem;
 
-    // ===== BUSINESS LOGIC =====
     private ChuyenBayBUS chuyenBayBUS;
     private TuyenBayBUS tuyenBayBUS;
     private MayBayBUS mayBayBUS; 
 
-    // ====== MÀU HỆ THỐNG ======
     private final Color PRIMARY = new Color(220, 38, 38);
     private final Color BG_MAIN = new Color(245, 247, 250);
     private final Color TABLE_HEADER = new Color(30, 41, 59);
@@ -58,13 +55,10 @@ public class ChuyenBayPanel extends JPanel {
 
         initComponents();
         loadComboBoxData();
-        loadDataToTable();
+        loadDataToTable(chuyenBayBUS.getAllChuyenBay());
     }
 
     private void initComponents() {
-        // ========================================
-        // 1. HEADER (TITLE & SEARCH)
-        // ========================================
         JPanel headerPanel = new JPanel(new BorderLayout(10, 10));
         headerPanel.setOpaque(false);
 
@@ -73,34 +67,42 @@ public class ChuyenBayPanel extends JPanel {
             titleIcon = new ImageIcon(new ImageIcon(getClass().getResource("/resources/icons/icons8-airplane-take-off-24.png"))
                     .getImage().getScaledInstance(24, 24, Image.SCALE_SMOOTH));
         } catch (Exception e) {}
-        JLabel lblTitle = new JLabel("QUẢN LÝ LỊCH TRÌNH CHUYẾN BAY", titleIcon, JLabel.LEFT);
+        JLabel lblTitle = new JLabel("QUẢN LÝ CHUYẾN BAY", titleIcon, JLabel.LEFT);
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 24));
         lblTitle.setForeground(PRIMARY);
 
-        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         searchPanel.setOpaque(false);
+        
         txtTimKiem = createTextField();
-        txtTimKiem.setPreferredSize(new Dimension(200, 35));
+        txtTimKiem.setPreferredSize(new Dimension(140, 35));
+        
+        cbTimKiemTrangThai = new JComboBox<>(new String[]{"Tất cả trạng thái", "Chưa khởi hành", "Đang bay", "Đã hạ cánh", "Bị hoãn", "Đã hủy", "Đã xóa"});
+        cbTimKiemTrangThai.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        cbTimKiemTrangThai.setPreferredSize(new Dimension(140, 35));
 
         btnTimKiem = new JButton("Tìm kiếm");
-        btnTimKiem.setPreferredSize(new Dimension(130, 35));
+        btnTimKiem.setPreferredSize(new Dimension(110, 35));
         btnTimKiem.setBackground(TABLE_HEADER);
         btnTimKiem.setForeground(Color.WHITE);
         btnTimKiem.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btnTimKiem.setFocusPainted(false);
         try { setButtonIcon(btnTimKiem, "/resources/icons/icons8-search-24.png", 16); } catch (Exception e){}
 
-        searchPanel.add(new JLabel("Tìm (Mã CB):"));
-        searchPanel.add(txtTimKiem);
-        searchPanel.add(btnTimKiem);
+        cboHienThi = new JComboBox<>(new String[]{"Đang hiển thị", "Thùng rác"});
+        cboHienThi.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        cboHienThi.setPreferredSize(new Dimension(120, 35));
 
-        headerPanel.add(lblTitle, BorderLayout.WEST);
+        searchPanel.add(txtTimKiem);
+        searchPanel.add(cbTimKiemTrangThai);
+        searchPanel.add(btnTimKiem);
+        searchPanel.add(Box.createHorizontalStrut(5));
+        searchPanel.add(cboHienThi);
+
+        headerPanel.add(lblTitle, BorderLayout.CENTER);
         headerPanel.add(searchPanel, BorderLayout.EAST);
         add(headerPanel, BorderLayout.NORTH);
 
-        // ========================================
-        // 2. TABLE CARD
-        // ========================================
         JPanel tableCard = createCardPanel();
         tableCard.setLayout(new BorderLayout());
 
@@ -117,52 +119,43 @@ public class ChuyenBayPanel extends JPanel {
         tableCard.add(scrollPane, BorderLayout.CENTER);
         add(tableCard, BorderLayout.CENTER);
 
-        // ========================================
-        // 3. FORM CARD
-        // ========================================
         JPanel formCard = createCardPanel();
         formCard.setLayout(new BorderLayout(20, 20));
 
-        // Form 3 dòng, 4 cột (Gọn gàng hơn vì đã bỏ Hệ số giá)
         JPanel formPanel = new JPanel(new GridLayout(3, 4, 15, 15));
         formPanel.setOpaque(false);
 
         txtMaChuyenBay = createTextField();
+        
         cbTuyenBay = new JComboBox<>();
         cbTuyenBay.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        
         cbMayBay = new JComboBox<>();
         cbMayBay.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         
         spinnerGioDi = createDateTimeSpinner();
         spinnerGioDen = createDateTimeSpinner();
         
-        cbTrangThai = new JComboBox<>();
+        cbTrangThai = new JComboBox<>(new String[]{"Chưa khởi hành", "Đang bay", "Đã hạ cánh", "Bị hoãn", "Đã hủy", "Đã xóa"});
         cbTrangThai.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        for (TrangThaiChuyenBay status : TrangThaiChuyenBay.values()) {
-            cbTrangThai.addItem(status.name());
-        }
 
-        // Hàng 1
         formPanel.add(createLabel("Mã Chuyến Bay:"));
         formPanel.add(txtMaChuyenBay);
+        formPanel.add(createLabel("Ngày Giờ Cất Cánh:"));
+        formPanel.add(spinnerGioDi);
+
         formPanel.add(createLabel("Tuyến Bay:"));
         formPanel.add(cbTuyenBay);
+        formPanel.add(createLabel("Ngày Giờ Hạ Cánh:"));
+        formPanel.add(spinnerGioDen);
 
-        // Hàng 2
         formPanel.add(createLabel("Máy Bay:"));
         formPanel.add(cbMayBay);
         formPanel.add(createLabel("Trạng Thái:"));
         formPanel.add(cbTrangThai);
 
-        // Hàng 3
-        formPanel.add(createLabel("Ngày Giờ Cất Cánh:"));
-        formPanel.add(spinnerGioDi);
-        formPanel.add(createLabel("Ngày Giờ Hạ Cánh:"));
-        formPanel.add(spinnerGioDen);
-
         formCard.add(formPanel, BorderLayout.CENTER);
 
-        // ===== BUTTONS =====
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
         buttonPanel.setOpaque(false);
 
@@ -186,13 +179,9 @@ public class ChuyenBayPanel extends JPanel {
         formCard.add(buttonPanel, BorderLayout.SOUTH);
         add(formCard, BorderLayout.SOUTH);
 
-        // ========================================
-        // 4. EVENTS
-        // ========================================
         setupListeners();
     }
 
-    // ================= UI STYLE HELPERS =================
     private JPanel createCardPanel() {
         JPanel panel = new JPanel();
         panel.setBackground(Color.WHITE);
@@ -212,7 +201,6 @@ public class ChuyenBayPanel extends JPanel {
     private JTextField createTextField() {
         JTextField txt = new JTextField();
         txt.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txt.setPreferredSize(new Dimension(200, 35));
         txt.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(200, 200, 200)),
                 BorderFactory.createEmptyBorder(5, 10, 5, 10)
@@ -268,7 +256,32 @@ public class ChuyenBayPanel extends JPanel {
         btn.setIconTextGap(8);
     }
 
-    // ================= LOGIC & DATA METHODS =================
+    private String hienThiTrangThai(TrangThaiChuyenBay status) {
+        if (status == null) return "Chưa khởi hành";
+        switch (status) {
+            case CHUA_KHOI_HANH: return "Chưa khởi hành";
+            case DANG_BAY: return "Đang bay";
+            case DA_HA_CANH: return "Đã hạ cánh";
+            case BI_HOAN: return "Bị hoãn";
+            case DA_HUY: return "Đã hủy";
+            case DA_XOA: return "Đã xóa";
+            default: return "Chưa khởi hành";
+        }
+    }
+
+    private TrangThaiChuyenBay layTrangThaiTuUI(String uiValue) {
+        if (uiValue == null) return TrangThaiChuyenBay.CHUA_KHOI_HANH;
+        switch (uiValue) {
+            case "Chưa khởi hành": return TrangThaiChuyenBay.CHUA_KHOI_HANH;
+            case "Đang bay": return TrangThaiChuyenBay.DANG_BAY;
+            case "Đã hạ cánh": return TrangThaiChuyenBay.DA_HA_CANH;
+            case "Bị hoãn": return TrangThaiChuyenBay.BI_HOAN;
+            case "Đã hủy": return TrangThaiChuyenBay.DA_HUY;
+            case "Đã xóa": return TrangThaiChuyenBay.DA_XOA;
+            default: return TrangThaiChuyenBay.CHUA_KHOI_HANH;
+        }
+    }
+
     private void loadComboBoxData() {
         cbTuyenBay.removeAllItems();
         for (TuyenBay tb : tuyenBayBUS.getAllTuyenBay()) {
@@ -277,13 +290,12 @@ public class ChuyenBayPanel extends JPanel {
 
         cbMayBay.removeAllItems();
         for (MayBay mb : mayBayBUS.getAllMayBay()) {
-            cbMayBay.addItem(mb.getMaMayBay() + " - " + mb.getSoHieu() + " (" + mb.getHangSanXuat() + ")");
+            cbMayBay.addItem(mb.getMaMayBay() + " - " + mb.getSoHieu());
         }
     }
 
-    private void loadDataToTable() {
+    private void loadDataToTable(ArrayList<ChuyenBay> list) {
         tableModel.setRowCount(0);
-        ArrayList<ChuyenBay> list = chuyenBayBUS.getAllChuyenBay();
         for (ChuyenBay cb : list) {
             tableModel.addRow(new Object[]{
                 cb.getMaChuyenBay(),
@@ -291,7 +303,7 @@ public class ChuyenBayPanel extends JPanel {
                 cb.getMaMayBay(),
                 cb.getNgayGioDi() != null ? cb.getNgayGioDi().format(formatter) : "",
                 cb.getNgayGioDen() != null ? cb.getNgayGioDen().format(formatter) : "",
-                cb.getTrangThai().name()
+                hienThiTrangThai(cb.getTrangThai())
             });
         }
     }
@@ -306,7 +318,6 @@ public class ChuyenBayPanel extends JPanel {
     }
 
     private void setupListeners() {
-        // 1. Click bảng đổ dữ liệu lên Form
         table.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 int row = table.getSelectedRow();
@@ -320,7 +331,7 @@ public class ChuyenBayPanel extends JPanel {
                         
                         setComboBoxSelectedByPrefix(cbTuyenBay, cb.getMaTuyenBay());
                         setComboBoxSelectedByPrefix(cbMayBay, cb.getMaMayBay());
-                        cbTrangThai.setSelectedItem(cb.getTrangThai().name());
+                        cbTrangThai.setSelectedItem(hienThiTrangThai(cb.getTrangThai()));
                         
                         if (cb.getNgayGioDi() != null) {
                             spinnerGioDi.setValue(Date.from(cb.getNgayGioDi().atZone(ZoneId.systemDefault()).toInstant()));
@@ -333,7 +344,25 @@ public class ChuyenBayPanel extends JPanel {
             }
         });
 
-        // 2. Nút Thêm
+        cboHienThi.addActionListener(e -> {
+            boolean isTrash = cboHienThi.getSelectedIndex() == 1;
+            if (isTrash) {
+                btnThem.setEnabled(false);
+                btnSua.setText("Khôi phục");
+                btnSua.setBackground(new Color(76, 175, 80)); 
+                btnXoa.setEnabled(false);
+                cbTrangThai.setEnabled(false);
+                loadDataToTable(chuyenBayBUS.getChuyenBayTrongThungRac());
+            } else {
+                btnThem.setEnabled(true);
+                btnSua.setText("Cập nhật");
+                btnSua.setBackground(BTN_UPDATE);
+                btnXoa.setEnabled(true);
+                cbTrangThai.setEnabled(true);
+                loadDataToTable(chuyenBayBUS.getAllChuyenBay());
+            }
+        });
+
         btnThem.addActionListener(e -> {
             try {
                 ChuyenBay cb = getFormInput();
@@ -348,13 +377,24 @@ public class ChuyenBayPanel extends JPanel {
             }
         });
 
-        // 3. Nút Sửa
         btnSua.addActionListener(e -> {
             try {
-                if (txtMaChuyenBay.getText().trim().isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "Vui lòng chọn chuyến bay cần cập nhật!");
+                String maChuyenBay = txtMaChuyenBay.getText().trim();
+                if (maChuyenBay.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Vui lòng chọn chuyến bay trên bảng!");
                     return;
                 }
+
+                if (cboHienThi.getSelectedIndex() == 1) {
+                    if (chuyenBayBUS.khoiPhucChuyenBay(maChuyenBay)) {
+                        JOptionPane.showMessageDialog(this, "Khôi phục chuyến bay thành công!");
+                        btnLamMoi.doClick();
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Khôi phục thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    }
+                    return;
+                }
+
                 ChuyenBay cb = getFormInput();
                 if (chuyenBayBUS.capNhatChuyenBay(cb)) {
                     JOptionPane.showMessageDialog(this, "Cập nhật thành công!");
@@ -367,7 +407,6 @@ public class ChuyenBayPanel extends JPanel {
             }
         });
 
-        // 4. Nút Xóa
         btnXoa.addActionListener(e -> {
             int row = table.getSelectedRow();
             if (row < 0) {
@@ -382,12 +421,11 @@ public class ChuyenBayPanel extends JPanel {
                     JOptionPane.showMessageDialog(this, "Xóa thành công!");
                     btnLamMoi.doClick();
                 } else {
-                    JOptionPane.showMessageDialog(this, "Xóa thất bại! Chuyến bay có thể đã có vé đặt.", "Lỗi DB", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Xóa thất bại!", "Lỗi DB", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
 
-        // 5. Nút Làm Mới
         btnLamMoi.addActionListener(e -> {
             txtMaChuyenBay.setText("");
             txtMaChuyenBay.setEditable(true);
@@ -395,18 +433,33 @@ public class ChuyenBayPanel extends JPanel {
             
             if(cbTuyenBay.getItemCount() > 0) cbTuyenBay.setSelectedIndex(0);
             if(cbMayBay.getItemCount() > 0) cbMayBay.setSelectedIndex(0);
-            if(cbTrangThai.getItemCount() > 0) cbTrangThai.setSelectedIndex(0);
+            cbTrangThai.setSelectedIndex(0);
+            cbTimKiemTrangThai.setSelectedIndex(0);
             
             spinnerGioDi.setValue(new Date());
             spinnerGioDen.setValue(new Date());
             
             table.clearSelection();
-            loadDataToTable();
+            
+            if (cboHienThi.getSelectedIndex() == 1) {
+                loadDataToTable(chuyenBayBUS.getChuyenBayTrongThungRac());
+            } else {
+                loadDataToTable(chuyenBayBUS.getAllChuyenBay());
+            }
         });
         
-        // 6. Nút Tìm Kiếm
         btnTimKiem.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "Tính năng tìm kiếm sẽ kết nối DB sau!");
+            String keyword = txtTimKiem.getText();
+            boolean isTrash = cboHienThi.getSelectedIndex() == 1;
+            
+            String selectedStatusStr = cbTimKiemTrangThai.getSelectedItem().toString();
+            TrangThaiChuyenBay filterStatus = null;
+            if (!selectedStatusStr.equals("Tất cả trạng thái")) {
+                filterStatus = layTrangThaiTuUI(selectedStatusStr);
+            }
+            
+            ArrayList<ChuyenBay> ketQua = chuyenBayBUS.timKiemChuyenBay(keyword, filterStatus, isTrash);
+            loadDataToTable(ketQua);
         });
     }
 
@@ -416,9 +469,8 @@ public class ChuyenBayPanel extends JPanel {
 
         String maTuyenBay = cbTuyenBay.getSelectedItem().toString().split(" - ")[0].trim();
         String maMayBay = cbMayBay.getSelectedItem().toString().split(" - ")[0].trim();
-        TrangThaiChuyenBay trangThai = TrangThaiChuyenBay.valueOf(cbTrangThai.getSelectedItem().toString());
+        TrangThaiChuyenBay trangThai = layTrangThaiTuUI(cbTrangThai.getSelectedItem().toString());
 
-        // Chuyển đổi Date sang LocalDateTime
         Date dateDi = (Date) spinnerGioDi.getValue();
         LocalDateTime ldtDi = dateDi.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         
@@ -429,7 +481,6 @@ public class ChuyenBayPanel extends JPanel {
             throw new Exception("Giờ hạ cánh phải sau Giờ cất cánh!");
         }
 
-        // TRUYỀN NULL CHO MA_HE_SO_GIA vì mình không nhập từ giao diện Admin nữa
         return new ChuyenBay(maCB, maTuyenBay, maMayBay, null, ldtDi, ldtDen, trangThai);
     }
 }

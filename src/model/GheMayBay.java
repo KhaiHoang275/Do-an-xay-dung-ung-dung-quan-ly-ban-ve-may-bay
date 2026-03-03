@@ -7,15 +7,17 @@ public class GheMayBay {
     private String maMayBay;
     private String soGhe;
     private BigDecimal giaGhe;
+    private TrangThaiGhe trangThai;
 
     public GheMayBay() {
     }
 
-    public GheMayBay(String maGhe, String maMayBay, String soGhe, BigDecimal giaGhe) {
+    public GheMayBay(String maGhe, String maMayBay, String soGhe, BigDecimal giaGhe, TrangThaiGhe trangThai) {
         this.maGhe = maGhe;
         this.maMayBay = maMayBay;
         this.soGhe = soGhe;
         this.giaGhe = giaGhe;
+        this.trangThai = trangThai;
     }
 
     public GheMayBay(GheMayBay other) {
@@ -23,6 +25,7 @@ public class GheMayBay {
         this.maMayBay = other.maMayBay;
         this.soGhe = other.soGhe;
         this.giaGhe = other.giaGhe;
+        this.trangThai = other.trangThai;
     }
 
     public String getMaGhe() {
@@ -57,8 +60,16 @@ public class GheMayBay {
         this.giaGhe = giaGhe;
     }
 
+    public TrangThaiGhe getTrangThai() {
+        return trangThai;
+    }
+
+    public void setTrangThai(TrangThaiGhe trangThai) {
+        this.trangThai = trangThai;
+    }
+
     @Override
     public String toString() {
-        return maGhe + " " + maMayBay + " " + soGhe + " " + giaGhe;
+        return maGhe + " " + maMayBay + " " + soGhe + " " + giaGhe + " " + trangThai;
     }
 }

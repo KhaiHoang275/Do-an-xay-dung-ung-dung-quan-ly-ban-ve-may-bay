@@ -4,6 +4,7 @@ import bll.GheMayBayBUS;
 import bll.MayBayBUS;
 import model.GheMayBay;
 import model.MayBay;
+import model.TrangThaiGhe; 
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -17,29 +18,15 @@ import java.util.ArrayList;
 
 public class GheMayBayPanel extends JPanel {
 
-    // ===== UI COMPONENTS =====
     private JTable table;
     private DefaultTableModel tableModel;
-    private JComboBox<String> cbMayBay;
-    private JTextField txtGiaGhe;
-    
-    // Cụm tạo hàng loạt
-    private JTextField txtTienTo, txtSoLuong;
-    
-    // Cụm thao tác đơn lẻ
-    private JTextField txtMaGhe, txtSoGhe;
-    
-    private JButton btnTaoHangLoat, btnSua, btnXoa, btnLamMoi;
-    
-    // Thanh tìm kiếm
-    private JTextField txtTimKiem;
-    private JButton btnTimKiem;
+    private JComboBox<String> cbMayBay, cbTrangThai, cboHienThi;
+    private JTextField txtGiaGhe, txtTienTo, txtSoLuong, txtMaGhe, txtSoGhe, txtTimKiem;
+    private JButton btnTaoHangLoat, btnSua, btnXoa, btnLamMoi, btnTimKiem;
 
-    // ===== BUSINESS LOGIC =====
     private GheMayBayBUS gheMayBayBUS;
     private MayBayBUS mayBayBUS;
 
-    // ====== MÀU HỆ THỐNG (ĐỒNG BỘ) ======
     private final Color PRIMARY = new Color(220, 38, 38);
     private final Color BG_MAIN = new Color(245, 247, 250);
     private final Color TABLE_HEADER = new Color(30, 41, 59);
@@ -62,10 +49,6 @@ public class GheMayBayPanel extends JPanel {
     }
 
     private void initComponents() {
-
-        // ========================================
-        // 1. HEADER (TITLE & SEARCH)
-        // ========================================
         JPanel headerPanel = new JPanel(new BorderLayout(10, 10));
         headerPanel.setOpaque(false);
 
@@ -78,11 +61,10 @@ public class GheMayBayPanel extends JPanel {
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 22));
         lblTitle.setForeground(PRIMARY);
         
-        // Search
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         searchPanel.setOpaque(false);
         txtTimKiem = createTextField();
-        txtTimKiem.setPreferredSize(new Dimension(200, 35));
+        txtTimKiem.setPreferredSize(new Dimension(180, 35));
         
         btnTimKiem = new JButton("Tìm kiếm");
         btnTimKiem.setPreferredSize(new Dimension(130, 35));
@@ -92,22 +74,25 @@ public class GheMayBayPanel extends JPanel {
         btnTimKiem.setFocusPainted(false);
         try { setButtonIcon(btnTimKiem, "/resources/icons/icons8-search-24.png", 16); } catch (Exception e){}
 
-        searchPanel.add(new JLabel("Tìm (Mã Ghế/Số/Mã MB):"));
+        cboHienThi = new JComboBox<>(new String[]{"Đang hiển thị", "Thùng rác"});
+        cboHienThi.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        cboHienThi.setPreferredSize(new Dimension(130, 35));
+
         searchPanel.add(txtTimKiem);
         searchPanel.add(btnTimKiem);
+        searchPanel.add(Box.createHorizontalStrut(10));
+        searchPanel.add(new JLabel("Chế độ:"));
+        searchPanel.add(cboHienThi);
 
-        headerPanel.add(lblTitle, BorderLayout.WEST);
+        headerPanel.add(lblTitle, BorderLayout.CENTER);
         headerPanel.add(searchPanel, BorderLayout.EAST);
         
         add(headerPanel, BorderLayout.NORTH);
 
-        // ========================================
-        // 2. TABLE CARD (CENTER)
-        // ========================================
         JPanel tableCard = createCardPanel();
         tableCard.setLayout(new BorderLayout());
 
-        String[] columns = {"Mã Ghế", "Thuộc Máy Bay", "Số Ghế", "Giá Ghế Cơ Bản (VNĐ)"};
+        String[] columns = {"Mã Ghế", "Thuộc Máy Bay", "Số Ghế", "Giá Cơ Bản (VNĐ)", "Trạng Thái"};
         tableModel = new DefaultTableModel(columns, 0) {
             public boolean isCellEditable(int row, int column) { return false; }
         };
@@ -121,14 +106,10 @@ public class GheMayBayPanel extends JPanel {
 
         add(tableCard, BorderLayout.CENTER);
 
-        // ========================================
-        // 3. FORM CARD (SOUTH)
-        // ========================================
         JPanel formCard = createCardPanel();
         formCard.setLayout(new BorderLayout(20, 20));
 
-        // Layout 3 hàng x 2 cột cho ngay ngắn
-        JPanel formPanel = new JPanel(new GridLayout(3, 2, 15, 15));
+        JPanel formPanel = new JPanel(new GridLayout(3, 4, 15, 15));
         formPanel.setOpaque(false);
 
         cbMayBay = new JComboBox<>();
@@ -139,41 +120,36 @@ public class GheMayBayPanel extends JPanel {
         txtSoLuong = createTextField();
         
         txtMaGhe = createTextField();
-        txtMaGhe.setBackground(new Color(240, 240, 240)); // Màu nền xám để biết là ReadOnly
+        txtMaGhe.setBackground(new Color(240, 240, 240)); 
         txtMaGhe.setEditable(false);
         txtSoGhe = createTextField();
+        
+        cbTrangThai = new JComboBox<>(new String[]{"Trống", "Đã đặt", "Bảo trì", "Đã xóa"});
+        cbTrangThai.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
-        // Hàng 1: Dùng chung
         formPanel.add(createLabel("Chọn Máy Bay:"));
         formPanel.add(cbMayBay);
         formPanel.add(createLabel("Giá Ghế Cơ Bản (VNĐ):"));
         formPanel.add(txtGiaGhe);
         
-        // Hàng 2: Dùng cho tạo hàng loạt
-        formPanel.add(createLabel("Tiền Tố Dãy:"));
+        formPanel.add(createLabel("Tiền Tố Dãy (VD: A, B):"));
         formPanel.add(txtTienTo);
-        formPanel.add(createLabel("Số Lượng Ghế Cần Tạo (VD: 50):"));
+        formPanel.add(createLabel("Số Lượng Ghế:"));
         formPanel.add(txtSoLuong);
 
-        // Hàng 3: Dùng cho thao tác đơn lẻ
-        formPanel.add(createLabel("Mã Ghế:"));
+        formPanel.add(createLabel("Mã Ghế (Chỉ xem):"));
         formPanel.add(txtMaGhe);
-        formPanel.add(createLabel("Số Ghế:"));
-        formPanel.add(txtSoGhe);
-
-        // Ép width cho form đẹp hơn
-        JPanel wrapperFormPanel = new JPanel(new BorderLayout());
-        wrapperFormPanel.setOpaque(false);
-        wrapperFormPanel.add(formPanel, BorderLayout.CENTER);
         
-        JPanel rightPadding = new JPanel();
-        rightPadding.setOpaque(false);
-        rightPadding.setPreferredSize(new Dimension(150, 0)); 
-        wrapperFormPanel.add(rightPadding, BorderLayout.EAST);
+        JPanel pnlGheStatus = new JPanel(new GridLayout(1, 2, 10, 0));
+        pnlGheStatus.setOpaque(false);
+        pnlGheStatus.add(txtSoGhe);
+        pnlGheStatus.add(cbTrangThai);
+        
+        formPanel.add(createLabel("Số Ghế & Trạng Thái:"));
+        formPanel.add(pnlGheStatus);
 
-        formCard.add(wrapperFormPanel, BorderLayout.CENTER);
+        formCard.add(formPanel, BorderLayout.CENTER);
 
-        // ===== BUTTON PANEL =====
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
         buttonPanel.setOpaque(false);
 
@@ -199,15 +175,9 @@ public class GheMayBayPanel extends JPanel {
         formCard.add(buttonPanel, BorderLayout.SOUTH);
         add(formCard, BorderLayout.SOUTH);
 
-        // ========================================
-        // 4. EVENTS
-        // ========================================
         setupListeners();
     }
 
-    // ========================================
-    // UI STYLE METHODS
-    // ========================================
     private JPanel createCardPanel() {
         JPanel panel = new JPanel();
         panel.setBackground(Color.WHITE);
@@ -274,9 +244,28 @@ public class GheMayBayPanel extends JPanel {
         btn.setIconTextGap(8);
     }
 
-    // ========================================
-    // LOGIC & DATA METHODS
-    // ========================================
+    private String hienThiTrangThai(TrangThaiGhe status) {
+        if (status == null) return "Trống";
+        switch (status) {
+            case TRONG: return "Trống";
+            case DA_DAT: return "Đã đặt";
+            case BAO_TRI: return "Bảo trì";
+            case DA_XOA: return "Đã xóa";
+            default: return "Trống";
+        }
+    }
+
+    private TrangThaiGhe layTrangThaiTuUI(String uiValue) {
+        if (uiValue == null) return TrangThaiGhe.TRONG;
+        switch (uiValue) {
+            case "Trống": return TrangThaiGhe.TRONG;
+            case "Đã đặt": return TrangThaiGhe.DA_DAT;
+            case "Bảo trì": return TrangThaiGhe.BAO_TRI;
+            case "Đã xóa": return TrangThaiGhe.DA_XOA;
+            default: return TrangThaiGhe.TRONG;
+        }
+    }
+
     private void loadMayBayToComboBox() {
         cbMayBay.removeAllItems();
         ArrayList<MayBay> listMayBay = mayBayBUS.getAllMayBay();
@@ -292,7 +281,8 @@ public class GheMayBayPanel extends JPanel {
                 ghe.getMaGhe(),
                 ghe.getMaMayBay(),
                 ghe.getSoGhe(),
-                ghe.getGiaGhe()
+                ghe.getGiaGhe(),
+                hienThiTrangThai(ghe.getTrangThai())
             });
         }
     }
@@ -307,7 +297,6 @@ public class GheMayBayPanel extends JPanel {
     }
 
     private void setupListeners() {
-        // 1. Click bảng (Phục vụ cho tính năng Sửa/Xóa đơn lẻ)
         table.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 int row = table.getSelectedRow();
@@ -317,7 +306,9 @@ public class GheMayBayPanel extends JPanel {
                     txtSoGhe.setText(tableModel.getValueAt(row, 2).toString());
                     txtGiaGhe.setText(tableModel.getValueAt(row, 3).toString());
                     
-                    // Khóa các ô tạo hàng loạt để tránh nhầm lẫn
+                    String trangThaiTrenBang = tableModel.getValueAt(row, 4).toString();
+                    cbTrangThai.setSelectedItem(trangThaiTrenBang);
+                    
                     txtTienTo.setText("");
                     txtSoLuong.setText("");
                     txtTienTo.setEnabled(false);
@@ -326,7 +317,25 @@ public class GheMayBayPanel extends JPanel {
             }
         });
 
-        // 2. Bắt sự kiện khi đổi Máy Bay -> Tự động điền số lượng ghế tối đa
+        cboHienThi.addActionListener(e -> {
+            boolean isTrash = cboHienThi.getSelectedIndex() == 1;
+            if (isTrash) {
+                btnTaoHangLoat.setEnabled(false);
+                btnSua.setText("Khôi phục ghế");
+                btnSua.setBackground(new Color(76, 175, 80)); 
+                btnXoa.setEnabled(false);
+                cbTrangThai.setEnabled(false);
+                loadDataToTable(gheMayBayBUS.getGheTrongThungRac());
+            } else {
+                btnTaoHangLoat.setEnabled(true);
+                btnSua.setText("Cập nhật 1 ghế");
+                btnSua.setBackground(BTN_UPDATE);
+                btnXoa.setEnabled(true);
+                cbTrangThai.setEnabled(true);
+                loadDataToTable(gheMayBayBUS.getAllGheMayBay());
+            }
+        });
+
         cbMayBay.addActionListener(e -> {
             if (cbMayBay.getSelectedItem() != null && txtSoLuong.isEnabled()) {
                 String maMB = cbMayBay.getSelectedItem().toString().split(" - ")[0].trim();
@@ -341,7 +350,6 @@ public class GheMayBayPanel extends JPanel {
             }
         });
 
-        // 3. Nút Tạo Hàng Loạt
         btnTaoHangLoat.addActionListener(e -> {
             try {
                 if (cbMayBay.getSelectedItem() == null) throw new Exception("Vui lòng chọn máy bay!");
@@ -358,7 +366,6 @@ public class GheMayBayPanel extends JPanel {
                 try { gia = new BigDecimal(txtGiaGhe.getText().trim()); } 
                 catch (Exception ex) { throw new Exception("Giá ghế phải là số hợp lệ!"); }
 
-                // Gọi hàm tạo hàng loạt trong BUS
                 gheMayBayBUS.taoGheHangLoat(maMB, soLuong, tienTo, gia);
                 
                 JOptionPane.showMessageDialog(this, "Đã sinh hàng loạt ghế thành công!");
@@ -369,12 +376,21 @@ public class GheMayBayPanel extends JPanel {
             }
         });
 
-        // 4. Nút Sửa (Cập nhật 1 ghế đã chọn)
         btnSua.addActionListener(e -> {
             try {
                 String maGhe = txtMaGhe.getText().trim();
                 if (maGhe.isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "Vui lòng chọn 1 ghế trên bảng để cập nhật!");
+                    JOptionPane.showMessageDialog(this, "Vui lòng chọn 1 ghế trên bảng!");
+                    return;
+                }
+
+                if (cboHienThi.getSelectedIndex() == 1) {
+                    if (gheMayBayBUS.khoiPhucGhe(maGhe)) {
+                        JOptionPane.showMessageDialog(this, "Khôi phục ghế thành công!");
+                        btnLamMoi.doClick();
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Khôi phục thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    }
                     return;
                 }
                 
@@ -382,7 +398,9 @@ public class GheMayBayPanel extends JPanel {
                 String soGhe = txtSoGhe.getText().trim();
                 BigDecimal gia = new BigDecimal(txtGiaGhe.getText().trim());
                 
-                GheMayBay ghe = new GheMayBay(maGhe, maMB, soGhe, gia);
+                TrangThaiGhe trangThai = layTrangThaiTuUI(cbTrangThai.getSelectedItem().toString());
+                
+                GheMayBay ghe = new GheMayBay(maGhe, maMB, soGhe, gia, trangThai);
                 
                 if (gheMayBayBUS.capNhatGhe(ghe)) {
                     JOptionPane.showMessageDialog(this, "Cập nhật thông tin ghế thành công!");
@@ -395,7 +413,6 @@ public class GheMayBayPanel extends JPanel {
             }
         });
 
-        // 5. Nút Xóa (Xóa 1 ghế đã chọn)
         btnXoa.addActionListener(e -> {
             int row = table.getSelectedRow();
             if (row < 0) {
@@ -410,12 +427,11 @@ public class GheMayBayPanel extends JPanel {
                     JOptionPane.showMessageDialog(this, "Xóa thành công!");
                     btnLamMoi.doClick();
                 } else {
-                    JOptionPane.showMessageDialog(this, "Xóa thất bại! Ghế này có thể đang có vé đặt.", "Lỗi DB", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Xóa thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
 
-        // 6. Nút Làm Mới
         btnLamMoi.addActionListener(e -> {
             txtMaGhe.setText("");
             txtSoGhe.setText("");
@@ -423,24 +439,29 @@ public class GheMayBayPanel extends JPanel {
             txtSoLuong.setText("");
             txtGiaGhe.setText("");
             txtTimKiem.setText("");
+            cbTrangThai.setSelectedIndex(0); 
             
             txtTienTo.setEnabled(true);
             txtSoLuong.setEnabled(true);
             
             if (cbMayBay.getItemCount() > 0) {
                 cbMayBay.setSelectedIndex(0);
-                // Trigger lại action để tự điền số lượng cho index 0
                 cbMayBay.getActionListeners()[0].actionPerformed(null);
             }
             
             table.clearSelection();
-            loadDataToTable(gheMayBayBUS.getAllGheMayBay());
+            
+            if (cboHienThi.getSelectedIndex() == 1) {
+                loadDataToTable(gheMayBayBUS.getGheTrongThungRac());
+            } else {
+                loadDataToTable(gheMayBayBUS.getAllGheMayBay());
+            }
         });
 
-        // 7. Nút Tìm Kiếm
         btnTimKiem.addActionListener(e -> {
             String keyword = txtTimKiem.getText();
-            ArrayList<GheMayBay> ketQua = gheMayBayBUS.timKiemGhe(keyword);
+            boolean isTrash = cboHienThi.getSelectedIndex() == 1;
+            ArrayList<GheMayBay> ketQua = gheMayBayBUS.timKiemGhe(keyword, isTrash);
             loadDataToTable(ketQua);
         });
     }
