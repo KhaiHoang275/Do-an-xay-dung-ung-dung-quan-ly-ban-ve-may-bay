@@ -242,6 +242,47 @@ public class VeBanDAO {
         return false;
     }
 
+    public List<VeBan> selectVeCoTheDoi(String maHK) {
+        List<VeBan> list = new ArrayList<>();
+        String sql = """
+                       SELECT v.*
+                       FROM VeBan v
+                       JOIN ChuyenBay cb ON v.maChuyenBay = cb.maChuyenBay
+                       JOIN PhieuDatVe pdv ON v.maPhieuDatVe = pdv.maPhieuDatVe
+                       WHERE v.maHK = ?
+                         AND v.trangThaiVe IN (N'Đã xuất', N'Chưa sử dụng')
+                         AND pdv.trangThaiThanhToan = N'Đã thanh toán'
+                         AND cb.trangThai <> N'Đã bay'
+                         AND cb.ngayGioDi > GETDATE()       
+                """;
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maHK);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                VeBan ve = new VeBan();
+
+                ve.setMaVe(rs.getString("maVe"));
+                ve.setMaPhieuDatVe(rs.getString("maPhieuDatVe"));
+                ve.setMaChuyenBay(rs.getString("maChuyenBay"));
+                ve.setMaHK(rs.getString("maHK"));
+                ve.setMaHangVe(rs.getString("maHangVe"));
+                ve.setMaGhe(rs.getString("maGhe"));
+                ve.setLoaiVe(rs.getString("loaiVe"));
+                ve.setLoaiHK(rs.getString("loaiHK"));
+                ve.setGiaVe(rs.getBigDecimal("giaVe"));
+                ve.setTrangThaiVe(rs.getString("trangThaiVe"));
+
+                list.add(ve);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     public List<VeBan> selectByMaPhieuDatVe(String maPhieu) {
         List<VeBan> list = new ArrayList<>();
         String sql = "SELECT * FROM VeBan WHERE maPhieuDatVe = ?";
@@ -264,6 +305,7 @@ public class VeBanDAO {
                 list.add(v);
             }
         } catch (Exception e) {
+
             e.printStackTrace();
         }
         return list;

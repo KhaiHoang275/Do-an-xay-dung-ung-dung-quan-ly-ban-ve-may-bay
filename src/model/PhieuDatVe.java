@@ -3,7 +3,7 @@ package model;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public class PhieuDatVe {
+public class    PhieuDatVe {
     private String maPhieuDatVe;
     private String maNguoiDung;
     private String maNV;

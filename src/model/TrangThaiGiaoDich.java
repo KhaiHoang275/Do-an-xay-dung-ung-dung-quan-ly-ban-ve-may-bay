@@ -1,17 +1,24 @@
 package model;
 
 public enum TrangThaiGiaoDich {
-    CHO_XU_LY,  //0 - vua tao yeu cau
-    DA_DUYET,   //1 - admin duyet cho doi
-    DA_THANH_TOAN, // da thanh toan phi chenh lech
-    TU_CHOI;     //3 - bi tu choi
+    CHO_XU_LY,    // Chờ xử lý
+    DA_DUYET,     // Đã duyệt
+    TU_CHOI,      // Từ chối
+    DA_THANH_TOAN; // Đã thanh toán
 
-    public static TrangThaiGiaoDich fromInt(int value){
-        for(TrangThaiGiaoDich t : TrangThaiGiaoDich.values()){
-            if(t.ordinal() == value){
-                return t;
-            }
+    // Method mới để trả string hiển thị (thân thiện tiếng Việt)
+    public String getMoTa() {
+        switch (this) {
+            case CHO_XU_LY:
+                return "Chờ xử lý";
+            case DA_DUYET:
+                return "Đã duyệt";
+            case TU_CHOI:
+                return "Từ chối";
+            case DA_THANH_TOAN:
+                return "Đã thanh toán";
+            default:
+                return this.name(); // Fallback raw enum
         }
-        throw new IllegalArgumentException("Gia tri trang thai khong hop le: " + value);
     }
 }

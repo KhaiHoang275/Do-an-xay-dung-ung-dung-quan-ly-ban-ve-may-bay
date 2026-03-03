@@ -31,6 +31,7 @@ public class ThongTinHanhKhachDAO {
                 }
                 tthk.setGioiTinh(rs.getString("gioiTinh"));
                 tthk.setDiemTichLuy(rs.getInt("diemTichLuy"));
+                tthk.setLoaiHanhKhach(rs.getString("loaiHanhKhach"));
 
                 list.add(tthk);
             }
@@ -41,7 +42,7 @@ public class ThongTinHanhKhachDAO {
     }
 
     public boolean insert(ThongTinHanhKhach tthk){
-        String sql = "INSERT INTO ThongTinHanhKhach (maHK, maNguoiDung, maThuHang, hoTen, cccd, hoChieu, ngaySinh, gioiTinh, diemTichLuy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO ThongTinHanhKhach (maHK, maNguoiDung, maThuHang, hoTen, cccd, hoChieu, ngaySinh, gioiTinh, diemTichLuy, loaiHanhKhach) VALUE (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection con = DBConnection.getConnection();
             PreparedStatement ps = con.prepareStatement(sql)){
                 ps.setString(1, tthk.getMaHK());
@@ -53,6 +54,7 @@ public class ThongTinHanhKhachDAO {
                 ps.setDate(7, java.sql.Date.valueOf(tthk.getNgaySinh()));
                 ps.setString(8, tthk.getGioiTinh());
                 ps.setInt(9, tthk.getDiemTichLuy());
+                ps.setString(10, tthk.getLoaiHanhKhach());
 
                 return ps.executeUpdate() > 0;    
         } catch (Exception e) {
@@ -62,7 +64,7 @@ public class ThongTinHanhKhachDAO {
     }
 
     boolean update(ThongTinHanhKhach tthk){
-        String sql = "UPDATE ThongTinHanhKhach SET maNguoiDung=?, maThuHang=?, hoTen=?, cccd=?, hoChieu=?, ngaySinh=?, gioiTinh=?, diemTichLuy=? WHERE maHK=?";
+        String sql = "UPDATE ThongTinHanhKhach SET maNguoiDung=?, maThuHang=?, hoTen=?, cccd=?, hoChieu=?, ngaySinh=?, gioiTinh=?, diemTichLuy=?, loaiHanhKhach=? WHERE maHK=?";
         try (Connection con = DBConnection.getConnection();
             PreparedStatement ps = con.prepareStatement(sql)){
                 ps.setString(1, tthk.getMaNguoiDung());
@@ -74,7 +76,7 @@ public class ThongTinHanhKhachDAO {
                 ps.setString(7, tthk.getGioiTinh());
                 ps.setInt(8, tthk.getDiemTichLuy());
                 ps.setString(9, tthk.getMaHK());
-
+                ps.setString(10, tthk.getLoaiHanhKhach());
                 return ps.executeUpdate() > 0;    
         } catch (Exception e) {
             e.printStackTrace();
@@ -173,7 +175,7 @@ public class ThongTinHanhKhachDAO {
                 tthk.setMaHK(rs.getString("maHK"));
                 tthk.setMaNguoiDung(rs.getString("maNguoiDung"));
                 tthk.setMaThuHang(rs.getString("maThuHang"));
-                tthk.setHoTen(rs.getString("hoTen"));
+                tthk.setHoChieu(rs.getString("hoTen"));
                 tthk.setCccd(rs.getString("cccd"));
                 tthk.setHoChieu(rs.getString("hoChieu"));
 
@@ -182,13 +184,43 @@ public class ThongTinHanhKhachDAO {
                 }
                 tthk.setGioiTinh(rs.getString("gioiTinh"));
                 tthk.setDiemTichLuy(rs.getInt("diemTichLuy"));
+                tthk.setLoaiHanhKhach(rs.getString("loaiHanhKhach"));
 
-                //tu dong tinh thu hang
-                tthk.capNhatLoaiHanhKhach();
             }
         }catch (Exception e){
             e.printStackTrace();
         }
         return tthk;
+    }
+
+    public ThongTinHanhKhach selectByMaNguoiDung(String maNguoiDung){
+        String sql = "SELECT * FROM ThongTinHanhKhach WHERE maNguoiDung = ?";
+        try(Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)){
+            ps.setString(1, maNguoiDung);
+            ResultSet rs = ps.executeQuery();
+
+            if(rs.next()){
+                ThongTinHanhKhach tthk = new ThongTinHanhKhach();
+
+                tthk.setMaHK(rs.getString("maHK"));
+                tthk.setMaNguoiDung(rs.getString("maNguoiDung"));
+                tthk.setMaThuHang(rs.getString("maThuHang"));
+                tthk.setHoTen(rs.getString("hoTen"));
+                tthk.setCccd(rs.getString("cccd"));
+                tthk.setHoChieu(rs.getString("hoChieu"));
+                if(rs.getDate("ngaySinh") != null){
+                    tthk.setNgaySinh(rs.getDate("ngaySinh").toLocalDate());
+                }
+                tthk.setGioiTinh(rs.getString("gioiTinh"));
+                tthk.setDiemTichLuy(rs.getInt("diemTichLuy"));
+                tthk.setLoaiHanhKhach(rs.getString("loaiHanhKhach"));
+
+                return tthk;
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 }
