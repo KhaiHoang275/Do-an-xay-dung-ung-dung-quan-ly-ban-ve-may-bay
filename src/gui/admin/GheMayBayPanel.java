@@ -18,11 +18,24 @@ import java.util.ArrayList;
 
 public class GheMayBayPanel extends JPanel {
 
+    // === INTERFACE ĐỂ CHUYỂN TRANG ===
+    public interface PanelSwitchListener {
+        void onSwitchToSoDoGhe(String maMayBay, String tenMayBay);
+    }
+    private PanelSwitchListener switchListener;
+
+    public void setPanelSwitchListener(PanelSwitchListener listener) {
+        this.switchListener = listener;
+    }
+    // ===================================
+
     private JTable table;
     private DefaultTableModel tableModel;
     private JComboBox<String> cbMayBay, cbTrangThai, cboHienThi;
     private JTextField txtGiaGhe, txtTienTo, txtSoLuong, txtMaGhe, txtSoGhe, txtTimKiem;
-    private JButton btnTaoHangLoat, btnSua, btnXoa, btnLamMoi, btnTimKiem;
+    
+    // THÊM NÚT XEM SƠ ĐỒ Ở ĐÂY
+    private JButton btnXemSoDo, btnTaoHangLoat, btnSua, btnXoa, btnLamMoi, btnTimKiem;
 
     private GheMayBayBUS gheMayBayBUS;
     private MayBayBUS mayBayBUS;
@@ -34,6 +47,7 @@ public class GheMayBayPanel extends JPanel {
     private final Color BTN_UPDATE = new Color(59, 130, 246);
     private final Color BTN_DELETE = new Color(239, 68, 68);
     private final Color BTN_REFRESH = new Color(168, 85, 247);
+    private final Color BTN_VIEW_MAP = new Color(255, 152, 0); // Màu vàng cam cho nút Xem sơ đồ
 
     public GheMayBayPanel() {
         gheMayBayBUS = new GheMayBayBUS();
@@ -150,8 +164,17 @@ public class GheMayBayPanel extends JPanel {
 
         formCard.add(formPanel, BorderLayout.CENTER);
 
+        // ==========================================
+        // CẬP NHẬT PANEL CHỨA NÚT BẤM
+        // ==========================================
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
         buttonPanel.setOpaque(false);
+
+        // Khởi tạo nút Xem Sơ Đồ
+        btnXemSoDo = createButton("Xem Sơ Đồ", BTN_VIEW_MAP);
+        btnXemSoDo.setPreferredSize(new Dimension(140, 40));
+        // Có thể đổi icon khác nếu muốn
+        try { setButtonIcon(btnXemSoDo, "/resources/icons/chair.png", 20); } catch (Exception e) {}
 
         btnTaoHangLoat = createButton("Tạo Hàng Loạt", BTN_ADD);
         btnTaoHangLoat.setPreferredSize(new Dimension(160, 40)); 
@@ -167,6 +190,8 @@ public class GheMayBayPanel extends JPanel {
             setButtonIcon(btnLamMoi, "/resources/icons/icons8-erase-24.png", 20);
         } catch (Exception e) {}
 
+        // Thêm nút Xem sơ đồ vào TRƯỚC nút Tạo hàng loạt
+        buttonPanel.add(btnXemSoDo);
         buttonPanel.add(btnTaoHangLoat);
         buttonPanel.add(btnSua);
         buttonPanel.add(btnXoa);
@@ -297,6 +322,25 @@ public class GheMayBayPanel extends JPanel {
     }
 
     private void setupListeners() {
+        
+        // Bắt sự kiện click Nút Xem Sơ Đồ
+        btnXemSoDo.addActionListener(e -> {
+            if (cbMayBay.getSelectedItem() == null) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn một máy bay để xem sơ đồ!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            
+            // Lấy thông tin máy bay đang được chọn trên ComboBox
+            String mbInfo = cbMayBay.getSelectedItem().toString(); // VD: "MB01 - VN-A321 (Airbus)"
+            String maMB = mbInfo.split(" - ")[0].trim();
+            String tenMB = mbInfo.split(" - ")[1].trim();
+
+            // Kích hoạt sự kiện để MainFrame bắt được
+            if (switchListener != null) {
+                switchListener.onSwitchToSoDoGhe(maMB, tenMB);
+            }
+        });
+
         table.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 int row = table.getSelectedRow();
