@@ -181,7 +181,7 @@ public class QuanLyDoiVePanel extends JPanel {
         btnLamMoi = createButton("Làm mới", BTN_REFRESH);
 
         setButtonIcon(btnDuyet, "/resources/icons/icons8-check-24.png");
-        setButtonIcon(btnTuChoi, "/resources/icons/icons8-access-denied-24.png");
+        setButtonIcon(btnTuChoi, "/resources/icons/icons8-close-24.png");
         setButtonIcon(btnLamMoi, "/resources/icons/icons8-reset-24.png");
 
         buttonPanel.add(btnDuyet);

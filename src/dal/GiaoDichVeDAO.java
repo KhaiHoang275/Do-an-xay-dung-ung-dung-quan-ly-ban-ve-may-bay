@@ -8,63 +8,55 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GiaoDichVeDAO {
-    // === insert ===  : lưu 1 một giao dịch vé mới vào database (sql)
+    // === insert === : lưu một giao dịch vé mới vào database (sql)
     public boolean insert(GiaoDichVe gd){
         String sql = """
             INSERT INTO GiaoDichVe  
-            (maGD, maVeMoi, maVeCu, trangThai, phi, phiChenhLech, lyDoDoi, ngayYeuCau, ngayXuLi)
-            VALUES(?, ?, ?, ?, ?, ?, ?, ? ,?)
+            (maGD, maVeCu, maChuyenBayMoi, maHangVeMoi, maGheMoi, trangThai, phi, phiChenhLech, lyDoDoi, ngayYeuCau, ngayXuLi)
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """;
-        // '?' : placeholder(chỗ trống), mỗi ? tương ứng 1 cột
 
         try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)){
-            // ket noi sql
-            ps.setString(1, gd.getMaGD()); // gán chuỗi vào từng dấu ?
-            ps.setString(2, gd.getMaVeMoi());
-            ps.setString(3, gd.getMaVeCu());
-            ps.setString(4, gd.getTrangThai().name()); // gán enum
-            ps.setBigDecimal(5, gd.getPhi());
-            ps.setBigDecimal(6, gd.getPhiChenhLech());
-            ps.setString(7, gd.getLyDo());
+            ps.setString(1, gd.getMaGD());
+            ps.setString(2, gd.getMaVeCu());
+            ps.setString(3, gd.getMaChuyenBayMoi());
+            ps.setString(4, gd.getMaHangVeMoi());
+            ps.setString(5, gd.getMaGheMoi());
+            ps.setString(6, gd.getTrangThai().name());
+            ps.setBigDecimal(7, gd.getPhi());
+            ps.setBigDecimal(8, gd.getPhiChenhLech());
+            ps.setString(9, gd.getLyDoDoi());
 
             if(gd.getNgayYeuCau() != null)
-                ps.setDate(8, Date.valueOf(gd.getNgayYeuCau()));
+                ps.setDate(10, Date.valueOf(gd.getNgayYeuCau()));
             else
-                ps.setNull(8, Types.DATE);
+                ps.setNull(10, Types.DATE);
 
             if(gd.getNgayXuLi() != null)
-                ps.setDate(9, Date.valueOf(gd.getNgayXuLi()));
+                ps.setDate(11, Date.valueOf(gd.getNgayXuLi()));
             else
-                ps.setNull(9, Types.DATE);
+                ps.setNull(11, Types.DATE);
 
-            return ps.executeUpdate() > 0; //--> true
-            // excuteUpdadte: Gửi câu SQL sang SQL Server --> trả về 1 nếu insert thành công 1 dòng, 0 nếu không có dòng nào bị ảnh hường
+            return ps.executeUpdate() > 0;
         } catch (SQLException e){
             e.printStackTrace();
         }
         return false;
     }
 
-    //executeUpdate dung cho INSERT, UPDATE, DELETE
-    //executeQuery dung cho SELECT
-
-    //=== find all ===
+    // === find all ===
     public List<GiaoDichVe> findAll(){
         List<GiaoDichVe> list = new ArrayList<>();
-        String sql = "SELECT * FROM GiaoDichVe"; // lấy toàn bộ lịch sử giao dịch
+        String sql = "SELECT * FROM GiaoDichVe";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()){
-            // executeQuery: Gửi SELECT sang SQL Server, SQL Server trả về bảng kết quả, JDBC lưu bảng đó trong ResultSet
-
             while(rs.next()){
-                // next còn true là còn dòng tiếp theo
-                list.add(mapResultSet(rs));  //mapResultSet(rs) chuyển SQL --> JAVA
+                list.add(mapResultSet(rs));
             }
-
         }catch (SQLException e){
-        e.printStackTrace();
+            e.printStackTrace();
         }
         return list;
     }
@@ -87,7 +79,8 @@ public class GiaoDichVeDAO {
         }
         return list;
     }
-    // ===find by trang thai===
+
+    // === find by trang thai ===
     public List<GiaoDichVe> findByTrangThai(TrangThaiGiaoDich tt){
         List<GiaoDichVe> list  = new ArrayList<>();
         String sql = "SELECT * FROM GiaoDichVe WHERE trangThai = ?";
@@ -106,27 +99,19 @@ public class GiaoDichVeDAO {
         return list;
     }
 
-    public GiaoDichVe findById(String maGD){  // trả về 1 object mà maGD là khóa chính
-        String sql = "SELECT * FROM GiaoDichVe WHERE maGD = ?"; // ? là placeholder (tránh SQL Injection) Chỉ lấy bản ghi có maGD tương ứng
+    public GiaoDichVe findById(String maGD){
+        String sql = "SELECT * FROM GiaoDichVe WHERE maGD = ?";
 
         try (Connection conn = DBConnection.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql)){
+             PreparedStatement ps = conn.prepareStatement(sql)){
 
-            ps.setString(1, maGD); // gán giá trị cho dấu ?, 1 là ? đầu tiên
-             try (ResultSet rs  = ps.executeQuery()){
-                 if(rs.next()) return mapResultSet(rs);
-             }
-             //executeQuery() dùng cho SELECT
-            //
-            //Trả về ResultSet
-            //
-            //ResultSet chứa bảng kết quả
-            //
-            //Lại dùng try-with-resources để tự đóng rs
+            ps.setString(1, maGD);
+            try (ResultSet rs  = ps.executeQuery()){
+                if(rs.next()) return mapResultSet(rs);
+            }
         }catch (SQLException e){
             e.printStackTrace();
         }
-
         return null;
     }
 
@@ -134,7 +119,9 @@ public class GiaoDichVeDAO {
         String sql = """
                 UPDATE GiaoDichVe
                 SET maVeCu = ?,
-                    maVeMoi = ?,
+                    maChuyenBayMoi = ?,
+                    maHangVeMoi = ?,
+                    maGheMoi = ?,
                     trangThai = ?,
                     phi = ?,
                     phiChenhLech = ?,
@@ -145,34 +132,30 @@ public class GiaoDichVeDAO {
                """;
 
         try (Connection conn = DBConnection.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql)){
+             PreparedStatement ps = conn.prepareStatement(sql)){
 
-
-            // ve
             ps.setString(1, gd.getMaVeCu());
-            ps.setString(2, gd.getMaVeMoi());
-            //enum
-            ps.setString(3, gd.getTrangThai().name());
-            //BigDecimal
-            ps.setBigDecimal(4, gd.getPhi());
-            ps.setBigDecimal(5, gd.getPhiChenhLech());
-            //lydo
-            ps.setString(6, gd.getLyDo());
-            //ngayyeucau
+            ps.setString(2, gd.getMaChuyenBayMoi());
+            ps.setString(3, gd.getMaHangVeMoi());
+            ps.setString(4, gd.getMaGheMoi());
+            ps.setString(5, gd.getTrangThai().name());
+            ps.setBigDecimal(6, gd.getPhi());
+            ps.setBigDecimal(7, gd.getPhiChenhLech());
+            ps.setString(8, gd.getLyDoDoi());
+
             if(gd.getNgayYeuCau() != null){
-                ps.setDate(7, Date.valueOf(gd.getNgayYeuCau()));
+                ps.setDate(9, Date.valueOf(gd.getNgayYeuCau()));
             }else {
-                ps.setNull(7, Types.DATE);
-            }
-            //ngay xu ly
-            if(gd.getNgayXuLi() != null){
-                ps.setDate(8, Date.valueOf(gd.getNgayXuLi()));
-            }else{
-                ps.setNull(8, Types.DATE);
+                ps.setNull(9, Types.DATE);
             }
 
-            //WHERE maGD = ?
-            ps.setString(9, gd.getMaGD());
+            if(gd.getNgayXuLi() != null){
+                ps.setDate(10, Date.valueOf(gd.getNgayXuLi()));
+            }else{
+                ps.setNull(10, Types.DATE);
+            }
+
+            ps.setString(11, gd.getMaGD());
 
             return ps.executeUpdate() > 0;
 
@@ -191,7 +174,7 @@ public class GiaoDichVeDAO {
             ps.setString(1, maGD);
             int rowAffected = ps.executeUpdate();
 
-            return rowAffected > 0; // =1: xoa thanh cong, =0: khong co mã đó
+            return rowAffected > 0;
 
         }catch (Exception e){
             e.printStackTrace();
@@ -200,15 +183,16 @@ public class GiaoDichVeDAO {
     }
 
     private GiaoDichVe mapResultSet(ResultSet rs) throws SQLException{
-        // chuyển 1 dòng dữ liệu sql thành 1 object java
-        GiaoDichVe gd = new GiaoDichVe(); // tạo object rỗng
+        GiaoDichVe gd = new GiaoDichVe();
         gd.setMaGD(rs.getString("maGD"));
         gd.setMaVeCu(rs.getString("maVeCu"));
-        gd.setMaVeMoi(rs.getString("maVeMoi"));
+        gd.setMaChuyenBayMoi(rs.getString("maChuyenBayMoi"));
+        gd.setMaHangVeMoi(rs.getString("maHangVeMoi"));
+        gd.setMaGheMoi(rs.getString("maGheMoi"));
         gd.setTrangThai(TrangThaiGiaoDich.valueOf(rs.getString("trangThai")));
         gd.setPhi(rs.getBigDecimal("phi"));
         gd.setPhiChenhLech(rs.getBigDecimal("phiChenhLech"));
-        gd.setLyDo(rs.getString("lyDoDoi"));
+        gd.setLyDoDoi(rs.getString("lyDoDoi"));
 
         Date ngayYC = rs.getDate("ngayYeuCau");
         if(ngayYC != null)

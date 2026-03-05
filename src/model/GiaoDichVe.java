@@ -7,7 +7,11 @@ public class GiaoDichVe {
 
     private String maGD;
     private String maVeCu;             // vé gốc
-    private String maVeMoi;          // vé sau khi đổi
+
+    private String maChuyenBayMoi;
+    private String maHangVeMoi;
+    private String maGheMoi;
+
     private LocalDate ngayYeuCau;
     private LocalDate ngayXuLi;       // null nếu chưa xử lý
     private BigDecimal phi;           // phí đổi vé
@@ -18,7 +22,9 @@ public class GiaoDichVe {
     public GiaoDichVe() {
         this.maGD = "";
         this.maVeCu = "";
-        this.maVeMoi = "";
+        this.maChuyenBayMoi = "";
+        this.maHangVeMoi = "";
+        this.maGheMoi = "";
         this.ngayYeuCau = null;
         this.ngayXuLi = null;
         this.phi = BigDecimal.ZERO;
@@ -27,13 +33,15 @@ public class GiaoDichVe {
         this.trangThai = TrangThaiGiaoDich.CHO_XU_LY;
     }
 
-    public GiaoDichVe(String maGD, String maVe, String maVeMoi,
+    public GiaoDichVe(String maGD, String maVeCu,String maChuyenBayMoi, String maHangVeMoi, String maGheMoi,
                       LocalDate ngayYeuCau, LocalDate ngayXuLy,
                       BigDecimal phi, BigDecimal phiChenhLech, String lyDo,
                       TrangThaiGiaoDich trangThai) {
         this.maGD = maGD;
-        this.maVeCu = maVe;
-        this.maVeMoi = maVeMoi;
+        this.maVeCu = maVeCu;
+        this.maChuyenBayMoi = maChuyenBayMoi;
+        this.maHangVeMoi = maHangVeMoi;
+        this.maGheMoi = maGheMoi;
         this.ngayYeuCau = ngayYeuCau;
         this.ngayXuLi = ngayXuLy;
         this.phi = phi;
@@ -45,7 +53,9 @@ public class GiaoDichVe {
     public GiaoDichVe(GiaoDichVe gd) {
         this.maGD = gd.maGD;
         this.maVeCu = gd.maVeCu;
-        this.maVeMoi = gd.maVeMoi;
+        this.maChuyenBayMoi = gd.maChuyenBayMoi;
+        this.maHangVeMoi = gd.maHangVeMoi;
+        this.maGheMoi = gd.maGheMoi;
         this.ngayYeuCau = gd.ngayYeuCau;
         this.ngayXuLi = gd.ngayXuLi;
         this.phi = gd.phi;
@@ -70,12 +80,36 @@ public class GiaoDichVe {
         this.maVeCu = maVeCu;
     }
 
-    public String getMaVeMoi() {
-        return maVeMoi;
+    public String getMaChuyenBayMoi() {
+        return maChuyenBayMoi;
     }
 
-    public void setMaVeMoi(String maVeMoi) {
-        this.maVeMoi = maVeMoi;
+    public void setMaChuyenBayMoi(String maChuyenBayMoi) {
+        this.maChuyenBayMoi = maChuyenBayMoi;
+    }
+
+    public String getMaHangVeMoi() {
+        return maHangVeMoi;
+    }
+
+    public void setMaHangVeMoi(String maHangVeMoi) {
+        this.maHangVeMoi = maHangVeMoi;
+    }
+
+    public String getMaGheMoi() {
+        return maGheMoi;
+    }
+
+    public void setMaGheMoi(String maGheMoi) {
+        this.maGheMoi = maGheMoi;
+    }
+
+    public String getLyDoDoi() {
+        return lyDoDoi;
+    }
+
+    public void setLyDoDoi(String lyDoDoi) {
+        this.lyDoDoi = lyDoDoi;
     }
 
     public LocalDate getNgayYeuCau() {
@@ -128,7 +162,7 @@ public class GiaoDichVe {
 
     @Override
     public String toString() {
-        return maGD + " | " + maVeCu + " -> " + maVeMoi + " | "
+        return maGD + " | " + maVeCu + " | " + maChuyenBayMoi + " | " + maHangVeMoi + " | " + maGheMoi + " | "
                 + trangThai;
     }
 }

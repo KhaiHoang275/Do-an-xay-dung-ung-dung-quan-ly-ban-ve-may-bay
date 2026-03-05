@@ -188,6 +188,10 @@ public class DoiVePanel extends JPanel {
         btnLamMoi = createButton("Làm mới", BTN_REFRESH);
         btnHuy = createButton("Hủy", BTN_EXIT);
 
+        setButtonIcon(btnXacNhan, "/resources/icons/icons8-check-24.png");
+        setButtonIcon(btnLamMoi,"/resources/icons/icons8-reset-24.png");
+        setButtonIcon(btnHuy, "/resources/icons/icons8-close-24.png");
+
         addHoverEffect(btnXacNhan, BTN_CONFIRM);
         addHoverEffect(btnLamMoi, BTN_REFRESH);
         addHoverEffect(btnHuy, BTN_EXIT);
@@ -229,6 +233,25 @@ public class DoiVePanel extends JPanel {
                 }
             }
         });
+    }
+
+    private void setButtonIcon(JButton btn, String path) {
+        ImageIcon icon = loadIcon(path, 18, 18);
+        if (icon != null) {
+            btn.setIcon(icon);
+            btn.setIconTextGap(8);
+        }
+    }
+
+    private ImageIcon loadIcon(String resourcePath, int w, int h) {
+        try {
+            ImageIcon ic = new ImageIcon(getClass().getResource(resourcePath));
+            Image im = ic.getImage().getScaledInstance(w, h, Image.SCALE_SMOOTH);
+            return new ImageIcon(im);
+        } catch (Exception e) {
+            // không tìm thấy icon -> trả về null không gây chết
+            return null;
+        }
     }
 
     private JPanel createCardPanel() {
@@ -332,30 +355,25 @@ public class DoiVePanel extends JPanel {
 
         // ===== Load vé mới =====
         cboVeMoi.removeAllItems();
-        List<VeBan> list = bus.danhSachVeCoTheDoi(maNguoiDung);
+        List<VeBan> list = bus.danhSachVeCoTheDoi(maNguoiDung, maVeCu);
 
         boolean hasValid = false;
 
         for (VeBan ve : list) {
+            // không cần if (!ve.getMaVe().equals(maVeCu)) nữa vì đã loại ở query
 
-            if (!ve.getMaVe().equals(maVeCu)) {
+            ChuyenBay cbNew = chuyenBayDAO.selectById(ve.getMaChuyenBay());
+            if (cbNew != null) {
+                TuyenBay tb = tuyenBayDAO.selectById(cbNew.getMaTuyenBay());
+                if (tb != null) {
+                    String format = ve.getMaVe() + " - " +
+                            tb.getSanBayDi() + " -> " +
+                            tb.getSanBayDen() + " - " +
+                            cbNew.getNgayGioDi()
+                                    .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
 
-                ChuyenBay cbNew = chuyenBayDAO.selectById(ve.getMaChuyenBay());
-                if (cbNew != null) {
-
-                    TuyenBay tb = tuyenBayDAO.selectById(cbNew.getMaTuyenBay());
-                    if (tb != null) {
-
-                        String format =
-                                ve.getMaVe() + " - " +
-                                        tb.getSanBayDi() + " -> " +
-                                        tb.getSanBayDen() + " - " +
-                                        cbNew.getNgayGioDi()
-                                                .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-
-                        cboVeMoi.addItem(format);
-                        hasValid = true;
-                    }
+                    cboVeMoi.addItem(format);
+                    hasValid = true;
                 }
             }
         }
