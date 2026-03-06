@@ -118,7 +118,20 @@ public class AdminMainFrame extends JFrame {
         JButton btnGheMayBay = createSidebarButton("Quản lý ghế máy bay", "/resources/icons/chair.png");
         btnGheMayBay.addActionListener(e -> {
             setActiveButton(btnGheMayBay);
-            showPanel(new GheMayBayPanel());
+            
+            GheMayBayPanel gheMayBayPanel = new GheMayBayPanel();
+            
+            gheMayBayPanel.setPanelSwitchListener((maMayBay, tenMayBay) -> {
+                
+                SoDoGhePanel soDoPanel = new SoDoGhePanel(maMayBay, tenMayBay);
+                
+                soDoPanel.setBackListener(() -> {
+                    showPanel(gheMayBayPanel);                
+});
+                showPanel(soDoPanel);
+            });
+            
+            showPanel(gheMayBayPanel);
         });
 
         JButton btnDoiVe = createSidebarButton("Quản lý đổi vé",
