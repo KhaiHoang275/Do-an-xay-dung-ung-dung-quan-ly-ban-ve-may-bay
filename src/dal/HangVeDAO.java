@@ -1,5 +1,6 @@
 package dal;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -116,5 +117,26 @@ public class HangVeDAO {
             hv.setTrangThai(TrangThaiHangVe.HOAT_DONG);
         }
         return hv;
+    }
+
+    public BigDecimal layHeSoHangVe(String maHangVe) {
+
+        String sql = "SELECT heSoHangVe FROM HangVe WHERE maHangVe = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, maHangVe);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getBigDecimal("heSoHangVe");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return BigDecimal.ONE; 
     }
 }

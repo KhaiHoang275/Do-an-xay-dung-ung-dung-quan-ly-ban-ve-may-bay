@@ -4,6 +4,7 @@ import model.SanBay;
 import java.sql.*;
 import java.util.ArrayList;
 import db.*; 
+
 public class SanBayDAO {
 
     public ArrayList<SanBay> selectAll() {
@@ -20,6 +21,7 @@ public class SanBayDAO {
                 sb.setTenSanBay(rs.getString("tenSanBay"));
                 sb.setQuocGia(rs.getString("quocGia"));
                 sb.setThanhPho(rs.getString("thanhPho"));
+                sb.setTrangThai(SanBay.TrangThai.fromString(rs.getString("trangThai")));
                 list.add(sb);
             }
         } catch (SQLException e) {
@@ -28,9 +30,8 @@ public class SanBayDAO {
         return list;
     }
 
-
     public boolean insert(SanBay sb) {
-        String sql = "INSERT INTO SanBay (maSanBay, tenSanBay, quocGia, thanhPho) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO SanBay (maSanBay, tenSanBay, quocGia, thanhPho, trangThai) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             
@@ -38,6 +39,7 @@ public class SanBayDAO {
             ps.setString(2, sb.getTenSanBay());
             ps.setString(3, sb.getQuocGia());
             ps.setString(4, sb.getThanhPho());
+            ps.setString(5, sb.getTrangThai().getValue());
             
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -46,16 +48,16 @@ public class SanBayDAO {
         return false;
     }
 
-
     public boolean update(SanBay sb) {
-        String sql = "UPDATE SanBay SET tenSanBay=?, quocGia=?, thanhPho=? WHERE maSanBay=?";
+        String sql = "UPDATE SanBay SET tenSanBay=?, quocGia=?, thanhPho=?, trangThai=? WHERE maSanBay=?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             
             ps.setString(1, sb.getTenSanBay());
             ps.setString(2, sb.getQuocGia());
             ps.setString(3, sb.getThanhPho());
-            ps.setString(4, sb.getMaSanBay());
+            ps.setString(4, sb.getTrangThai().getValue());
+            ps.setString(5, sb.getMaSanBay());
             
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -64,8 +66,9 @@ public class SanBayDAO {
         return false;
     }
 
+    // SOFT DELETE: Chuyển trạng thái thay vì xóa vĩnh viễn
     public boolean delete(String maSanBay) {
-        String sql = "DELETE FROM SanBay WHERE maSanBay=?";
+        String sql = "UPDATE SanBay SET trangThai = N'Ngừng hoạt động' WHERE maSanBay=?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             

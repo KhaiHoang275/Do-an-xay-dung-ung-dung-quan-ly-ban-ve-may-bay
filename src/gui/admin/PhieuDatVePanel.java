@@ -1,6 +1,5 @@
 package gui.admin;
 
-import bll.ChuyenBayBUS;
 import dal.PhieuDatVeDAO;
 import dal.VeBanDAO;
 import model.PhieuDatVe;
@@ -9,20 +8,9 @@ import model.VeBan;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 
 public class PhieuDatVePanel extends JPanel {
-
-    private JComboBox<String> cboChuyenBay;
-    private JLabel lblNguoiLon, lblTreEm, lblEmBe;
-    private JTextField txtTongTien;
-
-    private int nguoiLon = 1;
-    private int treEm = 0;
-    private int emBe = 0;
-
     private JTable table;
     private DefaultTableModel tableModel;
 
@@ -30,15 +18,23 @@ public class PhieuDatVePanel extends JPanel {
     private DefaultTableModel modelVe;
 
     private JScrollPane spVe;  
-    private JPanel panelVe;    
+    private JPanel panelVe;
 
-    private final ChuyenBayBUS chuyenBayBUS = new ChuyenBayBUS();
+    private JTextField txtSearchPNR;
+    private JComboBox<String> cboTrangThai;
+
     private final PhieuDatVeDAO phieuDAO = new PhieuDatVeDAO();
     private final VeBanDAO veBanDAO = new VeBanDAO();
 
     public PhieuDatVePanel() {
         setLayout(new BorderLayout(10, 10));
-        add(initForm(), BorderLayout.NORTH);
+        JLabel title = new JLabel("QUẢN LÝ PHIẾU ĐẶT VÉ");
+        title.setFont(new Font("Segoe UI", Font.BOLD, 26));
+        title.setForeground(new Color(220,38,38));
+        title.setBorder(BorderFactory.createEmptyBorder(20,20,10,20));
+
+        add(title, BorderLayout.NORTH);
+        add(initSearchBar(), BorderLayout.BEFORE_FIRST_LINE);
 
        JPanel centerPanel = new JPanel();
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
@@ -49,109 +45,44 @@ public class PhieuDatVePanel extends JPanel {
         add(centerPanel, BorderLayout.CENTER);
 
         loadTable();
-        capNhatTongTien();
         ganSuKienClickPhieu();
-    }
-
-    private JPanel initForm() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBorder(BorderFactory.createTitledBorder("Tạo phiếu đặt vé"));
-
-        JPanel pCB = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        pCB.add(new JLabel("Chuyến bay:"));
-        cboChuyenBay = new JComboBox<>(
-                chuyenBayBUS.getDanhSachMaChuyenBay().toArray(new String[0])
-        );
-        cboChuyenBay.addActionListener(e -> capNhatTongTien());
-        pCB.add(cboChuyenBay);
-        panel.add(pCB);
-
-        lblNguoiLon = new JLabel("1");
-        lblTreEm = new JLabel("0");
-        lblEmBe = new JLabel("0");
-
-        panel.add(dongSoLuong("Người lớn", lblNguoiLon, true));
-        panel.add(dongSoLuong("Trẻ em", lblTreEm, false));
-        panel.add(dongSoLuong("Em bé", lblEmBe, false));
-
-        JPanel pTien = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        pTien.add(new JLabel("Tổng tiền:"));
-        txtTongTien = new JTextField(18);
-        txtTongTien.setEditable(false);
-        txtTongTien.setFont(new Font("Arial", Font.BOLD, 14));
-        pTien.add(txtTongTien);
-        panel.add(pTien);
-
-        JPanel pBtn = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton btnLuu = new JButton("Lưu");
-        JButton btnReset = new JButton("Reset");
-
-        btnLuu.addActionListener(e -> luuPhieu());
-        btnReset.addActionListener(e -> resetForm());
-
-        pBtn.add(btnLuu);
-        pBtn.add(btnReset);
-        panel.add(pBtn);
-
-        return panel;
-    }
-
-    private JPanel dongSoLuong(String ten, JLabel lbl, boolean min1) {
-        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        p.add(new JLabel(ten + ":"));
-
-        JButton minus = new JButton("-");
-        JButton plus = new JButton("+");
-
-        minus.addActionListener(e -> {
-            int v = Integer.parseInt(lbl.getText());
-            if ((min1 && v <= 1) || (!min1 && v <= 0)) return;
-            lbl.setText(String.valueOf(v - 1));
-            dongBo();
-        });
-
-        plus.addActionListener(e -> {
-            int v = Integer.parseInt(lbl.getText());
-            lbl.setText(String.valueOf(v + 1));
-            dongBo();
-        });
-
-        p.add(minus);
-        p.add(lbl);
-        p.add(plus);
-        return p;
-    }
-
-    private void dongBo() {
-        nguoiLon = Integer.parseInt(lblNguoiLon.getText());
-        treEm = Integer.parseInt(lblTreEm.getText());
-        emBe = Integer.parseInt(lblEmBe.getText());
-        capNhatTongTien();
-    }
-
-    private void capNhatTongTien() {
-        if (cboChuyenBay.getSelectedItem() == null) return;
-        BigDecimal tong = chuyenBayBUS.tinhGiaVe(
-                cboChuyenBay.getSelectedItem().toString(),
-                nguoiLon, treEm, emBe
-        );
-        txtTongTien.setText(tong.toPlainString());
     }
 
     private JScrollPane initTable() {
         tableModel = new DefaultTableModel(
-                new String[]{"Mã PNR", "Ngày đặt", "Số vé", "Tổng tiền", "Trạng thái"}, 0
-        );
+            new String[]{"Mã PNR", "Ngày đặt", "Số vé", "Tổng tiền", "Trạng thái"},0
+        ){
+            public boolean isCellEditable(int r,int c){
+                return false;
+            }
+        };
+
         table = new JTable(tableModel);
-        return new JScrollPane(table);
+        table.setRowHeight(28);
+        table.setFont(new Font("Segoe UI",Font.PLAIN,13));
+
+        table.getTableHeader().setBackground(new Color(20,40,90));
+        table.getTableHeader().setForeground(Color.WHITE);
+        table.getTableHeader().setFont(new Font("Segoe UI",Font.BOLD,14));
+
+        JScrollPane scroll = new JScrollPane(table);
+        scroll.setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
+
+        return scroll;
     }
 
     private JPanel initTableVe() {
-
         modelVe = new DefaultTableModel(
-                new String[]{"Mã vé", "Loại HK", "Loại vé", "Giá vé"},
-                0
+                new String[]{
+                "Mã vé",
+                "Sân bay đi",
+                "Sân bay đến",
+                "Ngày giờ đi",
+                "Loại HK",
+                "Loại vé",
+                "Giá vé",
+                "Trạng thái"
+                }, 0
         ) {
             @Override
             public boolean isCellEditable(int r, int c) {
@@ -160,6 +91,13 @@ public class PhieuDatVePanel extends JPanel {
         };
 
         tableVe = new JTable(modelVe);
+
+        tableVe.setRowHeight(28);
+        tableVe.setFont(new Font("Segoe UI",Font.PLAIN,13));
+
+        tableVe.getTableHeader().setBackground(new Color(20,40,90));
+        tableVe.getTableHeader().setForeground(Color.WHITE);
+        tableVe.getTableHeader().setFont(new Font("Segoe UI",Font.BOLD,14));
 
         spVe = new JScrollPane(tableVe);
 
@@ -170,7 +108,7 @@ public class PhieuDatVePanel extends JPanel {
         });
 
         JPanel top = new JPanel(new BorderLayout());
-        top.add(new JLabel("Danh sách vé"), BorderLayout.WEST);
+        top.add(new JLabel("Danh sách Phiếu đặt vé"), BorderLayout.WEST);
         top.add(btnThoat, BorderLayout.EAST);
 
         panelVe = new JPanel(new BorderLayout());
@@ -183,6 +121,38 @@ public class PhieuDatVePanel extends JPanel {
         return panelVe;
     }
 
+    private JPanel initSearchBar() {
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT,10,10));
+
+        JLabel lblSearch = new JLabel("Tìm (Mã PNR):");
+        lblSearch.setFont(new Font("Segoe UI", Font.BOLD, 14));
+
+        txtSearchPNR = new JTextField(20);
+
+        JButton btnSearch = new JButton("Tìm kiếm");
+        btnSearch.setBackground(new Color(40,70,130));
+        btnSearch.setForeground(Color.WHITE);
+
+        JLabel lblTrangThai = new JLabel("Trạng thái:");
+
+        cboTrangThai = new JComboBox<>(new String[]{
+                "Tất cả",
+                "Chưa thanh toán",
+                "Đã thanh toán",
+                "Đã hủy"
+        });
+
+        btnSearch.addActionListener(e -> timPhieu());
+
+        panel.add(lblSearch);
+        panel.add(txtSearchPNR);
+        panel.add(btnSearch);
+        panel.add(lblTrangThai);
+        panel.add(cboTrangThai);
+
+        return panel;
+    }
+
     private void loadTable() {
         tableModel.setRowCount(0);
         List<PhieuDatVe> list = phieuDAO.selectAll();
@@ -191,71 +161,10 @@ public class PhieuDatVePanel extends JPanel {
                     p.getMaPhieuDatVe(),
                     p.getNgayDat(),
                     p.getSoLuongVe(),
-                    p.getTongTien(),
+                    String.format("%,.0f VND", p.getTongTien()),
                     p.getTrangThaiThanhToan()
             });
         }
-    }
-
-    private void luuPhieu() {
-        try {
-            String maCB = cboChuyenBay.getSelectedItem().toString();
-
-            PhieuDatVe p = new PhieuDatVe();
-            p.setNgayDat(LocalDate.now());
-            p.setSoLuongVe(nguoiLon + treEm + emBe);
-            p.setTongTien(new BigDecimal(txtTongTien.getText()));
-            p.setTrangThaiThanhToan("CHUA_THANH_TOAN");
-
-            boolean ok = phieuDAO.insert(p);
-            if (!ok) {
-                JOptionPane.showMessageDialog(this, "Tạo phiếu thất bại");
-                return;
-            }
-
-            String maPhieu = p.getMaPhieuDatVe();
-            if (maPhieu == null) {
-                JOptionPane.showMessageDialog(this, "Không lấy được mã phiếu");
-                return;
-            }
-
-            taoVe(maPhieu, maCB, "NGUOILON", nguoiLon);
-            taoVe(maPhieu, maCB, "TREEM", treEm);
-            taoVe(maPhieu, maCB, "EMBE", emBe);
-
-            loadTable(); 
-            JOptionPane.showMessageDialog(this, "Tạo phiếu & vé thành công");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, e.getMessage());
-        }
-    }
-
-    private void taoVe(String maPhieu, String maCB, String loaiHK, int soLuong) {
-        for (int i = 0; i < soLuong; i++) {
-            VeBan v = new VeBan();
-
-            v.setMaPhieuDatVe(maPhieu);  
-            v.setMaChuyenBay(maCB);
-            v.setLoaiHK(loaiHK);
-            v.setLoaiVe("Mot chieu");
-            v.setGiaVe(chuyenBayBUS.tinhGiaVeDon(maCB, loaiHK));
-            v.setTrangThaiVe("CHUA_SU_DUNG");
-
-            v.setMaHK(null);
-            v.setMaHangVe(null);
-            v.setMaGhe(null);
-
-            veBanDAO.insert(v); 
-        }
-    }
-
-    private void resetForm() {
-        lblNguoiLon.setText("1");
-        lblTreEm.setText("0");
-        lblEmBe.setText("0");
-        dongBo();
     }
 
     private void ganSuKienClickPhieu() {
@@ -285,11 +194,34 @@ public class PhieuDatVePanel extends JPanel {
 
         for (VeBan v : list) {
             modelVe.addRow(new Object[]{
-                v.getMaVe(),
-                v.getLoaiHK(),
-                v.getLoaiVe(),
-                v.getGiaVe()
-            });
+            v.getMaVe(),
+            v.getSanBayDi(),
+            v.getSanBayDen(),
+            v.getNgayGioDi(),
+            v.getLoaiHK(),
+            v.getLoaiVe(),
+            String.format("%,.0f VND", v.getGiaVe()),
+            v.getTrangThaiVe()
+        });
         }
     }
+
+    private void timPhieu() {
+        String maPNR = txtSearchPNR.getText().trim();
+        String trangThai = cboTrangThai.getSelectedItem().toString();
+
+        tableModel.setRowCount(0);
+
+        List<PhieuDatVe> list = phieuDAO.locPhieu(maPNR, trangThai);
+
+        for (PhieuDatVe p : list) {
+            tableModel.addRow(new Object[]{
+                    p.getMaPhieuDatVe(),
+                    p.getNgayDat(),
+                    p.getSoLuongVe(),
+                    String.format("%,.0f VND", p.getTongTien()),
+                    p.getTrangThaiThanhToan()
+            });
+        }
+}
 }
