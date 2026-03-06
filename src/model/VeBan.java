@@ -1,6 +1,9 @@
 package model;
 
 import java.math.BigDecimal;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 
 public class VeBan {
     private String maVe;
@@ -13,6 +16,9 @@ public class VeBan {
     private String loaiHK;
     private BigDecimal giaVe;
     private String trangThaiVe;
+    private String sanBayDi;
+    private String sanBayDen;
+    private Timestamp ngayGioDi;
 
     public VeBan(){}
 
@@ -26,6 +32,16 @@ public class VeBan {
         this.loaiHK = a.loaiHK;
         this.giaVe = a.giaVe;
         this.trangThaiVe = a.trangThaiVe;
+    }
+
+    public VeBan(ResultSet rs) throws SQLException {
+        this.maVe = rs.getString("maVe");
+        this.maPhieuDatVe = rs.getString("maPhieuDatVe");
+        this.maChuyenBay = rs.getString("maChuyenBay");
+        this.loaiHK = rs.getString("loaiHK");
+        this.loaiVe = rs.getString("loaiVe");
+        this.giaVe = rs.getBigDecimal("giaVe");
+        this.trangThaiVe = rs.getString("trangThaiVe");
     }
 
     public VeBan(String maVe, String maPhieuDatVe, String maChuyenBay, String maHK, String maHangVe, String maGhe,
@@ -129,4 +145,30 @@ public class VeBan {
     public void setTrangThaiVe(String trangThaiVe) {
         this.trangThaiVe = trangThaiVe;
     }
+
+    public String getSanBayDi() {
+        return sanBayDi;
+    }
+
+    public void setSanBayDi(String sanBayDi) {
+        this.sanBayDi = sanBayDi;
+    }
+
+    public String getSanBayDen() {
+        return sanBayDen;
+    }
+
+    public void setSanBayDen(String sanBayDen) {
+        this.sanBayDen = sanBayDen;
+    }
+
+    public Timestamp getNgayGioDi() {
+        return ngayGioDi;
+    }
+
+    public void setNgayGioDi(Timestamp ngayGioDi) {
+        this.ngayGioDi = ngayGioDi;
+    }
+
+    
 }
