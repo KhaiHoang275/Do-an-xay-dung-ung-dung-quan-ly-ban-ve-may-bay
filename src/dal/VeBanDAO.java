@@ -292,25 +292,25 @@ public class VeBanDAO {
     public List<VeBan> selectByMaPhieuDatVe(String maPhieu) {
         List<VeBan> list = new ArrayList<>();
         String sql = """
-SELECT 
-    vb.maVe,
-    vb.maPhieuDatVe,
-    vb.maChuyenBay,
-    vb.loaiHK,
-    vb.loaiVe,
-    vb.giaVe,
-    vb.trangThaiVe,
+        SELECT 
+            vb.maVe,
+            vb.maPhieuDatVe,
+            vb.maChuyenBay,
+            vb.loaiHK,
+            vb.loaiVe,
+            vb.giaVe,
+            vb.trangThaiVe,
 
-    tb.sanBayDi,
-    tb.sanBayDen,
-    cb.ngayGioDi
+            tb.sanBayDi,
+            tb.sanBayDen,
+            cb.ngayGioDi
 
-FROM VeBan vb
-JOIN ChuyenBay cb ON vb.maChuyenBay = cb.maChuyenBay
-JOIN TuyenBay tb ON cb.maTuyenBay = tb.maTuyenBay
+        FROM VeBan vb
+        JOIN ChuyenBay cb ON vb.maChuyenBay = cb.maChuyenBay
+        JOIN TuyenBay tb ON cb.maTuyenBay = tb.maTuyenBay
 
-WHERE vb.maPhieuDatVe = ?
-""";
+        WHERE vb.maPhieuDatVe = ?
+        """;
 
         try (Connection con = DBConnection.getConnection();
             PreparedStatement ps = con.prepareStatement(sql)) {
