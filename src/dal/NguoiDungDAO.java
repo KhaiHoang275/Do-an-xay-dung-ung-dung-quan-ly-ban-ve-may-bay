@@ -27,7 +27,6 @@ public class NguoiDungDAO {
                 }
                 
                 nd.setPhanQuyen(rs.getString("phanQuyen"));
-                nd.setThanhPho(rs.getString("thanhPho"));
                 nd.setTrangThaiTK(NguoiDung.TrangThai.fromString(rs.getString("trangThaiTK")));
                 list.add(nd);
             }
@@ -48,10 +47,9 @@ public class NguoiDungDAO {
             ps.setString(3, nd.getPassword()); 
             ps.setString(4, nd.getEmail());
             ps.setString(5, nd.getSoDienThoai());
-            ps.setDate(6, java.sql.Date.valueOf(nd.getNgayTao())); 
-            ps.setString(7, nd.getThanhPho());
-            ps.setString(8, nd.getPhanQuyen());
-            ps.setString(9, nd.getTrangThaiTK().getValue()); 
+            ps.setDate(6, java.sql.Date.valueOf(nd.getNgayTao()));
+            ps.setString(7, nd.getPhanQuyen());
+            ps.setString(8, nd.getTrangThaiTK().getValue());
             
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -61,16 +59,15 @@ public class NguoiDungDAO {
     }
 
     public boolean update(NguoiDung nd) {
-        String sql = "UPDATE NguoiDung SET email=?, sdt=?, phanQuyen=?, thanhPho=?, trangThaiTK=? WHERE maNguoiDung=?";
+        String sql = "UPDATE NguoiDung SET email=?, sdt=?, phanQuyen=?, trangThaiTK=? WHERE maNguoiDung=?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             
             ps.setString(1, nd.getEmail());
             ps.setString(2, nd.getSoDienThoai());
             ps.setString(3, nd.getPhanQuyen());
-            ps.setString(4, nd.getThanhPho());
-            ps.setString(5, nd.getTrangThaiTK().getValue());
-            ps.setString(6, nd.getMaNguoiDung()); 
+            ps.setString(4, nd.getTrangThaiTK().getValue());
+            ps.setString(5, nd.getMaNguoiDung());
             
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -115,8 +112,6 @@ public class NguoiDungDAO {
                     if (rs.getDate("ngayTao") != null) {
                         nd.setNgayTao(rs.getDate("ngayTao").toLocalDate());
                     }
-                    
-                    nd.setThanhPho(rs.getString("thanhPho"));
                     nd.setPhanQuyen(rs.getString("phanQuyen"));
                     nd.setTrangThaiTK(NguoiDung.TrangThai.fromString(rs.getString("trangThaiTK")));
                     return nd; 
@@ -157,8 +152,7 @@ public class NguoiDungDAO {
                 nd.setSoDienThoai(rs.getString("sdt"));
                 if (rs.getTimestamp("ngayTao") != null) {
                     nd.setNgayTao(rs.getTimestamp("ngayTao").toLocalDateTime().toLocalDate());
-                } 
-                nd.setThanhPho(rs.getString("thanhPho"));
+                }
                 nd.setPhanQuyen(rs.getString("phanQuyen"));
                 nd.setTrangThaiTK(NguoiDung.TrangThai.fromString(rs.getString("trangThaiTK")));
             }

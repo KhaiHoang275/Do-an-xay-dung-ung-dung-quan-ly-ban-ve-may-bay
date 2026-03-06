@@ -27,8 +27,7 @@ public class NguoiDung {
     private String email; 
     private String sdt; 
     private LocalDate ngayTao;
-    private String phan_quyen; 
-    private String thanhPho;
+    private String phan_quyen;
     private TrangThai trangThaiTK;
 
     public NguoiDung() {
@@ -40,9 +39,8 @@ public class NguoiDung {
         ngayTao = LocalDate.of(1, 1, 1);
         phan_quyen = ""; 
         trangThaiTK = TrangThai.HOAT_DONG;
-        thanhPho = "";
     }
-    public NguoiDung(String maNguoiDung, String username, String password, String email, String sdt, LocalDate ngayTao, String phan_quyen, TrangThai trangThaiTK, String thanhPho) {
+    public NguoiDung(String maNguoiDung, String username, String password, String email, String sdt, LocalDate ngayTao, String phan_quyen, TrangThai trangThaiTK) {
         this.maNguoiDung = maNguoiDung; 
         this.username = username; 
         this.password = password; 
@@ -51,7 +49,6 @@ public class NguoiDung {
         this.ngayTao = ngayTao;
         this.phan_quyen = phan_quyen; 
         this.trangThaiTK = trangThaiTK;
-        this.thanhPho = thanhPho;
     } 
 
     public NguoiDung(NguoiDung nd) {
@@ -62,8 +59,7 @@ public class NguoiDung {
         this.sdt = nd.sdt; 
         this.ngayTao = nd.ngayTao;
         this.phan_quyen = nd.phan_quyen; 
-        this.trangThaiTK = nd.trangThaiTK;  
-        this.thanhPho = nd.thanhPho;
+        this.trangThaiTK = nd.trangThaiTK;
     } 
 
     public void setMaNguoiDung(String maNguoiDung) {
@@ -115,17 +111,11 @@ public class NguoiDung {
     public TrangThai getTrangThaiTK() {
         return trangThaiTK; 
     }
-    public void setThanhPho(String thanhPho) {
-        this.thanhPho = thanhPho;
-    }
-    public String getThanhPho() {
-        return thanhPho;
-    }
 
     public String toString() {
         return " " + maNguoiDung + " " + username + " " + password
                 + " " + email + " " + sdt + " " + ngayTao + " " + phan_quyen
-                + " " + trangThaiTK + " " + thanhPho;
+                + " " + trangThaiTK;
     }
     
 }

@@ -762,8 +762,7 @@ public class UserInfoFrm extends javax.swing.JFrame {
     this.currentHK.setNgaySinh(ngaySinhMoi); 
 
     currentUser.setEmail(emailMoi);
-    currentUser.setSoDienThoai(sdtMoi); 
-    currentUser.setThanhPho(thanhPhoMoi);
+    currentUser.setSoDienThoai(sdtMoi);
 
     bll.NguoiDungBUS ndBus = new bll.NguoiDungBUS();
     boolean successHK = false;
@@ -834,8 +833,7 @@ public class UserInfoFrm extends javax.swing.JFrame {
     }
 
     EmailUser.setText(currentUser.getEmail() != null ? currentUser.getEmail() : "");
-    PhoneUser.setText(currentUser.getSoDienThoai() != null ? currentUser.getSoDienThoai() : ""); 
-    btnAddress.setText(currentUser.getThanhPho() != null && !currentUser.getThanhPho().isEmpty() ? currentUser.getThanhPho() : "Chọn thành phố");
+    PhoneUser.setText(currentUser.getSoDienThoai() != null ? currentUser.getSoDienThoai() : "");
 
     dal.ThongTinHanhKhachDAO hkDao = new dal.ThongTinHanhKhachDAO();
     this.currentHK = hkDao.selectByMaNguoiDung(currentUser.getMaNguoiDung());

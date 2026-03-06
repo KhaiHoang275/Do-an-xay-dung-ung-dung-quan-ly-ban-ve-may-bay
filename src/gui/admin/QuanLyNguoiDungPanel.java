@@ -196,7 +196,6 @@ public class QuanLyNguoiDungPanel extends JPanel {
                 nd.getSoDienThoai(),
                 nd.getPhanQuyen(),
                 nd.getNgayTao(),
-                nd.getThanhPho(),
                 nd.getTrangThaiTK().getValue()
             };
             tableModel.addRow(row);
@@ -324,7 +323,6 @@ public class QuanLyNguoiDungPanel extends JPanel {
         nd.setPassword(pass);
         nd.setEmail(txtEmail.getText().trim());
         nd.setSoDienThoai(txtSdt.getText().trim());
-        nd.setThanhPho(txtThanhPho.getText().trim());
         nd.setPhanQuyen(cboPhanQuyen.getSelectedItem().toString());
         nd.setTrangThaiTK(NguoiDung.TrangThai.fromString(cboTrangThai.getSelectedItem().toString()));
         nd.setNgayTao(LocalDate.now());
