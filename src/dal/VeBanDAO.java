@@ -1,6 +1,10 @@
 package dal;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -61,6 +65,33 @@ public class VeBanDAO {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public boolean insert(VeBan v, Connection conn) throws SQLException {
+        String sql = """
+            INSERT INTO VeBan
+            (maVe, maPhieuDatVe, maChuyenBay, maHK, maGhe,
+            maHangVe, loaiVe, loaiHK, giaVe, trangThaiVe)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """;
+
+        String maVe = generateMaVe(conn);
+        v.setMaVe(maVe);
+
+        PreparedStatement ps = conn.prepareStatement(sql);
+
+        ps.setString(1, v.getMaVe());
+        ps.setString(2, v.getMaPhieuDatVe());
+        ps.setString(3, v.getMaChuyenBay());
+        ps.setString(4, v.getMaHK());
+        ps.setString(5, v.getMaGhe());
+        ps.setString(6, v.getMaHangVe());
+        ps.setString(7, v.getLoaiVe());
+        ps.setString(8, v.getLoaiHK());
+        ps.setBigDecimal(9, v.getGiaVe());
+        ps.setString(10, v.getTrangThaiVe());
+
+        return ps.executeUpdate() > 0;
     }
 
     public boolean update(VeBan vb){
@@ -285,7 +316,26 @@ public class VeBanDAO {
 
     public List<VeBan> selectByMaPhieuDatVe(String maPhieu) {
         List<VeBan> list = new ArrayList<>();
-        String sql = "SELECT * FROM VeBan WHERE maPhieuDatVe = ?";
+        String sql = """
+        SELECT 
+            vb.maVe,
+            vb.maPhieuDatVe,
+            vb.maChuyenBay,
+            vb.loaiHK,
+            vb.loaiVe,
+            vb.giaVe,
+            vb.trangThaiVe,
+
+            tb.sanBayDi,
+            tb.sanBayDen,
+            cb.ngayGioDi
+
+        FROM VeBan vb
+        JOIN ChuyenBay cb ON vb.maChuyenBay = cb.maChuyenBay
+        JOIN TuyenBay tb ON cb.maTuyenBay = tb.maTuyenBay
+
+        WHERE vb.maPhieuDatVe = ?
+        """;
 
         try (Connection con = DBConnection.getConnection();
             PreparedStatement ps = con.prepareStatement(sql)) {
@@ -302,6 +352,11 @@ public class VeBanDAO {
                 v.setLoaiVe(rs.getString("loaiVe"));
                 v.setGiaVe(rs.getBigDecimal("giaVe"));
                 v.setTrangThaiVe(rs.getString("trangThaiVe"));
+
+                v.setSanBayDi(rs.getString("sanBayDi"));
+                v.setSanBayDen(rs.getString("sanBayDen"));
+                v.setNgayGioDi(rs.getTimestamp("ngayGioDi"));
+
                 list.add(v);
             }
         } catch (Exception e) {
@@ -309,5 +364,99 @@ public class VeBanDAO {
             e.printStackTrace();
         }
         return list;
+    }
+
+    public List<VeBan> search(String keyword, String trangThai) {
+    List<VeBan> list = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT * FROM VeBan WHERE 1=1 ");
+
+        // Nếu có keyword
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append("AND (maVe LIKE ? OR maPhieuDatVe LIKE ?) ");
+        }
+
+        // Nếu có trạng thái
+        if (trangThai != null && !trangThai.equals("Tất cả") && !trangThai.isEmpty()) {
+            sql.append("AND trangThaiVe LIKE ? ");
+        }
+
+        try (Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+
+            int index = 1;
+
+            // Set keyword
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                ps.setString(index++, "%" + keyword.trim() + "%");
+                ps.setString(index++, "%" + keyword.trim() + "%");
+            }
+
+            // Set trạng thái
+            if (trangThai != null && !trangThai.equals("Tất cả") && !trangThai.isEmpty()) {
+                ps.setString(index++, trangThai.trim() + "%");
+            }
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                VeBan v = new VeBan();
+
+                v.setMaVe(rs.getString("maVe"));
+                v.setMaPhieuDatVe(rs.getString("maPhieuDatVe"));
+                v.setMaChuyenBay(rs.getString("maChuyenBay"));
+                v.setLoaiHK(rs.getString("loaiHK"));
+                v.setLoaiVe(rs.getString("loaiVe"));
+                v.setGiaVe(rs.getBigDecimal("giaVe"));
+                v.setTrangThaiVe(rs.getString("trangThaiVe"));
+
+                list.add(v);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    public BigDecimal tinhGiaVeFull(String maChuyenBay,
+                                String maHangVe,
+                                String loaiHK) {
+        
+        ChuyenBayDAO cbDAO = new ChuyenBayDAO();
+        HangVeDAO hvDAO = new HangVeDAO();
+        HeSoGiaDAO hsgDAO = new HeSoGiaDAO();
+        
+
+        BigDecimal giaGoc = cbDAO.layGiaCoBan(maChuyenBay);
+        BigDecimal heSoHang = hvDAO.layHeSoHangVe(maHangVe);
+
+        // Lấy ngày bay
+        LocalDateTime ngayBay = cbDAO.layNgayBay(maChuyenBay);
+        LocalDateTime ngayDat = LocalDateTime.now();
+
+        long soGio = ChronoUnit.HOURS.between(ngayDat, ngayBay);
+
+        BigDecimal heSoThoiDiem = hsgDAO.layHeSoTheoSoGio(soGio);
+
+        BigDecimal heSoLoaiHK;
+
+        switch (loaiHK) {
+            case "Trẻ em":
+                heSoLoaiHK = new BigDecimal("0.5");
+                break;
+            case "Em bé":
+                heSoLoaiHK = new BigDecimal("0.2");
+                break;
+            default:
+                heSoLoaiHK = BigDecimal.ONE;
+        }
+        
+
+        return giaGoc
+                .multiply(heSoHang)
+                .multiply(heSoThoiDiem)
+                .multiply(heSoLoaiHK)
+                .setScale(0, RoundingMode.HALF_UP);
     }
 }
