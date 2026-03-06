@@ -128,13 +128,14 @@ public class NguoiDungDAO {
         return null; 
     }
 
-    public boolean delete(String mand) {
-        String sql = "DELETE FROM NguoiDung WHERE maNguoiDung=?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, mand);
+    public boolean delete(String maNguoiDung) {
+     
+        String sql = "UPDATE NguoiDung SET trangThaiTK = N'Ngừng hoạt động' WHERE maNguoiDung = ?";
+        try (java.sql.Connection conn = db.DBConnection.getConnection();
+             java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maNguoiDung);
             return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
+        } catch (java.sql.SQLException e) {
             e.printStackTrace();
         }
         return false;

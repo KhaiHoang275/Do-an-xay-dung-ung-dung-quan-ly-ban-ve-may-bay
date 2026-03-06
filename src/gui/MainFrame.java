@@ -695,31 +695,29 @@ public class MainFrame extends javax.swing.JFrame {
     }
 
     private void capNhatHaiComboBox(javax.swing.JComboBox cbTu, javax.swing.JComboBox cbDen, model.SanBay selTu, model.SanBay selDen) {
-        isUpdatingCombo = true;
-        
-        // 1. Cập nhật ô TỪ (Giấu sân bay đang nằm ở ô ĐẾN)
-        cbTu.removeAllItems();
-        cbTu.addItem(new model.SanBay("", "", "", "Chọn thành phố"));
-        for (model.SanBay sb : danhSachSanBayGoc) {
-            if (selDen == null || selDen.getMaSanBay().isEmpty() || !sb.getMaSanBay().equals(selDen.getMaSanBay())) {
-                cbTu.addItem(sb);
-            }
+    isUpdatingCombo = true;
+    
+    cbTu.removeAllItems();
+    cbTu.addItem(new model.SanBay("", "", "", "Chọn thành phố", model.SanBay.TrangThai.HOAT_DONG));
+    for (model.SanBay sb : danhSachSanBayGoc) {
+        if (selDen == null || selDen.getMaSanBay().isEmpty() || !sb.getMaSanBay().equals(selDen.getMaSanBay())) {
+            cbTu.addItem(sb);
         }
-        setComboSelection(cbTu, selTu);
-        
-        // 2. Cập nhật ô ĐẾN (Giấu sân bay đang nằm ở ô TỪ)
-        cbDen.removeAllItems();
-        cbDen.addItem(new model.SanBay("", "", "", "Chọn thành phố"));
-        for (model.SanBay sb : danhSachSanBayGoc) {
-            if (selTu == null || selTu.getMaSanBay().isEmpty() || !sb.getMaSanBay().equals(selTu.getMaSanBay())) {
-                cbDen.addItem(sb);
-            }
-        }
-        setComboSelection(cbDen, selDen);
-        
-        isUpdatingCombo = false;
     }
-
+    setComboSelection(cbTu, selTu);
+    
+    cbDen.removeAllItems();
+    cbDen.addItem(new model.SanBay("", "", "", "Chọn thành phố", model.SanBay.TrangThai.HOAT_DONG));
+    for (model.SanBay sb : danhSachSanBayGoc) {
+        if (selTu == null || selTu.getMaSanBay().isEmpty() || !sb.getMaSanBay().equals(selTu.getMaSanBay())) {
+            cbDen.addItem(sb);
+        }
+    }
+    setComboSelection(cbDen, selDen);
+    
+    isUpdatingCombo = false;
+}
+    
     private void setComboSelection(javax.swing.JComboBox cb, model.SanBay target) {
         if (target == null || target.getMaSanBay().isEmpty()) { cb.setSelectedIndex(0); return; }
         for (int i = 0; i < cb.getItemCount(); i++) {

@@ -15,7 +15,7 @@ public class UIHelper {
         System.out.println("========== KIỂM TRA DATABASE ==========");
         System.out.println("Số lượng sân bay lấy được từ SQL: " + listSanBay.size());
 
-        SanBay defaultItem = new SanBay("", "", "", "Chọn thành phố");
+        SanBay defaultItem = new SanBay("", "", "", "Chọn thành phố", SanBay.TrangThai.HOAT_DONG);
       
         for (JComboBox cb : comboBoxes) {
             cb.removeAllItems();

@@ -1,7 +1,7 @@
 package gui.admin;
 
-import bll.NguoiDungBUS;
-import model.NguoiDung;
+import bll.NhanVienBUS;
+import model.NhanVien;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -13,17 +13,20 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 
-public class QuanLyNguoiDungPanel extends JPanel {
+public class QuanLyNhanVienPanel extends JPanel {
 
     private JTable table;
     private DefaultTableModel tableModel;
-    private JTextField txtMaNguoiDung, txtUsername, txtPassword, txtEmail, txtSdt, txtThanhPho, txtTimKiem;
-    private JComboBox<String> cboPhanQuyen, cboTrangThai, cboHienThi;
+    private JTextField txtMaNV, txtMaNguoiDung, txtHoTen, txtChucVu, txtTimKiem;
+    private JSpinner spinnerNgayVaoLam;
+    private JComboBox<String> cboTrangThai, cboHienThi;
     private JButton btnThem, btnCapNhat, btnXoa, btnLamMoi, btnTimKiem;
 
-    private NguoiDungBUS nguoiDungBUS;
+    private NhanVienBUS nhanVienBUS;
 
     private final Color PRIMARY = new Color(220, 38, 38);
     private final Color BG_MAIN = new Color(245, 247, 250);
@@ -33,8 +36,8 @@ public class QuanLyNguoiDungPanel extends JPanel {
     private final Color BTN_DELETE = new Color(239, 68, 68);
     private final Color BTN_REFRESH = new Color(168, 162, 158);
 
-    public QuanLyNguoiDungPanel() {
-        nguoiDungBUS = new NguoiDungBUS();
+    public QuanLyNhanVienPanel() {
+        nhanVienBUS = new NhanVienBUS();
         setLayout(new BorderLayout(10, 10));
         setBackground(BG_MAIN);
         setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -43,57 +46,54 @@ public class QuanLyNguoiDungPanel extends JPanel {
         add(initTable(), BorderLayout.CENTER);
 
         setupActions();
-        loadDataToTable(nguoiDungBUS.getAllNguoiDung());
+        loadDataToTable(nhanVienBUS.getAllNhanVien());
     }
 
     private JPanel initForm() {
         JPanel panelNorth = new JPanel(new BorderLayout(10, 10));
         panelNorth.setBackground(BG_MAIN);
 
-        JLabel lblTitle = new JLabel("QUẢN LÝ NGƯỜI DÙNG", JLabel.LEFT);
+        JLabel lblTitle = new JLabel("QUẢN LÝ NHÂN VIÊN", JLabel.LEFT);
         lblTitle.setFont(new Font("Arial", Font.BOLD, 22));
         lblTitle.setForeground(PRIMARY);
         lblTitle.setBorder(BorderFactory.createEmptyBorder(0, 5, 10, 0));
         panelNorth.add(lblTitle, BorderLayout.NORTH);
 
-        JPanel pnlForm = new JPanel(new GridLayout(4, 4, 15, 15));
+        JPanel pnlForm = new JPanel(new GridLayout(3, 4, 15, 15));
         pnlForm.setBackground(Color.WHITE);
         pnlForm.setBorder(BorderFactory.createCompoundBorder(
-                new TitledBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY), "Thông tin người dùng", TitledBorder.LEFT, TitledBorder.TOP, new Font("Arial", Font.BOLD, 14)),
+                new TitledBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY), "Thông tin Nhân viên", TitledBorder.LEFT, TitledBorder.TOP, new Font("Arial", Font.BOLD, 14)),
                 new EmptyBorder(15, 15, 15, 15)
         ));
 
-        pnlForm.add(new JLabel("Mã Người Dùng (*):"));
+        pnlForm.add(new JLabel("Mã Nhân Viên (*):"));
+        txtMaNV = new JTextField();
+        pnlForm.add(txtMaNV);
+
+        pnlForm.add(new JLabel("Mã Người Dùng:"));
         txtMaNguoiDung = new JTextField();
         pnlForm.add(txtMaNguoiDung);
 
-        pnlForm.add(new JLabel("Username (*):"));
-        txtUsername = new JTextField();
-        pnlForm.add(txtUsername);
+        pnlForm.add(new JLabel("Họ và Tên (*):"));
+        txtHoTen = new JTextField();
+        pnlForm.add(txtHoTen);
 
-        pnlForm.add(new JLabel("Password (*):"));
-        txtPassword = new JTextField();
-        pnlForm.add(txtPassword);
+        pnlForm.add(new JLabel("Chức Vụ:"));
+        txtChucVu = new JTextField();
+        pnlForm.add(txtChucVu);
 
-        pnlForm.add(new JLabel("Email:"));
-        txtEmail = new JTextField();
-        pnlForm.add(txtEmail);
-
-        pnlForm.add(new JLabel("Số Điện Thoại:"));
-        txtSdt = new JTextField();
-        pnlForm.add(txtSdt);
-
-        pnlForm.add(new JLabel("Thành Phố:"));
-        txtThanhPho = new JTextField();
-        pnlForm.add(txtThanhPho);
-
-        pnlForm.add(new JLabel("Phân Quyền:"));
-        cboPhanQuyen = new JComboBox<>(new String[]{"KhachHang", "NhanVien", "Admin"});
-        pnlForm.add(cboPhanQuyen);
+        pnlForm.add(new JLabel("Ngày Vào Làm:"));
+        spinnerNgayVaoLam = new JSpinner(new SpinnerDateModel());
+        JSpinner.DateEditor dateEditor = new JSpinner.DateEditor(spinnerNgayVaoLam, "dd/MM/yyyy");
+        spinnerNgayVaoLam.setEditor(dateEditor);
+        pnlForm.add(spinnerNgayVaoLam);
 
         pnlForm.add(new JLabel("Trạng Thái:"));
         cboTrangThai = new JComboBox<>(new String[]{"Hoạt động", "Ngừng hoạt động"});
         pnlForm.add(cboTrangThai);
+        
+        pnlForm.add(new JLabel(""));
+        pnlForm.add(new JLabel(""));
 
         JPanel pnlActions = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         pnlActions.setBackground(BG_MAIN);
@@ -108,7 +108,6 @@ public class QuanLyNguoiDungPanel extends JPanel {
         pnlActions.add(btnXoa);
         pnlActions.add(btnLamMoi);
 
-        // --- TÌM KIẾM VÀ BỘ LỌC THÙNG RÁC ---
         JPanel pnlSearch = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         pnlSearch.setBackground(BG_MAIN);
         
@@ -120,7 +119,7 @@ public class QuanLyNguoiDungPanel extends JPanel {
         
         pnlSearch.add(new JLabel("Chế độ xem: "));
         pnlSearch.add(cboHienThi);
-        pnlSearch.add(new JLabel(" | Tìm Username/Email: "));
+        pnlSearch.add(new JLabel(" | Tìm Mã NV/Họ Tên: "));
         pnlSearch.add(txtTimKiem);
         pnlSearch.add(btnTimKiem);
 
@@ -140,12 +139,10 @@ public class QuanLyNguoiDungPanel extends JPanel {
         pnlTable.setBackground(Color.WHITE);
         pnlTable.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        String[] cols = {"Mã ND", "Username", "Email", "SĐT", "Phân Quyền", "Ngày Tạo", "Thành Phố", "Trạng Thái"};
+        String[] cols = {"Mã NV", "Mã User", "Họ Tên", "Chức Vụ", "Ngày Vào Làm", "Trạng Thái"};
         tableModel = new DefaultTableModel(cols, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
+            public boolean isCellEditable(int row, int column) { return false; }
         };
 
         table = new JTable(tableModel);
@@ -186,18 +183,16 @@ public class QuanLyNguoiDungPanel extends JPanel {
         return btn;
     }
 
-    private void loadDataToTable(ArrayList<NguoiDung> list) {
+    private void loadDataToTable(ArrayList<NhanVien> list) {
         tableModel.setRowCount(0);
-        for (NguoiDung nd : list) {
-            Object[] row = {
-                nd.getMaNguoiDung(),
-                nd.getUsername(),
-                nd.getEmail(),
-                nd.getSoDienThoai(),
-                nd.getPhanQuyen(),
-                nd.getNgayTao(),
-                nd.getThanhPho(),
-                nd.getTrangThaiTK().getValue()
+        for (NhanVien nv : list) {
+            Object[] row = { 
+                nv.getMaNV(), 
+                nv.getMaNguoiDung(), 
+                nv.getHoTen(), 
+                nv.getChucVu(), 
+                nv.getNgayVaoLam(),
+                nv.getTrangThaiLamViec().getValue()
             };
             tableModel.addRow(row);
         }
@@ -207,10 +202,10 @@ public class QuanLyNguoiDungPanel extends JPanel {
         cboHienThi.addActionListener(e -> {
             txtTimKiem.setText("");
             if (cboHienThi.getSelectedIndex() == 1) {
-                loadDataToTable(nguoiDungBUS.getNguoiDungTrongThungRac());
-                btnXoa.setEnabled(false); 
+                loadDataToTable(nhanVienBUS.getNhanVienTrongThungRac());
+                btnXoa.setEnabled(false);
             } else {
-                loadDataToTable(nguoiDungBUS.getAllNguoiDung());
+                loadDataToTable(nhanVienBUS.getAllNhanVien());
                 btnXoa.setEnabled(true);
             }
         });
@@ -220,82 +215,73 @@ public class QuanLyNguoiDungPanel extends JPanel {
             public void mouseClicked(MouseEvent e) {
                 int row = table.getSelectedRow();
                 if (row >= 0) {
-                    txtMaNguoiDung.setText(tableModel.getValueAt(row, 0).toString());
-                    txtMaNguoiDung.setEditable(false);
-                    txtUsername.setText(tableModel.getValueAt(row, 1).toString());
+                    txtMaNV.setText(tableModel.getValueAt(row, 0).toString());
+                    txtMaNV.setEditable(false);
+                    txtMaNguoiDung.setText(tableModel.getValueAt(row, 1) != null ? tableModel.getValueAt(row, 1).toString() : "");
+                    txtHoTen.setText(tableModel.getValueAt(row, 2) != null ? tableModel.getValueAt(row, 2).toString() : "");
+                    txtChucVu.setText(tableModel.getValueAt(row, 3) != null ? tableModel.getValueAt(row, 3).toString() : "");
                     
-                    Object email = tableModel.getValueAt(row, 2);
-                    txtEmail.setText(email != null ? email.toString() : "");
+                    Object dateObj = tableModel.getValueAt(row, 4);
+                    if (dateObj instanceof LocalDate) {
+                        Date date = Date.from(((LocalDate) dateObj).atStartOfDay(ZoneId.systemDefault()).toInstant());
+                        spinnerNgayVaoLam.setValue(date);
+                    }
                     
-                    Object sdt = tableModel.getValueAt(row, 3);
-                    txtSdt.setText(sdt != null ? sdt.toString() : "");
-                    
-                    cboPhanQuyen.setSelectedItem(tableModel.getValueAt(row, 4).toString());
-                    
-                    Object thanhPho = tableModel.getValueAt(row, 6);
-                    txtThanhPho.setText(thanhPho != null ? thanhPho.toString() : "");
-                    
-                    cboTrangThai.setSelectedItem(tableModel.getValueAt(row, 7).toString());
-                    txtPassword.setText("");
+                    cboTrangThai.setSelectedItem(tableModel.getValueAt(row, 5).toString());
                 }
             }
         });
 
         btnLamMoi.addActionListener(e -> {
+            txtMaNV.setText("");
+            txtMaNV.setEditable(true);
             txtMaNguoiDung.setText("");
-            txtMaNguoiDung.setEditable(true);
-            txtUsername.setText("");
-            txtPassword.setText("");
-            txtEmail.setText("");
-            txtSdt.setText("");
-            txtThanhPho.setText("");
-            cboPhanQuyen.setSelectedIndex(0);
+            txtHoTen.setText("");
+            txtChucVu.setText("");
+            spinnerNgayVaoLam.setValue(new Date());
             cboTrangThai.setSelectedIndex(0);
             txtTimKiem.setText("");
             table.clearSelection();
             
-        
             if (cboHienThi.getSelectedIndex() == 1) {
-                loadDataToTable(nguoiDungBUS.getNguoiDungTrongThungRac());
+                loadDataToTable(nhanVienBUS.getNhanVienTrongThungRac());
             } else {
-                loadDataToTable(nguoiDungBUS.getAllNguoiDung());
+                loadDataToTable(nhanVienBUS.getAllNhanVien());
             }
         });
 
         btnThem.addActionListener(e -> {
             try {
-                NguoiDung nd = getFormInput(false);
-                String result = nguoiDungBUS.themNguoiDung(nd);
+                Date d = (Date) spinnerNgayVaoLam.getValue();
+                LocalDate ngayVaoLam = d.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                NhanVien.TrangThai tt = NhanVien.TrangThai.fromString(cboTrangThai.getSelectedItem().toString());
+                
+                NhanVien nv = new NhanVien(txtMaNV.getText().trim(), txtMaNguoiDung.getText().trim(), txtHoTen.getText().trim(), txtChucVu.getText().trim(), ngayVaoLam, tt);
+                String result = nhanVienBUS.themNhanVien(nv);
                 JOptionPane.showMessageDialog(this, result);
                 if (result.contains("thành công")) btnLamMoi.doClick();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
-            }
+            } catch (Exception ex) { JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage()); }
         });
 
         btnCapNhat.addActionListener(e -> {
-            if (table.getSelectedRow() == -1) {
-                JOptionPane.showMessageDialog(this, "Vui lòng chọn người dùng cần cập nhật!");
-                return;
-            }
+            if (table.getSelectedRow() == -1) { JOptionPane.showMessageDialog(this, "Chọn nhân viên cần sửa!"); return; }
             try {
-                NguoiDung nd = getFormInput(true);
-                String result = nguoiDungBUS.suaNguoiDung(nd);
+                Date d = (Date) spinnerNgayVaoLam.getValue();
+                LocalDate ngayVaoLam = d.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                NhanVien.TrangThai tt = NhanVien.TrangThai.fromString(cboTrangThai.getSelectedItem().toString());
+                
+                NhanVien nv = new NhanVien(txtMaNV.getText().trim(), txtMaNguoiDung.getText().trim(), txtHoTen.getText().trim(), txtChucVu.getText().trim(), ngayVaoLam, tt);
+                String result = nhanVienBUS.suaNhanVien(nv);
                 JOptionPane.showMessageDialog(this, result);
                 if (result.contains("thành công")) btnLamMoi.doClick();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
-            }
+            } catch (Exception ex) { JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage()); }
         });
 
         btnXoa.addActionListener(e -> {
-            if (table.getSelectedRow() == -1) {
-                JOptionPane.showMessageDialog(this, "Vui lòng chọn người dùng cần xóa!");
-                return;
-            }
-            int confirm = JOptionPane.showConfirmDialog(this, "Đưa người dùng này vào thùng rác?", "Xác nhận", JOptionPane.YES_NO_OPTION);
+            if (table.getSelectedRow() == -1) { JOptionPane.showMessageDialog(this, "Chọn nhân viên cần đưa vào thùng rác!"); return; }
+            int confirm = JOptionPane.showConfirmDialog(this, "Xác nhận đưa nhân viên này vào thùng rác?", "Xóa", JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
-                String result = nguoiDungBUS.xoaNguoiDung(txtMaNguoiDung.getText());
+                String result = nhanVienBUS.xoaNhanVien(txtMaNV.getText().trim());
                 JOptionPane.showMessageDialog(this, result);
                 if (result.contains("thùng rác")) btnLamMoi.doClick();
             }
@@ -304,31 +290,8 @@ public class QuanLyNguoiDungPanel extends JPanel {
         btnTimKiem.addActionListener(e -> {
             String keyword = txtTimKiem.getText();
             boolean isTrash = cboHienThi.getSelectedIndex() == 1;
-            ArrayList<NguoiDung> ketQua = nguoiDungBUS.timKiemNguoiDung(keyword, isTrash);
+            ArrayList<NhanVien> ketQua = nhanVienBUS.timKiemNhanVien(keyword, isTrash);
             loadDataToTable(ketQua);
         });
-    }
-
-    private NguoiDung getFormInput(boolean isUpdate) throws Exception {
-        String ma = txtMaNguoiDung.getText().trim();
-        String user = txtUsername.getText().trim();
-        String pass = txtPassword.getText().trim();
-        
-        if (ma.isEmpty()) throw new Exception("Mã người dùng không được để trống!");
-        if (user.isEmpty()) throw new Exception("Tên đăng nhập không được để trống!");
-        if (!isUpdate && pass.isEmpty()) throw new Exception("Mật khẩu không được để trống khi thêm mới!");
-
-        NguoiDung nd = new NguoiDung();
-        nd.setMaNguoiDung(ma);
-        nd.setUsername(user);
-        nd.setPassword(pass);
-        nd.setEmail(txtEmail.getText().trim());
-        nd.setSoDienThoai(txtSdt.getText().trim());
-        nd.setThanhPho(txtThanhPho.getText().trim());
-        nd.setPhanQuyen(cboPhanQuyen.getSelectedItem().toString());
-        nd.setTrangThaiTK(NguoiDung.TrangThai.fromString(cboTrangThai.getSelectedItem().toString()));
-        nd.setNgayTao(LocalDate.now());
-
-        return nd;
     }
 }

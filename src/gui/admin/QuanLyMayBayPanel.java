@@ -1,7 +1,7 @@
 package gui.admin;
 
-import bll.NguoiDungBUS;
-import model.NguoiDung;
+import bll.MayBayBUS;
+import model.MayBay;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -12,18 +12,18 @@ import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.time.LocalDate;
 import java.util.ArrayList;
 
-public class QuanLyNguoiDungPanel extends JPanel {
+public class QuanLyMayBayPanel extends JPanel {
 
     private JTable table;
     private DefaultTableModel tableModel;
-    private JTextField txtMaNguoiDung, txtUsername, txtPassword, txtEmail, txtSdt, txtThanhPho, txtTimKiem;
-    private JComboBox<String> cboPhanQuyen, cboTrangThai, cboHienThi;
+    private JTextField txtMaMayBay, txtSoHieu, txtHangSanXuat, txtTimKiem;
+    private JSpinner spinnerTongSoGhe;
+    private JComboBox<String> cboTrangThai, cboHienThi;
     private JButton btnThem, btnCapNhat, btnXoa, btnLamMoi, btnTimKiem;
 
-    private NguoiDungBUS nguoiDungBUS;
+    private MayBayBUS mayBayBUS;
 
     private final Color PRIMARY = new Color(220, 38, 38);
     private final Color BG_MAIN = new Color(245, 247, 250);
@@ -33,8 +33,8 @@ public class QuanLyNguoiDungPanel extends JPanel {
     private final Color BTN_DELETE = new Color(239, 68, 68);
     private final Color BTN_REFRESH = new Color(168, 162, 158);
 
-    public QuanLyNguoiDungPanel() {
-        nguoiDungBUS = new NguoiDungBUS();
+    public QuanLyMayBayPanel() {
+        mayBayBUS = new MayBayBUS();
         setLayout(new BorderLayout(10, 10));
         setBackground(BG_MAIN);
         setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -43,57 +43,50 @@ public class QuanLyNguoiDungPanel extends JPanel {
         add(initTable(), BorderLayout.CENTER);
 
         setupActions();
-        loadDataToTable(nguoiDungBUS.getAllNguoiDung());
+        loadDataToTable(mayBayBUS.getAllMayBay());
     }
 
     private JPanel initForm() {
         JPanel panelNorth = new JPanel(new BorderLayout(10, 10));
         panelNorth.setBackground(BG_MAIN);
 
-        JLabel lblTitle = new JLabel("QUẢN LÝ NGƯỜI DÙNG", JLabel.LEFT);
+        JLabel lblTitle = new JLabel("QUẢN LÝ MÁY BAY", JLabel.LEFT);
         lblTitle.setFont(new Font("Arial", Font.BOLD, 22));
         lblTitle.setForeground(PRIMARY);
         lblTitle.setBorder(BorderFactory.createEmptyBorder(0, 5, 10, 0));
         panelNorth.add(lblTitle, BorderLayout.NORTH);
 
-        JPanel pnlForm = new JPanel(new GridLayout(4, 4, 15, 15));
+        JPanel pnlForm = new JPanel(new GridLayout(3, 4, 15, 15));
         pnlForm.setBackground(Color.WHITE);
         pnlForm.setBorder(BorderFactory.createCompoundBorder(
-                new TitledBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY), "Thông tin người dùng", TitledBorder.LEFT, TitledBorder.TOP, new Font("Arial", Font.BOLD, 14)),
+                new TitledBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY), "Thông tin Máy bay", TitledBorder.LEFT, TitledBorder.TOP, new Font("Arial", Font.BOLD, 14)),
                 new EmptyBorder(15, 15, 15, 15)
         ));
 
-        pnlForm.add(new JLabel("Mã Người Dùng (*):"));
-        txtMaNguoiDung = new JTextField();
-        pnlForm.add(txtMaNguoiDung);
+        pnlForm.add(new JLabel("Mã Máy Bay (*):"));
+        txtMaMayBay = new JTextField();
+        pnlForm.add(txtMaMayBay);
 
-        pnlForm.add(new JLabel("Username (*):"));
-        txtUsername = new JTextField();
-        pnlForm.add(txtUsername);
+        pnlForm.add(new JLabel("Số Hiệu (*):"));
+        txtSoHieu = new JTextField();
+        pnlForm.add(txtSoHieu);
 
-        pnlForm.add(new JLabel("Password (*):"));
-        txtPassword = new JTextField();
-        pnlForm.add(txtPassword);
+        pnlForm.add(new JLabel("Hãng Sản Xuất:"));
+        txtHangSanXuat = new JTextField();
+        pnlForm.add(txtHangSanXuat);
 
-        pnlForm.add(new JLabel("Email:"));
-        txtEmail = new JTextField();
-        pnlForm.add(txtEmail);
-
-        pnlForm.add(new JLabel("Số Điện Thoại:"));
-        txtSdt = new JTextField();
-        pnlForm.add(txtSdt);
-
-        pnlForm.add(new JLabel("Thành Phố:"));
-        txtThanhPho = new JTextField();
-        pnlForm.add(txtThanhPho);
-
-        pnlForm.add(new JLabel("Phân Quyền:"));
-        cboPhanQuyen = new JComboBox<>(new String[]{"KhachHang", "NhanVien", "Admin"});
-        pnlForm.add(cboPhanQuyen);
-
+        pnlForm.add(new JLabel("Tổng Số Ghế:"));
+        spinnerTongSoGhe = new JSpinner(new SpinnerNumberModel(100, 1, 1000, 1));
+        pnlForm.add(spinnerTongSoGhe);
+        
         pnlForm.add(new JLabel("Trạng Thái:"));
         cboTrangThai = new JComboBox<>(new String[]{"Hoạt động", "Ngừng hoạt động"});
         pnlForm.add(cboTrangThai);
+
+        // Đệm ô trống
+        pnlForm.add(new JLabel(""));
+        pnlForm.add(new JLabel(""));
+        pnlForm.add(new JLabel(""));
 
         JPanel pnlActions = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         pnlActions.setBackground(BG_MAIN);
@@ -108,7 +101,6 @@ public class QuanLyNguoiDungPanel extends JPanel {
         pnlActions.add(btnXoa);
         pnlActions.add(btnLamMoi);
 
-        // --- TÌM KIẾM VÀ BỘ LỌC THÙNG RÁC ---
         JPanel pnlSearch = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         pnlSearch.setBackground(BG_MAIN);
         
@@ -120,7 +112,7 @@ public class QuanLyNguoiDungPanel extends JPanel {
         
         pnlSearch.add(new JLabel("Chế độ xem: "));
         pnlSearch.add(cboHienThi);
-        pnlSearch.add(new JLabel(" | Tìm Username/Email: "));
+        pnlSearch.add(new JLabel(" | Tìm Mã/Số hiệu: "));
         pnlSearch.add(txtTimKiem);
         pnlSearch.add(btnTimKiem);
 
@@ -140,12 +132,10 @@ public class QuanLyNguoiDungPanel extends JPanel {
         pnlTable.setBackground(Color.WHITE);
         pnlTable.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        String[] cols = {"Mã ND", "Username", "Email", "SĐT", "Phân Quyền", "Ngày Tạo", "Thành Phố", "Trạng Thái"};
+        String[] cols = {"Mã Máy Bay", "Số Hiệu", "Hãng Sản Xuất", "Tổng Số Ghế", "Trạng Thái"};
         tableModel = new DefaultTableModel(cols, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
+            public boolean isCellEditable(int row, int column) { return false; }
         };
 
         table = new JTable(tableModel);
@@ -186,18 +176,15 @@ public class QuanLyNguoiDungPanel extends JPanel {
         return btn;
     }
 
-    private void loadDataToTable(ArrayList<NguoiDung> list) {
+    private void loadDataToTable(ArrayList<MayBay> list) {
         tableModel.setRowCount(0);
-        for (NguoiDung nd : list) {
-            Object[] row = {
-                nd.getMaNguoiDung(),
-                nd.getUsername(),
-                nd.getEmail(),
-                nd.getSoDienThoai(),
-                nd.getPhanQuyen(),
-                nd.getNgayTao(),
-                nd.getThanhPho(),
-                nd.getTrangThaiTK().getValue()
+        for (MayBay mb : list) {
+            Object[] row = { 
+                mb.getMaMayBay(), 
+                mb.getSoHieu(), 
+                mb.getHangSanXuat(), 
+                mb.getTongSoGhe(),
+                mb.getTrangThai().getValue()
             };
             tableModel.addRow(row);
         }
@@ -207,10 +194,10 @@ public class QuanLyNguoiDungPanel extends JPanel {
         cboHienThi.addActionListener(e -> {
             txtTimKiem.setText("");
             if (cboHienThi.getSelectedIndex() == 1) {
-                loadDataToTable(nguoiDungBUS.getNguoiDungTrongThungRac());
-                btnXoa.setEnabled(false); 
+                loadDataToTable(mayBayBUS.getMayBayTrongThungRac());
+                btnXoa.setEnabled(false);
             } else {
-                loadDataToTable(nguoiDungBUS.getAllNguoiDung());
+                loadDataToTable(mayBayBUS.getAllMayBay());
                 btnXoa.setEnabled(true);
             }
         });
@@ -220,82 +207,68 @@ public class QuanLyNguoiDungPanel extends JPanel {
             public void mouseClicked(MouseEvent e) {
                 int row = table.getSelectedRow();
                 if (row >= 0) {
-                    txtMaNguoiDung.setText(tableModel.getValueAt(row, 0).toString());
-                    txtMaNguoiDung.setEditable(false);
-                    txtUsername.setText(tableModel.getValueAt(row, 1).toString());
+                    txtMaMayBay.setText(tableModel.getValueAt(row, 0).toString());
+                    txtMaMayBay.setEditable(false);
+                    txtSoHieu.setText(tableModel.getValueAt(row, 1) != null ? tableModel.getValueAt(row, 1).toString() : "");
+                    txtHangSanXuat.setText(tableModel.getValueAt(row, 2) != null ? tableModel.getValueAt(row, 2).toString() : "");
                     
-                    Object email = tableModel.getValueAt(row, 2);
-                    txtEmail.setText(email != null ? email.toString() : "");
+                    try {
+                        int soGhe = Integer.parseInt(tableModel.getValueAt(row, 3).toString());
+                        spinnerTongSoGhe.setValue(soGhe);
+                    } catch (Exception ex) {
+                        spinnerTongSoGhe.setValue(100);
+                    }
                     
-                    Object sdt = tableModel.getValueAt(row, 3);
-                    txtSdt.setText(sdt != null ? sdt.toString() : "");
-                    
-                    cboPhanQuyen.setSelectedItem(tableModel.getValueAt(row, 4).toString());
-                    
-                    Object thanhPho = tableModel.getValueAt(row, 6);
-                    txtThanhPho.setText(thanhPho != null ? thanhPho.toString() : "");
-                    
-                    cboTrangThai.setSelectedItem(tableModel.getValueAt(row, 7).toString());
-                    txtPassword.setText("");
+                    cboTrangThai.setSelectedItem(tableModel.getValueAt(row, 4).toString());
                 }
             }
         });
 
         btnLamMoi.addActionListener(e -> {
-            txtMaNguoiDung.setText("");
-            txtMaNguoiDung.setEditable(true);
-            txtUsername.setText("");
-            txtPassword.setText("");
-            txtEmail.setText("");
-            txtSdt.setText("");
-            txtThanhPho.setText("");
-            cboPhanQuyen.setSelectedIndex(0);
+            txtMaMayBay.setText("");
+            txtMaMayBay.setEditable(true);
+            txtSoHieu.setText("");
+            txtHangSanXuat.setText("");
+            spinnerTongSoGhe.setValue(100);
             cboTrangThai.setSelectedIndex(0);
             txtTimKiem.setText("");
             table.clearSelection();
             
-        
             if (cboHienThi.getSelectedIndex() == 1) {
-                loadDataToTable(nguoiDungBUS.getNguoiDungTrongThungRac());
+                loadDataToTable(mayBayBUS.getMayBayTrongThungRac());
             } else {
-                loadDataToTable(nguoiDungBUS.getAllNguoiDung());
+                loadDataToTable(mayBayBUS.getAllMayBay());
             }
         });
 
         btnThem.addActionListener(e -> {
             try {
-                NguoiDung nd = getFormInput(false);
-                String result = nguoiDungBUS.themNguoiDung(nd);
+                int tongSoGhe = (Integer) spinnerTongSoGhe.getValue();
+                MayBay.TrangThai tt = MayBay.TrangThai.fromString(cboTrangThai.getSelectedItem().toString());
+                MayBay mb = new MayBay(txtMaMayBay.getText().trim(), txtSoHieu.getText().trim(), txtHangSanXuat.getText().trim(), tongSoGhe, tt);
+                String result = mayBayBUS.themMayBay(mb);
                 JOptionPane.showMessageDialog(this, result);
                 if (result.contains("thành công")) btnLamMoi.doClick();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
-            }
+            } catch (Exception ex) { JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage()); }
         });
 
         btnCapNhat.addActionListener(e -> {
-            if (table.getSelectedRow() == -1) {
-                JOptionPane.showMessageDialog(this, "Vui lòng chọn người dùng cần cập nhật!");
-                return;
-            }
+            if (table.getSelectedRow() == -1) { JOptionPane.showMessageDialog(this, "Vui lòng chọn máy bay cần sửa!"); return; }
             try {
-                NguoiDung nd = getFormInput(true);
-                String result = nguoiDungBUS.suaNguoiDung(nd);
+                int tongSoGhe = (Integer) spinnerTongSoGhe.getValue();
+                MayBay.TrangThai tt = MayBay.TrangThai.fromString(cboTrangThai.getSelectedItem().toString());
+                MayBay mb = new MayBay(txtMaMayBay.getText().trim(), txtSoHieu.getText().trim(), txtHangSanXuat.getText().trim(), tongSoGhe, tt);
+                String result = mayBayBUS.suaMayBay(mb);
                 JOptionPane.showMessageDialog(this, result);
                 if (result.contains("thành công")) btnLamMoi.doClick();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
-            }
+            } catch (Exception ex) { JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage()); }
         });
 
         btnXoa.addActionListener(e -> {
-            if (table.getSelectedRow() == -1) {
-                JOptionPane.showMessageDialog(this, "Vui lòng chọn người dùng cần xóa!");
-                return;
-            }
-            int confirm = JOptionPane.showConfirmDialog(this, "Đưa người dùng này vào thùng rác?", "Xác nhận", JOptionPane.YES_NO_OPTION);
+            if (table.getSelectedRow() == -1) { JOptionPane.showMessageDialog(this, "Vui lòng chọn máy bay cần đưa vào thùng rác!"); return; }
+            int confirm = JOptionPane.showConfirmDialog(this, "Xác nhận đưa máy bay này vào thùng rác?", "Xóa", JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
-                String result = nguoiDungBUS.xoaNguoiDung(txtMaNguoiDung.getText());
+                String result = mayBayBUS.xoaMayBay(txtMaMayBay.getText().trim());
                 JOptionPane.showMessageDialog(this, result);
                 if (result.contains("thùng rác")) btnLamMoi.doClick();
             }
@@ -304,31 +277,8 @@ public class QuanLyNguoiDungPanel extends JPanel {
         btnTimKiem.addActionListener(e -> {
             String keyword = txtTimKiem.getText();
             boolean isTrash = cboHienThi.getSelectedIndex() == 1;
-            ArrayList<NguoiDung> ketQua = nguoiDungBUS.timKiemNguoiDung(keyword, isTrash);
+            ArrayList<MayBay> ketQua = mayBayBUS.timKiemMayBay(keyword, isTrash);
             loadDataToTable(ketQua);
         });
-    }
-
-    private NguoiDung getFormInput(boolean isUpdate) throws Exception {
-        String ma = txtMaNguoiDung.getText().trim();
-        String user = txtUsername.getText().trim();
-        String pass = txtPassword.getText().trim();
-        
-        if (ma.isEmpty()) throw new Exception("Mã người dùng không được để trống!");
-        if (user.isEmpty()) throw new Exception("Tên đăng nhập không được để trống!");
-        if (!isUpdate && pass.isEmpty()) throw new Exception("Mật khẩu không được để trống khi thêm mới!");
-
-        NguoiDung nd = new NguoiDung();
-        nd.setMaNguoiDung(ma);
-        nd.setUsername(user);
-        nd.setPassword(pass);
-        nd.setEmail(txtEmail.getText().trim());
-        nd.setSoDienThoai(txtSdt.getText().trim());
-        nd.setThanhPho(txtThanhPho.getText().trim());
-        nd.setPhanQuyen(cboPhanQuyen.getSelectedItem().toString());
-        nd.setTrangThaiTK(NguoiDung.TrangThai.fromString(cboTrangThai.getSelectedItem().toString()));
-        nd.setNgayTao(LocalDate.now());
-
-        return nd;
     }
 }
