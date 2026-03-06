@@ -181,7 +181,7 @@ public class QuanLyDoiVePanel extends JPanel {
         btnLamMoi = createButton("Làm mới", BTN_REFRESH);
 
         setButtonIcon(btnDuyet, "/resources/icons/icons8-check-24.png");
-        setButtonIcon(btnTuChoi, "/resources/icons/icons8-access-denied-24.png");
+        setButtonIcon(btnTuChoi, "/resources/icons/icons8-close-24.png");
         setButtonIcon(btnLamMoi, "/resources/icons/icons8-reset-24.png");
 
         buttonPanel.add(btnDuyet);
@@ -259,10 +259,10 @@ public class QuanLyDoiVePanel extends JPanel {
             tblModel.addRow(new Object[]{
                     gd.getMaGD(),
                     gd.getMaVeCu(),
-                    gd.getMaVeMoi(),
+                    gd.getMaChuyenBayMoi(),
                     phi + " VNĐ",
                     phiCL + " VNĐ",
-                    gd.getLyDo() != null ? shorten(gd.getLyDo(), 30) : "",
+                    gd.getLyDoDoi() != null ? shorten(gd.getLyDoDoi(), 30) : "",
                     gd.getNgayYeuCau() != null ? gd.getNgayYeuCau().format(dateFormat) : "N/A",
                     gd.getTrangThai() != null ? gd.getTrangThai().getMoTa() : ""
             });
@@ -275,7 +275,6 @@ public class QuanLyDoiVePanel extends JPanel {
         if (gd == null) return;
 
         VeBan veCu = veBanDAO.selectById(gd.getMaVeCu());
-        VeBan veMoi = gd.getMaVeMoi() != null ? veBanDAO.selectById(gd.getMaVeMoi()) : null;
 
         // lấy thông tin user/hành khách an toàn
         ThongTinHanhKhach hkhCu = null;
@@ -292,9 +291,9 @@ public class QuanLyDoiVePanel extends JPanel {
         TuyenBay tbCu = cbCu != null ? tuyenBayDAO.selectById(cbCu.getMaTuyenBay()) : null;
         HangVe hvCu = veCu != null ? hangVeDAO.selectById(veCu.getMaHangVe()) : null;
 
-        ChuyenBay cbMoi = (veMoi != null) ? chuyenBayDAO.selectById(veMoi.getMaChuyenBay()) : null;
+        ChuyenBay cbMoi = chuyenBayDAO.selectById(gd.getMaChuyenBayMoi());
         TuyenBay tbMoi = cbMoi != null ? tuyenBayDAO.selectById(cbMoi.getMaTuyenBay()) : null;
-        HangVe hvMoi = veMoi != null ? hangVeDAO.selectById(veMoi.getMaHangVe()) : null;
+        HangVe hvMoi = hangVeDAO.selectById(gd.getMaHangVeMoi());
 
         // gắn text an toàn (nếu null thì hiển thị -)
         if (lblVeCuRoute != null) {
@@ -317,14 +316,12 @@ public class QuanLyDoiVePanel extends JPanel {
         }
 
         if (lblVeMoiRoute != null) {
-            if (veMoi != null && tbMoi != null && cbMoi != null) {
-                lblVeMoiRoute.setText("<html><b>" + veMoi.getMaVe() + "</b> - " +
+            if (tbMoi != null && cbMoi != null) {
+                lblVeMoiRoute.setText("<html><b>" + gd.getMaChuyenBayMoi() + "</b> - " +
                         tbMoi.getSanBayDi() + " → " + tbMoi.getSanBayDen() + " (" +
                         cbMoi.getNgayGioDi().format(datetimeFormat) + ")</html>");
-            } else if (veMoi != null) {
-                lblVeMoiRoute.setText(veMoi.getMaVe());
             } else {
-                lblVeMoiRoute.setText("Chưa chọn vé mới");
+                lblVeMoiRoute.setText("-");
             }
         }
 
@@ -332,7 +329,8 @@ public class QuanLyDoiVePanel extends JPanel {
             lblVeMoiClass.setText("Hạng: " + (hvMoi != null ? hvMoi.getTenHang() : "-"));
         }
         if (lblVeMoiPrice != null) {
-            lblVeMoiPrice.setText("Giá: " + (veMoi != null && veMoi.getGiaVe() != null ? formatAmount(veMoi.getGiaVe()) + " VNĐ" : "-"));
+            BigDecimal giaMoi = bus.tinhGiaVeMoi(gd.getMaChuyenBayMoi(), gd.getMaHangVeMoi());
+            lblVeMoiPrice.setText("Giá: " + formatAmount(giaMoi) + " VNĐ");
         }
 
         // người dùng + hành khách
@@ -340,12 +338,12 @@ public class QuanLyDoiVePanel extends JPanel {
         if (nd != null) {
             userInfo = "Người dùng: " + nd.getUsername() + " (" + nd.getEmail() + ")";
         }
-        if (hkhCu != null) {
+        if (hkhCu != null && hkhCu.getHoTen() != null) {
             userInfo += " - Hành khách: " + hkhCu.getHoTen();
         }
         lblNguoiDung.setText(userInfo);
 
-        lblLyDo.setText("Lý do: " + (gd.getLyDo() != null ? gd.getLyDo() : ""));
+        lblLyDo.setText("Lý do: " + (gd.getLyDoDoi() != null ? gd.getLyDoDoi() : ""));
 
         // enable/disable button
         btnDuyet.setEnabled(gd.getTrangThai() == TrangThaiGiaoDich.CHO_XU_LY);

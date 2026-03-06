@@ -20,7 +20,9 @@ public class ThanhToanDoiVePanel extends JPanel {
 
     public ThanhToanDoiVePanel(
             String maVeCu,
-            String maVeMoi,
+            String maChuyenBayMoi,
+            String maHangVeMoi,
+            String maGheMoi,
             String lyDo,
             BigDecimal phiGD,
             BigDecimal phiCL,
@@ -39,46 +41,55 @@ public class ThanhToanDoiVePanel extends JPanel {
         add(lblTitle, BorderLayout.NORTH);
 
         // ===== CARD =====
-        JPanel card = new JPanel(new GridLayout(8,2,20,20));
+        JPanel card = new JPanel(new GridLayout(10,2,20,20));
         card.setBackground(Color.WHITE);
         card.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(230,230,230)),
                 BorderFactory.createEmptyBorder(30,30,30,30)
         ));
 
-        // Hàng 1: Mã vé
+        // Mã vé cũ
         card.add(createLabel("Mã vé cũ:"));
         card.add(createValue(maVeCu));
 
-        card.add(createLabel("Mã vé mới:"));
-        card.add(createValue(maVeMoi));
+        // Chuyến bay mới
+        card.add(createLabel("Chuyến bay mới:"));
+        card.add(createValue(maChuyenBayMoi));
 
-        // Hàng 2: Giá vé cũ
-        BigDecimal giaVeCu = bus.tinhGiaVe(maVeCu);
+        // Hạng vé mới
+        card.add(createLabel("Hạng vé mới:"));
+        card.add(createValue(maHangVeMoi));
+
+        // Ghế mới
+        card.add(createLabel("Ghế mới:"));
+        card.add(createValue(maGheMoi));
+
+        // Giá vé cũ
+        BigDecimal giaVeCu = bus.veBanDAO.selectById(maVeCu).getGiaVe();
         card.add(createLabel("Giá vé cũ:"));
         card.add(createValue(moneyFormat.format(giaVeCu) + " VNĐ"));
 
-        // Hàng 3: Giá vé mới
-        BigDecimal giaVeMoi = bus.tinhGiaVe(maVeMoi);
+        // Giá vé mới
+        BigDecimal giaVeMoi = bus.tinhGiaVeMoi(maChuyenBayMoi, maHangVeMoi);
         card.add(createLabel("Giá vé mới:"));
         card.add(createValue(moneyFormat.format(giaVeMoi) + " VNĐ"));
 
-        // Hàng 4: Phí đổi vé
+        // Phí đổi vé
         card.add(createLabel("Phí đổi vé:"));
         card.add(createValue(moneyFormat.format(phiGD) + " VNĐ"));
 
-        // Hàng 5: Phí chênh lệch
+        // Phí chênh lệch
         card.add(createLabel("Phí chênh lệch:"));
         card.add(createValue(moneyFormat.format(phiCL) + " VNĐ"));
 
-        // Hàng 6: Tổng phụ thu
+        // Tổng phụ thu
         card.add(createLabel("Tổng phụ thu:"));
         JLabel lblTong = createValue(moneyFormat.format(tong) + " VNĐ");
         lblTong.setFont(new Font("Segoe UI", Font.BOLD, 18));
         lblTong.setForeground(Color.RED);
         card.add(lblTong);
 
-        // Hàng 7: Lý do
+        // Lý do
         card.add(createLabel("Lý do:"));
         JLabel lblLyDo = createValue("<html>"+lyDo+"</html>");
         card.add(lblLyDo);
@@ -96,9 +107,9 @@ public class ThanhToanDoiVePanel extends JPanel {
 
         btnConfirm.addActionListener(e -> {
             try {
-                String maGD = bus.taoYeuCauDoiVe(maVeMoi, maVeCu, lyDo);
+                String maGD = bus.taoYeuCauDoiVe(maChuyenBayMoi, maHangVeMoi, maGheMoi, maVeCu, lyDo);
                 JOptionPane.showMessageDialog(this,
-                        "Đổi vé thành công!\nMã giao dịch: " + maGD);
+                        "Yêu cầu đổi vé thành công!\nMã giao dịch: " + maGD);
                 SwingUtilities.getWindowAncestor(this).dispose();
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, ex.getMessage());

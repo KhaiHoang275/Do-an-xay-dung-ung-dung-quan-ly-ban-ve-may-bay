@@ -242,37 +242,43 @@ public class VeBanDAO {
         return false;
     }
 
-    public List<VeBan> selectVeCoTheDoi(String maHK) {
+    public List<VeBan> selectVeCoTheDoi(String maTuyenBay, String maChuyenBayCu, String maHangVeCu) {
         List<VeBan> list = new ArrayList<>();
+
         String sql = """
-                       SELECT v.*
-                       FROM VeBan v
-                       JOIN ChuyenBay cb ON v.maChuyenBay = cb.maChuyenBay
-                       JOIN PhieuDatVe pdv ON v.maPhieuDatVe = pdv.maPhieuDatVe
-                       WHERE v.maHK = ?
-                         AND v.trangThaiVe IN (N'Đã xuất', N'Chưa sử dụng')
-                         AND pdv.trangThaiThanhToan = N'Đã thanh toán'
-                         AND cb.trangThai <> N'Đã bay'
-                         AND cb.ngayGioDi > GETDATE()       
-                """;
+        SELECT v.*
+        FROM VeBan v
+        JOIN ChuyenBay cb ON v.maChuyenBay = cb.maChuyenBay
+        WHERE cb.maTuyenBay = ?
+          AND v.maChuyenBay <> ?
+          AND cb.trangThai = N'CHUA_KHOI_HANH'          -- hoặc cb.trangThai <> N'Đã bay'
+          AND cb.ngayGioDi > GETDATE()
+          AND v.trangThaiVe = N'Chưa sử dụng'               -- ← quan trọng nhất: vé còn trống
+          -- Nếu bạn muốn giữ cùng hạng vé (rất nên)
+          AND v.maHangVe = ?
+        ORDER BY cb.ngayGioDi ASC
+        """;
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, maHK);
+
+            ps.setString(1, maTuyenBay);
+            ps.setString(2, maChuyenBayCu);
+            ps.setString(3, maHangVeCu);   // nếu không muốn cùng hạng thì bỏ dòng này + bỏ tham số ở hàm
+
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
                 VeBan ve = new VeBan();
-
                 ve.setMaVe(rs.getString("maVe"));
-                ve.setMaPhieuDatVe(rs.getString("maPhieuDatVe"));
+                ve.setMaPhieuDatVe(rs.getString("maPhieuDatVe")); // thường null
                 ve.setMaChuyenBay(rs.getString("maChuyenBay"));
-                ve.setMaHK(rs.getString("maHK"));
+                ve.setMaHK(rs.getString("maHK"));                 // thường null
                 ve.setMaHangVe(rs.getString("maHangVe"));
                 ve.setMaGhe(rs.getString("maGhe"));
                 ve.setLoaiVe(rs.getString("loaiVe"));
                 ve.setLoaiHK(rs.getString("loaiHK"));
-                ve.setGiaVe(rs.getBigDecimal("giaVe"));
+                ve.setGiaVe(rs.getBigDecimal("giaVe"));           // có thể null hoặc giá mặc định
                 ve.setTrangThaiVe(rs.getString("trangThaiVe"));
 
                 list.add(ve);
@@ -309,5 +315,21 @@ public class VeBanDAO {
             e.printStackTrace();
         }
         return list;
+    }
+
+    public int countByChuyenBay(String maChuyenBay) {
+        int count = 0;
+        String sql = "SELECT COUNT(*) FROM VeBan WHERE maChuyenBay = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maChuyenBay);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return count;
     }
 }

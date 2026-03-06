@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,15 +27,23 @@ public class GiaoDichVeBUS {
     private ThongTinHanhKhachDAO thongTinHanhKhachDAO;
     private NguoiDungDAO nguoiDungDAO;
     private ThuHangDAO thuHangDAO;
+    private GheMayBayDAO gheMayBayDAO;
+    private TuyenBayDAO tuyenBayDAO;
+    private HeSoGiaDAO heSoGiaDAO;
+    private MayBayDAO mayBayDAO;
 
     public GiaoDichVeBUS() {
         this.giaoDichVeDAO = new GiaoDichVeDAO();
         this.veBanDAO = new VeBanDAO();
         this.hangVeDAO = new HangVeDAO();
         this.chuyenBayDAO = new ChuyenBayDAO();
+        this.tuyenBayDAO = new TuyenBayDAO();
+        this.heSoGiaDAO = new HeSoGiaDAO();
         this.thongTinHanhKhachDAO = new ThongTinHanhKhachDAO();
         this.nguoiDungDAO = new NguoiDungDAO();
         this.thuHangDAO = new ThuHangDAO();
+        this.gheMayBayDAO = new GheMayBayDAO();
+        this.mayBayDAO = new MayBayDAO();
     }
 
     private boolean kiemTraVeTonTai(String maVe) {
@@ -43,16 +52,62 @@ public class GiaoDichVeBUS {
         return ve != null;
     }
 
+    private boolean kiemTraChuyenBayTonTai(String maChuyenBay) {
+        if (maChuyenBay == null || maChuyenBay.trim().isEmpty()) return false;
+        ChuyenBay cb = chuyenBayDAO.selectById(maChuyenBay);
+        return cb != null;
+    }
+
+    private boolean kiemTraHangVeTonTai(String maHangVe) {
+        if (maHangVe == null || maHangVe.trim().isEmpty()) return false;
+        HangVe hv = hangVeDAO.selectById(maHangVe);
+        return hv != null;
+    }
+
+    private boolean kiemTraGheMoiTonTai(String maGhe){
+        if(maGhe == null || maGhe.trim().isEmpty()) return false;
+        GheMayBay gheMayBay = gheMayBayDAO.selectById(maGhe);
+        return gheMayBay != null;
+    }
+
     private boolean validateVeCuTonTai(String maVeCu) {
         if (!kiemTraVeTonTai(maVeCu)) {
             throw new IllegalArgumentException("Vé cũ không tồn tại trong hệ thống!");
         }
+        // Thêm kiểm tra trạng thái vé cũ phải là ĐÃ THANH TOÁN
+        VeBan veCu = veBanDAO.selectById(maVeCu);
+        if (!"Đã thanh toán".equalsIgnoreCase(veCu.getTrangThaiVe())) {
+            throw new IllegalArgumentException("Vé cũ phải ở trạng thái đã thanh toán để đổi!");
+        }
         return true;
     }
 
-    private boolean validateVeMoiTonTai(String maVeMoi) {
-        if (!kiemTraVeTonTai(maVeMoi)) {
-            throw new IllegalArgumentException("Vé mới không tồn tại trong hệ thống!");
+    private boolean validateChuyenBayMoiTonTai(String maChuyenBayMoi) {
+        if (!kiemTraChuyenBayTonTai(maChuyenBayMoi)) {
+            throw new IllegalArgumentException("Chuyến bay mới không tồn tại trong hệ thống!");
+        }
+        return true;
+    }
+
+    private boolean validateHangVeMoiTonTai(String maHangVeMoi) {
+        if (!kiemTraHangVeTonTai(maHangVeMoi)) {
+            throw new IllegalArgumentException("Hạng vé mới không tồn tại trong hệ thống!");
+        }
+        return true;
+    }
+
+    private void validateCungTuyenBay(String maChuyenBayMoi, String maVeCu) {
+        VeBan veCu = veBanDAO.selectById(maVeCu);
+        ChuyenBay cbCu = chuyenBayDAO.selectById(veCu.getMaChuyenBay());
+        ChuyenBay cbMoi = chuyenBayDAO.selectById(maChuyenBayMoi);
+        if (!cbCu.getMaTuyenBay().equals(cbMoi.getMaTuyenBay())) {
+            throw new IllegalArgumentException("Chuyến bay mới phải cùng tuyến bay với vé cũ!");
+        }
+    }
+
+    private boolean validateGheMoiTonTai(String maGheMoi){
+        if(!kiemTraGheMoiTonTai(maGheMoi)){
+            throw new IllegalArgumentException("Ghế mới không tồn tại trong hệ thống");
         }
         return true;
     }
@@ -75,7 +130,7 @@ public class GiaoDichVeBUS {
         }
         TrangThaiGiaoDich trangThai = gd.getTrangThai();
         if(trangThai == TrangThaiGiaoDich.DA_DUYET ||
-            trangThai == TrangThaiGiaoDich.DA_THANH_TOAN){
+                trangThai == TrangThaiGiaoDich.DA_THANH_TOAN){
             throw new IllegalStateException(
                     "Không thể thay đổi giao dịch đã được duyệt hoặc thanh toán!"
             );
@@ -104,23 +159,48 @@ public class GiaoDichVeBUS {
     }
 
     /**
+     * Tính giá vé tiềm năng cho vé mới dựa trên chuyến bay và hạng vé
+     * Giả định: ChuyenBay có phương thức getGiaVeCoBan() trả về giá cơ bản
+     * Nếu không có, bạn cần điều chỉnh logic tính giá (ví dụ: từ TuyenBay hoặc công thức khác)
+     * @param maChuyenBayMoi Mã chuyến bay mới
+     * @param maHangVeMoi Mã hạng vé mới
+     * @return Giá vé mới
+     */
+    public BigDecimal tinhGiaVeMoi(String maChuyenBayMoi, String maHangVeMoi) {
+        ChuyenBay cbMoi = chuyenBayDAO.selectById(maChuyenBayMoi);
+        if (cbMoi == null) return BigDecimal.ZERO;
+
+        TuyenBay tb = tuyenBayDAO.selectById(cbMoi.getMaTuyenBay());
+        if (tb == null) return BigDecimal.ZERO;
+
+        HeSoGia hsg = heSoGiaDAO.selectById(cbMoi.getMaHeSoGia()); // Giả định model HeSoGia có getHeSoGia() trả về float
+        float heSoGia = (hsg == null) ? 1.0f : hsg.getHeSo();
+
+        HangVe hvMoi = hangVeDAO.selectById(maHangVeMoi);
+        if (hvMoi == null) return BigDecimal.ZERO;
+
+        BigDecimal giaGoc = tb.getGiaGoc();
+        float heSoHangVe = hvMoi.getHeSoHangVe();
+
+        return giaGoc.multiply(BigDecimal.valueOf(heSoGia).multiply(BigDecimal.valueOf(heSoHangVe)));
+    }
+
+    /**
      * Tính phí chênh lệch giữa vé mới và vé cũ
      * Nếu âm (vé mới rẻ hơn) thì = 0
-     * @param maVeMoi Mã vé mới
+     * @param maChuyenBayMoi Mã chuyến bay mới
+     * @param maHangVeMoi Mã hạng vé mới
      * @param maVeCu Mã vé cũ
      * @return Phí chênh lệch
      */
-    public BigDecimal tinhPhiChenhLech(String maVeMoi, String maVeCu){
-        VeBan veMoi = veBanDAO.selectById(maVeMoi);
+    public BigDecimal tinhPhiChenhLech(String maChuyenBayMoi, String maHangVeMoi, String maVeCu){
         VeBan veCu = veBanDAO.selectById(maVeCu);
+        if (veCu == null) return BigDecimal.ZERO;
 
-        if(veMoi == null || veCu == null){
-            return BigDecimal.ZERO;
-        }
+        BigDecimal giaMoi = tinhGiaVeMoi(maChuyenBayMoi, maHangVeMoi);
+        BigDecimal giaCu = veCu.getGiaVe();
 
-        BigDecimal chenhLech = veMoi.getGiaVe().subtract(veCu.getGiaVe()); // veMoi - veCu
-
-        // nếu âm (vé mới rẻ hơn) thì trả về 0
+        BigDecimal chenhLech = giaMoi.subtract(giaCu);
         return chenhLech.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : chenhLech;
     }
 
@@ -149,47 +229,80 @@ public class GiaoDichVeBUS {
         return String.format("GD%03d", newNum);
     }
 
+    /**
+     * Tạo mã vé tự động cho vé mới
+     * Format: VExxx (giả định, điều chỉnh nếu khác)
+     * @return Mã vé mới
+     */
+    private String taoMaVe() {
+        List<VeBan> danhSach = veBanDAO.selectAll();
+        int maxNum = 0;
+
+        for (VeBan ve : danhSach) {
+            String ma = ve.getMaVe();
+            if (ma != null && ma.startsWith("VE")) {
+                try {
+                    int number = Integer.parseInt(ma.substring(2));
+                    if (number > maxNum) maxNum = number;
+                } catch (NumberFormatException e) {
+                    // Bỏ qua
+                }
+            }
+        }
+
+        int newNum = maxNum + 1;
+        return String.format("VE%03d", newNum);
+    }
+
     //========================
     // C.NGHIỆP VỤ CHÍNH
     //========================
 
     /**
      *  1. Tạo yêu cầu đổi vé
-     *  - Kiểm tra vé cũ và vé mới tồn tại
+     *  - Kiểm tra vé cũ tồn tại và ở trạng thái đã thanh toán
+     *  - Kiểm tra chuyến bay mới, hạng vé mới tồn tại
      *  - Tính phí giao dịch và phí chênh lệch
      *  - Trạng thái ban đầu: CHO_XU_LY
      *  - Ngày yêu cầu: ngày hiện tại
      *
-     *  @param maVeMoi Mã vé mới muốn đổi sang
+     *  @param maChuyenBayMoi Mã chuyến bay mới
+     *  @param maHangVeMoi Mã hạng vé mới
+     *  @param maGheMoi Mã ghế mới
      *  @param maVeCu Mã vé cũ cần đổi
      *  @param lyDo Lý do đổi vé
      *  @return Mã giao dịch vừa tạo
-     *  @throws IllegalArgumentException nếu vé không tồn tại
+     *  @throws IllegalArgumentException nếu vé không tồn tại hoặc không hợp lệ
      *  @throws SQLException nếu lỗi database
      */
 
-    public String taoYeuCauDoiVe(String maVeMoi, String maVeCu, String lyDo)
+    public String taoYeuCauDoiVe(String maChuyenBayMoi, String maHangVeMoi, String maGheMoi, String maVeCu, String lyDo)
             throws SQLException{
-        //b1: Validate veCu va veMoi
+        //b1: Validate veCu, chuyenBayMoi, hangVeMoi
         validateVeCuTonTai(maVeCu);
-        validateVeMoiTonTai(maVeMoi);
+        validateChuyenBayMoiTonTai(maChuyenBayMoi);
+        validateHangVeMoiTonTai(maHangVeMoi);
+        validateGheMoiTonTai(maGheMoi);
+
 
         //b2: tao ma giao dich tu dong
         String maGD = taoMaGD();
 
         //b3: tinh cac loai phi
         BigDecimal phi = tinhPhiGiaoDich(maVeCu);
-        BigDecimal phiChenhLech = tinhPhiChenhLech(maVeMoi, maVeCu);
+        BigDecimal phiChenhLech = tinhPhiChenhLech(maChuyenBayMoi, maHangVeMoi, maVeCu);
 
         //b4: Tao doi tuong GiaoDichVe
         GiaoDichVe gd = new GiaoDichVe();
         gd.setMaGD(maGD);
-        gd.setMaVeMoi(maVeMoi);
         gd.setMaVeCu(maVeCu);
-        gd.setTrangThai(TrangThaiGiaoDich.CHO_XU_LY);
+        gd.setMaChuyenBayMoi(maChuyenBayMoi);
+        gd.setMaHangVeMoi(maHangVeMoi);
+        gd.setMaGheMoi(maGheMoi);
+        gd.setTrangThai( TrangThaiGiaoDich.CHO_XU_LY);
         gd.setPhi(phi);
         gd.setPhiChenhLech(phiChenhLech);
-        gd.setLyDo(lyDo);
+        gd.setLyDoDoi(lyDo);
         gd.setNgayYeuCau(LocalDate.now());
         gd.setNgayXuLi(null);
 
@@ -206,34 +319,102 @@ public class GiaoDichVeBUS {
     /**
      *  2. Duyệt yêu cầu đổi vé
      *  - Chỉ duyệt khi trạng thái = CHO_XU_LY
-     *  - Cập nhật trạng thái thành DA_DUYET
+     *  - Cập nhật trạng thái thành DA_THANH_TOAN
      *  - Cập nhật ngày xử lý
+     *  - Hủy vé cũ và tạo vé mới trong transaction
      *
      *  @param maGD Mã giao dịch cần duyệt
      *  @return true nếu duyệt thành công
      *  @throws IllegalArgumentException nếu không tìm thấy giao dịch
      *  @throws IllegalStateException nếu trạng thái không hợp lệ
+     *  @throws SQLException nếu có lỗi trong quá trình transaction
      */
 
-    public boolean duyetYeuCau(String maGD){
-        //b1: lay thong tin giao dich
-        GiaoDichVe giaoDich = giaoDichVeDAO.findById(maGD);
-        if(giaoDich == null) throw new IllegalArgumentException("Không tìm thấy giao dịch với mã: " + maGD);
+    public boolean duyetYeuCau(String maGD) throws SQLException {
+        Connection conn = null;
+        try {
+            // b1: Lay connection va tat auto-commit
+            conn = DBConnection.getConnection();
+            conn.setAutoCommit(false);
+            System.out.println("🔄 Bắt đầu transaction duyệt yêu cầu...");
 
-        //b2: Kiem tra trang thai phai la CHO_XU_LY
-        validateTrangThai(giaoDich, TrangThaiGiaoDich.CHO_XU_LY);
+            //b2: lay thong tin giao dich
+            GiaoDichVe giaoDich = giaoDichVeDAO.findById(maGD);
+            if(giaoDich == null) throw new IllegalArgumentException("Không tìm thấy giao dịch với mã: "+ maGD);
 
-        //b3: Cap nhat trang thai va ngay xu ly
-        giaoDich.setTrangThai(TrangThaiGiaoDich.DA_DUYET);
-        giaoDich.setNgayXuLi(LocalDate.now());
+            //b3: kiem tra trang thai phai la CHO_XU_LY
+            validateTrangThai(giaoDich, TrangThaiGiaoDich.CHO_XU_LY);
 
-        // b4: luu vao database
-        boolean ketQua = giaoDichVeDAO.update(giaoDich);
+            //b4: Cap nhat trang thai GiaoDichVe --> DA_THANH_TOAN
+            giaoDich.setTrangThai(TrangThaiGiaoDich.DA_THANH_TOAN);
+            giaoDich.setNgayXuLi(LocalDate.now());
+            boolean updateGD = giaoDichVeDAO.update(giaoDich);
 
-        if (ketQua){
-            System.out.println("✅ Duyệt yêu cầu đổi vé thành công. Mã GD: " + maGD);
+            if(!updateGD){
+                throw new SQLException("Không thể cập nhật trạng thái giao dịch!");
+            }
+            System.out.println("  ✓ Cập nhật giao dịch -> Đã thanh toán");
+
+            //b5: cap nhat ve cu -> DA_HUY
+            VeBan veCu = veBanDAO.selectById(giaoDich.getMaVeCu());
+            if(veCu == null) throw new SQLException("Khong tim thay ve cu tren he thong!");
+
+            veCu.setTrangThaiVe("Đã hủy");
+            boolean updateVeCu = veBanDAO.update(veCu);
+
+            if (!updateVeCu) {
+                throw new SQLException("Không thể cập nhật trạng thái vé cũ!");
+            }
+            System.out.println("  ✓ Cập nhật vé cũ -> Đã hủy");
+
+            //b6: tao va insert ve moi -> DA_THANH_TOAN
+            VeBan veMoi = new VeBan();
+            veMoi.setMaVe(taoMaVe()); // Tạo mã vé mới
+            veMoi.setMaPhieuDatVe(null);
+            veMoi.setMaChuyenBay(giaoDich.getMaChuyenBayMoi());
+            veMoi.setMaHK(veCu.getMaHK());
+            veMoi.setMaHangVe(giaoDich.getMaHangVeMoi());
+            veMoi.setMaGhe(giaoDich.getMaGheMoi());
+            veMoi.setLoaiVe(veCu.getLoaiVe());
+            veMoi.setLoaiHK(veCu.getLoaiHK());
+            veMoi.setGiaVe(tinhGiaVeMoi(giaoDich.getMaChuyenBayMoi(), giaoDich.getMaHangVeMoi())); // Tính giá mới
+            veMoi.setTrangThaiVe("Đã thanh toán");
+
+            boolean insertVeMoi = veBanDAO.insert(veMoi);
+            if (!insertVeMoi) {
+                throw new SQLException("Không thể tạo vé mới!");
+            }
+            System.out.println("  ✓ Tạo vé mới -> Đã thanh toán");
+
+            //b7: commit transaction
+            conn.commit();
+            System.out.println("✅ Duyệt yêu cầu đổi vé thành công! Mã GD: " + maGD);
+            return true;
+
+        } catch (Exception e){
+            //ROLLBACK neu co loi
+            if(conn != null){
+                try{
+                    conn.rollback();
+                    System.err.println("⚠️ Đã rollback transaction do lỗi!"  );
+                } catch (SQLException rollbackEx){
+                    System.err.println("❌ Lỗi khi rollback: " + rollbackEx.getMessage());
+                }
+            }
+
+            System.err.println("❌ Lỗi duyệt: " + e.getMessage());
+            throw new SQLException("Duyệt thất bại: " + e.getMessage(), e);
+        } finally {
+            // khoi phuc auto-commmit va dong connection
+            if(conn != null){
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException e){
+                    System.err.println("Lỗi đóng connection: " + e.getMessage());
+                }
+            }
         }
-        return ketQua;
     }
 
     /**
@@ -261,99 +442,6 @@ public class GiaoDichVeBUS {
             System.out.println("❌ Từ chối yêu cầu đổi vé thành công. Mã GD: " + maGD);
         }
         return ketQua;
-    }
-    /**
-     *  4. Xử lý thanh toán đổi vé
-     *  - Chỉ thực hiện khi trạng thái = DA_DUYET
-     *  - Sử dụng TRANSACTION để đảm bảo tính toàn vẹn dữ liệu
-     *  - Cập nhật 3 bảng: GiaoDichVe, VeBan (vé cũ), VeBan (vé mới)
-     *
-     *  Các bước trong transaction:
-     *  1. Cập nhật GiaoDichVe -> DA_THANH_TOAN
-     *  2. Cập nhật Vé cũ -> trangThaiVe = "DA_DOI"
-     *  3. Cập nhật Vé mới -> trangThaiVe = "DA_THANH_TOAN"
-     *  @param maGD Mã giao dịch cần thanh toán
-     *  @return true nếu thanh toán thành công
-     *  @throws IllegalArgumentException nếu không tìm thấy giao dịch
-     *  @throws IllegalStateException nếu trạng thái không hợp lệ
-     *  @throws SQLException nếu có lỗi trong quá trình transaction
-     */
-    public boolean xuLyThanhToan(String maGD) throws SQLException{
-        Connection conn = null;
-        try {
-            // b1: Lay connection va tat auto-commit
-            conn = DBConnection.getConnection();
-            conn.setAutoCommit(false);
-            System.out.println("🔄 Bắt đầu transaction thanh toán...");
-
-            //b2: lay thong tin giao dich
-            GiaoDichVe giaoDich = giaoDichVeDAO.findById(maGD);
-            if(giaoDich == null) throw new IllegalArgumentException("Không tìm thấy giao dịch với mã: "+ maGD);
-
-            //b3: kiem tra trang thai phai la DA_DUYET
-            validateTrangThai(giaoDich, TrangThaiGiaoDich.DA_DUYET);
-
-            //b4: Cap nhat trang thai GiaoDichVe --> DA_THANH_TOAN
-            giaoDich.setTrangThai(TrangThaiGiaoDich.DA_THANH_TOAN);
-            boolean updateGD = giaoDichVeDAO.update(giaoDich);
-
-            if(!updateGD){
-                throw new SQLException("Không thể cập nhật trạng thái giao dịch!");
-            }
-            System.out.println("  ✓ Cập nhật giao dịch -> DA_THANH_TOAN");
-
-            //b5: cap nhat ve cu -> DA_DOI
-            VeBan veCu = veBanDAO.selectById(giaoDich.getMaVeCu());
-            if(veCu == null) throw new SQLException("Khong tim thay ve cu tren he thong!");
-
-            veCu.setTrangThaiVe("DA_DOI");
-            boolean updateVeCu = veBanDAO.update(veCu);
-
-            if (!updateVeCu) {
-                throw new SQLException("Không thể cập nhật trạng thái vé cũ!");
-            }
-            System.out.println("  ✓ Cập nhật vé cũ -> DA_DOI");
-
-            //b6: cap nhat ve moi -> DA_THANHTOAN
-            VeBan veMoi = veBanDAO.selectById(giaoDich.getMaVeMoi());
-            if(veMoi == null) throw new SQLException("Không tìm thấy vé mới trong hệ thống !");
-
-            veMoi.setTrangThaiVe("DA_THANH_TOAN");
-            boolean updateVeMoi = veBanDAO.update(veMoi);
-            if (!updateVeMoi) {
-                throw new SQLException("Không thể cập nhật trạng thái vé mới!");
-            }
-            System.out.println("  ✓ Cập nhật vé mới -> DA_THANH_TOAN");
-
-            //b7: commit transaction
-            conn.commit();
-            System.out.println("✅ Thanh toán đổi vé thành công! Mã GD: " + maGD);
-            return true;
-
-        } catch (Exception e){
-            //ROLLBACK neu co loi (rollback: quay lai trang thai nhu luc dau (veCu, veMoi))
-            if(conn != null){
-                try{
-                    conn.rollback(); // chỉ có tác dụng nếu đã conn.setAutoCommit(false)
-                    System.err.println("⚠️ Đã rollback transaction do lỗi!"  );
-                } catch (SQLException rollbackEx){
-                    System.err.println("❌ Lỗi khi rollback: " + rollbackEx.getMessage());
-                }
-            }
-
-            System.err.println("❌ Lỗi thanh toán: " + e.getMessage());
-            throw new SQLException("Thanh toán thất bại: " + e.getMessage(), e);
-        } finally {
-            // khoi phuc auto-commmit va dong connection
-            if(conn != null){
-                try {
-                    conn.setAutoCommit(true);
-                    conn.close();
-                } catch (SQLException e){
-                    System.err.println("Lỗi đóng connection: " + e.getMessage());
-                }
-            }
-        }
     }
 
     //====================================
@@ -414,45 +502,6 @@ public class GiaoDichVeBUS {
         return giaoDichVeDAO.delete(maGD);
     }
 
-//    public boolean kiemTraDuDieuKienDoiVe(String maVe, String maNguoiDung) { // kiểm tra đủ điều kiện đổi vé
-//
-//        // 1 Lấy vé
-//        VeBan ve = veBanDAO.selectById(maVe);
-//        if (ve == null) return false;
-//
-//        // Lay chuyen bay de co NgayGioDi
-//        ChuyenBay cb = chuyenBayDAO.selectById(ve.getMaChuyenBay());
-//        if(cb == null) return false;
-//
-//        LocalDate ngayBay = cb.getNgayGioDi().toLocalDate();
-//        LocalDate today = LocalDate.now();
-//        long soNgay = ChronoUnit.DAYS.between(today, ngayBay);
-//
-//        // Lấy giá vé
-//        BigDecimal giaVe = ve.getGiaVe();
-//
-//        //Lay thong tin hanh khach
-//         ThongTinHanhKhach tthk = thongTinHanhKhachDAO.selectByMaNguoiDung(maNguoiDung);
-//         if(tthk == null) return false;
-//
-//         String hang = tthk.getLoaiHanhKhach(); // Silver / Gold/ Platinum
-//
-//        switch (hang.toUpperCase()) {
-//
-//            case "SILVER":
-//                return soNgay >= 5 && giaVe.compareTo(new BigDecimal("2000000")) > 0;
-//
-//            case "GOLD":
-//                return soNgay >= 3 && giaVe.compareTo(new BigDecimal("1000000")) > 0;
-//
-//            case "PLATINUM":
-//                return soNgay >= 2;
-//
-//            default:
-//                return false;
-//        }
-//    }
-
     public String kiemTraDieuKienDoiVe(String maVe, String maNguoiDung){
         VeBan ve = veBanDAO.selectById(maVe);
         if(ve == null){
@@ -469,8 +518,6 @@ public class GiaoDichVeBUS {
         NguoiDung nd = nguoiDungDAO.getByMaNguoiDung(maNguoiDung);
         if(nd == null) return "Người dùng không tồn tại";
 
-//        ThongTinHanhKhach tthk = thongTinHanhKhachDAO.selectByMaNguoiDung(maNguoiDung);
-//        if(tthk == null) return "Không tìm thấy thông tin khách hàng";
         ThuHang th = thuHangDAO.selectById(tthkCuaVe.getMaThuHang());
         if(th == null) return "Không xác định được hạng thành viên";
 
@@ -523,23 +570,52 @@ public class GiaoDichVeBUS {
         return "OK";
     }
 
-    public List <VeBan> danhSachVeCoTheDoi(String maNguoiDung){
-        ThongTinHanhKhach tthk = thongTinHanhKhachDAO.selectByMaNguoiDung(maNguoiDung);
-        if(tthk == null) return new ArrayList<>();
+    public List<ChuyenBay> danhSachChuyenBayCoTheDoi(String maVeCu) {
 
-        return veBanDAO.selectVeCoTheDoi(tthk.getMaHK());
-    }
+        List<ChuyenBay> result = new ArrayList<>();
 
-    /**
-     * Lấy giá vé theo mã vé
-     * @param maVe Mã vé
-     * @return Giá vé (BigDecimal)
-     */
-    public BigDecimal tinhGiaVe(String maVe) {
-        VeBan ve = veBanDAO.selectById(maVe);
-        if (ve == null) {
-            return BigDecimal.ZERO;
+        VeBan veCu = veBanDAO.selectById(maVeCu);
+        if (veCu == null) return result;
+
+        ChuyenBay cbCu = chuyenBayDAO.selectById(veCu.getMaChuyenBay());
+        if (cbCu == null) return result;
+
+        // chuyến bay cũ phải chưa khởi hành
+        if (cbCu.getTrangThai() != TrangThaiChuyenBay.CHUA_KHOI_HANH)
+            return result;
+
+        String maTuyenBay = cbCu.getMaTuyenBay();
+        LocalDateTime ngayGioDiCu = cbCu.getNgayGioDi();
+
+        List<ChuyenBay> allChuyenBay = chuyenBayDAO.findByMaTuyenBay(maTuyenBay);
+
+        for (ChuyenBay cb : allChuyenBay) {
+
+            // bỏ chính chuyến bay cũ
+            if (cb.getMaChuyenBay().equals(cbCu.getMaChuyenBay()))
+                continue;
+
+            // phải là chuyến bay sau chuyến cũ
+            if (!cb.getNgayGioDi().isAfter(ngayGioDiCu))
+                continue;
+
+            // phải chưa khởi hành
+            if (cb.getTrangThai() != TrangThaiChuyenBay.CHUA_KHOI_HANH)
+                continue;
+
+            MayBay mb = mayBayDAO.selectById(cb.getMaMayBay());
+            if (mb == null)
+                continue;
+
+            int tongGhe = mb.getTongSoGhe();
+            int soVeDaBan = veBanDAO.countByChuyenBay(cb.getMaChuyenBay());
+
+            if (soVeDaBan < tongGhe) {
+                result.add(cb);
+            }
         }
-        return ve.getGiaVe();
+
+        return result;
     }
+
 }

@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 
 import db.DBConnection;
 import model.ChuyenBay;
@@ -157,6 +158,22 @@ public class ChuyenBayDAO {
                 }
             }
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public List<ChuyenBay> findByMaTuyenBay(String maTuyenBay) {
+        List<ChuyenBay> list = new ArrayList<>();
+        String sql = "SELECT * FROM ChuyenBay WHERE maTuyenBay = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maTuyenBay);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapResultSetToChuyenBay(rs)); // Giả định có phương thức mapResultSet để chuyển ResultSet thành ChuyenBay
+            }
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return list;
