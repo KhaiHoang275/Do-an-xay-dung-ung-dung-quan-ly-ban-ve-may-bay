@@ -38,7 +38,7 @@ public class AdminMainFrame extends JFrame {
         add(createSidebar(), BorderLayout.WEST);
 
         // ===== MỞ MẶC ĐỊNH PANEL =====
-        showPanel(new QuanLyThuHangPanel());
+        showPanel(new ChuyenBayPanel());
     }
 
     private JPanel createSidebar() {

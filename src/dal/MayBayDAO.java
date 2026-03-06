@@ -29,6 +29,29 @@ public class MayBayDAO {
         return list;
     }
 
+    public MayBay selectById(String maMayBay) {
+        String sql = "SELECT * FROM MayBay WHERE maMayBay = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maMayBay);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return mapResultSet(rs);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    private MayBay mapResultSet(ResultSet rs) throws SQLException {
+        MayBay mb = new MayBay();
+        mb.setMaMayBay(rs.getString("maMayBay"));
+        mb.setSoHieu(rs.getString("soHieu"));
+        mb.setHangSanXuat(rs.getString("hangSanXuat"));
+        mb.setTongSoGhe(rs.getInt("tongSoGhe"));
+        return mb;
+    }
+
     public boolean insert(MayBay mb) {
         String sql = "INSERT INTO MayBay (maMayBay, soHieu, hangSanXuat, tongSoGhe, trangThai) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();

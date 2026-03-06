@@ -33,4 +33,5 @@ src/test/TestQuanLyThuHangPanel.java
 src/test/TestPanelUserProfile.java
 src/test/TestQuanLyKhuyenMaiPanel.java
 src/test/TestDoiVePanel.java
+src/test/TestBanVePanel.java
 
