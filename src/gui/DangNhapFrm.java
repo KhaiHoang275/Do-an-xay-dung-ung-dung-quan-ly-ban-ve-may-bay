@@ -13,13 +13,20 @@ import com.formdev.flatlaf.extras.FlatSVGIcon;
 public class DangNhapFrm extends javax.swing.JFrame {
     private javax.swing.border.Border defaultBorder;
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(DangNhapFrm.class.getName());
-
+    private boolean isShowPassword = false;
     /**
      * Creates new form DangNhapFrm
      */
     public DangNhapFrm() {
         initComponents();   
-
+        btnSeeCnPass.setText("👁");
+        btnSeeCnPass.setBorderPainted(false);
+        btnSeeCnPass.setContentAreaFilled(false);
+        btnSeeCnPass.setFocusPainted(false);
+        btnSeeCnPass.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR)); 
+        btnSeeCnPass.addActionListener(e -> btnSeeCnPassActionPerformed(e)); 
+        
+        btnConfirm.addActionListener(e -> thucHienDangNhap());
         java.awt.Color PRIMARY_COLOR = new java.awt.Color(18, 32, 64);
         java.awt.Color SECONDARY_COLOR = new java.awt.Color(45, 72, 140);
         java.awt.Color ACCENT_COLOR = new java.awt.Color(255, 193, 7);
@@ -27,14 +34,14 @@ public class DangNhapFrm extends javax.swing.JFrame {
         java.awt.Color BG_MAIN = new java.awt.Color(245, 247, 250); 
 
         this.getContentPane().setBackground(BG_MAIN);
-    LoginLable.setBackground(java.awt.Color.WHITE);
+        LoginLable.setBackground(java.awt.Color.WHITE);
 
     
-    LableTitle.setForeground(PRIMARY_COLOR);
+        LableTitle.setForeground(PRIMARY_COLOR);
 
    
-    btnConfirm.setBackground(SUCCESS_COLOR);
-    btnConfirm.setForeground(java.awt.Color.WHITE);
+        btnConfirm.setBackground(SUCCESS_COLOR);
+        btnConfirm.setForeground(java.awt.Color.WHITE);
 
     btnSignIn.setBackground(ACCENT_COLOR);
     btnSignIn.setForeground(PRIMARY_COLOR);
@@ -107,6 +114,7 @@ public class DangNhapFrm extends javax.swing.JFrame {
         rbtnRemember = new javax.swing.JRadioButton();
         lblErrorPass = new javax.swing.JLabel();
         lblErrorUser = new javax.swing.JLabel();
+        btnSeeCnPass = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -126,7 +134,7 @@ public class DangNhapFrm extends javax.swing.JFrame {
         btnFacebookAcc.addActionListener(this::btnFacebookAccActionPerformed);
 
         btnReturn.setText("Quay lại\n");
-        btnConfirm.addActionListener(this::btnConfirmActionPerformed);
+
         btnConfirm.setBackground(new java.awt.Color(255, 255, 51));
         btnConfirm.setFont(new java.awt.Font("Arial", 3, 14)); // NOI18N
         btnConfirm.setText("Nhập");
@@ -152,6 +160,8 @@ public class DangNhapFrm extends javax.swing.JFrame {
 
         lblErrorUser.setFont(new java.awt.Font("Arial", 2, 14)); // NOI18N
         lblErrorUser.setForeground(new java.awt.Color(255, 0, 51));
+
+        btnSeeCnPass.setText("jButton1");
 
         javax.swing.GroupLayout LoginLableLayout = new javax.swing.GroupLayout(LoginLable);
         LoginLable.setLayout(LoginLableLayout);
@@ -184,9 +194,12 @@ public class DangNhapFrm extends javax.swing.JFrame {
                                     .addComponent(LablePassword, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(NameAccount, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(PasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE))))))
+                                .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addGroup(LoginLableLayout.createSequentialGroup()
+                                        .addComponent(PasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(btnSeeCnPass, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(NameAccount))))))
                 .addContainerGap(83, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, LoginLableLayout.createSequentialGroup()
                 .addGap(0, 0, Short.MAX_VALUE)
@@ -212,7 +225,8 @@ public class DangNhapFrm extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
                 .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(LablePassword)
-                    .addComponent(PasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(PasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnSeeCnPass, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lblErrorPass)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -337,6 +351,16 @@ public class DangNhapFrm extends javax.swing.JFrame {
             PasswordField1.setText("");
             NameAccount.requestFocus();
         }
+    } 
+
+    private void btnSeeCnPassActionPerformed(java.awt.event.ActionEvent evt) {                                             
+        isShowPassword = !isShowPassword;
+        
+        if (isShowPassword) {
+            PasswordField1.setEchoChar((char) 0);
+        } else {
+            PasswordField1.setEchoChar('•'); 
+        }
     }
 
     /**
@@ -374,6 +398,7 @@ public class DangNhapFrm extends javax.swing.JFrame {
     private javax.swing.JButton btnFacebookAcc;
     private javax.swing.JButton btnGoogleAcc;
     private javax.swing.JButton btnReturn;
+    private javax.swing.JButton btnSeeCnPass;
     private javax.swing.JButton btnSignIn;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel lblErrorPass;

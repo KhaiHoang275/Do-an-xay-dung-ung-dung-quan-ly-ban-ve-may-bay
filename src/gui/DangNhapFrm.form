@@ -87,9 +87,13 @@
                                       <Component id="jLabel1" max="32767" attributes="0"/>
                                   </Group>
                                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                  <Group type="103" groupAlignment="1" attributes="0">
-                                      <Component id="NameAccount" min="-2" pref="179" max="-2" attributes="0"/>
-                                      <Component id="PasswordField1" min="-2" pref="179" max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                      <Group type="102" attributes="0">
+                                          <Component id="PasswordField1" min="-2" pref="136" max="-2" attributes="0"/>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="btnSeeCnPass" min="-2" pref="52" max="-2" attributes="0"/>
+                                      </Group>
+                                      <Component id="NameAccount" max="32767" attributes="0"/>
                                   </Group>
                               </Group>
                           </Group>
@@ -129,6 +133,7 @@
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="LablePassword" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="PasswordField1" alignment="3" min="-2" pref="35" max="-2" attributes="0"/>
+                      <Component id="btnSeeCnPass" alignment="3" min="-2" pref="35" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="lblErrorPass" min="-2" max="-2" attributes="0"/>
@@ -265,6 +270,11 @@
             <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="33" green="0" red="ff" type="rgb"/>
             </Property>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JButton" name="btnSeeCnPass">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="jButton1"/>
           </Properties>
         </Component>
       </SubComponents>

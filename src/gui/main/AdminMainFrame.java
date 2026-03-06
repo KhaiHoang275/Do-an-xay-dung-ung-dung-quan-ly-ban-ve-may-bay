@@ -76,7 +76,7 @@ public class AdminMainFrame extends JFrame {
         // ===== MENU PANEL =====
         JPanel menuPanel = new JPanel();
         menuPanel.setBackground(SIDEBAR_COLOR);
-        menuPanel.setLayout(new GridLayout(10, 1, 0, 5));
+        menuPanel.setLayout(new GridLayout(0, 1, 0, 5));
 
         JButton btnThuHang = createSidebarButton("Quản lý hạng", "/resources/icons/icons8-certificate-94.png");
 
@@ -139,6 +139,31 @@ public class AdminMainFrame extends JFrame {
         btnDoiVe.addActionListener(e -> {
             setActiveButton(btnDoiVe);
             showPanel(new QuanLyDoiVePanel());
+        }); 
+
+        JButton btnNguoiDung = createSidebarButton("Quản Lý Người Dùng", "/resources/icons/user.png");
+        
+        btnNguoiDung.addActionListener(e -> {
+            setActiveButton(btnNguoiDung);
+            showPanel(new QuanLyNguoiDungPanel()); 
+        }); 
+
+        JButton btnNhanVien = createSidebarButton("Quản Lý Nhân Viên", "/resources/icons/staff.png"); 
+        btnNhanVien.addActionListener(e -> {
+            setActiveButton(btnNhanVien);
+            showPanel(new QuanLyNhanVienPanel()); 
+        }); 
+
+        JButton btnSanBay = createSidebarButton("Quản lý Sân Bay", "/resources/icons/airport.png");
+        btnSanBay.addActionListener(e -> {
+            setActiveButton(btnSanBay);
+            showPanel(new QuanLySanBayPanel());
+        });  
+
+        JButton btnMayBay = createSidebarButton("Quản lý Máy Bay", "/resources/icons/plane.png");
+        btnMayBay.addActionListener(e -> {
+            setActiveButton(btnMayBay);
+            showPanel(new QuanLyMayBayPanel());
         });
 
         menuPanel.add(btnChuyenBay);
@@ -149,7 +174,10 @@ public class AdminMainFrame extends JFrame {
         menuPanel.add(btnHangVe);
         menuPanel.add(btnGheMayBay);
         menuPanel.add(btnDoiVe);
-
+        menuPanel.add(btnNguoiDung); 
+        menuPanel.add(btnNhanVien); 
+        menuPanel.add(btnSanBay); 
+        menuPanel.add(btnMayBay);
         sidebar.add(menuPanel, BorderLayout.CENTER);
 
         setActiveButton(btnChuyenBay);
