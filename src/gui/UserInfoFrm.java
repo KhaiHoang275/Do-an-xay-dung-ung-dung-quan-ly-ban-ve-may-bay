@@ -20,7 +20,7 @@ public class UserInfoFrm extends javax.swing.JFrame {
      */
     public UserInfoFrm() {
         initComponents(); 
-
+        setupLogo();
         this.getContentPane().setBackground(new java.awt.Color(245, 247, 250));
         jPanel1.setBackground(new java.awt.Color(245, 247, 250)); 
         jPanel6.setBackground(new java.awt.Color(245, 247, 250));
@@ -37,7 +37,6 @@ public class UserInfoFrm extends javax.swing.JFrame {
 
         resetMenuUI(); 
         initComboboxData(); 
-        setupCityDropdown(); 
         setupTabPanels();
         setupMenuEvents();   
 
@@ -103,8 +102,6 @@ public class UserInfoFrm extends javax.swing.JFrame {
         btnSaveUserInfo = new javax.swing.JButton();
         EmailUser = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
-        btnAddress = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         cbYears = new javax.swing.JComboBox<>();
         cbMonth = new javax.swing.JComboBox<>();
@@ -148,7 +145,7 @@ public class UserInfoFrm extends javax.swing.JFrame {
         jPanel1.setBackground(new java.awt.Color(255, 255, 51));
 
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
-
+        
         btnPageThuHang.setBackground(new java.awt.Color(255, 255, 51));
         btnPageThuHang.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
         btnPageThuHang.setText("Bạn là thành viên: ");
@@ -266,11 +263,6 @@ public class UserInfoFrm extends javax.swing.JFrame {
         jLabel3.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
         jLabel3.setText("Ngày sinh: ");
 
-        jLabel4.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
-        jLabel4.setText("Thành phố:");
-
-        btnAddress.setText("jButton2");
-
         jLabel1.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
         jLabel1.setText("Giới tính:");
 
@@ -303,8 +295,8 @@ public class UserInfoFrm extends javax.swing.JFrame {
             .addGroup(LoginLableLayout.createSequentialGroup()
                 .addGap(137, 137, 137)
                 .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel6)
                     .addComponent(NameAccount, javax.swing.GroupLayout.PREFERRED_SIZE, 534, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel4)
                     .addGroup(LoginLableLayout.createSequentialGroup()
                         .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel1)
@@ -315,27 +307,22 @@ public class UserInfoFrm extends javax.swing.JFrame {
                             .addGroup(LoginLableLayout.createSequentialGroup()
                                 .addComponent(cbDays, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
-                                .addComponent(cbMonth, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(cbYears, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel7)
+                                    .addGroup(LoginLableLayout.createSequentialGroup()
+                                        .addComponent(cbMonth, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(cbYears, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(PhoneUser, javax.swing.GroupLayout.PREFERRED_SIZE, 238, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                     .addComponent(LableUsername, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addGroup(LoginLableLayout.createSequentialGroup()
-                            .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jLabel6)
-                                .addComponent(EmailUser, javax.swing.GroupLayout.PREFERRED_SIZE, 214, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(PhoneUser, javax.swing.GroupLayout.PREFERRED_SIZE, 238, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jLabel7)))
-                        .addComponent(btnAddress, javax.swing.GroupLayout.PREFERRED_SIZE, 536, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(EmailUser, javax.swing.GroupLayout.PREFERRED_SIZE, 214, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 136, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, LoginLableLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(LoginLableLayout.createSequentialGroup()
+                .addGap(231, 231, 231)
                 .addComponent(btnChangeInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(31, 31, 31)
+                .addGap(32, 32, 32)
                 .addComponent(btnSaveUserInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(262, 262, 262))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         LoginLableLayout.setVerticalGroup(
             LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -354,10 +341,6 @@ public class UserInfoFrm extends javax.swing.JFrame {
                     .addComponent(cbDays, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(cbMonth, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(cbYears, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel4)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnAddress, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
@@ -366,11 +349,11 @@ public class UserInfoFrm extends javax.swing.JFrame {
                 .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(EmailUser, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(PhoneUser, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(27, 27, 27)
+                .addGap(29, 29, 29)
                 .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnSaveUserInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnChangeInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(135, Short.MAX_VALUE))
+                    .addComponent(btnChangeInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnSaveUserInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(57, Short.MAX_VALUE))
         );
 
         btnTabPass.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
@@ -725,14 +708,10 @@ public class UserInfoFrm extends javax.swing.JFrame {
     String gioiTinhMoi = cbGender.getSelectedItem().toString();
     String emailMoi = EmailUser.getText().trim();
     String sdtMoi = PhoneUser.getText().trim();
-    String thanhPhoMoi = btnAddress.getText().trim();
     
     if (hoTenMoi.isEmpty()) {
         javax.swing.JOptionPane.showMessageDialog(this, "Họ và tên không được để trống!");
         return;
-    }
-    if (thanhPhoMoi.equals("Chọn thành phố") || thanhPhoMoi.equals("jButton2")) {
-        thanhPhoMoi = ""; 
     }
 
     java.time.LocalDate ngaySinhMoi;
@@ -763,7 +742,7 @@ public class UserInfoFrm extends javax.swing.JFrame {
 
     currentUser.setEmail(emailMoi);
     currentUser.setSoDienThoai(sdtMoi); 
-    currentUser.setThanhPho(thanhPhoMoi);
+    
 
     bll.NguoiDungBUS ndBus = new bll.NguoiDungBUS();
     boolean successHK = false;
@@ -801,7 +780,6 @@ public class UserInfoFrm extends javax.swing.JFrame {
         if (cbDays != null) cbDays.setEnabled(isEditable);
         if (cbMonth != null) cbMonth.setEnabled(isEditable);
         if (cbYears != null) cbYears.setEnabled(isEditable);
-        if (btnAddress != null) btnAddress.setEnabled(isEditable);
         
         if (btnSaveUserInfo != null) btnSaveUserInfo.setVisible(isEditable);
         if (btnChangeInfo != null) btnChangeInfo.setVisible(!isEditable);
@@ -835,7 +813,7 @@ public class UserInfoFrm extends javax.swing.JFrame {
 
     EmailUser.setText(currentUser.getEmail() != null ? currentUser.getEmail() : "");
     PhoneUser.setText(currentUser.getSoDienThoai() != null ? currentUser.getSoDienThoai() : ""); 
-    btnAddress.setText(currentUser.getThanhPho() != null && !currentUser.getThanhPho().isEmpty() ? currentUser.getThanhPho() : "Chọn thành phố");
+
 
     dal.ThongTinHanhKhachDAO hkDao = new dal.ThongTinHanhKhachDAO();
     this.currentHK = hkDao.selectByMaNguoiDung(currentUser.getMaNguoiDung());
@@ -1075,73 +1053,6 @@ public class UserInfoFrm extends javax.swing.JFrame {
         }
     }
 
-    private void setupCityDropdown() {
-        String[] provinces = {
-            "Hà Nội", "Hồ Chí Minh", "Đà Nẵng", "Hải Phòng", "Cần Thơ",
-            "An Giang", "Bà Rịa - Vũng Tàu", "Bắc Giang", "Bắc Kạn", "Bạc Liêu",
-            "Bắc Ninh", "Bến Tre", "Bình Định", "Bình Dương", "Bình Phước",
-            "Bình Thuận", "Cà Mau", "Cao Bằng", "Đắk Lắk", "Đắk Nông",
-            "Điện Biên", "Đồng Nai", "Đồng Tháp", "Gia Lai", "Hà Giang",
-            "Hà Nam", "Hà Tĩnh", "Hải Dương", "Hậu Giang", "Hòa Bình",
-            "Hưng Yên", "Khánh Hòa", "Kiên Giang", "Kon Tum", "Lai Châu",
-            "Lâm Đồng", "Lạng Sơn", "Lào Cai", "Long An", "Nam Định",
-            "Nghệ An", "Ninh Bình", "Ninh Thuận", "Phú Thọ", "Quảng Bình",
-            "Quảng Nam", "Quảng Ngãi", "Quảng Ninh", "Quảng Trị", "Sóc Trăng",
-            "Sơn La", "Tây Ninh", "Thái Bình", "Thái Nguyên", "Thanh Hóa",
-            "Thừa Thiên Huế", "Tiền Giang", "Trà Vinh", "Tuyên Quang",
-            "Vĩnh Long", "Vĩnh Phúc", "Yên Bái", "Phú Yên"
-        };
-
-        btnAddress.addActionListener(e -> {
-            if (!btnAddress.isEnabled()) return;
-
-            javax.swing.JPopupMenu popup = new javax.swing.JPopupMenu();
-            popup.setLayout(new java.awt.BorderLayout());
-
-            javax.swing.JTextField txtSearch = new javax.swing.JTextField();
-            txtSearch.setPreferredSize(new java.awt.Dimension(250, 30));
-            popup.add(txtSearch, java.awt.BorderLayout.NORTH);
-
-            javax.swing.DefaultListModel<String> listModel = new javax.swing.DefaultListModel<>();
-            for (String p : provinces) listModel.addElement(p);
-            
-            javax.swing.JList<String> list = new javax.swing.JList<>(listModel);
-            javax.swing.JScrollPane scroll = new javax.swing.JScrollPane(list);
-            scroll.setPreferredSize(new java.awt.Dimension(250, 150));
-            popup.add(scroll, java.awt.BorderLayout.CENTER);
-
-            txtSearch.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
-                private void filter() {
-                    String filterText = txtSearch.getText().toLowerCase();
-                    listModel.clear();
-                    for (String p : provinces) {
-                        if (p.toLowerCase().contains(filterText)) {
-                            listModel.addElement(p);
-                        }
-                    }
-                }
-                public void insertUpdate(javax.swing.event.DocumentEvent e) { filter(); }
-                public void removeUpdate(javax.swing.event.DocumentEvent e) { filter(); }
-                public void changedUpdate(javax.swing.event.DocumentEvent e) { filter(); }
-            });
-
-            list.addMouseListener(new java.awt.event.MouseAdapter() {
-                public void mouseClicked(java.awt.event.MouseEvent evt) {
-                    if (evt.getClickCount() == 1) {
-                        String selected = list.getSelectedValue();
-                        if (selected != null) {
-                            btnAddress.setText(selected);
-                            popup.setVisible(false);
-                        }
-                    }
-                }
-            });
-
-            popup.show(btnAddress, 0, btnAddress.getHeight());
-            txtSearch.requestFocus();
-        });
-    }
-
     private void setupMenuEvents() {
         for(java.awt.event.ActionListener al : btnInfoModify.getActionListeners()) btnInfoModify.removeActionListener(al);
         if (btnTabPass != null) {
@@ -1369,6 +1280,37 @@ public class UserInfoFrm extends javax.swing.JFrame {
         pnAvatar.add(new javax.swing.JLabel(new javax.swing.ImageIcon(scaledImg)), java.awt.BorderLayout.CENTER);
         pnAvatar.revalidate();
         pnAvatar.repaint();
+    } 
+
+    private void setupLogo() {
+        jLabel5.setText(""); 
+        
+        try {
+            javax.swing.ImageIcon originalIcon = new javax.swing.ImageIcon("src/resources/images/finalLogo.png");
+            
+            if (originalIcon.getIconWidth() > 0) {
+                java.awt.Image scaledImg = originalIcon.getImage().getScaledInstance(-1, 100, java.awt.Image.SCALE_FAST);
+                jLabel5.setIcon(new javax.swing.ImageIcon(scaledImg));
+            } else {
+                System.out.println("Báo động: Không tìm thấy ảnh tại src/resources/images");
+                jLabel1.setText("AirLiner");
+            }
+        } catch (Exception e) {
+            System.out.println("Lỗi hiển thị logo: " + e.getMessage());
+        } 
+
+        jLabel5.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR)); 
+        jLabel5.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                if (currentUser != null) {
+                    new MainFrame(currentUser).setVisible(true);
+                } else {
+                    new MainFrame().setVisible(true);
+                }
+                dispose(); 
+            }
+        });
     }
 
     /**
@@ -1404,7 +1346,6 @@ public class UserInfoFrm extends javax.swing.JFrame {
     private javax.swing.JPanel LoginLable;
     private javax.swing.JTextField NameAccount;
     private javax.swing.JTextField PhoneUser;
-    private javax.swing.JButton btnAddress;
     private javax.swing.JButton btnChangeInfo;
     private javax.swing.JButton btnChangePassword;
     private javax.swing.JButton btnDatChoPG1;
@@ -1436,7 +1377,6 @@ public class UserInfoFrm extends javax.swing.JFrame {
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
