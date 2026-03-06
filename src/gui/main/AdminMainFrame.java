@@ -2,7 +2,6 @@ package gui.main;
 
 import gui.admin.*;
 import gui.user.DoiVePanel;
-import org.apache.xmlbeans.impl.values.JavaHexBinaryHolder;
 
 import javax.swing.*;
 import java.awt.*;
@@ -48,7 +47,6 @@ public class AdminMainFrame extends JFrame {
         sidebar.setLayout(new BorderLayout());
 
         // ===== PANEL LOGO (CHỈ HÌNH, KHÔNG TEXT) =====
-        // ===== LOGO =====
         JPanel logoPanel = new JPanel(new BorderLayout());
         logoPanel.setBackground(SIDEBAR_COLOR);
         logoPanel.setPreferredSize(new Dimension(230, 200)); // chiều cao logo
@@ -56,45 +54,43 @@ public class AdminMainFrame extends JFrame {
         URL logoURL = getClass().getResource("/resources/images/logooo.png");
 
         if (logoURL != null) {
-
             ImageIcon logoIcon = new ImageIcon(logoURL);
-
             JLabel logoLabel = new JLabel() {
                 @Override
                 protected void paintComponent(Graphics g) {
                     super.paintComponent(g);
-
                     Image img = logoIcon.getImage();
                     g.drawImage(img, 0, 0, getWidth(), getHeight(), this);
                 }
             };
-
             logoPanel.add(logoLabel, BorderLayout.CENTER);
+        } else {
+            System.err.println("LỖI: Không tìm thấy Logo tại /resources/images/logooo.png");
         }
 
         sidebar.add(logoPanel, BorderLayout.NORTH);
-        // ===== MENU PANEL =====
+
+        // ===== MENU PANEL (Chứa các nút) =====
         JPanel menuPanel = new JPanel();
         menuPanel.setBackground(SIDEBAR_COLOR);
         menuPanel.setLayout(new GridLayout(0, 1, 0, 5));
 
         JButton btnThuHang = createSidebarButton("Quản lý hạng", "/resources/icons/icons8-certificate-94.png");
-
         btnThuHang.addActionListener(e -> {
             setActiveButton(btnThuHang);
             showPanel(new QuanLyThuHangPanel());
         });
 
         JButton btnKhuyenMai = createSidebarButton("Quản lý khuyến mãi", "/resources/icons/voucher.png");
-        btnKhuyenMai.addActionListener(e ->{
+        btnKhuyenMai.addActionListener(e -> {
             setActiveButton(btnKhuyenMai);
             showPanel(new QuanLyKhuyenMaiPanel());
         });
 
-        JButton btnTuyenBay = createSidebarButton("Quản lý tuyến bay", "/resources/icons/tuyenbay.png"); 
+        JButton btnTuyenBay = createSidebarButton("Quản lý tuyến bay", "/resources/icons/tuyenbay.png");
         btnTuyenBay.addActionListener(e -> {
             setActiveButton(btnTuyenBay);
-            showPanel(new TuyenBayPanel()); 
+            showPanel(new TuyenBayPanel());
         });
 
         JButton btnChuyenBay = createSidebarButton("Quản lý chuyến bay", "/resources/icons/flight.png");
@@ -104,7 +100,7 @@ public class AdminMainFrame extends JFrame {
         });
 
         JButton btnVeBan = createSidebarButton("Quản lý vé bán", " ");
-        btnVeBan.addActionListener(e ->{
+        btnVeBan.addActionListener(e -> {
             setActiveButton(btnVeBan);
             showPanel(new VeBanPanel());
         });
@@ -124,47 +120,40 @@ public class AdminMainFrame extends JFrame {
         JButton btnGheMayBay = createSidebarButton("Quản lý ghế máy bay", "/resources/icons/chair.png");
         btnGheMayBay.addActionListener(e -> {
             setActiveButton(btnGheMayBay);
-            
             GheMayBayPanel gheMayBayPanel = new GheMayBayPanel();
-            
             gheMayBayPanel.setPanelSwitchListener((maMayBay, tenMayBay) -> {
-                
                 SoDoGhePanel soDoPanel = new SoDoGhePanel(maMayBay, tenMayBay);
-                
                 soDoPanel.setBackListener(() -> {
-                    showPanel(gheMayBayPanel);                
-});
+                    showPanel(gheMayBayPanel);
+                });
                 showPanel(soDoPanel);
             });
-            
             showPanel(gheMayBayPanel);
         });
 
-        JButton btnDoiVe = createSidebarButton("Quản lý đổi vé",
-            "/resources/icons/icons8-changeticket-24.png");
+        JButton btnDoiVe = createSidebarButton("Quản lý đổi vé", "/resources/icons/icons8-changeticket-24.png");
         btnDoiVe.addActionListener(e -> {
             setActiveButton(btnDoiVe);
             showPanel(new QuanLyDoiVePanel());
-        }); 
+        });
 
         JButton btnNguoiDung = createSidebarButton("Quản Lý Người Dùng", "/resources/icons/user.png");
-        
         btnNguoiDung.addActionListener(e -> {
             setActiveButton(btnNguoiDung);
-            showPanel(new QuanLyNguoiDungPanel()); 
-        }); 
+            showPanel(new QuanLyNguoiDungPanel());
+        });
 
-        JButton btnNhanVien = createSidebarButton("Quản Lý Nhân Viên", "/resources/icons/staff.png"); 
+        JButton btnNhanVien = createSidebarButton("Quản Lý Nhân Viên", "/resources/icons/staff.png");
         btnNhanVien.addActionListener(e -> {
             setActiveButton(btnNhanVien);
-            showPanel(new QuanLyNhanVienPanel()); 
-        }); 
+            showPanel(new QuanLyNhanVienPanel());
+        });
 
         JButton btnSanBay = createSidebarButton("Quản lý Sân Bay", "/resources/icons/airport.png");
         btnSanBay.addActionListener(e -> {
             setActiveButton(btnSanBay);
             showPanel(new QuanLySanBayPanel());
-        });  
+        });
 
         JButton btnMayBay = createSidebarButton("Quản lý Máy Bay", "/resources/icons/plane.png");
         btnMayBay.addActionListener(e -> {
@@ -172,6 +161,7 @@ public class AdminMainFrame extends JFrame {
             showPanel(new QuanLyMayBayPanel());
         });
 
+        // Thêm các nút vào menuPanel
         menuPanel.add(btnChuyenBay);
         menuPanel.add(btnTuyenBay);
         menuPanel.add(btnVeBan);
@@ -181,11 +171,27 @@ public class AdminMainFrame extends JFrame {
         menuPanel.add(btnHangVe);
         menuPanel.add(btnGheMayBay);
         menuPanel.add(btnDoiVe);
-        menuPanel.add(btnNguoiDung); 
-        menuPanel.add(btnNhanVien); 
-        menuPanel.add(btnSanBay); 
+        menuPanel.add(btnNguoiDung);
+        menuPanel.add(btnNhanVien);
+        menuPanel.add(btnSanBay);
         menuPanel.add(btnMayBay);
-        sidebar.add(menuPanel, BorderLayout.CENTER);
+
+        // ===== TẠO THANH CUỘN (SCROLL PANE) ĐỂ LƯỚT XUỐNG =====
+        // Dùng 1 Panel bọc ngoài để các nút dồn lên trên (không bị kéo giãn nếu ít nút)
+        JPanel menuWrapper = new JPanel(new BorderLayout());
+        menuWrapper.setBackground(SIDEBAR_COLOR);
+        menuWrapper.add(menuPanel, BorderLayout.NORTH);
+
+        JScrollPane scrollPane = new JScrollPane(menuWrapper);
+        scrollPane.setBackground(SIDEBAR_COLOR);
+        scrollPane.getViewport().setBackground(SIDEBAR_COLOR);
+        scrollPane.setBorder(null); // Xóa viền của thanh cuộn cho mượt
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER); // Tắt cuộn ngang
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED); // Bật cuộn dọc khi cần
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16); // Chỉnh tốc độ lăn chuột mượt hơn
+
+        // Thêm thanh cuộn vào Sidebar thay vì thêm menuPanel trực tiếp
+        sidebar.add(scrollPane, BorderLayout.CENTER);
 
         setActiveButton(btnChuyenBay);
 
@@ -201,19 +207,24 @@ public class AdminMainFrame extends JFrame {
         btn.setBorderPainted(false);
         btn.setContentAreaFilled(true);
         btn.setOpaque(true);
-        btn.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
+        btn.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
         btn.setHorizontalAlignment(SwingConstants.LEFT);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        // Thêm icon
-        if (iconPath != null) {
-            ImageIcon originalIcon = new ImageIcon(getClass().getResource(iconPath));
-            Image scaledIconImage = originalIcon.getImage().getScaledInstance(
-                    24, 24, // Kích thước icon nhỏ để vừa button (tùy chỉnh nếu cần)
-                    Image.SCALE_SMOOTH
-            );
-            btn.setIcon(new ImageIcon(scaledIconImage));
-            btn.setIconTextGap(10); // Khoảng cách giữa icon và text
+        // Thêm icon (Đã áp dụng Safe Code chống Crash)
+        if (iconPath != null && !iconPath.trim().isEmpty()) {
+            URL imgURL = getClass().getResource(iconPath);
+            if (imgURL != null) {
+                ImageIcon originalIcon = new ImageIcon(imgURL);
+                Image scaledIconImage = originalIcon.getImage().getScaledInstance(
+                        24, 24, // Kích thước icon
+                        Image.SCALE_SMOOTH
+                );
+                btn.setIcon(new ImageIcon(scaledIconImage));
+                btn.setIconTextGap(10); // Khoảng cách giữa icon và text
+            } else {
+                System.err.println("Lỗi: Không tìm thấy icon tại " + iconPath);
+            }
         }
 
         // Hover effect
