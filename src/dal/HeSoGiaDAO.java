@@ -1,5 +1,6 @@
 package dal;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -116,5 +117,32 @@ public class HeSoGiaDAO {
             hsg.setTrangThai(TrangThaiHeSoGia.HOAT_DONG);
         }
         return hsg;
+    }
+
+    public BigDecimal layHeSoTheoSoGio(long soGio) {
+        String sql = """
+            SELECT TOP 1 heSo
+            FROM HeSoGia
+            WHERE soGioDatTruoc <= ?
+            AND trangThai = N'Hoạt động'
+            ORDER BY soGioDatTruoc DESC
+        """;
+
+        try (Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setLong(1, soGio);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getBigDecimal("heSo");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return BigDecimal.ONE;
     }
 }

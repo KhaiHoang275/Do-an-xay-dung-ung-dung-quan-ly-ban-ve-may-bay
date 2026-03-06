@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JOptionPane;
 
@@ -65,25 +66,26 @@ public class PhieuDatVeDAO {
         return false;
     }
 
-    public boolean update(PhieuDatVe dv){
-        String sql = "UPDATE PhieuDatVe SET maNguoiDung=?, maNV=?, maKhuyenMai=?, thoiLuong=?, ngayDat=?, soLuongVe=?, tongTien=?, trangThaiThanhToan=? WHERE maPhieuDatVe=?";
-        try (Connection con = DBConnection.getConnection();
-            PreparedStatement ps = con.prepareStatement(sql)){
-                ps.setString(1, dv.getMaNguoiDung());
-                ps.setString(2, dv.getMaNV());
-                ps.setString(3, dv.getMaKhuyenMai());
-                ps.setInt(4, dv.getThoiLuong());
-                ps.setDate(5, java.sql.Date.valueOf(dv.getNgayDat()));
-                ps.setInt(6, dv.getSoLuongVe());
-                ps.setBigDecimal(7, dv.getTongTien());
-                ps.setString(8, dv.getTrangThaiThanhToan());
-                ps.setString(9, dv.getMaPhieuDatVe());
+    public String insert(PhieuDatVe p, Connection conn) throws SQLException {
 
-                return ps.executeUpdate() > 0;    
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
+        String ma = generateMaPhieuDatVe(conn);
+
+        String sql = """
+            INSERT INTO PhieuDatVe(maPhieuDatVe, ngayDat, soLuongVe, tongTien, trangThaiThanhToan)
+            VALUES (?,?,?,?,?)
+        """;
+
+        PreparedStatement ps = conn.prepareStatement(sql);
+
+        ps.setString(1, ma);
+        ps.setDate(2, java.sql.Date.valueOf(p.getNgayDat()));
+        ps.setInt(3, p.getSoLuongVe());
+        ps.setBigDecimal(4, p.getTongTien());
+        ps.setString(5, p.getTrangThaiThanhToan());
+
+        ps.executeUpdate();
+
+        return ma;
     }
 
     public boolean delete(String maPhieuDatVe){
@@ -138,5 +140,83 @@ public class PhieuDatVeDAO {
             }
         }
         return "PDV001";
+    }
+
+    public List<PhieuDatVe> selectByMaPNR(String maPNR){
+        List<PhieuDatVe> list = new ArrayList<>();
+
+        String sql = "SELECT * FROM PhieuDatVe WHERE maPhieuDatVe LIKE ?";
+
+        try(Connection con = DBConnection.getConnection();
+            PreparedStatement ps = con.prepareStatement(sql)){
+
+            ps.setString(1,"%"+maPNR+"%");
+
+            ResultSet rs = ps.executeQuery();
+
+            while(rs.next()){
+                PhieuDatVe p = new PhieuDatVe();
+
+                p.setMaPhieuDatVe(rs.getString("maPhieuDatVe"));
+                p.setNgayDat(rs.getDate("ngayDat").toLocalDate());
+                p.setSoLuongVe(rs.getInt("soLuongVe"));
+                p.setTongTien(rs.getBigDecimal("tongTien"));
+                p.setTrangThaiThanhToan(rs.getString("trangThaiThanhToan"));
+
+                list.add(p);
+            }
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    public List<PhieuDatVe> locPhieu(String maPNR, String trangThai){
+        List<PhieuDatVe> list = new ArrayList<>();
+
+        String sql = "SELECT * FROM PhieuDatVe WHERE 1=1";
+
+        if(!maPNR.isEmpty()){
+            sql += " AND maPhieuDatVe LIKE ?";
+        }
+
+        if(!trangThai.equals("Tất cả")){
+            sql += " AND trangThaiThanhToan = ?";
+        }
+
+        try(Connection con = DBConnection.getConnection();
+            PreparedStatement ps = con.prepareStatement(sql)){
+
+            int index = 1;
+
+            if(!maPNR.isEmpty()){
+                ps.setString(index++,"%"+maPNR+"%");
+            }
+
+            if(!trangThai.equals("Tất cả")){
+                ps.setString(index++,trangThai);
+            }
+
+            ResultSet rs = ps.executeQuery();
+
+            while(rs.next()){
+                PhieuDatVe p = new PhieuDatVe();
+
+                p.setMaPhieuDatVe(rs.getString("maPhieuDatVe"));
+                p.setNgayDat(rs.getDate("ngayDat").toLocalDate());
+                p.setSoLuongVe(rs.getInt("soLuongVe"));
+                p.setTongTien(rs.getBigDecimal("tongTien"));
+                p.setTrangThaiThanhToan(rs.getString("trangThaiThanhToan"));
+
+                list.add(p);
+            }
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return list;
     }
 }

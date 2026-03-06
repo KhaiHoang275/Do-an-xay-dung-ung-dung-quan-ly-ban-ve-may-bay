@@ -3,6 +3,7 @@ package dal;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -220,11 +221,33 @@ public class ChuyenBayDAO {
             ps.setString(1, maChuyenBay);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return rs.getBigDecimal("giaCoBan");
+                return rs.getBigDecimal("giaGoc");
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return BigDecimal.ZERO;
+    }
+
+    public LocalDateTime layNgayBay(String maChuyenBay) {
+
+        String sql = "SELECT ngayGioDi FROM ChuyenBay WHERE maChuyenBay = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, maChuyenBay);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                Timestamp ts = rs.getTimestamp("ngayGioDi");
+                return ts.toLocalDateTime();
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }

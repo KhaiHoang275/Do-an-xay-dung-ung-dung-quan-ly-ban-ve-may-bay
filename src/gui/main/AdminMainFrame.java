@@ -103,6 +103,12 @@ public class AdminMainFrame extends JFrame {
             showPanel(new ChuyenBayPanel());
         });
 
+        JButton btnVeBan = createSidebarButton("Quản lý vé bán", " ");
+        btnVeBan.addActionListener(e ->{
+            setActiveButton(btnVeBan);
+            showPanel(new VeBanPanel());
+        });
+
         JButton btnHeSoGia = createSidebarButton("Quản lý hệ số giá", "/resources/icons/price.png");
         btnHeSoGia.addActionListener(e -> {
             setActiveButton(btnHeSoGia);
@@ -168,6 +174,7 @@ public class AdminMainFrame extends JFrame {
 
         menuPanel.add(btnChuyenBay);
         menuPanel.add(btnTuyenBay);
+        menuPanel.add(btnVeBan);
         menuPanel.add(btnThuHang);
         menuPanel.add(btnKhuyenMai);
         menuPanel.add(btnHeSoGia);
