@@ -37,14 +37,13 @@ public class NguoiDungDAO {
     }
 
     public boolean insert(NguoiDung nd) {
-        String sql = "INSERT INTO NguoiDung (maNguoiDung, username, password, email, sdt, ngayTao, thanhPho, phanQuyen, trangThaiTK) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
+        String sql = "INSERT INTO NguoiDung (maNguoiDung, username, password, email, sdt, ngayTao, phanQuyen, trangThaiTK) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             
             ps.setString(1, nd.getMaNguoiDung());
             ps.setString(2, nd.getUsername());
-            ps.setString(3, nd.getPassword()); 
+            ps.setString(3, nd.getPassword());
             ps.setString(4, nd.getEmail());
             ps.setString(5, nd.getSoDienThoai());
             ps.setDate(6, java.sql.Date.valueOf(nd.getNgayTao()));
@@ -59,78 +58,32 @@ public class NguoiDungDAO {
     }
 
     public boolean update(NguoiDung nd) {
-        String sql = "UPDATE NguoiDung SET email=?, sdt=?, phanQuyen=?, trangThaiTK=? WHERE maNguoiDung=?";
+        String sql = "UPDATE NguoiDung SET username=?, password=?, email=?, sdt=?, phanQuyen=?, trangThaiTK=? WHERE maNguoiDung=?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             
-            ps.setString(1, nd.getEmail());
-            ps.setString(2, nd.getSoDienThoai());
-            ps.setString(3, nd.getPhanQuyen());
-            ps.setString(4, nd.getTrangThaiTK().getValue());
-            ps.setString(5, nd.getMaNguoiDung());
+            ps.setString(1, nd.getUsername());
+            ps.setString(2, nd.getPassword());
+            ps.setString(3, nd.getEmail());
+            ps.setString(4, nd.getSoDienThoai());
+            ps.setString(5, nd.getPhanQuyen());
+            ps.setString(6, nd.getTrangThaiTK().getValue());
+            ps.setString(7, nd.getMaNguoiDung());
             
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;
-    }
-
-    public boolean isUsernameExists(String username) {
-        String sql = "SELECT COUNT(*) FROM NguoiDung WHERE username = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, username);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1) > 0;
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    public NguoiDung checkLogin(String username, String password) {
-        String sql = "SELECT * FROM NguoiDung WHERE username=? AND password=?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            
-            ps.setString(1, username);
-            ps.setString(2, password);
-            
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    NguoiDung nd = new NguoiDung();
-                    nd.setMaNguoiDung(rs.getString("maNguoiDung"));
-                    nd.setUsername(rs.getString("username"));
-                    nd.setPassword(rs.getString("password"));
-                    nd.setEmail(rs.getString("email"));
-                    nd.setSoDienThoai(rs.getString("sdt"));
-                 
-                    if (rs.getDate("ngayTao") != null) {
-                        nd.setNgayTao(rs.getDate("ngayTao").toLocalDate());
-                    }
-                    nd.setPhanQuyen(rs.getString("phanQuyen"));
-                    nd.setTrangThaiTK(NguoiDung.TrangThai.fromString(rs.getString("trangThaiTK")));
-                    return nd; 
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null; 
     }
 
     public boolean delete(String maNguoiDung) {
-     
         String sql = "UPDATE NguoiDung SET trangThaiTK = N'Ngừng hoạt động' WHERE maNguoiDung = ?";
-        try (java.sql.Connection conn = db.DBConnection.getConnection();
-             java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, maNguoiDung);
             return ps.executeUpdate() > 0;
-        } catch (java.sql.SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;
@@ -152,12 +105,40 @@ public class NguoiDungDAO {
                 nd.setSoDienThoai(rs.getString("sdt"));
                 if (rs.getTimestamp("ngayTao") != null) {
                     nd.setNgayTao(rs.getTimestamp("ngayTao").toLocalDateTime().toLocalDate());
-                }
+                } 
                 nd.setPhanQuyen(rs.getString("phanQuyen"));
                 nd.setTrangThaiTK(NguoiDung.TrangThai.fromString(rs.getString("trangThaiTK")));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return nd;}
+        return nd;
+    }
+
+    public NguoiDung checkLogin(String username, String password) {
+        String sql = "SELECT * FROM NguoiDung WHERE username = ? AND password = ? AND trangThaiTK = N'Hoạt động'";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, username);
+            ps.setString(2, password);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                NguoiDung nd = new NguoiDung();
+                nd.setMaNguoiDung(rs.getString("maNguoiDung"));
+                nd.setUsername(rs.getString("username"));
+                nd.setPassword(rs.getString("password"));
+                nd.setEmail(rs.getString("email"));
+                nd.setSoDienThoai(rs.getString("sdt"));
+                if (rs.getTimestamp("ngayTao") != null) {
+                    nd.setNgayTao(rs.getTimestamp("ngayTao").toLocalDateTime().toLocalDate());
+                }
+                nd.setPhanQuyen(rs.getString("phanQuyen"));
+                nd.setTrangThaiTK(NguoiDung.TrangThai.fromString(rs.getString("trangThaiTK")));
+                return nd;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
