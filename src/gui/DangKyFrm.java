@@ -415,7 +415,8 @@ public class DangKyFrm extends javax.swing.JFrame {
         String maND = "ND" + randomID; 
         
         bll.NguoiDungBUS bus = new bll.NguoiDungBUS();
-        model.NguoiDung ndNew = new model.NguoiDung(maND, user, pass, "", "", java.time.LocalDate.now(), "KhachHang", "HoatDong", "");
+        
+        model.NguoiDung ndNew = new model.NguoiDung(maND, user, pass, "", "", java.time.LocalDate.now(), "KhachHang", model.NguoiDung.TrangThai.HOAT_DONG, "");
         
         String result = bus.themNguoiDung(ndNew);
         
@@ -430,7 +431,7 @@ public class DangKyFrm extends javax.swing.JFrame {
                 hkNew.setCccd("");
                 hkNew.setHoChieu("");
                 hkNew.setNgaySinh(java.time.LocalDate.of(2000, 1, 1)); 
-                hkNew.setGioiTinh("Chưa cập nhật");
+                hkNew.setGioiTinh("Khác");
                 hkNew.setDiemTichLuy(0);
                 tthkDao.insert(hkNew); 
             } catch (Exception ex) {}

@@ -17,7 +17,7 @@ CREATE TABLE NguoiDung (
     ngayTao DATETIME DEFAULT GETDATE(), 
     thanhPho NVARCHAR(50),
     phanQuyen NVARCHAR(50), -- Admin, NhanVien, KhachHang
-    trangThai Enum('ACTIVE', 'INACTIVE') DEFAULT 'ACTIVE'
+    trangThaiTK Enum('ACTIVE', 'INACTIVE') DEFAULT 'ACTIVE'
 );
 
 CREATE TABLE ThuHang (

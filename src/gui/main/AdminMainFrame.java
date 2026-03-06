@@ -1,8 +1,5 @@
 package gui.main;
 
-import gui.admin.QuanLyKhuyenMaiPanel;
-import gui.admin.QuanLyThuHangPanel;
-import gui.admin.TuyenBayPanel;
 import gui.admin.*;
 import gui.user.DoiVePanel;
 import org.apache.xmlbeans.impl.values.JavaHexBinaryHolder;
@@ -129,6 +126,13 @@ public class AdminMainFrame extends JFrame {
         btnDoiVe.addActionListener(e -> {
             setActiveButton(btnDoiVe);
             showPanel(new QuanLyDoiVePanel());
+        }); 
+
+        JButton btnNguoiDung = createSidebarButton("Quản Lý Người Dùng", "/svgmaterials/icons/user.svg");
+        
+        btnNguoiDung.addActionListener(e -> {
+            setActiveButton(btnNguoiDung);
+            showPanel(new QuanLyNguoiDungPanel()); 
         });
 
         menuPanel.add(btnChuyenBay);

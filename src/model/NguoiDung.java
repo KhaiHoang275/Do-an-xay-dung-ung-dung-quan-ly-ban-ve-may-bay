@@ -2,7 +2,25 @@ package model;
 
 import java.time.LocalDate;
 
-public class NguoiDung {
+public class NguoiDung { 
+
+    public enum TrangThai {
+        HOAT_DONG("Hoạt động"),
+        NGUNG_HOAT_DONG("Ngừng hoạt động");
+
+        private final String value;
+        TrangThai(String value) { this.value = value; }
+        public String getValue() { return value; }
+
+        public static TrangThai fromString(String text) {
+            for (TrangThai t : TrangThai.values()) {
+                if (t.value.equalsIgnoreCase(text)) {
+                    return t;
+                }
+            }
+            return HOAT_DONG;
+        }
+    }
     private String maNguoiDung; 
     private String username; 
     private String password; 
@@ -11,7 +29,7 @@ public class NguoiDung {
     private LocalDate ngayTao;
     private String phan_quyen; 
     private String thanhPho;
-    private String trangThaiTK; 
+    private TrangThai trangThaiTK;
 
     public NguoiDung() {
         maNguoiDung = "";
@@ -21,10 +39,10 @@ public class NguoiDung {
         sdt = ""; 
         ngayTao = LocalDate.of(1, 1, 1);
         phan_quyen = ""; 
-        trangThaiTK = "";  
+        trangThaiTK = TrangThai.HOAT_DONG;
         thanhPho = "";
     }
-    public NguoiDung(String maNguoiDung, String username, String password, String email, String sdt, LocalDate ngayTao, String phan_quyen, String trangThaiTK, String thanhPho) {
+    public NguoiDung(String maNguoiDung, String username, String password, String email, String sdt, LocalDate ngayTao, String phan_quyen, TrangThai trangThaiTK, String thanhPho) {
         this.maNguoiDung = maNguoiDung; 
         this.username = username; 
         this.password = password; 
@@ -32,7 +50,7 @@ public class NguoiDung {
         this.sdt = sdt; 
         this.ngayTao = ngayTao;
         this.phan_quyen = phan_quyen; 
-        this.trangThaiTK = trangThaiTK;  
+        this.trangThaiTK = trangThaiTK;
         this.thanhPho = thanhPho;
     } 
 
@@ -91,10 +109,10 @@ public class NguoiDung {
     public String getPhanQuyen() {
         return phan_quyen; 
     }
-    public void setTrangThaiTK(String trangThaiTK) {
+    public void setTrangThaiTK(TrangThai trangThaiTK) {
         this.trangThaiTK = trangThaiTK; 
     }
-    public String getTrangThaiTK() {
+    public TrangThai getTrangThaiTK() {
         return trangThaiTK; 
     }
     public void setThanhPho(String thanhPho) {

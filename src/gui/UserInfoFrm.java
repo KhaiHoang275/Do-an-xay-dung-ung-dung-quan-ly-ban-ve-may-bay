@@ -8,7 +8,10 @@ package gui;
  *
  * @author DellU
  */
-public class UserInfoFrm extends javax.swing.JFrame {
+public class UserInfoFrm extends javax.swing.JFrame { 
+
+    private model.NguoiDung currentUser;
+    private model.ThongTinHanhKhach currentHK; 
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(UserInfoFrm.class.getName());
 
@@ -16,9 +19,62 @@ public class UserInfoFrm extends javax.swing.JFrame {
      * Creates new form UserInfoFrm
      */
     public UserInfoFrm() {
-        initComponents();
-    }
+        initComponents(); 
 
+        this.getContentPane().setBackground(new java.awt.Color(245, 247, 250));
+        jPanel1.setBackground(new java.awt.Color(245, 247, 250)); 
+        jPanel6.setBackground(new java.awt.Color(245, 247, 250));
+        
+        gui.custom.HeaderHelper.applyHeaderTheme(
+            new javax.swing.JPanel[]{jPanel2, pnlMenuHeader}, 
+            btnKhuyenMai, btnDatChoPGheader, btnLogin, btnSignin 
+        );
+        
+        
+        gui.custom.HeaderHelper.setupCurrencyCombo(cbDonViTienTe);
+
+        setupHeaderLayout();
+
+        resetMenuUI(); 
+        initComboboxData(); 
+        setupCityDropdown(); 
+        setupTabPanels();
+        setupMenuEvents();   
+
+        
+        styleButton(btnInfoModify, true, false); 
+        setupScrollbar();
+    } 
+
+    private void setupScrollbar() { 
+        jPanel6.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 30, 10));
+        javax.swing.JPanel pnlTopHeaders = new javax.swing.JPanel(new java.awt.BorderLayout());
+        jPanel2.setPreferredSize(new java.awt.Dimension(1200, 120)); 
+        jPanel6.setPreferredSize(new java.awt.Dimension(1200, 50));   
+        
+        pnlTopHeaders.add(jPanel2, java.awt.BorderLayout.NORTH);
+        pnlTopHeaders.add(jPanel6, java.awt.BorderLayout.CENTER);
+
+        jPanel1.setPreferredSize(new java.awt.Dimension(1200, 850));
+
+        javax.swing.JPanel wrapperPanel = new javax.swing.JPanel(new java.awt.BorderLayout());
+        wrapperPanel.setBackground(new java.awt.Color(245, 247, 250));
+        wrapperPanel.add(pnlTopHeaders, java.awt.BorderLayout.NORTH);
+        wrapperPanel.add(jPanel1, java.awt.BorderLayout.CENTER);
+
+        javax.swing.JScrollPane scrollPane = new javax.swing.JScrollPane(wrapperPanel);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(20); 
+        scrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS); 
+        scrollPane.setBorder(null);
+
+        this.getContentPane().removeAll();
+        this.getContentPane().setLayout(new java.awt.BorderLayout());
+        this.getContentPane().add(scrollPane, java.awt.BorderLayout.CENTER);
+
+        this.revalidate();
+        this.repaint();
+    }  
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -30,21 +86,23 @@ public class UserInfoFrm extends javax.swing.JFrame {
 
         jPanel1 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
+        btnPageThuHang = new javax.swing.JButton();
+        btnTradeList = new javax.swing.JButton();
+        btnDatChoPG1 = new javax.swing.JButton();
+        btnLogOut = new javax.swing.JButton();
+        btnNotifyTicketTrade = new javax.swing.JButton();
+        btnPassengerInfo = new javax.swing.JButton();
+        btnNotifySetting = new javax.swing.JButton();
+        btnInfoModify = new javax.swing.JButton();
+        lbNameUser = new javax.swing.JLabel();
+        lbTypeOfAccount = new javax.swing.JLabel();
+        pnAvatar = new javax.swing.JPanel();
         lbMenuName = new javax.swing.JLabel();
         LoginLable = new gui.custom.RoundedPanel();
         LableUsername = new javax.swing.JLabel();
-        LablePassword = new javax.swing.JLabel();
-        btnGoogleAcc = new javax.swing.JButton();
-        btnFacebookAcc = new javax.swing.JButton();
-        btnReturn = new javax.swing.JButton();
-        btnExit = new javax.swing.JButton();
-        btnConfirm = new javax.swing.JButton();
-        confirmPass = new javax.swing.JPasswordField();
-        jLabel2 = new javax.swing.JLabel();
-        NameAccount = new javax.swing.JTextField();
-        btnChangePassword = new javax.swing.JButton();
+        btnSaveUserInfo = new javax.swing.JButton();
+        EmailUser = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
-        PasswordField1 = new javax.swing.JPasswordField();
         jLabel4 = new javax.swing.JLabel();
         btnAddress = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
@@ -52,15 +110,38 @@ public class UserInfoFrm extends javax.swing.JFrame {
         cbMonth = new javax.swing.JComboBox<>();
         cbGender = new javax.swing.JComboBox<>();
         cbDays = new javax.swing.JComboBox<>();
+        jLabel6 = new javax.swing.JLabel();
+        NameAccount = new javax.swing.JTextField();
+        jLabel7 = new javax.swing.JLabel();
+        PhoneUser = new javax.swing.JTextField();
+        btnChangeInfo = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
+        btnTabPass = new javax.swing.JButton();
+        btnTabInfo = new javax.swing.JButton();
+        jPanel5 = new javax.swing.JPanel();
+        btnChangePassword = new javax.swing.JButton();
+        txtPassMoi = new javax.swing.JPasswordField();
+        jLabel8 = new javax.swing.JLabel();
+        txtPassCu = new javax.swing.JPasswordField();
+        LablePassword1 = new javax.swing.JLabel();
+        btnSeeNewPass = new javax.swing.JButton();
+        btnSeePass = new javax.swing.JButton();
+        txtPassXacNhan = new javax.swing.JPasswordField();
+        btnSeeCnPass = new javax.swing.JButton();
+        LablePassword2 = new javax.swing.JLabel();
+        btnSaveChangePass = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         pnlMenuHeader = new javax.swing.JPanel();
         btnKhuyenMai = new javax.swing.JButton();
-        btnDatCho = new javax.swing.JButton();
+        btnDatChoPGheader = new javax.swing.JButton();
         btnLogin = new javax.swing.JButton();
         btnSignin = new javax.swing.JButton();
         cbDonViTienTe = new javax.swing.JComboBox<>();
         jLabel5 = new javax.swing.JLabel();
+        jPanel6 = new javax.swing.JPanel();
+        btnVeMB = new javax.swing.JButton();
+        btnDiary = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -68,15 +149,104 @@ public class UserInfoFrm extends javax.swing.JFrame {
 
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
 
+        btnPageThuHang.setBackground(new java.awt.Color(255, 255, 51));
+        btnPageThuHang.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
+        btnPageThuHang.setText("Bạn là thành viên: ");
+
+        btnTradeList.setBackground(new java.awt.Color(255, 255, 51));
+        btnTradeList.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
+        btnTradeList.setText("Danh sách giao dịch");
+
+        btnDatChoPG1.setBackground(new java.awt.Color(255, 255, 51));
+        btnDatChoPG1.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
+        btnDatChoPG1.setText("Đặt chỗ của tôi");
+
+        btnLogOut.setBackground(new java.awt.Color(255, 255, 51));
+        btnLogOut.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
+        btnLogOut.setText("Đăng xuất");
+
+        btnNotifyTicketTrade.setBackground(new java.awt.Color(255, 255, 51));
+        btnNotifyTicketTrade.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
+        btnNotifyTicketTrade.setText("Thông báo đổi vé");
+
+        btnPassengerInfo.setBackground(new java.awt.Color(255, 255, 51));
+        btnPassengerInfo.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
+        btnPassengerInfo.setText("Thông tin hành khách");
+
+        btnNotifySetting.setBackground(new java.awt.Color(255, 255, 51));
+        btnNotifySetting.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
+        btnNotifySetting.setText("Cài đặt thông báo");
+
+        btnInfoModify.setBackground(new java.awt.Color(255, 255, 51));
+        btnInfoModify.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
+        btnInfoModify.setText("Cài đặt thông tin");
+
+        lbNameUser.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        lbNameUser.setText("jLabel2");
+
+        lbTypeOfAccount.setFont(new java.awt.Font("Segoe UI", 2, 14)); // NOI18N
+        lbTypeOfAccount.setText("jLabel2");
+
+        javax.swing.GroupLayout pnAvatarLayout = new javax.swing.GroupLayout(pnAvatar);
+        pnAvatar.setLayout(pnAvatarLayout);
+        pnAvatarLayout.setHorizontalGroup(
+            pnAvatarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 103, Short.MAX_VALUE)
+        );
+        pnAvatarLayout.setVerticalGroup(
+            pnAvatarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
+        );
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 244, Short.MAX_VALUE)
+            .addComponent(btnPageThuHang, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(btnTradeList, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(btnDatChoPG1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(btnNotifyTicketTrade, javax.swing.GroupLayout.DEFAULT_SIZE, 287, Short.MAX_VALUE)
+            .addComponent(btnPassengerInfo, javax.swing.GroupLayout.DEFAULT_SIZE, 287, Short.MAX_VALUE)
+            .addComponent(btnInfoModify, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(btnLogOut, javax.swing.GroupLayout.DEFAULT_SIZE, 287, Short.MAX_VALUE)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap(32, Short.MAX_VALUE)
+                .addComponent(pnAvatar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(27, 27, 27)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lbTypeOfAccount)
+                    .addComponent(lbNameUser, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)))
+            .addComponent(btnNotifySetting, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 698, Short.MAX_VALUE)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGap(31, 31, 31)
+                        .addComponent(lbNameUser)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(lbTypeOfAccount))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(pnAvatar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(25, 25, 25)
+                .addComponent(btnPageThuHang, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(45, 45, 45)
+                .addComponent(btnTradeList, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnDatChoPG1, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnNotifyTicketTrade, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnPassengerInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnNotifySetting, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 46, Short.MAX_VALUE)
+                .addComponent(btnInfoModify, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnLogOut, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
 
         lbMenuName.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
@@ -87,46 +257,17 @@ public class UserInfoFrm extends javax.swing.JFrame {
         LableUsername.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
         LableUsername.setText("Họ và tên:");
 
-        LablePassword.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
-        LablePassword.setText("Password:");
+        btnSaveUserInfo.setBackground(new java.awt.Color(255, 255, 51));
+        btnSaveUserInfo.setFont(new java.awt.Font("Arial", 3, 14)); // NOI18N
+        btnSaveUserInfo.setText("Lưu");
 
-        btnGoogleAcc.setBackground(new java.awt.Color(204, 204, 204));
-        btnGoogleAcc.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        btnGoogleAcc.setText("Google");
-        btnGoogleAcc.addActionListener(this::btnGoogleAccActionPerformed);
-
-        btnFacebookAcc.setBackground(new java.awt.Color(204, 204, 204));
-        btnFacebookAcc.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        btnFacebookAcc.setText("Facebook");
-        btnFacebookAcc.addActionListener(this::btnFacebookAccActionPerformed);
-
-        btnReturn.setText("Quay lại\n");
-
-        btnExit.setText("Thoát");
-        btnExit.addActionListener(this::btnExitActionPerformed);
-
-        btnConfirm.setBackground(new java.awt.Color(255, 255, 51));
-        btnConfirm.setFont(new java.awt.Font("Arial", 3, 14)); // NOI18N
-        btnConfirm.setText("Đồng ý");
-
-        confirmPass.setText("jPasswordField1");
-
-        jLabel2.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
-        jLabel2.setText("Xác nhận password:");
-
-        NameAccount.addActionListener(this::NameAccountActionPerformed);
-
-        btnChangePassword.setBackground(new java.awt.Color(255, 255, 51));
-        btnChangePassword.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
-        btnChangePassword.setText("Đổi Mật khẩu");
+        EmailUser.addActionListener(this::EmailUserActionPerformed);
 
         jLabel3.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
         jLabel3.setText("Ngày sinh: ");
 
-        PasswordField1.setText("jPasswordField1");
-
         jLabel4.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
-        jLabel4.setText("Địa chỉ: ");
+        jLabel4.setText("Thành phố:");
 
         btnAddress.setText("jButton2");
 
@@ -141,61 +282,60 @@ public class UserInfoFrm extends javax.swing.JFrame {
 
         cbDays.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
+        jLabel6.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
+        jLabel6.setText("Email:");
+
+        NameAccount.addActionListener(this::NameAccountActionPerformed);
+
+        jLabel7.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
+        jLabel7.setText("Số điện thoại:");
+
+        PhoneUser.addActionListener(this::PhoneUserActionPerformed);
+
+        btnChangeInfo.setBackground(new java.awt.Color(255, 255, 51));
+        btnChangeInfo.setFont(new java.awt.Font("Arial", 3, 14)); // NOI18N
+        btnChangeInfo.setText("Thay đổi");
+
         javax.swing.GroupLayout LoginLableLayout = new javax.swing.GroupLayout(LoginLable);
         LoginLable.setLayout(LoginLableLayout);
         LoginLableLayout.setHorizontalGroup(
             LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(LoginLableLayout.createSequentialGroup()
+                .addGap(137, 137, 137)
                 .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(NameAccount, javax.swing.GroupLayout.PREFERRED_SIZE, 534, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4)
                     .addGroup(LoginLableLayout.createSequentialGroup()
-                        .addGap(613, 613, 613)
-                        .addComponent(btnChangePassword))
-                    .addGroup(LoginLableLayout.createSequentialGroup()
-                        .addGap(107, 107, 107)
                         .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel1)
+                            .addComponent(cbGender, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(28, 28, 28)
+                        .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel3)
                             .addGroup(LoginLableLayout.createSequentialGroup()
-                                .addComponent(jLabel2)
-                                .addGap(49, 49, 49)
-                                .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(LoginLableLayout.createSequentialGroup()
-                                        .addGap(124, 124, 124)
-                                        .addComponent(btnConfirm, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(LoginLableLayout.createSequentialGroup()
-                                        .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                            .addComponent(btnGoogleAcc, javax.swing.GroupLayout.PREFERRED_SIZE, 169, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(btnExit, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addGap(47, 47, 47)
-                                        .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(btnFacebookAcc, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(btnReturn, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                    .addComponent(confirmPass, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addComponent(jLabel4)
-                            .addComponent(NameAccount, javax.swing.GroupLayout.PREFERRED_SIZE, 534, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(LoginLableLayout.createSequentialGroup()
-                                .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel1)
-                                    .addComponent(cbGender, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(28, 28, 28)
-                                .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel3)
-                                    .addGroup(LoginLableLayout.createSequentialGroup()
-                                        .addComponent(cbDays, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(cbMonth, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(cbYears, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                            .addComponent(LableUsername, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(LoginLableLayout.createSequentialGroup()
-                                .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(LoginLableLayout.createSequentialGroup()
-                                        .addGap(79, 79, 79)
-                                        .addComponent(LablePassword)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                    .addGroup(LoginLableLayout.createSequentialGroup()
-                                        .addComponent(btnAddress, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addGap(53, 53, 53)))
-                                .addComponent(PasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addGap(155, 155, 155))
+                                .addComponent(cbDays, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(cbMonth, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(cbYears, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addComponent(LableUsername, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(LoginLableLayout.createSequentialGroup()
+                            .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jLabel6)
+                                .addComponent(EmailUser, javax.swing.GroupLayout.PREFERRED_SIZE, 214, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(PhoneUser, javax.swing.GroupLayout.PREFERRED_SIZE, 238, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel7)))
+                        .addComponent(btnAddress, javax.swing.GroupLayout.PREFERRED_SIZE, 536, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(0, 136, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, LoginLableLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnChangeInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(31, 31, 31)
+                .addComponent(btnSaveUserInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(262, 262, 262))
         );
         LoginLableLayout.setVerticalGroup(
             LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -208,55 +348,147 @@ public class UserInfoFrm extends javax.swing.JFrame {
                 .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(jLabel3))
-                .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(LoginLableLayout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(cbGender, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(cbDays, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(cbMonth, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(cbYears, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(LoginLableLayout.createSequentialGroup()
-                                .addGap(0, 0, Short.MAX_VALUE)
-                                .addComponent(PasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(LoginLableLayout.createSequentialGroup()
-                                .addComponent(jLabel4)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(btnAddress, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(LablePassword)))
-                        .addGap(14, 14, 14)
-                        .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(confirmPass, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel2))
-                        .addGap(28, 28, 28)
-                        .addComponent(btnConfirm, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(34, 34, 34)
-                        .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(btnGoogleAcc, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnFacebookAcc, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(btnReturn)
-                            .addComponent(btnExit))
-                        .addGap(238, 238, 238))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, LoginLableLayout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnChangePassword)
-                        .addGap(18, 18, 18))))
+                .addGap(18, 18, 18)
+                .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cbGender, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(cbDays, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(cbMonth, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(cbYears, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel4)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnAddress, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel6)
+                    .addComponent(jLabel7))
+                .addGap(18, 18, 18)
+                .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(EmailUser, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(PhoneUser, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(27, 27, 27)
+                .addGroup(LoginLableLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnSaveUserInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnChangeInfo, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(135, Short.MAX_VALUE))
         );
+
+        btnTabPass.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        btnTabPass.setText("Mật khẩu");
+
+        btnTabInfo.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        btnTabInfo.setText("Thông tin tài khoản");
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 342, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                .addComponent(btnTabInfo, javax.swing.GroupLayout.DEFAULT_SIZE, 181, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnTabPass, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 36, Short.MAX_VALUE)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnTabPass)
+                    .addComponent(btnTabInfo))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        jPanel5.setBackground(new java.awt.Color(255, 255, 255));
+
+        btnChangePassword.setBackground(new java.awt.Color(255, 255, 51));
+        btnChangePassword.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        btnChangePassword.setText("Đổi Mật khẩu");
+
+        txtPassMoi.setText("jPasswordField1");
+
+        jLabel8.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        jLabel8.setText("Xác nhận password:");
+
+        txtPassCu.setText("jPasswordField1");
+
+        LablePassword1.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
+        LablePassword1.setText("Password cũ:");
+
+        btnSeeNewPass.setText("jButton1");
+        btnSeeNewPass.addActionListener(this::btnSeeNewPassActionPerformed);
+
+        btnSeePass.setText("jButton1");
+
+        txtPassXacNhan.setText("jPasswordField1");
+
+        btnSeeCnPass.setText("jButton1");
+        btnSeeCnPass.addActionListener(this::btnSeeCnPassActionPerformed);
+
+        LablePassword2.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
+        LablePassword2.setText("Password mới:");
+
+        btnSaveChangePass.setBackground(new java.awt.Color(255, 255, 51));
+        btnSaveChangePass.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        btnSaveChangePass.setText("Lưu ");
+
+        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
+        jPanel5.setLayout(jPanel5Layout);
+        jPanel5Layout.setHorizontalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addGap(50, 50, 50)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(btnChangePassword)
+                    .addComponent(LablePassword1)
+                    .addComponent(jLabel8)
+                    .addComponent(LablePassword2))
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(txtPassMoi, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtPassCu, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtPassXacNhan, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btnSeeNewPass, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnSeePass, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnSeeCnPass, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addGap(66, 66, 66)
+                        .addComponent(btnSaveChangePass)))
+                .addContainerGap(32, Short.MAX_VALUE))
+        );
+        jPanel5Layout.setVerticalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addGap(37, 37, 37)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(txtPassCu, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(LablePassword1))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(txtPassMoi, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnSeeNewPass, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(LablePassword2))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(txtPassXacNhan, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(btnSeeCnPass, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jLabel8)))
+                    .addComponent(btnSeePass, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnChangePassword)
+                        .addGap(15, 15, 15))
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(btnSaveChangePass)
+                        .addContainerGap(13, Short.MAX_VALUE))))
         );
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -264,29 +496,35 @@ public class UserInfoFrm extends javax.swing.JFrame {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(37, 37, 37)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(45, 45, 45)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(LoginLable, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lbMenuName))
-                .addContainerGap(2850, Short.MAX_VALUE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(34, 34, 34)
+                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(65, 65, 65)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(lbMenuName)
+                            .addComponent(LoginLable, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(288, 288, 288)
+                        .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(3363, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(15, 15, 15)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(9, 9, 9)
                         .addComponent(lbMenuName)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(11, 11, 11)
-                        .addComponent(LoginLable, javax.swing.GroupLayout.PREFERRED_SIZE, 581, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(532, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(LoginLable, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(121, 121, 121)
+                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(148, Short.MAX_VALUE))
         );
 
         jPanel2.setBackground(new java.awt.Color(255, 0, 51));
@@ -297,9 +535,9 @@ public class UserInfoFrm extends javax.swing.JFrame {
         btnKhuyenMai.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
         btnKhuyenMai.setText("Khuyến mãi");
 
-        btnDatCho.setBackground(new java.awt.Color(255, 255, 51));
-        btnDatCho.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
-        btnDatCho.setText("Đặt chỗ của tôi");
+        btnDatChoPGheader.setBackground(new java.awt.Color(255, 255, 51));
+        btnDatChoPGheader.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
+        btnDatChoPGheader.setText("Đặt chỗ của tôi");
 
         btnLogin.setBackground(new java.awt.Color(255, 255, 51));
         btnLogin.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
@@ -327,7 +565,7 @@ public class UserInfoFrm extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addComponent(btnKhuyenMai)
                 .addGap(18, 18, 18)
-                .addComponent(btnDatCho)
+                .addComponent(btnDatChoPGheader)
                 .addGap(18, 18, 18)
                 .addComponent(btnLogin)
                 .addGap(18, 18, 18)
@@ -339,12 +577,12 @@ public class UserInfoFrm extends javax.swing.JFrame {
             .addGroup(pnlMenuHeaderLayout.createSequentialGroup()
                 .addGap(15, 15, 15)
                 .addGroup(pnlMenuHeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(cbDonViTienTe, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnKhuyenMai, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnDatCho, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnKhuyenMai, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnDatChoPGheader, javax.swing.GroupLayout.DEFAULT_SIZE, 35, Short.MAX_VALUE)
                     .addComponent(btnLogin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnSignin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(btnSignin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(cbDonViTienTe))
+                .addContainerGap())
         );
 
         jLabel5.setFont(new java.awt.Font("VNI-Franko", 0, 40)); // NOI18N
@@ -359,7 +597,7 @@ public class UserInfoFrm extends javax.swing.JFrame {
                 .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(220, 220, 220)
                 .addComponent(pnlMenuHeader, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(4417, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -374,17 +612,54 @@ public class UserInfoFrm extends javax.swing.JFrame {
                 .addContainerGap(17, Short.MAX_VALUE))
         );
 
+        btnVeMB.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
+        btnVeMB.setText("Vé Máy Bay");
+        btnVeMB.addActionListener(this::btnVeMBActionPerformed);
+
+        btnDiary.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
+        btnDiary.setText("Cẩm Nang Du Lịch");
+        btnDiary.addActionListener(this::btnDiaryActionPerformed);
+
+        jButton1.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
+        jButton1.setText("Phiếu quà tặng");
+
+        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
+        jPanel6.setLayout(jPanel6Layout);
+        jPanel6Layout.setHorizontalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addGap(184, 184, 184)
+                .addComponent(btnVeMB)
+                .addGap(37, 37, 37)
+                .addComponent(btnDiary)
+                .addGap(18, 18, 18)
+                .addComponent(jButton1)
+                .addContainerGap(600, Short.MAX_VALUE))
+        );
+        jPanel6Layout.setVerticalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addGap(14, 14, 14)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnVeMB)
+                    .addComponent(btnDiary)
+                    .addComponent(jButton1))
+                .addContainerGap(14, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGap(1202, 1202, 1202)))
+                        .addContainerGap()
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(361, 361, 361)
+                        .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -392,28 +667,18 @@ public class UserInfoFrm extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(59, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnGoogleAccActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGoogleAccActionPerformed
+    private void EmailUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EmailUserActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_btnGoogleAccActionPerformed
-
-    private void btnFacebookAccActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFacebookAccActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnFacebookAccActionPerformed
-
-    private void btnExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExitActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnExitActionPerformed
-
-    private void NameAccountActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NameAccountActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_NameAccountActionPerformed
+    }//GEN-LAST:event_EmailUserActionPerformed
 
     private void btnSigninActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSigninActionPerformed
         DangKyFrm frm = new DangKyFrm();
@@ -424,6 +689,687 @@ public class UserInfoFrm extends javax.swing.JFrame {
     private void cbDonViTienTeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbDonViTienTeActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_cbDonViTienTeActionPerformed
+
+    private void NameAccountActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NameAccountActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_NameAccountActionPerformed
+
+    private void PhoneUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PhoneUserActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_PhoneUserActionPerformed
+
+    private void btnVeMBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVeMBActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnVeMBActionPerformed
+
+    private void btnDiaryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDiaryActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnDiaryActionPerformed
+
+    private void btnbtnSeePassActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSeeCnPassActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnSeeCnPassActionPerformed
+
+    private void btnSeeCnPassActionPerformed(java.awt.event.ActionEvent evt) {                                             
+        // TODO add your handling code here:
+    }                                               
+
+    private void btnChangeInfoActionPerformed(java.awt.event.ActionEvent evt) {                                           
+        setFormEditable(true); 
+    } 
+
+    private void btnSaveUserInfoActionPerformed(java.awt.event.ActionEvent evt) {                                                
+    if (currentUser == null) return;
+
+    String hoTenMoi = NameAccount.getText().trim();
+    String gioiTinhMoi = cbGender.getSelectedItem().toString();
+    String emailMoi = EmailUser.getText().trim();
+    String sdtMoi = PhoneUser.getText().trim();
+    String thanhPhoMoi = btnAddress.getText().trim();
+    
+    if (hoTenMoi.isEmpty()) {
+        javax.swing.JOptionPane.showMessageDialog(this, "Họ và tên không được để trống!");
+        return;
+    }
+    if (thanhPhoMoi.equals("Chọn thành phố") || thanhPhoMoi.equals("jButton2")) {
+        thanhPhoMoi = ""; 
+    }
+
+    java.time.LocalDate ngaySinhMoi;
+    try {
+        int d = Integer.parseInt(cbDays.getSelectedItem().toString());
+        int m = Integer.parseInt(cbMonth.getSelectedItem().toString());
+        int y = Integer.parseInt(cbYears.getSelectedItem().toString());
+        ngaySinhMoi = java.time.LocalDate.of(y, m, d);
+    } catch (Exception e) {
+        javax.swing.JOptionPane.showMessageDialog(this, "Vui lòng chọn ngày sinh hợp lệ!");
+        return;
+    }
+
+    dal.ThongTinHanhKhachDAO hkDao = new dal.ThongTinHanhKhachDAO();
+    boolean isNewHK = false; 
+
+    if (this.currentHK == null) {
+        this.currentHK = new model.ThongTinHanhKhach();
+        this.currentHK.setMaHK("HK" + (System.currentTimeMillis() % 100000));
+        this.currentHK.setMaNguoiDung(currentUser.getMaNguoiDung());
+        currentHK.setLoaiHanhKhach("Người lớn");
+        isNewHK = true;
+    }
+
+    this.currentHK.setHoTen(hoTenMoi);
+    this.currentHK.setGioiTinh(gioiTinhMoi);
+    this.currentHK.setNgaySinh(ngaySinhMoi); 
+
+    currentUser.setEmail(emailMoi);
+    currentUser.setSoDienThoai(sdtMoi); 
+    currentUser.setThanhPho(thanhPhoMoi);
+
+    bll.NguoiDungBUS ndBus = new bll.NguoiDungBUS();
+    boolean successHK = false;
+
+    if (isNewHK) {
+        successHK = hkDao.insert(this.currentHK);
+    } else {
+        successHK = hkDao.update(this.currentHK);
+    }
+    
+    String successND = ndBus.suaNguoiDung(currentUser);
+    if (successHK && successND.contains("thành công")) {
+        javax.swing.JOptionPane.showMessageDialog(this, "Cập nhật thông tin thành công!", "Thành công", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+        
+        lbNameUser.setText(hoTenMoi); 
+        jPanel3.revalidate();
+        jPanel3.repaint();
+        
+        setFormEditable(false); 
+    } else {
+        javax.swing.JOptionPane.showMessageDialog(this, "Cập nhật thất bại!", "Lỗi", javax.swing.JOptionPane.ERROR_MESSAGE);
+    }
+}
+
+    private void btnSeeNewPassActionPerformed(java.awt.event.ActionEvent evt) {                                             
+        // TODO add your handling code here:
+    } 
+    
+    private void setFormEditable(boolean isEditable) {
+        if (NameAccount != null) NameAccount.setEditable(isEditable);
+        if (EmailUser != null) EmailUser.setEditable(isEditable);
+        if (PhoneUser != null) PhoneUser.setEditable(isEditable);
+        
+        if (cbGender != null) cbGender.setEnabled(isEditable);
+        if (cbDays != null) cbDays.setEnabled(isEditable);
+        if (cbMonth != null) cbMonth.setEnabled(isEditable);
+        if (cbYears != null) cbYears.setEnabled(isEditable);
+        if (btnAddress != null) btnAddress.setEnabled(isEditable);
+        
+        if (btnSaveUserInfo != null) btnSaveUserInfo.setVisible(isEditable);
+        if (btnChangeInfo != null) btnChangeInfo.setVisible(!isEditable);
+    }
+
+    
+    public void loadDataToForm(model.NguoiDung user) {
+    this.currentUser = user;
+    if (currentUser == null) return;
+
+    gui.custom.HeaderHelper.setupUserMenu(btnLogin, btnSignin, currentUser, this);
+    gui.custom.HeaderHelper.setupLogo(jLabel5, 100, this, currentUser);
+
+    pnlMenuHeader.revalidate();
+    pnlMenuHeader.repaint();
+    jPanel2.revalidate();
+    jPanel2.repaint();
+
+    if (currentUser.getPhanQuyen() != null) {
+        String role = currentUser.getPhanQuyen();
+        if (role.equalsIgnoreCase("Admin")) {
+            lbTypeOfAccount.setText("Quản trị viên (Admin)");
+        } else if (role.equalsIgnoreCase("NhanVien")) {
+            lbTypeOfAccount.setText("Nhân viên hãng bay");
+        } else {
+            lbTypeOfAccount.setText("Khách hàng");
+        }
+    } else {
+        lbTypeOfAccount.setText("Khách hàng");
+    }
+
+    EmailUser.setText(currentUser.getEmail() != null ? currentUser.getEmail() : "");
+    PhoneUser.setText(currentUser.getSoDienThoai() != null ? currentUser.getSoDienThoai() : ""); 
+    btnAddress.setText(currentUser.getThanhPho() != null && !currentUser.getThanhPho().isEmpty() ? currentUser.getThanhPho() : "Chọn thành phố");
+
+    dal.ThongTinHanhKhachDAO hkDao = new dal.ThongTinHanhKhachDAO();
+    this.currentHK = hkDao.selectByMaNguoiDung(currentUser.getMaNguoiDung());
+
+    if (this.currentHK != null) {
+        String hoTen = this.currentHK.getHoTen();
+        lbNameUser.setText(hoTen != null && !hoTen.trim().isEmpty() ? hoTen : currentUser.getUsername()); 
+        NameAccount.setText(hoTen != null ? hoTen : ""); 
+        
+        if (currentHK.getGioiTinh() != null) {
+            cbGender.setSelectedItem(currentHK.getGioiTinh());
+        }
+        if (currentHK.getNgaySinh() != null) {
+            cbDays.setSelectedItem(String.format("%02d", currentHK.getNgaySinh().getDayOfMonth()));
+            cbMonth.setSelectedItem(String.format("%02d", currentHK.getNgaySinh().getMonthValue()));
+            cbYears.setSelectedItem(String.valueOf(currentHK.getNgaySinh().getYear()));
+        }
+    } else {
+        lbNameUser.setText(currentUser.getUsername());   
+    }
+
+    if (pnAvatar != null) {
+        try (java.sql.Connection con = db.DBConnection.getConnection();
+             java.sql.PreparedStatement ps = con.prepareStatement("SELECT avatarImage FROM NguoiDung WHERE maNguoiDung = ?")) {
+            ps.setString(1, currentUser.getMaNguoiDung());
+            java.sql.ResultSet rs = ps.executeQuery();
+            if (rs.next() && rs.getBytes("avatarImage") != null) {
+                byte[] imgBytes = rs.getBytes("avatarImage");
+                java.io.ByteArrayInputStream bais = new java.io.ByteArrayInputStream(imgBytes);
+                hienThiAvatarLenPanel(javax.imageio.ImageIO.read(bais));
+            } else {
+                String chuCaiDau = currentUser.getUsername().substring(0, 1).toUpperCase();
+                hienThiAvatarLenPanel(gui.custom.UIHelper.createDefaultAvatar(chuCaiDau, 120));
+            }
+        } catch (Exception e) {
+            System.out.println("Lỗi load Avatar: " + e.getMessage());
+        }
+    }
+
+    jPanel3.revalidate();
+    jPanel3.repaint();
+    
+    setFormEditable(false); 
+    setPasswordFormEditable(false);
+}
+
+    private void setupHeaderLayout() {
+        jPanel2.setLayout(new java.awt.BorderLayout());
+        jPanel2.removeAll(); 
+        
+        javax.swing.JPanel logoWrapper = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 200, 10));
+        logoWrapper.setOpaque(false);
+        logoWrapper.add(jLabel5); 
+
+        javax.swing.JPanel menuWrapper = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 100, 10));
+        menuWrapper.setOpaque(false);
+        menuWrapper.add(pnlMenuHeader);
+        
+        jPanel2.add(logoWrapper, java.awt.BorderLayout.WEST);
+        jPanel2.add(menuWrapper, java.awt.BorderLayout.EAST);
+        int screenWidth = java.awt.Toolkit.getDefaultToolkit().getScreenSize().width;
+        jPanel2.setPreferredSize(new java.awt.Dimension(2000, 120)); 
+        jPanel2.setMaximumSize(new java.awt.Dimension(Integer.MAX_VALUE, 120)); 
+        jPanel2.setMinimumSize(new java.awt.Dimension(1200, 120));
+        jPanel2.revalidate();
+        jPanel2.repaint();
+    } 
+
+    private javax.swing.JPanel pnlCards;
+    private java.awt.CardLayout cardLayout;
+
+    private void setupTabPanels() {
+        jPanel1.removeAll();
+        jPanel1.setLayout(new java.awt.BorderLayout(30, 0)); 
+
+        javax.swing.JPanel sidebarWrapper = new javax.swing.JPanel(new java.awt.BorderLayout());
+        sidebarWrapper.setOpaque(false);
+        jPanel3.setPreferredSize(new java.awt.Dimension(280, 650)); 
+        sidebarWrapper.add(jPanel3, java.awt.BorderLayout.NORTH); 
+        jPanel1.add(sidebarWrapper, java.awt.BorderLayout.WEST);
+
+        javax.swing.JPanel pnlTabs = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 0, 10));
+        pnlTabs.setOpaque(false);
+        if (jPanel4 != null) pnlTabs.add(jPanel4);
+
+        cardLayout = new java.awt.CardLayout();
+        pnlCards = new javax.swing.JPanel(cardLayout);
+        pnlCards.setOpaque(false); 
+
+        javax.swing.JPanel infoWrapper = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 0, 0));
+        infoWrapper.setOpaque(false);
+        infoWrapper.add(LoginLable);
+
+        
+        javax.swing.JPanel passContainer = new javax.swing.JPanel();
+        passContainer.setLayout(new javax.swing.BoxLayout(passContainer, javax.swing.BoxLayout.Y_AXIS));
+        passContainer.setOpaque(false);
+
+
+        javax.swing.JPanel passWrapper = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 0, 0));
+        passWrapper.setOpaque(false);
+        passWrapper.add(jPanel5); 
+        passWrapper.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT); 
+
+        passContainer.add(passWrapper);
+        passContainer.add(javax.swing.Box.createVerticalStrut(30));  
+
+        javax.swing.JPanel pnlDelete = new javax.swing.JPanel();
+        pnlDelete.setLayout(new javax.swing.BoxLayout(pnlDelete, javax.swing.BoxLayout.Y_AXIS));
+        pnlDelete.setBackground(java.awt.Color.WHITE);
+        pnlDelete.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+            javax.swing.BorderFactory.createLineBorder(new java.awt.Color(244, 67, 54), 2, true),
+            javax.swing.BorderFactory.createEmptyBorder(20, 20, 20, 20)
+        )); 
+
+        javax.swing.JLabel lblWarn = new javax.swing.JLabel("Khu vực nguy hiểm (Danger Zone)");
+        lblWarn.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 18));
+        lblWarn.setForeground(new java.awt.Color(244, 67, 54));
+
+        javax.swing.JLabel lblDesc = new javax.swing.JLabel("Thao tác này sẽ xóa vĩnh viễn tài khoản và toàn bộ dữ liệu của bạn.");
+        lblDesc.setFont(new java.awt.Font("Arial", java.awt.Font.PLAIN, 14));
+
+        javax.swing.JButton btnDeleteAcc = new javax.swing.JButton("Hủy tài khoản");
+        btnDeleteAcc.setBackground(new java.awt.Color(244, 67, 54));
+        btnDeleteAcc.setForeground(java.awt.Color.WHITE);
+        btnDeleteAcc.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnDeleteAcc.addActionListener(e -> thucHienXoaTaiKhoan()); 
+
+        pnlDelete.add(lblWarn);
+        pnlDelete.add(javax.swing.Box.createVerticalStrut(10));
+        pnlDelete.add(lblDesc);
+        pnlDelete.add(javax.swing.Box.createVerticalStrut(15));
+        pnlDelete.add(btnDeleteAcc);
+
+        javax.swing.JPanel pnlDeleteWrapper = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 50, 0)); 
+        pnlDeleteWrapper.setOpaque(false);
+        pnlDeleteWrapper.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+        pnlDeleteWrapper.add(pnlDelete); 
+
+        passContainer.add(pnlDeleteWrapper);
+
+        pnlCards.add(infoWrapper, "INFO");
+        pnlCards.add(passWrapper, "PASS");
+        
+
+        javax.swing.JPanel pnlRight = new javax.swing.JPanel(new java.awt.BorderLayout());
+        pnlRight.setOpaque(false);
+        pnlRight.add(pnlTabs, java.awt.BorderLayout.NORTH);
+        pnlRight.add(pnlCards, java.awt.BorderLayout.CENTER);
+
+        jPanel1.add(pnlRight, java.awt.BorderLayout.CENTER);
+        
+        jPanel1.revalidate();
+        jPanel1.repaint();
+    }
+
+
+    private void resetMenuUI() {
+        styleButton(btnInfoModify, false, false); 
+        styleButton(btnPassengerInfo, false, false);
+        styleButton(btnDatChoPG1, false, false);
+        styleButton(btnTradeList, false, false);
+        styleButton(btnPageThuHang, false, false);
+        styleButton(btnNotifySetting, false, false);
+        styleButton(btnNotifyTicketTrade, false, false);
+        styleButton(btnLogOut, false, true); 
+    } 
+
+    private void styleButton(javax.swing.JButton btn, boolean isActive, boolean isLogout) {
+        if (btn == null) return;
+        btn.setBorderPainted(false);
+        btn.setFocusPainted(false);
+        btn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        
+        if (isActive) {
+            btn.setBackground(new java.awt.Color(59, 130, 246)); 
+            btn.setForeground(java.awt.Color.WHITE);
+        } else {
+            btn.setBackground(java.awt.Color.WHITE); 
+            btn.setForeground(isLogout ? new java.awt.Color(239, 68, 68) : new java.awt.Color(50, 50, 50));
+        }
+    } 
+
+    private void initComboboxData() {
+        for(java.awt.event.ActionListener al : cbMonth.getActionListeners()) cbMonth.removeActionListener(al);
+        for(java.awt.event.ActionListener al : cbYears.getActionListeners()) cbYears.removeActionListener(al);
+
+        cbYears.removeAllItems();
+        int currentYear = java.time.LocalDate.now().getYear();
+        for (int i = currentYear; i >= 1920; i--) {
+            cbYears.addItem(String.valueOf(i));
+        }
+
+        cbMonth.removeAllItems();
+        for (int i = 1; i <= 12; i++) {
+            cbMonth.addItem(String.format("%02d", i));
+        }
+
+        cbMonth.addActionListener(e -> updateDaysComboBox());
+        cbYears.addActionListener(e -> updateDaysComboBox());
+
+        updateDaysComboBox();
+
+        cbGender.removeAllItems();
+        cbGender.addItem("Nam");
+        cbGender.addItem("Nữ");
+        cbGender.addItem("Khác");
+    }
+    
+    private void updateDaysComboBox() {
+        if (cbMonth.getSelectedItem() == null || cbYears.getSelectedItem() == null) return;
+
+        int month = Integer.parseInt(cbMonth.getSelectedItem().toString());
+        int year = Integer.parseInt(cbYears.getSelectedItem().toString());
+
+        int currentSelectedDay = 1;
+        if (cbDays.getSelectedItem() != null) {
+            try {
+                currentSelectedDay = Integer.parseInt(cbDays.getSelectedItem().toString());
+            } catch (NumberFormatException e) {
+                currentSelectedDay = 1; 
+            }
+        }
+
+        int daysInMonth = java.time.YearMonth.of(year, month).lengthOfMonth();
+
+        cbDays.removeAllItems();
+
+        for (int i = 1; i <= daysInMonth; i++) {
+            cbDays.addItem(String.format("%02d", i));
+        }
+
+        if (currentSelectedDay > daysInMonth) {
+            cbDays.setSelectedItem(String.format("%02d", daysInMonth));
+        } else {
+            cbDays.setSelectedItem(String.format("%02d", currentSelectedDay));
+        }
+    }
+
+    private void setupCityDropdown() {
+        String[] provinces = {
+            "Hà Nội", "Hồ Chí Minh", "Đà Nẵng", "Hải Phòng", "Cần Thơ",
+            "An Giang", "Bà Rịa - Vũng Tàu", "Bắc Giang", "Bắc Kạn", "Bạc Liêu",
+            "Bắc Ninh", "Bến Tre", "Bình Định", "Bình Dương", "Bình Phước",
+            "Bình Thuận", "Cà Mau", "Cao Bằng", "Đắk Lắk", "Đắk Nông",
+            "Điện Biên", "Đồng Nai", "Đồng Tháp", "Gia Lai", "Hà Giang",
+            "Hà Nam", "Hà Tĩnh", "Hải Dương", "Hậu Giang", "Hòa Bình",
+            "Hưng Yên", "Khánh Hòa", "Kiên Giang", "Kon Tum", "Lai Châu",
+            "Lâm Đồng", "Lạng Sơn", "Lào Cai", "Long An", "Nam Định",
+            "Nghệ An", "Ninh Bình", "Ninh Thuận", "Phú Thọ", "Quảng Bình",
+            "Quảng Nam", "Quảng Ngãi", "Quảng Ninh", "Quảng Trị", "Sóc Trăng",
+            "Sơn La", "Tây Ninh", "Thái Bình", "Thái Nguyên", "Thanh Hóa",
+            "Thừa Thiên Huế", "Tiền Giang", "Trà Vinh", "Tuyên Quang",
+            "Vĩnh Long", "Vĩnh Phúc", "Yên Bái", "Phú Yên"
+        };
+
+        btnAddress.addActionListener(e -> {
+            if (!btnAddress.isEnabled()) return;
+
+            javax.swing.JPopupMenu popup = new javax.swing.JPopupMenu();
+            popup.setLayout(new java.awt.BorderLayout());
+
+            javax.swing.JTextField txtSearch = new javax.swing.JTextField();
+            txtSearch.setPreferredSize(new java.awt.Dimension(250, 30));
+            popup.add(txtSearch, java.awt.BorderLayout.NORTH);
+
+            javax.swing.DefaultListModel<String> listModel = new javax.swing.DefaultListModel<>();
+            for (String p : provinces) listModel.addElement(p);
+            
+            javax.swing.JList<String> list = new javax.swing.JList<>(listModel);
+            javax.swing.JScrollPane scroll = new javax.swing.JScrollPane(list);
+            scroll.setPreferredSize(new java.awt.Dimension(250, 150));
+            popup.add(scroll, java.awt.BorderLayout.CENTER);
+
+            txtSearch.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+                private void filter() {
+                    String filterText = txtSearch.getText().toLowerCase();
+                    listModel.clear();
+                    for (String p : provinces) {
+                        if (p.toLowerCase().contains(filterText)) {
+                            listModel.addElement(p);
+                        }
+                    }
+                }
+                public void insertUpdate(javax.swing.event.DocumentEvent e) { filter(); }
+                public void removeUpdate(javax.swing.event.DocumentEvent e) { filter(); }
+                public void changedUpdate(javax.swing.event.DocumentEvent e) { filter(); }
+            });
+
+            list.addMouseListener(new java.awt.event.MouseAdapter() {
+                public void mouseClicked(java.awt.event.MouseEvent evt) {
+                    if (evt.getClickCount() == 1) {
+                        String selected = list.getSelectedValue();
+                        if (selected != null) {
+                            btnAddress.setText(selected);
+                            popup.setVisible(false);
+                        }
+                    }
+                }
+            });
+
+            popup.show(btnAddress, 0, btnAddress.getHeight());
+            txtSearch.requestFocus();
+        });
+    }
+
+    private void setupMenuEvents() {
+        for(java.awt.event.ActionListener al : btnInfoModify.getActionListeners()) btnInfoModify.removeActionListener(al);
+        if (btnTabPass != null) {
+            for(java.awt.event.ActionListener al : btnTabPass.getActionListeners()) btnTabPass.removeActionListener(al);
+        }
+        if (btnTabInfo != null) {
+            for(java.awt.event.ActionListener al : btnTabInfo.getActionListeners()) btnTabInfo.removeActionListener(al);
+        }
+
+        java.awt.event.ActionListener openInfoTab = e -> {
+            if (cardLayout != null && pnlCards != null) cardLayout.show(pnlCards, "INFO");
+            resetMenuUI(); 
+            styleButton(btnInfoModify, true, false); 
+            if (lbMenuName != null) lbMenuName.setText("Cài đặt thông tin"); 
+            if (btnTabInfo != null) btnTabInfo.setForeground(new java.awt.Color(59, 130, 246)); 
+            if (btnTabPass != null) btnTabPass.setForeground(java.awt.Color.BLACK); 
+        };
+
+        java.awt.event.ActionListener openPassTab = e -> {
+            if (cardLayout != null && pnlCards != null) cardLayout.show(pnlCards, "PASS");
+            resetMenuUI(); 
+            styleButton(btnInfoModify, true, false); 
+            if (lbMenuName != null) lbMenuName.setText("Đổi mật khẩu");
+            if (btnTabPass != null) btnTabPass.setForeground(new java.awt.Color(59, 130, 246));
+            if (btnTabInfo != null) btnTabInfo.setForeground(java.awt.Color.BLACK);
+        };
+
+        if (btnTabInfo != null) btnTabInfo.addActionListener(openInfoTab);
+        if (btnTabPass != null) btnTabPass.addActionListener(openPassTab);
+        if (btnInfoModify != null) btnInfoModify.addActionListener(openInfoTab); 
+
+        if (btnChangeInfo != null) {
+            for(java.awt.event.ActionListener al : btnChangeInfo.getActionListeners()) btnChangeInfo.removeActionListener(al);
+            btnChangeInfo.addActionListener(e -> setFormEditable(true)); 
+        }
+        
+        if (btnSaveUserInfo != null) { 
+            for(java.awt.event.ActionListener al : btnSaveUserInfo.getActionListeners()) btnSaveUserInfo.removeActionListener(al);
+            btnSaveUserInfo.addActionListener(e -> btnSaveUserInfoActionPerformed(e));
+        } 
+        if (btnSeePass != null) { btnSeePass.setText("Hiện"); btnSeePass.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR)); }
+        if (btnSeeNewPass != null) { btnSeeNewPass.setText("Hiện"); btnSeeNewPass.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR)); }
+        if (btnSeeCnPass != null) { btnSeeCnPass.setText("Hiện"); btnSeeCnPass.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR)); }
+
+        if (btnSeePass != null) {
+            for(java.awt.event.ActionListener al : btnSeePass.getActionListeners()) btnSeePass.removeActionListener(al);
+            btnSeePass.addActionListener(e -> togglePassword(txtPassCu, btnSeePass));
+        }
+        if (btnSeeNewPass != null) {
+            for(java.awt.event.ActionListener al : btnSeeNewPass.getActionListeners()) btnSeeNewPass.removeActionListener(al);
+            btnSeeNewPass.addActionListener(e -> togglePassword(txtPassMoi, btnSeeNewPass));
+        }
+        if (btnSeeCnPass != null) {
+            for(java.awt.event.ActionListener al : btnSeeCnPass.getActionListeners()) btnSeeCnPass.removeActionListener(al);
+            btnSeeCnPass.addActionListener(e -> togglePassword(txtPassXacNhan, btnSeeCnPass));
+        }
+
+        if (btnChangePassword != null) {
+            for(java.awt.event.ActionListener al : btnChangePassword.getActionListeners()) btnChangePassword.removeActionListener(al);
+            btnChangePassword.addActionListener(e -> setPasswordFormEditable(true));
+        }
+
+        if (btnSaveChangePass != null) {
+            for(java.awt.event.ActionListener al : btnSaveChangePass.getActionListeners()) btnSaveChangePass.removeActionListener(al);
+            btnSaveChangePass.addActionListener(e -> {
+                String passCu = new String(txtPassCu.getPassword());
+                String passMoi = new String(txtPassMoi.getPassword());
+                String passXacNhan = new String(txtPassXacNhan.getPassword());
+
+                if (passCu.isEmpty() || passMoi.isEmpty() || passXacNhan.isEmpty()) {
+                    javax.swing.JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin mật khẩu!");
+                    return;
+                }
+                if (!passCu.equals(currentUser.getPassword())) {
+                    javax.swing.JOptionPane.showMessageDialog(this, "Mật khẩu cũ không chính xác!", "Lỗi", javax.swing.JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                if (!passMoi.equals(passXacNhan)) {
+                    javax.swing.JOptionPane.showMessageDialog(this, "Mật khẩu xác nhận không khớp!", "Lỗi", javax.swing.JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                currentUser.setPassword(passMoi);
+                String result = new bll.NguoiDungBUS().suaNguoiDung(currentUser);
+
+                if (result.contains("thành công")) {
+                    javax.swing.JOptionPane.showMessageDialog(this, "Đổi mật khẩu thành công!");
+                    setPasswordFormEditable(false);
+                } else {
+                    javax.swing.JOptionPane.showMessageDialog(this, "Lỗi cập nhật: " + result);
+                }
+            });
+        }
+        
+        setPasswordFormEditable(false);
+
+        if (btnLogOut != null) {
+            for(java.awt.event.ActionListener al : btnLogOut.getActionListeners()) btnLogOut.removeActionListener(al);
+            btnLogOut.addActionListener(e -> {
+                new MainFrame().setVisible(true);
+                this.dispose();
+            });
+        }
+
+        if (btnTabInfo != null) btnTabInfo.doClick(); 
+
+        if (pnAvatar != null) {
+            pnAvatar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+            pnAvatar.addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override
+                public void mouseEntered(java.awt.event.MouseEvent e) {
+                    pnAvatar.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(59, 130, 246), 3));
+                }
+                @Override
+                public void mouseExited(java.awt.event.MouseEvent e) {
+                    pnAvatar.setBorder(null);
+                }
+                @Override
+                public void mouseClicked(java.awt.event.MouseEvent e) {
+                    chonVaLuuAvatar();
+                }
+            });
+            
+            
+        }
+    }  
+
+    private void setPasswordFormEditable(boolean isEditable) {
+        if (txtPassCu != null) txtPassCu.setEditable(isEditable);
+        if (txtPassMoi != null) txtPassMoi.setEditable(isEditable);
+        if (txtPassXacNhan != null) txtPassXacNhan.setEditable(isEditable);
+        
+        if (btnSaveChangePass != null) btnSaveChangePass.setVisible(isEditable);
+        if (btnChangePassword != null) btnChangePassword.setVisible(!isEditable);
+
+        if (!isEditable) { 
+            if (txtPassCu != null) txtPassCu.setText("");
+            if (txtPassMoi != null) txtPassMoi.setText("");
+            if (txtPassXacNhan != null) txtPassXacNhan.setText("");
+        }
+    }
+
+    private void togglePassword(javax.swing.JPasswordField txt, javax.swing.JButton btn) {
+        if (txt.getEchoChar() != (char) 0) { 
+  
+            txt.setEchoChar((char) 0); 
+            btn.setText("Ẩn");
+        } else {
+            txt.setEchoChar('•'); 
+            btn.setText("Hiện");
+        }
+    }
+    private void thucHienXoaTaiKhoan() {
+        int confirm = javax.swing.JOptionPane.showConfirmDialog(this,
+            "CẢNH BÁO: Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản này không?\nToàn bộ thông tin cá nhân và lịch sử đặt vé sẽ bị xóa sạch!",
+            "Xóa tài khoản",
+            javax.swing.JOptionPane.YES_NO_OPTION,
+            javax.swing.JOptionPane.WARNING_MESSAGE);
+
+        if (confirm == javax.swing.JOptionPane.YES_OPTION) {
+            try (java.sql.Connection con = db.DBConnection.getConnection();
+                 java.sql.PreparedStatement ps = con.prepareStatement("DELETE FROM ThongTinHanhKhach WHERE maNguoiDung=?")) {
+                ps.setString(1, currentUser.getMaNguoiDung());
+                ps.executeUpdate();
+            } catch(Exception e) { System.out.println("Lỗi xóa hành khách: " + e.getMessage()); }
+
+            String result = new bll.NguoiDungBUS().xoaNguoiDung(currentUser.getMaNguoiDung());
+            if (result.contains("thành công")) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Đã hủy tài khoản thành công. Tạm biệt bạn!");
+                new MainFrame().setVisible(true);
+                this.dispose();
+            } else {
+                javax.swing.JOptionPane.showMessageDialog(this, "Lỗi khi xóa tài khoản: " + result);
+            }
+        }
+    } 
+
+    private void chonVaLuuAvatar() {
+        javax.swing.JFileChooser fileChooser = new javax.swing.JFileChooser();
+        fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Hình ảnh", "jpg", "png", "jpeg"));
+        if (fileChooser.showOpenDialog(this) == javax.swing.JFileChooser.APPROVE_OPTION) {
+            try {
+                java.io.File file = fileChooser.getSelectedFile();
+                java.awt.image.BufferedImage originalImg = javax.imageio.ImageIO.read(file);
+                
+                int min = Math.min(originalImg.getWidth(), originalImg.getHeight());
+                int x = (originalImg.getWidth() - min) / 2;
+                int y = (originalImg.getHeight() - min) / 2;
+                java.awt.image.BufferedImage squareImg = originalImg.getSubimage(x, y, min, min);
+                
+                java.awt.image.BufferedImage circleBuffer = new java.awt.image.BufferedImage(min, min, java.awt.image.BufferedImage.TYPE_INT_ARGB);
+                java.awt.Graphics2D g2 = circleBuffer.createGraphics();
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.fillOval(0, 0, min, min);
+                g2.setComposite(java.awt.AlphaComposite.SrcIn);
+                g2.drawImage(squareImg, 0, 0, null);
+                g2.dispose();
+                
+                hienThiAvatarLenPanel(circleBuffer);
+                
+                java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+                javax.imageio.ImageIO.write(circleBuffer, "png", baos);
+                byte[] imageBytes = baos.toByteArray();
+                
+                try (java.sql.Connection con = db.DBConnection.getConnection();
+                     java.sql.PreparedStatement ps = con.prepareStatement("UPDATE NguoiDung SET avatarImage = ? WHERE maNguoiDung = ?")) {
+                    ps.setBytes(1, imageBytes);
+                    ps.setString(2, currentUser.getMaNguoiDung());
+                    ps.executeUpdate();
+                    javax.swing.JOptionPane.showMessageDialog(this, "Cập nhật Avatar thành công!");
+                }
+            } catch (Exception ex) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Lỗi khi xử lý ảnh: " + ex.getMessage());
+            }
+        }
+    }
+
+    private void hienThiAvatarLenPanel(java.awt.image.BufferedImage img) {
+        int size = Math.min(pnAvatar.getWidth(), pnAvatar.getHeight());
+        if (size == 0) size = 120; 
+        java.awt.Image scaledImg = img.getScaledInstance(size, size, java.awt.Image.SCALE_SMOOTH);
+        
+        pnAvatar.removeAll();
+        pnAvatar.setLayout(new java.awt.BorderLayout());
+        pnAvatar.add(new javax.swing.JLabel(new javax.swing.ImageIcon(scaledImg)), java.awt.BorderLayout.CENTER);
+        pnAvatar.revalidate();
+        pnAvatar.repaint();
+    }
 
     /**
      * @param args the command line arguments
@@ -451,38 +1397,63 @@ public class UserInfoFrm extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel LablePassword;
+    private javax.swing.JTextField EmailUser;
+    private javax.swing.JLabel LablePassword1;
+    private javax.swing.JLabel LablePassword2;
     private javax.swing.JLabel LableUsername;
     private javax.swing.JPanel LoginLable;
     private javax.swing.JTextField NameAccount;
-    private javax.swing.JPasswordField PasswordField1;
+    private javax.swing.JTextField PhoneUser;
     private javax.swing.JButton btnAddress;
+    private javax.swing.JButton btnChangeInfo;
     private javax.swing.JButton btnChangePassword;
-    private javax.swing.JButton btnConfirm;
-    private javax.swing.JButton btnDatCho;
-    private javax.swing.JButton btnExit;
-    private javax.swing.JButton btnFacebookAcc;
-    private javax.swing.JButton btnGoogleAcc;
+    private javax.swing.JButton btnDatChoPG1;
+    private javax.swing.JButton btnDatChoPGheader;
+    private javax.swing.JButton btnDiary;
+    private javax.swing.JButton btnInfoModify;
     private javax.swing.JButton btnKhuyenMai;
+    private javax.swing.JButton btnLogOut;
     private javax.swing.JButton btnLogin;
-    private javax.swing.JButton btnReturn;
+    private javax.swing.JButton btnNotifySetting;
+    private javax.swing.JButton btnNotifyTicketTrade;
+    private javax.swing.JButton btnPageThuHang;
+    private javax.swing.JButton btnPassengerInfo;
+    private javax.swing.JButton btnSaveChangePass;
+    private javax.swing.JButton btnSaveUserInfo;
+    private javax.swing.JButton btnSeeCnPass;
+    private javax.swing.JButton btnSeeNewPass;
+    private javax.swing.JButton btnSeePass;
     private javax.swing.JButton btnSignin;
+    private javax.swing.JButton btnTabInfo;
+    private javax.swing.JButton btnTabPass;
+    private javax.swing.JButton btnTradeList;
+    private javax.swing.JButton btnVeMB;
     private javax.swing.JComboBox<String> cbDays;
     private javax.swing.JComboBox<String> cbDonViTienTe;
     private javax.swing.JComboBox<String> cbGender;
     private javax.swing.JComboBox<String> cbMonth;
     private javax.swing.JComboBox<String> cbYears;
-    private javax.swing.JPasswordField confirmPass;
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
     private javax.swing.JLabel lbMenuName;
+    private javax.swing.JLabel lbNameUser;
+    private javax.swing.JLabel lbTypeOfAccount;
+    private javax.swing.JPanel pnAvatar;
     private javax.swing.JPanel pnlMenuHeader;
+    private javax.swing.JPasswordField txtPassCu;
+    private javax.swing.JPasswordField txtPassMoi;
+    private javax.swing.JPasswordField txtPassXacNhan;
     // End of variables declaration//GEN-END:variables
 }

@@ -10,7 +10,8 @@ package gui;
  */
 public class MainFrame extends javax.swing.JFrame {
     
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(MainFrame.class.getName());
+    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(MainFrame.class.getName()); 
+    
     
     /**
      * Creates new form LichBayFrm
@@ -81,7 +82,10 @@ public class MainFrame extends javax.swing.JFrame {
         int randomIndex = new java.util.Random().nextInt(palette.length);
         
         btnLogin.setText(chuCaiDau); 
-        btnLogin.setToolTipText("Hồ sơ của: " + userHienTai.getUsername()); 
+        java.time.format.DateTimeFormatter dtf = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String ngayThamGia = (userHienTai.getNgayTao() != null) ? userHienTai.getNgayTao().format(dtf) : "Chưa rõ";
+        
+        btnLogin.setToolTipText("Hồ sơ của: " + userHienTai.getUsername() + " | Tham gia từ: " + ngayThamGia);
         btnLogin.setBackground(palette[randomIndex]); 
         btnLogin.setForeground(java.awt.Color.WHITE); 
         btnLogin.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 22)); 
@@ -92,7 +96,13 @@ public class MainFrame extends javax.swing.JFrame {
         javax.swing.JMenuItem itemLichSu = new javax.swing.JMenuItem("Lịch sử đặt vé");
         javax.swing.JMenuItem itemDangXuat = new javax.swing.JMenuItem("Đăng xuất");
 
-        itemThongTin.addActionListener(e -> javax.swing.JOptionPane.showMessageDialog(this, "Đang xây dựng form Thông tin người dùng..."));
+        itemThongTin.addActionListener(e -> {
+            UserInfoFrm infoFrm = new UserInfoFrm();
+            infoFrm.loadDataToForm(this.userHienTai); // Nạp thông tin tài khoản đang đăng nhập vào form
+            infoFrm.setLocationRelativeTo(this);
+            infoFrm.setVisible(true);
+            this.dispose(); // Đóng MainFrame (hoặc xóa dòng này nếu bạn muốn giữ MainFrame ở dưới)
+        });
         itemLichSu.addActionListener(e -> javax.swing.JOptionPane.showMessageDialog(this, "Đang xây dựng form Lịch sử đặt vé..."));
         
         itemDangXuat.addActionListener(e -> {
