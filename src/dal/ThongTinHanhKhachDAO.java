@@ -41,49 +41,56 @@ public class ThongTinHanhKhachDAO {
         return list;
     }
 
-    public boolean insert(ThongTinHanhKhach tthk){
-        String sql = "INSERT INTO ThongTinHanhKhach (maHK, maNguoiDung, maThuHang, hoTen, cccd, hoChieu, ngaySinh, gioiTinh, diemTichLuy, loaiHanhKhach) VALUE (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try (Connection con = DBConnection.getConnection();
-            PreparedStatement ps = con.prepareStatement(sql)){
-                ps.setString(1, tthk.getMaHK());
-                ps.setString(2, tthk.getMaNguoiDung());
-                ps.setString(3, tthk.getMaThuHang());
-                ps.setString(4, tthk.getHoTen());
-                ps.setString(5, tthk.getCccd());
-                ps.setString(6, tthk.getHoChieu());
-                ps.setDate(7, java.sql.Date.valueOf(tthk.getNgaySinh()));
-                ps.setString(8, tthk.getGioiTinh());
-                ps.setInt(9, tthk.getDiemTichLuy());
-                ps.setString(10, tthk.getLoaiHanhKhach());
+    public boolean insert(ThongTinHanhKhach hk) {
+        // Bổ sung thêm cột trangThai và loaiHanhKhach để tránh lỗi NOT NULL nếu SQL yêu cầu
+        String sql = "INSERT INTO ThongTinHanhKhach (maHK, maNguoiDung, hoTen, gioiTinh, ngaySinh, loaiHanhKhach, trangThai) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (java.sql.Connection con = db.DBConnection.getConnection();
+             java.sql.PreparedStatement ps = con.prepareStatement(sql)) {
 
-                return ps.executeUpdate() > 0;    
+            ps.setString(1, hk.getMaHK());
+            ps.setString(2, hk.getMaNguoiDung());
+            ps.setString(3, hk.getHoTen());
+            ps.setString(4, hk.getGioiTinh());
+            
+            if (hk.getNgaySinh() != null) {
+                ps.setDate(5, java.sql.Date.valueOf(hk.getNgaySinh()));
+            } else {
+                ps.setNull(5, java.sql.Types.DATE);
+            }
+            
+            ps.setString(6, hk.getLoaiHanhKhach() != null ? hk.getLoaiHanhKhach() : "NGUOILON");
+            ps.setString(7, "Hoạt động"); // Giá trị mặc định để tránh lỗi SQL từ chối bản ghi trống
+
+            return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
+            javax.swing.JOptionPane.showMessageDialog(null, "Lỗi SQL (Thêm Hành Khách):\n" + e.getMessage(), "SQL Server từ chối", javax.swing.JOptionPane.ERROR_MESSAGE);
         }
         return false;
     }
 
-    boolean update(ThongTinHanhKhach tthk){
-        String sql = "UPDATE ThongTinHanhKhach SET maNguoiDung=?, maThuHang=?, hoTen=?, cccd=?, hoChieu=?, ngaySinh=?, gioiTinh=?, diemTichLuy=?, loaiHanhKhach=? WHERE maHK=?";
-        try (Connection con = DBConnection.getConnection();
-            PreparedStatement ps = con.prepareStatement(sql)){
-                ps.setString(1, tthk.getMaNguoiDung());
-                ps.setString(2, tthk.getMaThuHang());
-                ps.setString(3, tthk.getHoTen());
-                ps.setString(4, tthk.getCccd());
-                ps.setString(5, tthk.getHoChieu());
-                ps.setDate(6, java.sql.Date.valueOf(tthk.getNgaySinh()));
-                ps.setString(7, tthk.getGioiTinh());
-                ps.setInt(8, tthk.getDiemTichLuy());
-                ps.setString(9, tthk.getMaHK());
-                ps.setString(10, tthk.getLoaiHanhKhach());
-                return ps.executeUpdate() > 0;    
+    public boolean update(ThongTinHanhKhach hk) {
+        String sql = "UPDATE ThongTinHanhKhach SET hoTen=?, gioiTinh=?, ngaySinh=? WHERE maHK=?";
+        try (java.sql.Connection con = db.DBConnection.getConnection();
+             java.sql.PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, hk.getHoTen());
+            ps.setString(2, hk.getGioiTinh());
+            
+            if (hk.getNgaySinh() != null) {
+                ps.setDate(3, java.sql.Date.valueOf(hk.getNgaySinh()));
+            } else {
+                ps.setNull(3, java.sql.Types.DATE);
+            }
+            ps.setString(4, hk.getMaHK());
+
+            return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
+            javax.swing.JOptionPane.showMessageDialog(null, "Lỗi SQL (Sửa Hành Khách):\n" + e.getMessage(), "SQL Server từ chối", javax.swing.JOptionPane.ERROR_MESSAGE);
         }
         return false;
     }
-
     public boolean delete(String maHK){
         String sql = "DELETE FROM ThongTinHanhKhach WHERE maHK=?";
         try (Connection con = DBConnection.getConnection();
@@ -175,7 +182,7 @@ public class ThongTinHanhKhachDAO {
                 tthk.setMaHK(rs.getString("maHK"));
                 tthk.setMaNguoiDung(rs.getString("maNguoiDung"));
                 tthk.setMaThuHang(rs.getString("maThuHang"));
-                tthk.setHoChieu(rs.getString("hoTen"));
+                tthk.setHoTen(rs.getString("hoTen"));
                 tthk.setCccd(rs.getString("cccd"));
                 tthk.setHoChieu(rs.getString("hoChieu"));
 
@@ -191,7 +198,9 @@ public class ThongTinHanhKhachDAO {
             e.printStackTrace();
         }
         return tthk;
-    }
+    } 
+
+
 
     public ThongTinHanhKhach selectByMaNguoiDung(String maNguoiDung){
         String sql = "SELECT * FROM ThongTinHanhKhach WHERE maNguoiDung = ?";
