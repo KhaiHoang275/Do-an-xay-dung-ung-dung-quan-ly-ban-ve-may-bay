@@ -1002,7 +1002,7 @@ public class MainFrame extends javax.swing.JFrame {
         
         try {
             
-            javax.swing.ImageIcon originalIcon = new javax.swing.ImageIcon("src/resources/images/logos.png");
+            javax.swing.ImageIcon originalIcon = new javax.swing.ImageIcon("src/resources/images/finalLogo.png");
             
             
             if (originalIcon.getIconWidth() > 0) {
