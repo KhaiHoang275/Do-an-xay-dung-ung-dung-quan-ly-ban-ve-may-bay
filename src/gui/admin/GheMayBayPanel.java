@@ -453,7 +453,8 @@ public class GheMayBayPanel extends JPanel {
                     JOptionPane.showMessageDialog(this, "Cập nhật thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE);
+                ex.printStackTrace(); // In chi tiết lỗi đỏ ra console
+                JOptionPane.showMessageDialog(this, "Lỗi Java: " + ex.getMessage(), "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE);
             }
         });
 
@@ -508,5 +509,35 @@ public class GheMayBayPanel extends JPanel {
             ArrayList<GheMayBay> ketQua = gheMayBayBUS.timKiemGhe(keyword, isTrash);
             loadDataToTable(ketQua);
         });
+    }
+
+    // === HÀM XỬ LÝ NHẬN DATA TỪ SƠ ĐỒ GHẾ ===
+    public void hienThiThongTinGheDaChon(GheMayBay ghe) {
+        if (ghe != null) {
+            // Đổ dữ liệu vào các ô nhập liệu
+            txtMaGhe.setText(ghe.getMaGhe());
+            txtSoGhe.setText(ghe.getSoGhe());
+            
+            // Xử lý giá tiền (bỏ đi các số 0 thừa nếu có để tránh lỗi parse khi cập nhật)
+            txtGiaGhe.setText(ghe.getGiaGhe().stripTrailingZeros().toPlainString());
+            
+            // Set trạng thái cho ComboBox
+            cbTrangThai.setSelectedItem(hienThiTrangThai(ghe.getTrangThai()));
+            
+            txtTienTo.setText("");
+            txtSoLuong.setText("");
+            txtTienTo.setEnabled(false);
+            txtSoLuong.setEnabled(false);
+
+            // Bôi đen dòng tương ứng trên bảng Table cho dễ nhìn
+            for (int i = 0; i < tableModel.getRowCount(); i++) {
+                if (tableModel.getValueAt(i, 0).toString().equals(ghe.getMaGhe())) {
+                    table.setRowSelectionInterval(i, i);
+                    // Cuộn màn hình tới dòng đó
+                    table.scrollRectToVisible(table.getCellRect(i, 0, true));
+                    break;
+                }
+            }
+        }
     }
 }
