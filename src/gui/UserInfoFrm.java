@@ -11,7 +11,16 @@ package gui;
 public class UserInfoFrm extends javax.swing.JFrame { 
 
     private model.NguoiDung currentUser;
-    private model.ThongTinHanhKhach currentHK; 
+    private model.ThongTinHanhKhach currentHK;  
+
+    private final java.awt.Color PRIMARY_COLOR = new java.awt.Color(18, 32, 64);
+    private final java.awt.Color SECONDARY_COLOR = new java.awt.Color(45, 72, 140);
+    private final java.awt.Color ACCENT_COLOR = new java.awt.Color(255, 193, 7);
+    private final java.awt.Color SUCCESS_COLOR = new java.awt.Color(76, 175, 80);
+    private final java.awt.Color DANGER_COLOR = new java.awt.Color(244, 67, 54);
+    private final java.awt.Color TABLE_HEADER_BG = new java.awt.Color(28, 48, 96);
+    private final java.awt.Color TABLE_ROW_EVEN = new java.awt.Color(245, 247, 250);
+    private final java.awt.Color TABLE_ROW_ODD = java.awt.Color.WHITE;
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(UserInfoFrm.class.getName());
 
@@ -20,7 +29,8 @@ public class UserInfoFrm extends javax.swing.JFrame {
      */
     public UserInfoFrm() {
         initComponents(); 
-        setupLogo();
+        setupLogo(); 
+        applyButtonColors();
         this.getContentPane().setBackground(new java.awt.Color(245, 247, 250));
         jPanel1.setBackground(new java.awt.Color(245, 247, 250)); 
         jPanel6.setBackground(new java.awt.Color(245, 247, 250));
@@ -73,7 +83,27 @@ public class UserInfoFrm extends javax.swing.JFrame {
 
         this.revalidate();
         this.repaint();
-    }  
+    }   
+
+    private void applyButtonColors() {
+        if (btnSaveUserInfo != null) {
+            btnSaveUserInfo.setBackground(SUCCESS_COLOR);
+            btnSaveUserInfo.setForeground(java.awt.Color.WHITE);
+        }
+        if (btnSaveChangePass != null) {
+            btnSaveChangePass.setBackground(SUCCESS_COLOR);
+            btnSaveChangePass.setForeground(java.awt.Color.WHITE);
+        }
+
+        if (btnChangeInfo != null) {
+            btnChangeInfo.setBackground(ACCENT_COLOR);
+            btnChangeInfo.setForeground(PRIMARY_COLOR);
+        }
+        if (btnChangePassword != null) {
+            btnChangePassword.setBackground(ACCENT_COLOR);
+            btnChangePassword.setForeground(PRIMARY_COLOR);
+        }
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -914,9 +944,86 @@ public class UserInfoFrm extends javax.swing.JFrame {
 
 
         javax.swing.JPanel passWrapper = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 0, 0));
-        passWrapper.setOpaque(false);
-        passWrapper.add(jPanel5); 
-        passWrapper.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT); 
+passWrapper.setOpaque(false);
+passWrapper.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT); 
+
+gui.custom.RoundedPanel roundedPassPanel = new gui.custom.RoundedPanel();
+roundedPassPanel.setBackground(java.awt.Color.WHITE);
+
+java.awt.Dimension btnSize = new java.awt.Dimension(80, 34);
+btnSeePass.setPreferredSize(btnSize);
+btnSeePass.setMinimumSize(btnSize);
+btnSeePass.setMaximumSize(btnSize);
+
+btnSeeNewPass.setPreferredSize(btnSize);
+btnSeeNewPass.setMinimumSize(btnSize);
+btnSeeNewPass.setMaximumSize(btnSize);
+
+btnSeeCnPass.setPreferredSize(btnSize);
+btnSeeCnPass.setMinimumSize(btnSize);
+btnSeeCnPass.setMaximumSize(btnSize);
+
+javax.swing.GroupLayout layout = new javax.swing.GroupLayout(roundedPassPanel);
+roundedPassPanel.setLayout(layout);
+
+layout.setHorizontalGroup(
+    layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+    .addGroup(layout.createSequentialGroup()
+        .addGap(137, 137, 137)
+        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(LablePassword1)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(txtPassCu, javax.swing.GroupLayout.PREFERRED_SIZE, 450, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(10, 10, 10)
+                .addComponent(btnSeePass, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addComponent(LablePassword2)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(txtPassMoi, javax.swing.GroupLayout.PREFERRED_SIZE, 450, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(10, 10, 10)
+                .addComponent(btnSeeNewPass, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addComponent(jLabel8)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(txtPassXacNhan, javax.swing.GroupLayout.PREFERRED_SIZE, 450, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(10, 10, 10)
+                .addComponent(btnSeeCnPass, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)))
+        .addContainerGap(136, Short.MAX_VALUE))
+    .addGroup(layout.createSequentialGroup()
+        .addGap(231, 231, 231)
+        .addComponent(btnChangePassword, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addGap(32, 32, 32)
+        .addComponent(btnSaveChangePass, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+);
+
+layout.setVerticalGroup(
+    layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+    .addGroup(layout.createSequentialGroup()
+        .addGap(26, 26, 26)
+        .addComponent(LablePassword1)
+        .addGap(18, 18, 18)
+        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+            .addComponent(txtPassCu, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(btnSeePass, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addGap(18, 18, 18)
+        .addComponent(LablePassword2)
+        .addGap(18, 18, 18)
+        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+            .addComponent(txtPassMoi, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(btnSeeNewPass, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addGap(18, 18, 18)
+        .addComponent(jLabel8)
+        .addGap(18, 18, 18)
+        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+            .addComponent(txtPassXacNhan, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(btnSeeCnPass, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addGap(29, 29, 29)
+        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+            .addComponent(btnChangePassword, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(btnSaveChangePass, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addContainerGap(57, Short.MAX_VALUE))
+);
+
+    passWrapper.add(roundedPassPanel);
 
         passContainer.add(passWrapper);
         passContainer.add(javax.swing.Box.createVerticalStrut(30));  
@@ -989,13 +1096,13 @@ public class UserInfoFrm extends javax.swing.JFrame {
         btn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         
         if (isActive) {
-            btn.setBackground(new java.awt.Color(59, 130, 246)); 
+            btn.setBackground(SECONDARY_COLOR); 
             btn.setForeground(java.awt.Color.WHITE);
         } else {
             btn.setBackground(java.awt.Color.WHITE); 
-            btn.setForeground(isLogout ? new java.awt.Color(239, 68, 68) : new java.awt.Color(50, 50, 50));
+            btn.setForeground(isLogout ? DANGER_COLOR : PRIMARY_COLOR); 
         }
-    } 
+    }
 
     private void initComboboxData() {
         for(java.awt.event.ActionListener al : cbMonth.getActionListeners()) cbMonth.removeActionListener(al);
@@ -1317,26 +1424,19 @@ public class UserInfoFrm extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new UserInfoFrm().setVisible(true));
+    try {
+        javax.swing.UIManager.setLookAndFeel(new com.formdev.flatlaf.FlatIntelliJLaf());
+        
+        javax.swing.UIManager.put("Button.arc", 12);
+        javax.swing.UIManager.put("Component.arc", 12);
+        javax.swing.UIManager.put("TextComponent.arc", 12);
+        
+    } catch (Exception ex) {
+        logger.log(java.util.logging.Level.SEVERE, null, ex);
     }
+
+    java.awt.EventQueue.invokeLater(() -> new UserInfoFrm().setVisible(true));
+}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField EmailUser;
