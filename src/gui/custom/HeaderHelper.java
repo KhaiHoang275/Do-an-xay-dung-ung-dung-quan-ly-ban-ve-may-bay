@@ -60,7 +60,7 @@ public class HeaderHelper {
     public static void setupLogo(JLabel lblLogo, int height, JFrame currentFrame, NguoiDung currentUser) {
         lblLogo.setText(""); 
         try {
-            ImageIcon originalIcon = new ImageIcon("src/resources/images/logos.png");
+            ImageIcon originalIcon = new ImageIcon("src/resources/images/finalLogo.png");
             if (originalIcon.getIconWidth() > 0) {
                 Image scaledImg = originalIcon.getImage().getScaledInstance(-1, height, Image.SCALE_SMOOTH);
                 lblLogo.setIcon(new ImageIcon(scaledImg));

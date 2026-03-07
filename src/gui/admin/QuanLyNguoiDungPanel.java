@@ -19,7 +19,7 @@ public class QuanLyNguoiDungPanel extends JPanel {
 
     private JTable table;
     private DefaultTableModel tableModel;
-    private JTextField txtMaNguoiDung, txtUsername, txtPassword, txtEmail, txtSdt, txtThanhPho, txtTimKiem;
+    private JTextField txtMaNguoiDung, txtUsername, txtPassword, txtEmail, txtSdt, txtTimKiem;
     private JComboBox<String> cboPhanQuyen, cboTrangThai, cboHienThi;
     private JButton btnThem, btnCapNhat, btnXoa, btnLamMoi, btnTimKiem;
 
@@ -56,6 +56,7 @@ public class QuanLyNguoiDungPanel extends JPanel {
         lblTitle.setBorder(BorderFactory.createEmptyBorder(0, 5, 10, 0));
         panelNorth.add(lblTitle, BorderLayout.NORTH);
 
+        // Layout đã giảm cột Thành Phố nên đổi thành GridLayout 4x4
         JPanel pnlForm = new JPanel(new GridLayout(4, 4, 15, 15));
         pnlForm.setBackground(Color.WHITE);
         pnlForm.setBorder(BorderFactory.createCompoundBorder(
@@ -83,10 +84,6 @@ public class QuanLyNguoiDungPanel extends JPanel {
         txtSdt = new JTextField();
         pnlForm.add(txtSdt);
 
-        pnlForm.add(new JLabel("Thành Phố:"));
-        txtThanhPho = new JTextField();
-        pnlForm.add(txtThanhPho);
-
         pnlForm.add(new JLabel("Phân Quyền:"));
         cboPhanQuyen = new JComboBox<>(new String[]{"KhachHang", "NhanVien", "Admin"});
         pnlForm.add(cboPhanQuyen);
@@ -94,6 +91,10 @@ public class QuanLyNguoiDungPanel extends JPanel {
         pnlForm.add(new JLabel("Trạng Thái:"));
         cboTrangThai = new JComboBox<>(new String[]{"Hoạt động", "Ngừng hoạt động"});
         pnlForm.add(cboTrangThai);
+        
+        // Căn ô trống
+        pnlForm.add(new JLabel(""));
+        pnlForm.add(new JLabel(""));
 
         JPanel pnlActions = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         pnlActions.setBackground(BG_MAIN);
@@ -108,7 +109,6 @@ public class QuanLyNguoiDungPanel extends JPanel {
         pnlActions.add(btnXoa);
         pnlActions.add(btnLamMoi);
 
-        // --- TÌM KIẾM VÀ BỘ LỌC THÙNG RÁC ---
         JPanel pnlSearch = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         pnlSearch.setBackground(BG_MAIN);
         
@@ -140,7 +140,8 @@ public class QuanLyNguoiDungPanel extends JPanel {
         pnlTable.setBackground(Color.WHITE);
         pnlTable.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        String[] cols = {"Mã ND", "Username", "Email", "SĐT", "Phân Quyền", "Ngày Tạo", "Thành Phố", "Trạng Thái"};
+        // Xóa Thành Phố khỏi cột
+        String[] cols = {"Mã ND", "Username", "Email", "SĐT", "Phân Quyền", "Ngày Tạo", "Trạng Thái"};
         tableModel = new DefaultTableModel(cols, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -196,7 +197,6 @@ public class QuanLyNguoiDungPanel extends JPanel {
                 nd.getSoDienThoai(),
                 nd.getPhanQuyen(),
                 nd.getNgayTao(),
-                nd.getThanhPho(),
                 nd.getTrangThaiTK().getValue()
             };
             tableModel.addRow(row);
@@ -231,11 +231,7 @@ public class QuanLyNguoiDungPanel extends JPanel {
                     txtSdt.setText(sdt != null ? sdt.toString() : "");
                     
                     cboPhanQuyen.setSelectedItem(tableModel.getValueAt(row, 4).toString());
-                    
-                    Object thanhPho = tableModel.getValueAt(row, 6);
-                    txtThanhPho.setText(thanhPho != null ? thanhPho.toString() : "");
-                    
-                    cboTrangThai.setSelectedItem(tableModel.getValueAt(row, 7).toString());
+                    cboTrangThai.setSelectedItem(tableModel.getValueAt(row, 6).toString());
                     txtPassword.setText("");
                 }
             }
@@ -248,13 +244,11 @@ public class QuanLyNguoiDungPanel extends JPanel {
             txtPassword.setText("");
             txtEmail.setText("");
             txtSdt.setText("");
-            txtThanhPho.setText("");
             cboPhanQuyen.setSelectedIndex(0);
             cboTrangThai.setSelectedIndex(0);
             txtTimKiem.setText("");
             table.clearSelection();
             
-        
             if (cboHienThi.getSelectedIndex() == 1) {
                 loadDataToTable(nguoiDungBUS.getNguoiDungTrongThungRac());
             } else {
@@ -324,7 +318,6 @@ public class QuanLyNguoiDungPanel extends JPanel {
         nd.setPassword(pass);
         nd.setEmail(txtEmail.getText().trim());
         nd.setSoDienThoai(txtSdt.getText().trim());
-        nd.setThanhPho(txtThanhPho.getText().trim());
         nd.setPhanQuyen(cboPhanQuyen.getSelectedItem().toString());
         nd.setTrangThaiTK(NguoiDung.TrangThai.fromString(cboTrangThai.getSelectedItem().toString()));
         nd.setNgayTao(LocalDate.now());

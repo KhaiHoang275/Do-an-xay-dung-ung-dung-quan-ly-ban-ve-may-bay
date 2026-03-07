@@ -273,69 +273,44 @@ public class VeBanDAO {
         return false;
     }
 
-    public List<VeBan> selectVeCoTheDoi(String maHK) {
-        List<VeBan> list = new ArrayList<>();
-        String sql = """
-                       SELECT v.*
-                       FROM VeBan v
-                       JOIN ChuyenBay cb ON v.maChuyenBay = cb.maChuyenBay
-                       JOIN PhieuDatVe pdv ON v.maPhieuDatVe = pdv.maPhieuDatVe
-                       WHERE v.maHK = ?
-                         AND v.trangThaiVe IN (N'Đã xuất', N'Chưa sử dụng')
-                         AND pdv.trangThaiThanhToan = N'Đã thanh toán'
-                         AND cb.trangThai <> N'Đã bay'
-                         AND cb.ngayGioDi > GETDATE()       
-                """;
-
+    public int countByChuyenBay(String maChuyenBay) {
+        int count = 0;
+        String sql = "SELECT COUNT(*) FROM VeBan WHERE maChuyenBay = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, maHK);
+            ps.setString(1, maChuyenBay);
             ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                VeBan ve = new VeBan();
-
-                ve.setMaVe(rs.getString("maVe"));
-                ve.setMaPhieuDatVe(rs.getString("maPhieuDatVe"));
-                ve.setMaChuyenBay(rs.getString("maChuyenBay"));
-                ve.setMaHK(rs.getString("maHK"));
-                ve.setMaHangVe(rs.getString("maHangVe"));
-                ve.setMaGhe(rs.getString("maGhe"));
-                ve.setLoaiVe(rs.getString("loaiVe"));
-                ve.setLoaiHK(rs.getString("loaiHK"));
-                ve.setGiaVe(rs.getBigDecimal("giaVe"));
-                ve.setTrangThaiVe(rs.getString("trangThaiVe"));
-
-                list.add(ve);
+            if (rs.next()) {
+                count = rs.getInt(1);
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-        return list;
+        return count;
     }
 
     public List<VeBan> selectByMaPhieuDatVe(String maPhieu) {
         List<VeBan> list = new ArrayList<>();
         String sql = """
-SELECT 
-    vb.maVe,
-    vb.maPhieuDatVe,
-    vb.maChuyenBay,
-    vb.loaiHK,
-    vb.loaiVe,
-    vb.giaVe,
-    vb.trangThaiVe,
+        SELECT 
+            vb.maVe,
+            vb.maPhieuDatVe,
+            vb.maChuyenBay,
+            vb.loaiHK,
+            vb.loaiVe,
+            vb.giaVe,
+            vb.trangThaiVe,
 
-    tb.sanBayDi,
-    tb.sanBayDen,
-    cb.ngayGioDi
+            tb.sanBayDi,
+            tb.sanBayDen,
+            cb.ngayGioDi
 
-FROM VeBan vb
-JOIN ChuyenBay cb ON vb.maChuyenBay = cb.maChuyenBay
-JOIN TuyenBay tb ON cb.maTuyenBay = tb.maTuyenBay
+        FROM VeBan vb
+        JOIN ChuyenBay cb ON vb.maChuyenBay = cb.maChuyenBay
+        JOIN TuyenBay tb ON cb.maTuyenBay = tb.maTuyenBay
 
-WHERE vb.maPhieuDatVe = ?
-""";
+        WHERE vb.maPhieuDatVe = ?
+        """;
 
         try (Connection con = DBConnection.getConnection();
             PreparedStatement ps = con.prepareStatement(sql)) {

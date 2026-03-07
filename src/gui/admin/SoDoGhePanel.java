@@ -9,22 +9,24 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class SoDoGhePanel extends JPanel {
 
-    // === THÊM INTERFACE BACK ===
-    public interface BackListener {
-        void onBack();
+    // === NÂNG CẤP INTERFACE (Dùng chung cho cả Admin và Customer) ===
+    public interface SoDoGheListener {
+        void onBack(); // Dùng khi bấm nút "Trở về danh sách"
+        void onSeatSelected(GheMayBay ghe); // Dùng khi bấm "Chọn ghế này"
     }
-    private BackListener backListener;
+    private SoDoGheListener listener;
 
-    public void setBackListener(BackListener listener) {
-        this.backListener = listener;
+    public void setListener(SoDoGheListener listener) {
+        this.listener = listener;
     }
-    // ===========================
+    // ==============================================================
 
     // Màu sắc đồng bộ hệ thống
     private final Color PRIMARY = new Color(220, 38, 38);
@@ -41,6 +43,13 @@ public class SoDoGhePanel extends JPanel {
     private GheMayBayBUS gheMayBayBUS;
     private Map<String, GheMayBay> mapGhe; 
     private int totalRows = 30; 
+
+    // Các Component phần dưới (Footer)
+    private JLabel lblGiaTien;
+    private JButton btnChonGhe;
+    private GheMayBay currentSelectedSeat = null; 
+    private JButton currentSelectedButton = null; 
+    private final DecimalFormat formatter = new DecimalFormat("###,###,### VNĐ");
 
     public SoDoGhePanel(String maMayBay, String tenMayBay) {
         this.maMayBay = maMayBay;
@@ -75,6 +84,9 @@ public class SoDoGhePanel extends JPanel {
     }
 
     private void initComponents() {
+        // ==========================================
+        // 1. HEADER
+        // ==========================================
         JPanel headerPanel = new JPanel(new BorderLayout(10, 10));
         headerPanel.setOpaque(false);
 
@@ -89,23 +101,24 @@ public class SoDoGhePanel extends JPanel {
         btnBack.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btnBack.setFocusPainted(false);
         try {
-            ImageIcon icon = new ImageIcon(getClass().getResource("/resources/icons/icons8-back-24.png")); // Thêm icon back nếu có
+            ImageIcon icon = new ImageIcon(getClass().getResource("/resources/icons/icons8-back-24.png"));
             Image scaled = icon.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH);
             btnBack.setIcon(new ImageIcon(scaled));
         } catch (Exception e) {}
         
-        // BẮT SỰ KIỆN QUAY LẠI Ở ĐÂY
         btnBack.addActionListener(e -> {
-             if (backListener != null) {
-                 backListener.onBack();
+             if (listener != null) {
+                 listener.onBack();
              }
         });
 
         headerPanel.add(lblTitle, BorderLayout.WEST);
         headerPanel.add(btnBack, BorderLayout.EAST);
-
         add(headerPanel, BorderLayout.NORTH);
 
+        // ==========================================
+        // 2. CHÚ GIẢI TRẠNG THÁI (LEGEND) & BẢN ĐỒ GHẾ
+        // ==========================================
         JPanel legendPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         legendPanel.setOpaque(false);
         
@@ -154,8 +167,38 @@ public class SoDoGhePanel extends JPanel {
 
         seatMapContainer.add(legendPanel, BorderLayout.NORTH);
         seatMapContainer.add(scrollPane, BorderLayout.CENTER);
-
         add(seatMapContainer, BorderLayout.CENTER);
+
+        // ==========================================
+        // 3. BOTTOM PANEL (Hiển thị giá & Nút chọn)
+        // ==========================================
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 10));
+        bottomPanel.setOpaque(false);
+        
+        lblGiaTien = new JLabel("Tổng tiền: 0 VNĐ");
+        lblGiaTien.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        lblGiaTien.setForeground(PRIMARY);
+
+        btnChonGhe = new JButton("Chọn ghế này");
+        btnChonGhe.setBackground(new Color(255, 152, 0)); // Màu cam nổi bật
+        btnChonGhe.setForeground(Color.WHITE);
+        btnChonGhe.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnChonGhe.setPreferredSize(new Dimension(150, 40));
+        btnChonGhe.setFocusPainted(false);
+        btnChonGhe.setEnabled(false); // Khóa nút lúc ban đầu chưa chọn ghế
+        
+        // Sự kiện khi bấm Xác Nhận Chọn Ghế
+        btnChonGhe.addActionListener(e -> {
+            if (currentSelectedSeat != null && listener != null) {
+                // TRUYỀN DỮ LIỆU GHẾ VỀ CHO PANEL ĐÃ GỌI NÓ
+                listener.onSeatSelected(currentSelectedSeat);
+            }
+        });
+
+        bottomPanel.add(lblGiaTien);
+        bottomPanel.add(btnChonGhe);
+        
+        add(bottomPanel, BorderLayout.SOUTH);
     }
 
     private JPanel createLegendItem(String text, Color color) {
@@ -211,11 +254,30 @@ public class SoDoGhePanel extends JPanel {
                 if (realSeat == null) return;
 
                 if (btn.getBackground().equals(COLOR_AVAILABLE)) {
+                    // Reset ghế cũ nếu có
+                    if (currentSelectedButton != null && currentSelectedButton != btn) {
+                        currentSelectedButton.setBackground(COLOR_AVAILABLE);
+                    }
+                    
+                    // Cập nhật ghế mới
                     btn.setBackground(COLOR_SELECTED);
-                    System.out.println("Đã chọn ghế: " + realSeat.getSoGhe() + " - Giá: " + realSeat.getGiaGhe());
+                    currentSelectedButton = btn;
+                    currentSelectedSeat = realSeat;
+                    
+                    // Hiện giá tiền và mở khóa nút
+                    lblGiaTien.setText("Tổng tiền: " + formatter.format(realSeat.getGiaGhe()));
+                    btnChonGhe.setEnabled(true);
+                    
                 } else if (btn.getBackground().equals(COLOR_SELECTED)) {
+                    // Hủy chọn
                     btn.setBackground(COLOR_AVAILABLE);
-                    System.out.println("Bỏ chọn ghế: " + realSeat.getSoGhe());
+                    currentSelectedButton = null;
+                    currentSelectedSeat = null;
+                    
+                    // Reset giao diện dưới
+                    lblGiaTien.setText("Tổng tiền: 0 VNĐ");
+                    btnChonGhe.setEnabled(false);
+                    
                 } else if (btn.getBackground().equals(COLOR_BOOKED)) {
                     JOptionPane.showMessageDialog(SoDoGhePanel.this, 
                         "Ghế " + realSeat.getSoGhe() + " đã được đặt, vui lòng chọn ghế khác!", "Thông báo", JOptionPane.WARNING_MESSAGE);
@@ -229,6 +291,7 @@ public class SoDoGhePanel extends JPanel {
         return btn;
     }
 
+    // Hàm Main để Test độc lập
     public static void main(String[] args) {
         JFrame testFrame = new JFrame("Test Sơ Đồ Ghế");
         testFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -236,8 +299,16 @@ public class SoDoGhePanel extends JPanel {
         testFrame.setLocationRelativeTo(null);
 
         SoDoGhePanel panel = new SoDoGhePanel("MB001", "Boeing 737");
-        panel.setBackListener(() -> {
-            System.out.println("Đã bấm trở về danh sách!");
+        panel.setListener(new SoDoGheListener() {
+            @Override
+            public void onBack() {
+                System.out.println("Đã bấm trở về danh sách!");
+            }
+
+            @Override
+            public void onSeatSelected(GheMayBay ghe) {
+                System.out.println("Đã chọn ghế: " + ghe.getSoGhe() + " | Giá: " + ghe.getGiaGhe());
+            }
         });
 
         testFrame.add(panel);
