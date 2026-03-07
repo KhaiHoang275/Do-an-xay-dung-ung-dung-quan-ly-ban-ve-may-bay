@@ -103,7 +103,7 @@ public class AdminMainFrame extends JFrame {
             showPanel(new ChuyenBayPanel());
         });
 
-        JButton btnVeBan = createSidebarButton("Quản lý vé bán", " ");
+        JButton btnVeBan = createSidebarButton("Quản lý vé bán", null);
         btnVeBan.addActionListener(e ->{
             setActiveButton(btnVeBan);
             showPanel(new VeBanPanel());
@@ -192,7 +192,7 @@ public class AdminMainFrame extends JFrame {
         return sidebar;
     }
 
-    private JButton createSidebarButton(String text, String iconPath) {
+ private JButton createSidebarButton(String text, String iconPath) {
         JButton btn = new JButton(text);
         btn.setBackground(BUTTON_COLOR);
         btn.setForeground(Color.WHITE);
@@ -205,15 +205,21 @@ public class AdminMainFrame extends JFrame {
         btn.setHorizontalAlignment(SwingConstants.LEFT);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        // Thêm icon
-        if (iconPath != null) {
-            ImageIcon originalIcon = new ImageIcon(getClass().getResource(iconPath));
-            Image scaledIconImage = originalIcon.getImage().getScaledInstance(
-                    24, 24, // Kích thước icon nhỏ để vừa button (tùy chỉnh nếu cần)
-                    Image.SCALE_SMOOTH
-            );
-            btn.setIcon(new ImageIcon(scaledIconImage));
-            btn.setIconTextGap(10); // Khoảng cách giữa icon và text
+        // Cách load icon AN TOÀN chống sập giao diện
+        if (iconPath != null && !iconPath.trim().isEmpty()) {
+            URL iconUrl = getClass().getResource(iconPath);
+            if (iconUrl != null) {
+                ImageIcon originalIcon = new ImageIcon(iconUrl);
+                Image scaledIconImage = originalIcon.getImage().getScaledInstance(
+                        24, 24, // Kích thước icon nhỏ
+                        Image.SCALE_SMOOTH
+                );
+                btn.setIcon(new ImageIcon(scaledIconImage));
+                btn.setIconTextGap(10);
+            } else {
+                // Báo lỗi nhẹ ra console để bạn biết file nào bị thiếu thay vì sập luôn form
+                System.err.println("⚠️ Không tìm thấy icon: " + iconPath);
+            }
         }
 
         // Hover effect
