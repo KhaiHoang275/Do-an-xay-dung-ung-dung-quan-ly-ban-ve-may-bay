@@ -10,11 +10,11 @@ import java.util.ArrayList;
 
 public class KhuyenMaiDAO {
     /**
-     * Lay tat ca khuyen mai tu dtb
+     * Lay tat ca khuyen mai tu dtb (chi lay isDeleted = 0)
      */
     public List<KhuyenMai> getAll(Connection conn) throws SQLException {
         List<KhuyenMai> list = new ArrayList<>();
-        String sql = "SELECT * FROM KhuyenMai";
+        String sql = "SELECT * FROM KhuyenMai WHERE isDeleted = 0";
         try (Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) {
@@ -34,8 +34,24 @@ public class KhuyenMaiDAO {
         }
     }
 
+    // Thêm: Lấy tất cả đã xóa (isDeleted = 1)
+    public List<KhuyenMai> getAllDeleted() {
+        List<KhuyenMai> list = new ArrayList<>();
+        String sql = "SELECT * FROM KhuyenMai WHERE isDeleted = 1";
+        try (Connection conn = DBConnection.getConnection();
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+            while (rs.next()) {
+                list.add(mapResultSetToKhuyenMai(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     public KhuyenMai getById(String maKhuyenMai){
-        String sql = "SELECT * FROM KhuyenMai WHERE maKhuyenMai = ?";
+        String sql = "SELECT * FROM KhuyenMai WHERE maKhuyenMai = ? AND isDeleted = 0";
         KhuyenMai km = null;
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)){
@@ -57,11 +73,11 @@ public class KhuyenMaiDAO {
             (maKhuyenMai, tenKM, moTa, loaiKM, giaTri,
             donHangToiThieu, soLuongTong, soLuongDaDung,
             ngayBD, ngayKT, apDungChoTatCa, loaiKhachApDung,
-            gioiHanMoiKhach, trangThai, nguoiTao, ngayTao)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            gioiHanMoiKhach, trangThai, nguoiTao, ngayTao, isDeleted)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
         """;
         try (Connection conn = DBConnection.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql)){
+             PreparedStatement ps = conn.prepareStatement(sql)){
             ps.setString(1, km.getMaKhuyenMai());
             ps.setString(2, km.getTenKM());
             ps.setString(3, km.getMoTa());
@@ -115,10 +131,10 @@ public class KhuyenMaiDAO {
                     gioiHanMoiKhach = ?,
                     trangThai = ?,
                     nguoiTao = ?
-                WHERE maKhuyenMai = ?
+                WHERE maKhuyenMai = ? AND isDeleted = 0
                 """;
         try (Connection conn = DBConnection.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql)){
+             PreparedStatement ps = conn.prepareStatement(sql)){
             ps.setString(1, km.getTenKM());
             ps.setString(2, km.getMoTa());
             ps.setString(3, km.getLoaiKM());
@@ -144,14 +160,29 @@ public class KhuyenMaiDAO {
 
     }
 
+    // Sửa: Soft delete (update isDeleted = 1)
     public boolean delete(KhuyenMai km){
-        String sql = "DELETE FROM KhuyenMai WHERE maKhuyenMai = ?";
+        String sql = "UPDATE KhuyenMai SET isDeleted = 1 WHERE maKhuyenMai = ? AND isDeleted = 0";
         try (Connection conn = DBConnection.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql)){
+             PreparedStatement ps = conn.prepareStatement(sql)){
             ps.setString(1, km.getMaKhuyenMai());
-            int rowsDeleted = ps.executeUpdate();
-            return rowsDeleted > 0;
+            int rowsUpdated = ps.executeUpdate();
+            return rowsUpdated > 0;
         }catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Thêm: Khôi phục (update isDeleted = 0)
+    public boolean restore(KhuyenMai km) {
+        String sql = "UPDATE KhuyenMai SET isDeleted = 0 WHERE maKhuyenMai = ? AND isDeleted = 1";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, km.getMaKhuyenMai());
+            int rowsUpdated = ps.executeUpdate();
+            return rowsUpdated > 0;
+        } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
@@ -160,15 +191,16 @@ public class KhuyenMaiDAO {
     /**
      * Lay ds khuyen mai dang hoat dong
      * - trang thai = 1 (true)
-     * - ngay hien tai nam trong khoang ngayBD-ngayKT
-     * -soLuongDaDung < soLuongTong
+     * - ngay ngay hien tai nam trong khoang ngayBD-ngayKT
+     * - ngay soLuongDaDung < soLuongTong
+     * - isDeleted = 0
      */
     public List<KhuyenMai> getKhuyenMaiDangHoatDong(Connection conn) throws SQLException{
         List<KhuyenMai> list = new ArrayList<>();
         LocalDate hienTai = LocalDate.now();
         String sql = "SELECT * FROM KhuyenMai WHERE trangThai = 1 " +
                 "AND ngayBD <= ? AND ngayKT >= ? " +
-                "AND soLuongDaDung < soLuongTong";
+                "AND soLuongDaDung < soLuongTong AND isDeleted = 0";
         try(PreparedStatement ps = conn.prepareStatement(sql)){
             ps.setDate(1, Date.valueOf(hienTai));
             ps.setDate(2, Date.valueOf(hienTai));
@@ -223,6 +255,8 @@ public class KhuyenMaiDAO {
         if (sqlTimestamp != null){
             km.setNgayTao(sqlTimestamp.toLocalDateTime());
         }
+        // Thêm cho thùng rác
+        km.setDeleted(rs.getBoolean("isDeleted"));
         return km;
     }
 
@@ -241,10 +275,10 @@ public class KhuyenMaiDAO {
     public boolean incrementSoLuongDaDung(Connection conn, String maKhuyenMai)
             throws SQLException{
         String sql = "UPDATE KhuyenMai " +
-                     "SET soLuongDaDung = soLuongDaDung + 1 " +
-                     "WHERE maKhuyenMai = ? " +
-                     "AND soLuongDaDung < soLuongTong " +
-                     "AND trangThai = 1";
+                "SET soLuongDaDung = soLuongDaDung + 1 " +
+                "WHERE maKhuyenMai = ? " +
+                "AND soLuongDaDung < soLuongTong " +
+                "AND trangThai = 1 AND isDeleted = 0";
         try (PreparedStatement ps = conn.prepareStatement(sql)){
             ps.setString(1, maKhuyenMai);
             int rowsAffected = ps.executeUpdate();
@@ -264,7 +298,7 @@ public class KhuyenMaiDAO {
      */
     public KhuyenMai getByIdWithConnection(Connection conn, String maKhuyenMai)
             throws SQLException{
-        String sql = "SELECT * FROM KhuyenMai WHERE maKhuyenMai = ?";
+        String sql = "SELECT * FROM KhuyenMai WHERE maKhuyenMai = ? AND isDeleted = 0";
         try(PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, maKhuyenMai);
             ResultSet rs = ps.executeQuery();

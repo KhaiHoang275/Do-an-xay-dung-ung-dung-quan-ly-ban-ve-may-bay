@@ -11,6 +11,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -32,6 +33,11 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
     private JSpinner spinnerNgayBD, spinnerNgayKT;
     private JButton btnThem, btnLuu, btnXoa, btnLamMoi;
     private JTabbedPane tabbedPane;
+
+    // Thêm cho thùng rác
+    private JComboBox<String> cboMode;
+    private JButton btnKhoiPhuc;
+    private JPanel trashButtonPanel; // Panel chứa nút cho thùng rác
 
     // ===== COLORS =====
     private final Color PRIMARY_COLOR = new Color(18, 32, 64);
@@ -67,6 +73,20 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
         listPanel.setBackground(Color.WHITE);
         listPanel.add(createTablePanel(), BorderLayout.CENTER);
 
+        // Thêm panel nút cho thùng rác (ban đầu ẩn)
+        trashButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
+        trashButtonPanel.setBackground(Color.WHITE);
+        btnKhoiPhuc = createStyledButton("Khôi phục", SUCCESS_COLOR);
+        setButtonIcon(btnKhoiPhuc, "/resources/icons/icons8-update-24.png");
+        btnKhoiPhuc.addActionListener(e -> khoiPhucKhuyenMai());
+        btnLamMoi = createStyledButton("Làm mới", ACCENT_COLOR); // Reuse btnLamMoi nhưng add lại
+        setButtonIcon(btnLamMoi, "/resources/icons/icons8-reset-24.png");
+        btnLamMoi.addActionListener(e -> loadDataByMode());
+        trashButtonPanel.add(btnKhoiPhuc);
+        trashButtonPanel.add(btnLamMoi);
+        trashButtonPanel.setVisible(false);
+        listPanel.add(trashButtonPanel, BorderLayout.SOUTH);
+
         // Tab 2: Form
         JPanel formPanel = createFormPanel();
 
@@ -85,7 +105,7 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
     }
 
     // ========================================
-    // HEADER PANEL
+    // HEADER PANEL (Thêm cboMode)
     // ========================================
     private JPanel createHeaderPanel() {
         JPanel headerPanel = new JPanel(new BorderLayout(10, 10));
@@ -97,14 +117,17 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
 
         // ===== TITLE =====
         ImageIcon icon = null;
-        try {
-            icon = new ImageIcon(
-                    new ImageIcon(getClass().getResource("/resources/icons/icons8-flash-24.png"))
-                            .getImage()
-                            .getScaledInstance(24, 24, Image.SCALE_SMOOTH)
-            );
-        } catch (Exception e) {
-            e.printStackTrace();
+        URL resource = getClass().getResource("/resources/icons/icons8-flash-24.png");
+        if (resource != null) {
+            try {
+                icon = new ImageIcon(
+                        new ImageIcon(resource)
+                                .getImage()
+                                .getScaledInstance(24, 24, Image.SCALE_SMOOTH)
+                );
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         JLabel lblTitle = new JLabel("QUẢN LÝ VOUCHER", icon, JLabel.LEFT);
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 24));
@@ -126,6 +149,11 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
 
         btnTimKiem.addActionListener(e -> timKiem());
 
+        // Thêm cboMode
+        cboMode = new JComboBox<>(new String[]{"Đang hiển thị", "Thùng rác"});
+        cboMode.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        cboMode.addActionListener(e -> switchMode());
+
         cboLocTrangThai = new JComboBox<>(new String[]{"Tất cả", "Hoạt động", "Không hoạt động"});
         cboLocTrangThai.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         cboLocTrangThai.addActionListener(e -> locTheoTrangThai());
@@ -133,6 +161,9 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
         searchPanel.add(new JLabel("Tìm (Mã/Tên):"));
         searchPanel.add(txtTimKiem);
         searchPanel.add(btnTimKiem);
+        searchPanel.add(Box.createHorizontalStrut(20));
+        searchPanel.add(new JLabel("Chế độ:"));
+        searchPanel.add(cboMode); // Thêm trước trạng thái
         searchPanel.add(Box.createHorizontalStrut(20));
         searchPanel.add(new JLabel("Trạng thái:"));
         searchPanel.add(cboLocTrangThai);
@@ -143,15 +174,18 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
         return headerPanel;
     }
     private void setButtonIcon(JButton btn, String path) {
-        ImageIcon icon = new ImageIcon(getClass().getResource(path));
-        Image scaled = icon.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH);
-        btn.setIcon(new ImageIcon(scaled));
-        btn.setIconTextGap(8);
+        URL url = getClass().getResource(path);
+        if (url != null) {
+            ImageIcon icon = new ImageIcon(url);
+            Image scaled = icon.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+            btn.setIcon(new ImageIcon(scaled));
+            btn.setIconTextGap(8);
+        } // Nếu null, bỏ qua mà không crash
     }
 
     // ========================================
-// TABLE PANEL (HEADER NỔI BẬT)
-// ========================================
+    // TABLE PANEL (HEADER NỔI BẬT)
+    // ========================================
     private JPanel createTablePanel() {
 
         JPanel tablePanel = new JPanel(new BorderLayout(0, 10));
@@ -163,14 +197,17 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
 
         // ===== TITLE =====
         ImageIcon icon = null;
-        try {
-            icon = new ImageIcon(
-                    new ImageIcon(getClass().getResource("/resources/icons/icons8-test-passed-24.png"))
-                            .getImage()
-                            .getScaledInstance(24, 24, Image.SCALE_SMOOTH)
-            );
-        } catch (Exception e) {
-            e.printStackTrace();
+        URL resource = getClass().getResource("/resources/icons/icons8-test-passed-24.png");
+        if (resource != null) {
+            try {
+                icon = new ImageIcon(
+                        new ImageIcon(resource)
+                                .getImage()
+                                .getScaledInstance(24, 24, Image.SCALE_SMOOTH)
+                );
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         JLabel lblTableTitle = new JLabel("DANH SÁCH MÃ KHUYẾN MÃI", icon, JLabel.LEFT);
@@ -200,14 +237,16 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
         table.setSelectionBackground(new Color(45, 72, 140));
         table.setSelectionForeground(Color.WHITE);
 
-        // ===== POPUP MENU =====
-        JPopupMenu popupMenu = new JPopupMenu();
-
+        // ===== POPUP MENU (Sẽ switch theo mode) =====
+        JPopupMenu popupMenuNormal = new JPopupMenu();
         JMenuItem itemEdit = new JMenuItem("Chỉnh sửa");
         JMenuItem itemDelete = new JMenuItem("Xóa");
+        popupMenuNormal.add(itemEdit);
+        popupMenuNormal.add(itemDelete);
 
-        popupMenu.add(itemEdit);
-        popupMenu.add(itemDelete);
+        JPopupMenu popupMenuTrash = new JPopupMenu();
+        JMenuItem itemRestore = new JMenuItem("Khôi phục");
+        popupMenuTrash.add(itemRestore);
 
         // Click chuột phải
         table.addMouseListener(new MouseAdapter() {
@@ -234,7 +273,12 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
                         return;
                     }
 
-                    popupMenu.show(e.getComponent(), e.getX(), e.getY());
+                    // Switch popup theo mode
+                    if (cboMode.getSelectedItem().equals("Thùng rác")) {
+                        popupMenuTrash.show(e.getComponent(), e.getX(), e.getY());
+                    } else {
+                        popupMenuNormal.show(e.getComponent(), e.getX(), e.getY());
+                    }
                 }
             }
         });
@@ -252,8 +296,22 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
 
             xoaKhuyenMai();
         });
-        itemEdit.setIcon(new ImageIcon(getClass().getResource("/resources/icons/icons8-edit-16.png")));
-        itemDelete.setIcon(new ImageIcon(getClass().getResource("/resources/icons/icons8-trash-bin-16.png")));
+
+        itemRestore.addActionListener(e -> khoiPhucKhuyenMai());
+
+        URL editUrl = getClass().getResource("/resources/icons/icons8-edit-16.png");
+        if (editUrl != null) {
+            itemEdit.setIcon(new ImageIcon(editUrl));
+        }
+        URL deleteUrl = getClass().getResource("/resources/icons/icons8-trash-bin-16.png");
+        if (deleteUrl != null) {
+            itemDelete.setIcon(new ImageIcon(deleteUrl));
+        }
+        URL restoreUrl = getClass().getResource("/resources/icons/icons8-restore-16.png");
+        if (restoreUrl != null) {
+            itemRestore.setIcon(new ImageIcon(restoreUrl));
+        }
+
         // =========================================
         // HEADER STYLE (CHỮ NỔI RÕ)
         // =========================================
@@ -319,16 +377,6 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
             table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
 
-        // ===== CLICK EVENT =====
-//        table.addMouseListener(new java.awt.event.MouseAdapter() {
-//            @Override
-//            public void mouseClicked(java.awt.event.MouseEvent e) {
-//                if (e.getClickCount() == 1) {
-//                    hienThiChiTiet();
-//                }
-//            }
-//        });
-
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1));
 
@@ -351,14 +399,17 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
 
         // ===== FORM TITLE =====
         ImageIcon icon = null;
-        try {
-            icon = new ImageIcon(
-                    new ImageIcon(getClass().getResource("/resources/icons/icons8-application-24.png"))
-                            .getImage()
-                            .getScaledInstance(24, 24, Image.SCALE_SMOOTH)
-            );
-        } catch (Exception e) {
-            e.printStackTrace();
+        URL resource = getClass().getResource("/resources/icons/icons8-application-24.png");
+        if (resource != null) {
+            try {
+                icon = new ImageIcon(
+                        new ImageIcon(resource)
+                                .getImage()
+                                .getScaledInstance(24, 24, Image.SCALE_SMOOTH)
+                );
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         JLabel lblFormTitle = new JLabel("FORM TẠO / CHỈNH SỬA KHUYẾN MÃI", icon, JLabel.LEFT);
         lblFormTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
@@ -504,11 +555,20 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
     }
 
     // ========================================
-    // DATA LOADING
+    // DATA LOADING (Sửa để load theo mode)
     // ========================================
     private void loadData() {
+        loadDataByMode();
+    }
+
+    private void loadDataByMode() {
         tableModel.setRowCount(0);
-        List<KhuyenMai> list = khuyenMaiBUS.getAll();
+        List<KhuyenMai> list;
+        if (cboMode.getSelectedItem().equals("Thùng rác")) {
+            list = khuyenMaiBUS.getAllDeleted(); // Giả sử bạn thêm method này ở BUS gọi DAO
+        } else {
+            list = khuyenMaiBUS.getAll();
+        }
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
         for (KhuyenMai km : list) {
@@ -525,6 +585,23 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
                     km.isTrangThai() ? "Hoạt động" : "Không hoạt động"
             });
         }
+    }
+
+    // Thêm: Switch mode
+    private void switchMode() {
+        String mode = (String) cboMode.getSelectedItem();
+        if (mode.equals("Thùng rác")) {
+            trashButtonPanel.setVisible(true);
+            tabbedPane.removeTabAt(1); // Ẩn tab form
+            cboLocTrangThai.setEnabled(false); // Disable lọc trạng thái
+            txtTimKiem.setEnabled(false); // Disable tìm kiếm nếu không cần
+        } else {
+            trashButtonPanel.setVisible(false);
+            tabbedPane.insertTab("Tạo / Chỉnh sửa", null, createFormPanel(), null, 1); // Thêm lại tab form
+            cboLocTrangThai.setEnabled(true);
+            txtTimKiem.setEnabled(true);
+        }
+        loadDataByMode();
     }
 
     // ========================================
@@ -586,7 +663,7 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
                         "Thành công",
                         JOptionPane.INFORMATION_MESSAGE);
 
-                loadData();
+                loadDataByMode();
                 lamMoi();
                 txtMaKM.setText(khuyenMaiBUS.generateMaKM());
 
@@ -626,7 +703,7 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
                         "Thành công",
                         JOptionPane.INFORMATION_MESSAGE);
 
-                loadData();
+                loadDataByMode();
                 lamMoi();
                 isEditMode = false;
                 txtMaKM.setText(khuyenMaiBUS.generateMaKM());
@@ -658,7 +735,7 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
         }
 
         int confirm = JOptionPane.showConfirmDialog(this,
-                "Bạn có chắc chắn muốn xóa khuyến mãi này?",
+                "Bạn có chắc chắn muốn xóa khuyến mãi này? (Sẽ chuyển vào thùng rác)",
                 "Xác nhận",
                 JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
@@ -667,16 +744,59 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
                 KhuyenMai km = new KhuyenMai();
                 km.setMaKhuyenMai(maKM);
 
-                if (khuyenMaiBUS.delete(km)) { // Thêm delete vào BUS
+                if (khuyenMaiBUS.delete(km)) { // Soft delete
                     JOptionPane.showMessageDialog(this,
-                            "Xóa khuyến mãi thành công!",
+                            "Xóa khuyến mãi thành công (đã chuyển vào thùng rác)!",
                             "Thành công",
                             JOptionPane.INFORMATION_MESSAGE);
-                    loadData();
+                    loadDataByMode();
                     lamMoi();
                 } else {
                     JOptionPane.showMessageDialog(this,
                             "Xóa khuyến mãi thất bại! Có thể đang được sử dụng.",
+                            "Lỗi",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this,
+                        "Lỗi hệ thống: " + e.getMessage(),
+                        "Lỗi",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    // Thêm: Khôi phục
+    private void khoiPhucKhuyenMai() {
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this,
+                    "Vui lòng chọn khuyến mãi cần khôi phục!",
+                    "Cảnh báo",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Bạn có chắc chắn muốn khôi phục khuyến mãi này?",
+                "Xác nhận",
+                JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                String maKM = tableModel.getValueAt(selectedRow, 0).toString();
+                KhuyenMai km = new KhuyenMai();
+                km.setMaKhuyenMai(maKM);
+
+                if (khuyenMaiBUS.restore(km)) { // Giả sử bạn thêm method restore ở BUS gọi DAO
+                    JOptionPane.showMessageDialog(this,
+                            "Khôi phục thành công!",
+                            "Thành công",
+                            JOptionPane.INFORMATION_MESSAGE);
+                    loadDataByMode();
+                    table.clearSelection();
+                } else {
+                    JOptionPane.showMessageDialog(this,
+                            "Khôi phục thất bại!",
                             "Lỗi",
                             JOptionPane.ERROR_MESSAGE);
                 }
@@ -711,8 +831,8 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
 
     private void timKiem() {
         String keyword = txtTimKiem.getText().trim().toLowerCase();
-        if (keyword.isEmpty()) {
-            loadData();
+        if (keyword.isEmpty() || cboMode.getSelectedItem().equals("Thùng rác")) { // Không tìm ở thùng rác nếu không cần
+            loadDataByMode();
             return;
         }
 
@@ -741,8 +861,8 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
 
     private void locTheoTrangThai() {
         String selected = cboLocTrangThai.getSelectedItem().toString();
-        if (selected.equals("Tất cả")) {
-            loadData();
+        if (selected.equals("Tất cả") || cboMode.getSelectedItem().equals("Thùng rác")) {
+            loadDataByMode();
             return;
         }
 

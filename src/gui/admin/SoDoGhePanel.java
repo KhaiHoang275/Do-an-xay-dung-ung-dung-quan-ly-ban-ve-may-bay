@@ -9,6 +9,7 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,17 +44,20 @@ public class SoDoGhePanel extends JPanel {
     private GheMayBayBUS gheMayBayBUS;
     private Map<String, GheMayBay> mapGhe; 
     private int totalRows = 30; 
+    private int maxSeats = 1;
 
     // Các Component phần dưới (Footer)
     private JLabel lblGiaTien;
     private JButton btnChonGhe;
-    private GheMayBay currentSelectedSeat = null; 
-    private JButton currentSelectedButton = null; 
+    private java.util.List<GheMayBay> selectedSeats = new java.util.ArrayList<>();
+    private java.util.List<JButton> selectedButtons = new java.util.ArrayList<>();
+    private java.util.List<JButton> allSeatButtons = new java.util.ArrayList<>();
     private final DecimalFormat formatter = new DecimalFormat("###,###,### VNĐ");
 
-    public SoDoGhePanel(String maMayBay, String tenMayBay) {
+    public SoDoGhePanel(String maMayBay, String tenMayBay, int maxSeats) {
         this.maMayBay = maMayBay;
         this.tenMayBay = tenMayBay;
+        this.maxSeats = maxSeats;
         this.gheMayBayBUS = new GheMayBayBUS();
         this.mapGhe = new HashMap<>();
 
@@ -64,6 +68,7 @@ public class SoDoGhePanel extends JPanel {
         setBorder(new EmptyBorder(20, 20, 20, 20));
 
         initComponents();
+        setSelectedSeats(new java.util.ArrayList<>());
     }
 
     private void loadDuLieuGheTuDB() {
@@ -156,6 +161,7 @@ public class SoDoGhePanel extends JPanel {
                     }
 
                     JButton btnSeat = createSeatButton(seatNumber1, realSeat);
+                    allSeatButtons.add(btnSeat);
                     seatGrid.add(btnSeat);
                 }
             }
@@ -179,7 +185,7 @@ public class SoDoGhePanel extends JPanel {
         lblGiaTien.setFont(new Font("Segoe UI", Font.BOLD, 18));
         lblGiaTien.setForeground(PRIMARY);
 
-        btnChonGhe = new JButton("Chọn ghế này");
+        btnChonGhe = new JButton("Đặt chỗ");
         btnChonGhe.setBackground(new Color(255, 152, 0)); // Màu cam nổi bật
         btnChonGhe.setForeground(Color.WHITE);
         btnChonGhe.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -189,10 +195,15 @@ public class SoDoGhePanel extends JPanel {
         
         // Sự kiện khi bấm Xác Nhận Chọn Ghế
         btnChonGhe.addActionListener(e -> {
-            if (currentSelectedSeat != null && listener != null) {
-                // TRUYỀN DỮ LIỆU GHẾ VỀ CHO PANEL ĐÃ GỌI NÓ
-                listener.onSeatSelected(currentSelectedSeat);
+            if(selectedSeats.isEmpty()) return;
+
+            for(GheMayBay ghe : selectedSeats){
+                listener.onSeatSelected(ghe);
             }
+
+            Window w = SwingUtilities.getWindowAncestor(SoDoGhePanel.this);
+            if(w != null) w.dispose();
+
         });
 
         bottomPanel.add(lblGiaTien);
@@ -248,47 +259,92 @@ public class SoDoGhePanel extends JPanel {
             btn.setEnabled(false);
         }
 
-        btn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (realSeat == null) return;
+                btn.addActionListener(e -> {
 
-                if (btn.getBackground().equals(COLOR_AVAILABLE)) {
-                    // Reset ghế cũ nếu có
-                    if (currentSelectedButton != null && currentSelectedButton != btn) {
-                        currentSelectedButton.setBackground(COLOR_AVAILABLE);
-                    }
-                    
-                    // Cập nhật ghế mới
-                    btn.setBackground(COLOR_SELECTED);
-                    currentSelectedButton = btn;
-                    currentSelectedSeat = realSeat;
-                    
-                    // Hiện giá tiền và mở khóa nút
-                    lblGiaTien.setText("Tổng tiền: " + formatter.format(realSeat.getGiaGhe()));
-                    btnChonGhe.setEnabled(true);
-                    
-                } else if (btn.getBackground().equals(COLOR_SELECTED)) {
-                    // Hủy chọn
-                    btn.setBackground(COLOR_AVAILABLE);
-                    currentSelectedButton = null;
-                    currentSelectedSeat = null;
-                    
-                    // Reset giao diện dưới
-                    lblGiaTien.setText("Tổng tiền: 0 VNĐ");
-                    btnChonGhe.setEnabled(false);
-                    
-                } else if (btn.getBackground().equals(COLOR_BOOKED)) {
-                    JOptionPane.showMessageDialog(SoDoGhePanel.this, 
-                        "Ghế " + realSeat.getSoGhe() + " đã được đặt, vui lòng chọn ghế khác!", "Thông báo", JOptionPane.WARNING_MESSAGE);
-                } else if (btn.getBackground().equals(COLOR_MAINTENANCE)) {
-                    JOptionPane.showMessageDialog(SoDoGhePanel.this, 
-                        "Ghế " + realSeat.getSoGhe() + " đang bảo trì!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            if (realSeat == null) return;
+
+            boolean daChon = selectedSeats.stream().anyMatch(g -> g.getSoGhe().equalsIgnoreCase(realSeat.getSoGhe()));
+
+            if (daChon) {
+
+                btn.setBackground(COLOR_AVAILABLE);
+                selectedSeats.removeIf(g -> g.getSoGhe().equalsIgnoreCase(realSeat.getSoGhe()));
+                selectedButtons.remove(btn);
+
+            } else {
+
+                if (selectedSeats.size() >= maxSeats) {
+                    JOptionPane.showMessageDialog(
+                            SwingUtilities.getWindowAncestor(SoDoGhePanel.this),
+                            "Đã chọn đủ " + maxSeats + " ghế!"
+                    );
+                    return;
                 }
+
+                if (realSeat.getTrangThai() == TrangThaiGhe.DA_DAT) {
+                    JOptionPane.showMessageDialog(
+                            SoDoGhePanel.this,
+                            "Ghế " + realSeat.getSoGhe() + " đã được đặt!"
+                    );
+                    return;
+                }
+
+                if (realSeat.getTrangThai() == TrangThaiGhe.BAO_TRI) {
+                    JOptionPane.showMessageDialog(
+                            SoDoGhePanel.this,
+                            "Ghế " + realSeat.getSoGhe() + " đang bảo trì!"
+                    );
+                    return;
+                }
+
+                btn.setBackground(COLOR_SELECTED);
+                selectedSeats.add(realSeat);
+                selectedButtons.add(btn);
             }
+
+            BigDecimal tong = BigDecimal.ZERO;
+
+            for (GheMayBay g : selectedSeats) {
+                tong = tong.add(g.getGiaGhe());
+            }
+
+            lblGiaTien.setText("Tổng tiền: " + formatter.format(tong));
+            btnChonGhe.setEnabled(!selectedSeats.isEmpty());
         });
 
         return btn;
+    }
+
+    public void setSelectedSeats(java.util.List<String> seatNumbers){
+        selectedSeats.clear();
+        selectedButtons.clear();
+
+        for(JButton btn : allSeatButtons){
+
+            String seat = btn.getText();
+
+            if(seatNumbers.contains(seat)){
+
+                btn.setBackground(COLOR_SELECTED);
+
+                GheMayBay g = mapGhe.get(seat);
+                if(g != null){
+                    selectedSeats.add(g);
+                    selectedButtons.add(btn);
+                }
+
+            }else{
+
+                GheMayBay g = mapGhe.get(seat);
+
+                if(g != null && g.getTrangThai() == TrangThaiGhe.TRONG){
+                    btn.setBackground(COLOR_AVAILABLE);
+                }
+
+            }
+        }
+
+        btnChonGhe.setEnabled(!selectedSeats.isEmpty());
     }
 
     // Hàm Main để Test độc lập
@@ -298,7 +354,7 @@ public class SoDoGhePanel extends JPanel {
         testFrame.setSize(800, 600);
         testFrame.setLocationRelativeTo(null);
 
-        SoDoGhePanel panel = new SoDoGhePanel("MB001", "Boeing 737");
+        SoDoGhePanel panel = new SoDoGhePanel("MB001", "Boeing 737", 3);
         panel.setListener(new SoDoGheListener() {
             @Override
             public void onBack() {

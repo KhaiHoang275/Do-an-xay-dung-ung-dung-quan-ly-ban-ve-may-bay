@@ -310,4 +310,12 @@ public class KhuyenMaiBUS {
         int newNum = max + 1;
         return String.format("KM%03d", newNum);
     }
+
+    public List<KhuyenMai> getAllDeleted() {
+        return khuyenMaiDAO.getAllDeleted();
+    }
+
+    public boolean restore(KhuyenMai km) {
+        return khuyenMaiDAO.restore(km);
+    }
 }

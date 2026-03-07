@@ -3,6 +3,8 @@ package gui.admin;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -11,6 +13,7 @@ import javax.swing.table.DefaultTableModel;
 import dal.PhieuDatVeDAO;
 import dal.VeBanDAO;
 import db.DBConnection;
+import model.GheMayBay;
 import model.PhieuDatVe;
 import model.VeBan;
 
@@ -29,8 +32,11 @@ public class VeBanPanel extends JPanel {
     private final VeBanDAO veBanDAO = new VeBanDAO();
     private JTextField txtSearch;
     private JComboBox<String> cboTrangThai;
+    private JRadioButton rdMotChieu;
+    private JRadioButton rdKhuHoi;
     private PhieuDatVeDAO pdv = new PhieuDatVeDAO();
     private JTextField txtTongTien;
+    private BigDecimal giaGhe = BigDecimal.ZERO;
 
     public VeBanPanel() {
         setLayout(new BorderLayout(15,15));
@@ -191,8 +197,13 @@ public class VeBanPanel extends JPanel {
         ((JSpinner.DefaultEditor) spTreEm.getEditor()).getTextField().setEditable(false);
         ((JSpinner.DefaultEditor) spEmBe.getEditor()).getTextField().setEditable(false);
 
-        JRadioButton rdMotChieu = new JRadioButton("Một chiều");
-        JRadioButton rdKhuHoi = new JRadioButton("Khứ hồi");
+        rdMotChieu = new JRadioButton("Một chiều");
+        rdKhuHoi = new JRadioButton("Khứ hồi");
+        rdMotChieu.addActionListener(e ->
+            tinhTongTien(txtMaChuyenBay,cboHangVe,spNguoiLon,spTreEm,spEmBe));
+
+        rdKhuHoi.addActionListener(e ->
+            tinhTongTien(txtMaChuyenBay,cboHangVe,spNguoiLon,spTreEm,spEmBe));
         ButtonGroup group = new ButtonGroup();
         group.add(rdMotChieu);
         group.add(rdKhuHoi);
@@ -297,9 +308,93 @@ public class VeBanPanel extends JPanel {
 
         // Chọn ghế (demo)
         btnChonGhe.addActionListener(e -> {
-            String ma = JOptionPane.showInputDialog(this,"Nhập mã ghế:");
-            if(ma != null) txtGhe.setText(ma);
+
+        int tongHK =
+                (int) spNguoiLon.getValue() +
+                (int) spTreEm.getValue() +
+                (int) spEmBe.getValue();        
+        
+        String maCB = txtMaChuyenBay.getText().trim();
+
+
+        if(maCB.isEmpty()){
+            JOptionPane.showMessageDialog(this,
+                    "Vui lòng chọn chuyến bay trước khi chọn ghế!");
+            return;
+        }
+
+        String maMayBay = layMaMayBay(txtMaChuyenBay.getText());
+        giaGhe = BigDecimal.ZERO;
+        SoDoGhePanel Panel = new SoDoGhePanel(maMayBay, "Máy bay", tongHK);
+        List<String> ds = new ArrayList<>();
+        String ghe = txtGhe.getText().trim();
+        if(!ghe.isEmpty()){
+            for(String g : ghe.split(",")){
+                ds.add(chuanHoaGhe(g));
+            }
+        }
+        Panel.setSelectedSeats(ds);
+
+        JDialog dialog = new JDialog(
+                (Frame) SwingUtilities.getWindowAncestor(this),
+                "Chọn ghế",
+                true
+        );
+
+        dialog.setSize(900,600);
+        dialog.setLocationRelativeTo(this);
+
+        Panel.setListener(new SoDoGhePanel.SoDoGheListener() {
+
+            @Override
+            public void onBack() {
+                dialog.dispose();
+            }
+
+            public void onSeatSelected(GheMayBay ghe) {
+
+                String maGhe = chuanHoaGhe(ghe.getSoGhe());
+                String gheHienTai = txtGhe.getText().trim();
+
+                List<String> dsGhe = new ArrayList<>();
+
+                if (!gheHienTai.isEmpty()) {
+                    for(String g : gheHienTai.split(",")){
+                        dsGhe.add(chuanHoaGhe(g));
+                    }
+                }
+
+                int tongHK =
+                        (int) spNguoiLon.getValue() +
+                        (int) spTreEm.getValue() +
+                        (int) spEmBe.getValue();
+
+                if (dsGhe.contains(maGhe)) {
+                    dsGhe.remove(maGhe);
+                    giaGhe = giaGhe.subtract(ghe.getGiaGhe());
+                }
+                else {
+
+                    if (dsGhe.size() >= tongHK) {
+                        JOptionPane.showMessageDialog(dialog,
+                                "Chỉ được chọn tối đa " + tongHK + " ghế!");
+                        return;
+                    }
+
+                    dsGhe.add(maGhe);
+                    giaGhe = giaGhe.add(ghe.getGiaGhe());
+                }
+
+                txtGhe.setText(String.join(",", dsGhe));
+
+                tinhTongTien(txtMaChuyenBay, cboHangVe, spNguoiLon, spTreEm, spEmBe);
+            }
         });
+
+        dialog.add(Panel);
+
+        dialog.setVisible(true);
+    });
 
         // LƯU VÉ
         btnLuu.addActionListener(e -> {
@@ -308,6 +403,7 @@ public class VeBanPanel extends JPanel {
                 String maHK = txtMaHK.getText().trim();
                 String maCB = txtMaChuyenBay.getText().trim();
                 String ghe = txtGhe.getText().trim();
+                String[] dsGhe = ghe.split(",");
 
                 if (maHK.isEmpty() || maCB.isEmpty() || ghe.isEmpty()) {
                     JOptionPane.showMessageDialog(this, "Thiếu thông tin!");
@@ -327,6 +423,12 @@ public class VeBanPanel extends JPanel {
                     return;
                 }
 
+                if(dsGhe.length != tongSoVe){
+                    JOptionPane.showMessageDialog(this,
+                            "Số ghế phải bằng số hành khách!");
+                    return;
+                }
+
                 BigDecimal tongTien = BigDecimal.ZERO;
 
                 for(int i=0;i<soNguoiLon;i++)
@@ -340,6 +442,8 @@ public class VeBanPanel extends JPanel {
                 for(int i=0;i<soEmBe;i++)
                     tongTien = tongTien.add(
                             veBanDAO.tinhGiaVeFull(maCB, maHangVe, "Em bé"));
+                
+                tongTien = tongTien.add(giaGhe);
 
                 try(Connection conn = DBConnection.getConnection()){
 
@@ -352,15 +456,16 @@ public class VeBanPanel extends JPanel {
                 phieu.setTrangThaiThanhToan("Chưa thanh toán");
 
                 String maPDV = pdv.insert(phieu, conn);
+                int index = 0;
 
                 for(int i=0;i<soNguoiLon;i++)
-                    taoVe(conn, maPDV, maHK, maCB, ghe, maHangVe, "Người lớn", loaiVe);
+                    taoVe(conn, maPDV, maHK, maCB, dsGhe[index++], maHangVe, "Người lớn", loaiVe);
 
                 for(int i=0;i<soTreEm;i++)
-                    taoVe(conn, maPDV, maHK, maCB, ghe, maHangVe, "Trẻ em", loaiVe);
+                    taoVe(conn, maPDV, maHK, maCB, dsGhe[index++], maHangVe, "Trẻ em", loaiVe);
 
                 for(int i=0;i<soEmBe;i++)
-                    taoVe(conn, maPDV, maHK, maCB, ghe, maHangVe, "Em bé", loaiVe);
+                    taoVe(conn, maPDV, maHK, maCB, dsGhe[index++], maHangVe, "Em bé", loaiVe);
 
                 conn.commit();
 
@@ -386,6 +491,8 @@ public class VeBanPanel extends JPanel {
             spNguoiLon.setValue(1);
             spTreEm.setValue(0);
             spEmBe.setValue(0);
+            txtTongTien.setText("");
+            giaGhe = BigDecimal.ZERO;
         });
 
         spNguoiLon.addChangeListener(e ->
@@ -575,12 +682,17 @@ public class VeBanPanel extends JPanel {
                             .multiply(BigDecimal.valueOf(soNguoiLon)));
 
             tongTien = tongTien.add(
-                    veBanDAO.tinhGiaVeFull(maCB, maHangVe, "Trẻ Em")
+                    veBanDAO.tinhGiaVeFull(maCB, maHangVe, "Trẻ em")
                             .multiply(BigDecimal.valueOf(soTreEm)));
 
             tongTien = tongTien.add(
-                    veBanDAO.tinhGiaVeFull(maCB, maHangVe, "Em Bé")
+                    veBanDAO.tinhGiaVeFull(maCB, maHangVe, "Em bé")
                             .multiply(BigDecimal.valueOf(soEmBe)));
+
+            tongTien = tongTien.add(giaGhe);
+            if(rdKhuHoi.isSelected()){
+                tongTien = tongTien.multiply(new BigDecimal("1.25"));
+            }
 
             NumberFormat vn = NumberFormat.getInstance(new Locale("vi", "VN"));
             txtTongTien.setText(vn.format(tongTien) + " VND");
@@ -588,5 +700,35 @@ public class VeBanPanel extends JPanel {
         } catch(Exception ex){
             ex.printStackTrace();
         }
+    }
+
+    private String layMaMayBay(String maCB){
+        try(Connection conn = DBConnection.getConnection()){
+
+            String sql = "SELECT maMayBay FROM ChuyenBay WHERE maChuyenBay = ?";
+
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1,maCB);
+
+            ResultSet rs = ps.executeQuery();
+
+            if(rs.next()){
+                return rs.getString("maMayBay");
+            }
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    private String chuanHoaGhe(String ghe){
+        ghe = ghe.trim().toUpperCase();
+
+        if(Character.isLetter(ghe.charAt(0))){
+            return ghe.substring(1) + ghe.charAt(0);
+        }
+        return ghe;
     }
 }

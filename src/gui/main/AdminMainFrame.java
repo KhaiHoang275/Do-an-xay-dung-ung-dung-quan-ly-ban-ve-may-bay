@@ -132,7 +132,7 @@ public class AdminMainFrame extends JFrame {
                     
                     gheMayBayPanel.setPanelSwitchListener((maMayBay, tenMayBay) -> {
                         
-                        SoDoGhePanel soDoPanel = new SoDoGhePanel(maMayBay, tenMayBay);
+                        SoDoGhePanel soDoPanel = new SoDoGhePanel(maMayBay, tenMayBay, 1);
                         
                         soDoPanel.setListener(new SoDoGhePanel.SoDoGheListener() {
                             @Override
