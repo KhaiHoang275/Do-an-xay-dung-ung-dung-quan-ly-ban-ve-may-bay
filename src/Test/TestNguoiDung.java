@@ -17,7 +17,7 @@ public class TestNguoiDung {
         newUser.setEmail("admin@gmail.com");
         newUser.setSoDienThoai("0909123456");
         newUser.setPhanQuyen("ADMIN");
-        newUser.setTrangThaiTK(NguoiDung.TrangThai.valueOf("ACTIVE"));
+        newUser.setTrangThaiTK(NguoiDung.TrangThai.HOAT_DONG);
 
         if (dao.insert(newUser)) {
             System.out.println("✅ Thêm thành công!");
