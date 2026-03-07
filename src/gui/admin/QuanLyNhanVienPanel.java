@@ -59,6 +59,7 @@ public class QuanLyNhanVienPanel extends JPanel {
         lblTitle.setBorder(BorderFactory.createEmptyBorder(0, 5, 10, 0));
         panelNorth.add(lblTitle, BorderLayout.NORTH);
 
+  
         JPanel pnlForm = new JPanel(new GridLayout(3, 4, 15, 15));
         pnlForm.setBackground(Color.WHITE);
         pnlForm.setBorder(BorderFactory.createCompoundBorder(
@@ -66,6 +67,7 @@ public class QuanLyNhanVienPanel extends JPanel {
                 new EmptyBorder(15, 15, 15, 15)
         ));
 
+    
         pnlForm.add(new JLabel("Mã Nhân Viên (*):"));
         txtMaNV = new JTextField();
         pnlForm.add(txtMaNV);
@@ -74,6 +76,7 @@ public class QuanLyNhanVienPanel extends JPanel {
         txtMaNguoiDung = new JTextField();
         pnlForm.add(txtMaNguoiDung);
 
+  
         pnlForm.add(new JLabel("Họ và Tên (*):"));
         txtHoTen = new JTextField();
         pnlForm.add(txtHoTen);
@@ -82,6 +85,7 @@ public class QuanLyNhanVienPanel extends JPanel {
         txtChucVu = new JTextField();
         pnlForm.add(txtChucVu);
 
+   
         pnlForm.add(new JLabel("Ngày Vào Làm:"));
         spinnerNgayVaoLam = new JSpinner(new SpinnerDateModel());
         JSpinner.DateEditor dateEditor = new JSpinner.DateEditor(spinnerNgayVaoLam, "dd/MM/yyyy");
@@ -92,8 +96,7 @@ public class QuanLyNhanVienPanel extends JPanel {
         cboTrangThai = new JComboBox<>(new String[]{"Hoạt động", "Ngừng hoạt động"});
         pnlForm.add(cboTrangThai);
         
-        pnlForm.add(new JLabel(""));
-        pnlForm.add(new JLabel(""));
+
 
         JPanel pnlActions = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         pnlActions.setBackground(BG_MAIN);
