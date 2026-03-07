@@ -8,7 +8,10 @@ import java.util.ArrayList;
 
 import db.DBConnection;
 import model.HoaDon;
+<<<<<<< HEAD
 import model.ThanhToanDTO;
+=======
+>>>>>>> ed6c44fdf818791516364f9d537f1570efc2e2d4
 
 public class HoaDonDAO {
 
@@ -158,6 +161,7 @@ public class HoaDonDAO {
         }
         return isSuccess;
     }
+<<<<<<< HEAD
    public ThanhToanDTO getChiTietThanhToan(String maPhieu) {
     ThanhToanDTO dto = null;
     try (Connection con = DBConnection.getConnection()) {
@@ -199,4 +203,6 @@ public class HoaDonDAO {
     }
     return dto;
 }
+=======
+>>>>>>> ed6c44fdf818791516364f9d537f1570efc2e2d4
 }
