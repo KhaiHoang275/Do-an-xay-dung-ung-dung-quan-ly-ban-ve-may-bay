@@ -48,7 +48,17 @@ public class PhieuDatVePanel extends JPanel {
         ganSuKienClickPhieu();
     }
 
-    private JScrollPane initTable() {
+    private JPanel initTable() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(Color.WHITE);
+
+        JLabel title = new JLabel("DANH SÁCH PHIẾU ĐẶT VÉ");
+        title.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        title.setForeground(new Color(25,40,80));
+        title.setBorder(BorderFactory.createEmptyBorder(20,20,10,20));
+
+        panel.add(title, BorderLayout.NORTH);
+
         tableModel = new DefaultTableModel(
             new String[]{"Mã PNR", "Ngày đặt", "Số vé", "Tổng tiền", "Trạng thái"},0
         ){
@@ -66,9 +76,11 @@ public class PhieuDatVePanel extends JPanel {
         table.getTableHeader().setFont(new Font("Segoe UI",Font.BOLD,14));
 
         JScrollPane scroll = new JScrollPane(table);
-        scroll.setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
+        scroll.setBorder(BorderFactory.createEmptyBorder(0,20,20,20));
 
-        return scroll;
+        panel.add(scroll, BorderLayout.CENTER);
+
+        return panel;
     }
 
     private JPanel initTableVe() {

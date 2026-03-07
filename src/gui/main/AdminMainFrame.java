@@ -2,6 +2,7 @@ package gui.main;
 
 import gui.admin.*;
 import gui.user.DoiVePanel;
+import model.GheMayBay;
 
 import javax.swing.*;
 import java.awt.*;
@@ -99,10 +100,16 @@ public class AdminMainFrame extends JFrame {
             showPanel(new ChuyenBayPanel());
         });
 
-        JButton btnVeBan = createSidebarButton("Quản lý vé bán", " ");
+        JButton btnVeBan = createSidebarButton("Quản lý vé bán", "/resources/icons/ticket.png");
         btnVeBan.addActionListener(e -> {
             setActiveButton(btnVeBan);
             showPanel(new VeBanPanel());
+        });
+
+        JButton btnPDV = createSidebarButton("Quản lý Phiếu đặt vé", "/resources/icons/pdv.png");
+        btnPDV.addActionListener(e -> {
+            setActiveButton(btnPDV);
+            showPanel(new PhieuDatVePanel());
         });
 
         JButton btnHeSoGia = createSidebarButton("Quản lý hệ số giá", "/resources/icons/price.png");
@@ -118,18 +125,37 @@ public class AdminMainFrame extends JFrame {
         });
 
         JButton btnGheMayBay = createSidebarButton("Quản lý ghế máy bay", "/resources/icons/chair.png");
-        btnGheMayBay.addActionListener(e -> {
-            setActiveButton(btnGheMayBay);
-            GheMayBayPanel gheMayBayPanel = new GheMayBayPanel();
-            gheMayBayPanel.setPanelSwitchListener((maMayBay, tenMayBay) -> {
-                SoDoGhePanel soDoPanel = new SoDoGhePanel(maMayBay, tenMayBay);
-                soDoPanel.setBackListener(() -> {
+                btnGheMayBay.addActionListener(e -> {
+                    setActiveButton(btnGheMayBay);
+                    
+                    GheMayBayPanel gheMayBayPanel = new GheMayBayPanel();
+                    
+                    gheMayBayPanel.setPanelSwitchListener((maMayBay, tenMayBay) -> {
+                        
+                        SoDoGhePanel soDoPanel = new SoDoGhePanel(maMayBay, tenMayBay);
+                        
+                        soDoPanel.setListener(new SoDoGhePanel.SoDoGheListener() {
+                            @Override
+                            public void onBack() {
+                                // Khi bấm "Trở về danh sách"
+                                showPanel(gheMayBayPanel); 
+                            }
+
+                            @Override
+                            public void onSeatSelected(GheMayBay ghe) {
+                                // Khi bấm "Chọn ghế này"
+                                // MỞ COMMENT DÒNG DƯỚI ĐỂ ĐIỀN DỮ LIỆU VÀO FORM:
+                                gheMayBayPanel.hienThiThongTinGheDaChon(ghe); 
+                                
+                                showPanel(gheMayBayPanel);
+                            }
+                        });
+                        
+                        showPanel(soDoPanel);
+                    });
+                    
                     showPanel(gheMayBayPanel);
                 });
-                showPanel(soDoPanel);
-            });
-            showPanel(gheMayBayPanel);
-        });
 
         JButton btnDoiVe = createSidebarButton("Quản lý đổi vé", "/resources/icons/icons8-changeticket-24.png");
         btnDoiVe.addActionListener(e -> {
@@ -165,6 +191,7 @@ public class AdminMainFrame extends JFrame {
         menuPanel.add(btnChuyenBay);
         menuPanel.add(btnTuyenBay);
         menuPanel.add(btnVeBan);
+        menuPanel.add(btnPDV);
         menuPanel.add(btnThuHang);
         menuPanel.add(btnKhuyenMai);
         menuPanel.add(btnHeSoGia);
