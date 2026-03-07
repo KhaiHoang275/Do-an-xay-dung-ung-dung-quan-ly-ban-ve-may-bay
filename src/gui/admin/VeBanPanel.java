@@ -1,6 +1,8 @@
 package gui.admin;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
+
 import java.util.List;
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -64,7 +66,7 @@ public class VeBanPanel extends JPanel {
         txtSearch = new JTextField(25);
         panel.add(txtSearch);
 
-        JButton btnSearch = new JButton("🔍 Tìm kiếm");
+        JButton btnSearch = new JButton("Tìm kiếm");
         btnSearch.setBackground(new Color(52,73,140));
         btnSearch.setForeground(Color.WHITE);
         btnSearch.setFocusPainted(false);
@@ -91,7 +93,7 @@ public class VeBanPanel extends JPanel {
         tabs.setFont(new Font("Segoe UI", Font.BOLD, 14));
 
         tabs.addTab("Danh sách vé", initTablePanel());
-        tabs.addTab("Tạo / Chỉnh sửa", initFormPanel());
+        tabs.addTab("Tạo vé máy bay", initFormPanel());
 
         return tabs;
     }
@@ -103,7 +105,7 @@ public class VeBanPanel extends JPanel {
         panel.setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
         panel.setBackground(Color.WHITE);
 
-        JLabel title = new JLabel("📋 DANH SÁCH VÉ BÁN");
+        JLabel title = new JLabel("DANH SÁCH VÉ BÁN");
         title.setFont(new Font("Segoe UI", Font.BOLD, 20));
         title.setForeground(new Color(25,40,80));
 
@@ -144,7 +146,10 @@ public class VeBanPanel extends JPanel {
 
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(Color.WHITE);
-        panel.setBorder(BorderFactory.createTitledBorder("FORM TẠO / CHỈNH SỬA VÉ BÁN"));
+        TitledBorder border = BorderFactory.createTitledBorder("FORM TẠO VÉ BÁN");
+        border.setTitleFont(new Font("Segoe UI", Font.BOLD, 16));
+        border.setTitleColor(new Color(25,40,80)); 
+        panel.setBorder(border);
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10,20,10,20);
