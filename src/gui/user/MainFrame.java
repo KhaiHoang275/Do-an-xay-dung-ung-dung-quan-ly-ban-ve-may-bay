@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package gui;
+package gui.user;
 
 /**
  *
@@ -102,15 +102,15 @@ public class MainFrame extends javax.swing.JFrame {
 
         itemThongTin.addActionListener(e -> {
             UserInfoFrm infoFrm = new UserInfoFrm();
-            infoFrm.loadDataToForm(this.userHienTai); // Nạp thông tin tài khoản đang đăng nhập vào form
+            infoFrm.loadDataToForm(this.userHienTai); 
             infoFrm.setLocationRelativeTo(this);
             infoFrm.setVisible(true);
-            this.dispose(); // Đóng MainFrame (hoặc xóa dòng này nếu bạn muốn giữ MainFrame ở dưới)
+            this.dispose(); 
         });
         itemLichSu.addActionListener(e -> javax.swing.JOptionPane.showMessageDialog(this, "Đang xây dựng form Lịch sử đặt vé..."));
         
         itemDangXuat.addActionListener(e -> {
-            java.util.prefs.Preferences prefs = java.util.prefs.Preferences.userNodeForPackage(gui.DangNhapFrm.class);
+            java.util.prefs.Preferences prefs = java.util.prefs.Preferences.userNodeForPackage(gui.user.DangNhapFrm.class);
             prefs.remove("saved_user");
             prefs.remove("saved_pass");
             
@@ -1327,7 +1327,7 @@ public class MainFrame extends javax.swing.JFrame {
 
        
         java.awt.EventQueue.invokeLater(() -> {
-            java.util.prefs.Preferences prefs = java.util.prefs.Preferences.userNodeForPackage(gui.DangNhapFrm.class);
+            java.util.prefs.Preferences prefs = java.util.prefs.Preferences.userNodeForPackage(gui.user.DangNhapFrm.class);
             String savedUser = prefs.get("saved_user", null);
             String savedPass = prefs.get("saved_pass", null);
             

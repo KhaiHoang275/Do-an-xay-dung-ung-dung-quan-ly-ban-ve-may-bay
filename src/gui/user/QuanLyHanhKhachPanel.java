@@ -1,4 +1,4 @@
-package gui;
+package gui.user;
 
 import java.awt.*;
 import java.time.LocalDate;
