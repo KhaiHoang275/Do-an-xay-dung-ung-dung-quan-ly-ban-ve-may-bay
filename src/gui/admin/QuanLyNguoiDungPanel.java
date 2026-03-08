@@ -153,7 +153,12 @@ public class QuanLyNguoiDungPanel extends JPanel {
         table.setRowHeight(35);
         table.setShowHorizontalLines(true);
         table.setGridColor(new Color(230, 230, 230));
-        table.setSelectionBackground(new Color(241, 245, 249));
+        
+        // --- SỬA YÊU CẦU 1: Đổi màu dòng được chọn thành xanh đậm ---
+        table.setSelectionBackground(new Color(28, 48, 96)); 
+        table.setSelectionForeground(Color.WHITE);
+        // -------------------------------------------------------------
+        
         table.setFont(new Font("Arial", Font.PLAIN, 14));
 
         JTableHeader header = table.getTableHeader();
@@ -170,11 +175,17 @@ public class QuanLyNguoiDungPanel extends JPanel {
 
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.getViewport().setBackground(Color.WHITE);
+        
+        // --- SỬA YÊU CẦU 2: Thêm thanh kéo (Scrollbar) dọc và ngang ---
+        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        // -------------------------------------------------------------
+
         pnlTable.add(scrollPane, BorderLayout.CENTER);
 
         return pnlTable;
     }
-
+    
     private JButton createButton(String text, Color bg) {
         JButton btn = new JButton(text);
         btn.setFont(new Font("Arial", Font.BOLD, 14));

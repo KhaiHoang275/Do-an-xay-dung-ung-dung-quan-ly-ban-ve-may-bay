@@ -26,10 +26,10 @@ import javax.swing.JPopupMenu;
 
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 
-import gui.DangNhapFrm;
-import gui.DangKyFrm;
-import gui.MainFrame;
-import gui.UserInfoFrm;
+import gui.user.DangNhapFrm;
+import gui.user.DangKyFrm;
+import gui.user.MainFrame;
+import gui.user.UserInfoFrm;
 import model.NguoiDung;
 
 public class HeaderHelper {
@@ -79,9 +79,9 @@ public class HeaderHelper {
             public void mouseClicked(MouseEvent e) {
                 if (!(currentFrame instanceof MainFrame)) {
                     if (currentUser != null) {
-                        new gui.MainFrame(currentUser).setVisible(true); 
+                        new gui.user.MainFrame(currentUser).setVisible(true); 
                     } else {
-                        new gui.MainFrame().setVisible(true); 
+                        new gui.user.MainFrame().setVisible(true); 
                     }
                     currentFrame.dispose(); 
                 }
