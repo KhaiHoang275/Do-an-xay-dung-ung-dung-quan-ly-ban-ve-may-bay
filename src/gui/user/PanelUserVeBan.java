@@ -1,4 +1,4 @@
-package gui.admin;
+package gui.user;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -12,10 +12,13 @@ import javax.swing.table.DefaultTableModel;
 
 import dal.ChuyenBayDAO;
 import dal.GheMayBayDAO;
+import dal.KhuyenMaiDAO;
 import dal.PhieuDatVeDAO;
 import dal.VeBanDAO;
 import db.DBConnection;
+import gui.admin.SoDoGhePanel;
 import model.GheMayBay;
+import model.KhuyenMai;
 import model.PhieuDatVe;
 import model.VeBan;
 
@@ -27,8 +30,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 
-public class VeBanPanel extends JPanel {
-
+public class PanelUserVeBan extends JPanel {
+    private String maHK;
     private JTable table;
     private DefaultTableModel tableModel;
     private final VeBanDAO veBanDAO = new VeBanDAO();
@@ -38,17 +41,22 @@ public class VeBanPanel extends JPanel {
     private JRadioButton rdKhuHoi;
     private PhieuDatVeDAO pdv = new PhieuDatVeDAO();
     private JTextField txtTongTien;
+    private KhuyenMaiDAO kmDAO = new KhuyenMaiDAO();
+    private JComboBox<KhuyenMai> cboKhuyenMai;
+    private BigDecimal giamGia = BigDecimal.ZERO;
     private BigDecimal giaGhe = BigDecimal.ZERO;
     private GheMayBayDAO gmb = new GheMayBayDAO();
     private ChuyenBayDAO cbDAO = new ChuyenBayDAO();
 
-    public VeBanPanel() {
+    public PanelUserVeBan(String maHK) {
+        this.maHK = maHK;
         setLayout(new BorderLayout(15,15));
         setBackground(new Color(245,247,250));
 
         add(initHeader(), BorderLayout.NORTH);
         add(initTabs(), BorderLayout.CENTER);
         loadTable();
+        loadKhuyenMai();
     }
 
     // ================= HEADER =================
@@ -167,23 +175,12 @@ public class VeBanPanel extends JPanel {
 
         int row = 0;
 
-        JTextField txtTenNguoiDat = new JTextField(15);
-        JTextField txtMaHK = new JTextField(15);
-        txtMaHK.setEditable(false);
-
         JTextField txtMaChuyenBay = new JTextField(15);
         txtMaChuyenBay.setEditable(false);
 
         JTextField txtGhe = new JTextField(15);
         txtGhe.setEditable(false);
 
-        JButton btnTimHK = new JButton("Tìm");
-        txtTenNguoiDat.addFocusListener(new java.awt.event.FocusAdapter() {
-            @Override
-            public void focusLost(java.awt.event.FocusEvent e) {
-                btnTimHK.doClick();
-            }
-        });
         JButton btnChonCB = new JButton("Chọn");
         JButton btnChonGhe = new JButton("Chọn");
 
@@ -216,14 +213,6 @@ public class VeBanPanel extends JPanel {
         JButton btnLuu = new JButton("Lưu");
         JButton btnReset = new JButton("Reset");
 
-        // ===== DÒNG 1 =====
-        gbc.gridx=0; gbc.gridy=row; panel.add(new JLabel("Tên người đặt:"), gbc);
-        gbc.gridx=1; panel.add(txtTenNguoiDat, gbc);
-        gbc.gridx=2; panel.add(btnTimHK, gbc);
-
-        gbc.gridx=3; panel.add(new JLabel("Mã HK:"), gbc);
-        gbc.gridx=4; panel.add(txtMaHK, gbc);
-        row++;
 
         // ===== DÒNG 2 =====
         gbc.gridx=0; gbc.gridy=row; panel.add(new JLabel("Chuyến bay:"), gbc);
@@ -273,6 +262,18 @@ public class VeBanPanel extends JPanel {
 
         row++;
 
+        // ===== DÒNG 7 - KHUYẾN MÃI =====
+        gbc.gridx = 0; 
+        gbc.gridy = row;
+        panel.add(new JLabel("Khuyến mãi:"), gbc);
+
+        cboKhuyenMai = new JComboBox<>();
+
+        gbc.gridx = 1; 
+        panel.add(cboKhuyenMai, gbc);
+
+row++;
+
         JPanel pButton = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
 
         Dimension btnSize = new Dimension(120, 35);
@@ -289,26 +290,11 @@ public class VeBanPanel extends JPanel {
 
         // ================= LOGIC =================
 
-        btnTimHK.addActionListener(e -> {
-            try (Connection conn = DBConnection.getConnection()) {
-                String sql = "SELECT maHK FROM ThongTinHanhKhach WHERE hoTen = ?";
-                PreparedStatement ps = conn.prepareStatement(sql);
-                ps.setString(1, txtTenNguoiDat.getText().trim());
-                ResultSet rs = ps.executeQuery();
-
-                if(rs.next()){
-                    txtMaHK.setText(rs.getString("maHK"));
-                }else{
-                    JOptionPane.showMessageDialog(this,"Không tìm thấy hành khách");
-                }
-            } catch(Exception ex){
-                ex.printStackTrace();
-            }
-        });
-
         btnChonCB.addActionListener(e -> 
             chonChuyenBay(txtMaChuyenBay, cboHangVe, spNguoiLon, spTreEm, spEmBe)
         );
+
+        cboKhuyenMai.addActionListener(e -> tinhTongTien(txtMaChuyenBay,cboHangVe,spNguoiLon,spTreEm,spEmBe));
 
         // Chọn ghế (demo)
         btnChonGhe.addActionListener(e -> {
@@ -404,7 +390,7 @@ public class VeBanPanel extends JPanel {
         btnLuu.addActionListener(e -> {
             try {
 
-                String maHK = txtMaHK.getText().trim();
+                String maHK = this.maHK;
                 String maCB = txtMaChuyenBay.getText().trim();
                 String ghe = txtGhe.getText().trim();
                 String[] dsGhe = ghe.split(",");
@@ -448,6 +434,7 @@ public class VeBanPanel extends JPanel {
                             veBanDAO.tinhGiaVeFull(maCB, maHangVe, "Em bé"));
                 
                 tongTien = tongTien.add(giaGhe);
+                tongTien = tongTien.subtract(giamGia);
                 Connection conn = null;
                 try{
                 conn = DBConnection.getConnection();    
@@ -492,6 +479,12 @@ public class VeBanPanel extends JPanel {
                     }
                     taoVe(conn, maPDV, maHK, maCB, maGhe, maHangVe, "Em bé", loaiVe);
                 }
+                // cập nhật số lượng khuyến mãi đã dùng
+                KhuyenMai km = (KhuyenMai) cboKhuyenMai.getSelectedItem();
+
+                if(km != null){
+                    kmDAO.incrementSoLuongDaDung(conn, km.getMaKhuyenMai());
+                }
 
                 conn.commit();
 
@@ -516,8 +509,6 @@ public class VeBanPanel extends JPanel {
         });
 
         btnReset.addActionListener(e -> {
-            txtTenNguoiDat.setText("");
-            txtMaHK.setText("");
             txtMaChuyenBay.setText("");
             txtGhe.setText("");
             spNguoiLon.setValue(1);
@@ -525,6 +516,8 @@ public class VeBanPanel extends JPanel {
             spEmBe.setValue(0);
             txtTongTien.setText("");
             giaGhe = BigDecimal.ZERO;
+            cboKhuyenMai.setSelectedIndex(0);
+            giamGia = BigDecimal.ZERO;
         });
 
         spNguoiLon.addChangeListener(e ->
@@ -572,31 +565,30 @@ public class VeBanPanel extends JPanel {
         String keyword = txtSearch.getText().trim();
         String trangThai = cboTrangThai.getSelectedItem().toString().trim();
 
-        // Nếu chọn "Tất cả" thì bỏ lọc trạng thái
         if (trangThai.equals("Tất cả")) {
             trangThai = null;
         }
 
         tableModel.setRowCount(0);
 
-        List<VeBan> list = veBanDAO.search(keyword, trangThai);
+        List<VeBan> list = veBanDAO.searchByMaHK(maHK, keyword, trangThai);
 
         for (VeBan v : list) {
             tableModel.addRow(new Object[]{
-                    v.getMaVe(),
-                    v.getMaPhieuDatVe(),
-                    v.getMaChuyenBay(),
-                    v.getLoaiHK(),
-                    v.getLoaiVe(),
-                    v.getGiaVe(),
-                    v.getTrangThaiVe()
+                v.getMaVe(),
+                v.getMaPhieuDatVe(),
+                v.getMaChuyenBay(),
+                v.getLoaiHK(),
+                v.getLoaiVe(),
+                v.getGiaVe(),
+                v.getTrangThaiVe()
             });
         }
     }
 
     private void loadTable() {
         tableModel.setRowCount(0);
-        List<VeBan> list = veBanDAO.selectAll();
+        List<VeBan> list = veBanDAO.selectByMaHK(maHK);
 
         for (VeBan v : list) {
             tableModel.addRow(new Object[]{
@@ -726,6 +718,24 @@ public class VeBanPanel extends JPanel {
                 tongTien = tongTien.multiply(new BigDecimal("1.25"));
             }
 
+            KhuyenMai km = (KhuyenMai) cboKhuyenMai.getSelectedItem();
+
+            if(km != null){
+
+                if(km.getLoaiKM().equals("PHAN_TRAM")){
+                    giamGia = tongTien.multiply(km.getGiaTri())
+                            .divide(new BigDecimal("100"));
+                }
+                else if(km.getLoaiKM().equals("TIEN")){
+                    giamGia = km.getGiaTri();
+                }
+
+                tongTien = tongTien.subtract(giamGia);
+                if(tongTien.compareTo(BigDecimal.ZERO) < 0){
+                    tongTien = BigDecimal.ZERO;
+                }
+            }
+
             NumberFormat vn = NumberFormat.getInstance(new Locale("vi", "VN"));
             txtTongTien.setText(vn.format(tongTien) + " VND");
 
@@ -762,5 +772,44 @@ public class VeBanPanel extends JPanel {
             return ghe.substring(1) + ghe.charAt(0);
         }
         return ghe;
+    }
+
+    private void loadKhuyenMai(){
+        try(Connection conn = DBConnection.getConnection()){
+
+            List<KhuyenMai> list =
+                    kmDAO.getKhuyenMaiDangHoatDong(conn);
+
+            cboKhuyenMai.addItem(null);
+
+            for(KhuyenMai km : list){
+                cboKhuyenMai.addItem(km);
+            }
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) {
+
+        javax.swing.SwingUtilities.invokeLater(() -> {
+
+            JFrame frame = new JFrame("Test Panel User Vé Bán");
+
+            frame.setSize(1200,700);
+            frame.setLocationRelativeTo(null);
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+            // mã hành khách test
+            String maHK = "HK001";
+
+            PanelUserVeBan panel = new PanelUserVeBan(maHK);
+
+            frame.add(panel);
+
+            frame.setVisible(true);
+
+        });
     }
 }
