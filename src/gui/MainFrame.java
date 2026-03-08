@@ -11,7 +11,7 @@ package gui;
 public class MainFrame extends javax.swing.JFrame { 
     private javax.swing.JTable tblKetQua;
     private javax.swing.JScrollPane scrollPaneKetQua;
-    
+    private int soNL = 1, soTE = 0, soEB = 0; 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(MainFrame.class.getName()); 
     
     
@@ -19,7 +19,8 @@ public class MainFrame extends javax.swing.JFrame {
      * Creates new form LichBayFrm
      */
     public MainFrame() {
-        initComponents();    
+        initComponents();     
+        initTableKetQua();
         setupLogo(); 
         applyTheme();
         gui.custom.UIHelper.loadSanBayToComboBox(cbCities, cbCities1);
@@ -50,7 +51,8 @@ public class MainFrame extends javax.swing.JFrame {
     private model.NguoiDung userHienTai;
 
     public MainFrame(model.NguoiDung nd) {
-        initComponents();   
+        initComponents();    
+        initTableKetQua();
         applyTheme();
         setupLogo();
         gui.custom.UIHelper.loadSanBayToComboBox(cbCities, cbCities1);
@@ -574,25 +576,23 @@ public class MainFrame extends javax.swing.JFrame {
     }  
 
     private void initTableKetQua() {
-        String[] columnNames = {"Mã CB", "Ngày Giờ Đi", "Ngày Giờ Đến", "Trạng Thái", "Giá Vé (1 khách)", "Tổng Tiền"};
-        javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(columnNames, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
+    if (scrollPaneKetQua != null) return;
+    
+    String[] columnNames = {"Mã CB", "Giờ Đi", "Giờ Đến", "Trạng Thái", "Giá 1 Vé", "Tổng Tiền"};
+    javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(columnNames, 0) {
+        @Override
+        public boolean isCellEditable(int row, int column) { return false; }
+    };
 
-        tblKetQua = new javax.swing.JTable(model);
-        scrollPaneKetQua = new javax.swing.JScrollPane(tblKetQua);
+    tblKetQua = new javax.swing.JTable(model);
+    scrollPaneKetQua = new javax.swing.JScrollPane(tblKetQua);
     
-        tblKetQua.setRowHeight(30);
-        tblKetQua.getTableHeader().setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 14));
+    scrollPaneKetQua.setPreferredSize(new java.awt.Dimension(1100, 300));
+    scrollPaneKetQua.setMaximumSize(new java.awt.Dimension(1100, 600));
     
-        pnlContent.add(scrollPaneKetQua); 
-    
-        pnlContent.revalidate();
-        pnlContent.repaint();
-    }
+    tblKetQua.setRowHeight(40);
+    tblKetQua.getTableHeader().setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 14));
+}
     
     private void setupCurrencyComboBox() {
         javax.swing.JComboBox rawCombo = cbDonViTienTe;
@@ -669,7 +669,10 @@ public class MainFrame extends javax.swing.JFrame {
         popup.add(pnl);
 
         javax.swing.event.ChangeListener updateText = e -> {
-            btnHanhKhach.setText(spnNL.getValue() + " Người lớn, " + spnTE.getValue() + " Trẻ em, " + spnEB.getValue() + " Em bé");
+        this.soNL = (int) spnNL.getValue();
+        this.soTE = (int) spnTE.getValue();
+        this.soEB = (int) spnEB.getValue();
+        btnHanhKhach.setText(soNL + " Người lớn, " + soTE + " Trẻ em, " + soEB + " Em bé");
         };
 
         spnNL.addChangeListener(updateText);
@@ -1188,9 +1191,14 @@ public class MainFrame extends javax.swing.JFrame {
         pnlContent.add(jPanel2); 
         pnlContent.add(javax.swing.Box.createVerticalStrut(20)); 
         pnlContent.add(jPanel1);                      
-        pnlContent.add(jPanel3);                           
+        pnlContent.add(jPanel3);          
+        pnlContent.add(javax.swing.Box.createVerticalStrut(10));
+        pnlContent.add(scrollPaneKetQua);                  
         pnlContent.add(pnlMultiCities);     
-        
+        pnlContent.revalidate();
+        pnlContent.repaint();
+    
+        loadRealHangVeToCombo();
         jButton3.addActionListener(e -> thucHienTimKiem());
 
 
@@ -1198,43 +1206,66 @@ public class MainFrame extends javax.swing.JFrame {
             if (tblKetQua != null && tblKetQua.getRowCount() > 0) {
                 thucHienTimKiem();
             }
-        });
-    }  
+        }); 
+
+        if (scrollPaneKetQua != null) {
+            pnlContent.add(scrollPaneKetQua); 
+        } else {
+            System.out.println("CẢNH BÁO: scrollPaneKetQua bị null, hãy kiểm tra initTableKetQua");
+        }
+    }   
+
+    private void loadRealHangVeToCombo() {
+        bll.HangVeBUS hvBUS = new bll.HangVeBUS();
+        java.util.ArrayList<model.HangVe> dsHangVe = hvBUS.getAllHangVe(); 
+    
+        jComboBox1.removeAllItems();
+        for (model.HangVe hv : dsHangVe) {
+            jComboBox1.addItem(hv); 
+        }
+    }
 
     private void thucHienTimKiem() {
     model.SanBay sbDi = (model.SanBay) cbCities1.getSelectedItem();
     model.SanBay sbDen = (model.SanBay) cbCities.getSelectedItem();
-    
-    String tenHangVe = jComboBox1.getSelectedItem().toString();
-    dal.HangVeDAO hvDAO = new dal.HangVeDAO();
-    model.HangVe hangVeSelected = hvDAO.selectAll().stream()
-            .filter(hv -> hv.getTenHang().equals(tenHangVe))
-            .findFirst().orElse(null);
+    model.HangVe hangVeSel = (model.HangVe) jComboBox1.getSelectedItem();
 
-    if (hangVeSelected == null || sbDi.getMaSanBay().isEmpty()) return;
+    if (hangVeSel == null || sbDi == null) return;
+
+    
+    String textNgay = jFormattedTextField1.getText(); 
+    String[] parts = textNgay.split(" / ");
+    String ngayChuan = parts[2].trim() + "-" + parts[1].trim() + "-" + parts[0].trim(); 
 
     bll.ChuyenBayBUS cbBUS = new bll.ChuyenBayBUS();
     dal.VeBanDAO veDAO = new dal.VeBanDAO();
-    java.util.ArrayList<model.ChuyenBay> dsCB = cbBUS.searchChuyenBay(sbDi.getMaSanBay(), sbDen.getMaSanBay(), jFormattedTextField1.getText());
+    
+    java.util.ArrayList<model.ChuyenBay> dsCB = cbBUS.searchChuyenBay(
+        sbDi.getMaSanBay(), sbDen.getMaSanBay(), ngayChuan);
 
     javax.swing.table.DefaultTableModel modelTable = (javax.swing.table.DefaultTableModel) tblKetQua.getModel();
     modelTable.setRowCount(0);
+    
+
+    java.time.format.DateTimeFormatter timeFmt = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
+    java.time.format.DateTimeFormatter dateFmt = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     for (model.ChuyenBay cb : dsCB) {
-        java.math.BigDecimal giaVeDon = veDAO.tinhGiaVeFull(cb.getMaChuyenBay(), hangVeSelected.getMaHangVe(), "Người lớn");
-        
-        modelTable.addRow(new Object[]{
-            cb.getMaChuyenBay(),
-            cb.getNgayGioDi().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
-            cb.getNgayGioDen().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
-            cb.getTrangThai().toString(),
-            String.format("%,d VNĐ", giaVeDon.longValue()),
-            "Chọn để xem tổng"
-        });
-    }
-} 
+    java.math.BigDecimal gia1Ve = veDAO.tinhGiaVeFull(cb.getMaChuyenBay(), hangVeSel.getMaHangVe(), "Người lớn");
+    
+    
+    java.math.BigDecimal tongDoan = gia1Ve.multiply(java.math.BigDecimal.valueOf(soNL)); 
 
-   
+    modelTable.addRow(new Object[]{
+        cb.getMaChuyenBay(),
+        cb.getNgayGioDi().format(timeFmt) + " (" + cb.getNgayGioDi().format(dateFmt) + ")", 
+        cb.getNgayGioDen().format(timeFmt), 
+        "Còn chỗ", 
+        String.format("%,d VNĐ", gia1Ve.longValue()),
+        String.format("%,d VNĐ", tongDoan.longValue()) 
+    });
+}
+}    
     /**
      * @param args the command line arguments
      */
@@ -1285,7 +1316,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JCheckBox jCheckBox1;
-    private javax.swing.JComboBox<String> jComboBox1;
+    private javax.swing.JComboBox<Object> jComboBox1;
     private javax.swing.JFormattedTextField jFormattedTextField1;
     private javax.swing.JFormattedTextField jFormattedTextField2;
     private javax.swing.JLabel jLabel1;
