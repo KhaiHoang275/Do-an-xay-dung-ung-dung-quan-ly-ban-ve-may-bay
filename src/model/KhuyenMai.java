@@ -10,7 +10,7 @@ public class KhuyenMai {
     private String tenKM;
     private String moTa;
 
-    private String loaiKM;        //  → 'PHAN_TRAM', 'TIEN_CO_DINH'
+    private String loaiKM;        //  → 'PHAN_TRAM', 'TIEN'
     private BigDecimal giaTri;
     private BigDecimal donHangToiThieu;
 
@@ -29,8 +29,13 @@ public class KhuyenMai {
     private String nguoiTao;
     private LocalDateTime ngayTao;
 
+    // Thêm cho thùng rác
+    private boolean isDeleted;
+
     // Constructor mặc định
-    public KhuyenMai() {}
+    public KhuyenMai() {
+        this.isDeleted = false; // Default không xóa
+    }
 
     // Constructor đầy đủ (bạn tự thêm nếu cần)
 
@@ -83,6 +88,10 @@ public class KhuyenMai {
     public LocalDateTime getNgayTao() { return ngayTao; }
     public void setNgayTao(LocalDateTime ngayTao) { this.ngayTao = ngayTao; }
 
+    // Thêm cho thùng rác
+    public boolean isDeleted() { return isDeleted; }
+    public void setDeleted(boolean deleted) { isDeleted = deleted; }
+
     // ────────────────────────────────────────────────
     // Các method hỗ trợ logic
     // ────────────────────────────────────────────────
@@ -115,6 +124,7 @@ public class KhuyenMai {
                 ", tenKhuyenMai='" + tenKM + '\'' +
                 ", loaiKM='" + loaiKM + '\'' +
                 ", giaTri=" + giaTri +
+                ", isDeleted=" + isDeleted +
                 '}';
     }
 }
