@@ -58,8 +58,8 @@ public class ThongTinHanhKhachDAO {
                 ps.setNull(5, java.sql.Types.DATE);
             }
             
-            ps.setString(6, hk.getLoaiHanhKhach() != null ? hk.getLoaiHanhKhach() : "NGUOILON");
-            ps.setString(7, "Hoạt động"); // Giá trị mặc định để tránh lỗi SQL từ chối bản ghi trống
+            ps.setString(6, hk.getLoaiHanhKhach() != null ? hk.getLoaiHanhKhach() : "Nguoi lon");
+            ps.setString(7, "Hoạt động"); 
 
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
@@ -231,5 +231,101 @@ public class ThongTinHanhKhachDAO {
             e.printStackTrace();
         }
         return null;
+    } 
+
+    public ArrayList<ThongTinHanhKhach> selectAllByMaNguoiDung(String maNguoiDung) {
+    ArrayList<ThongTinHanhKhach> list = new ArrayList<>();
+    String sql = "SELECT * FROM ThongTinHanhKhach WHERE maNguoiDung = ?";
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setString(1, maNguoiDung);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            ThongTinHanhKhach tthk = new ThongTinHanhKhach();
+            tthk.setMaHK(rs.getString("maHK"));
+            tthk.setMaNguoiDung(rs.getString("maNguoiDung"));
+            tthk.setMaThuHang(rs.getString("maThuHang"));
+            tthk.setHoTen(rs.getString("hoTen"));
+            tthk.setCccd(rs.getString("cccd"));
+            tthk.setHoChieu(rs.getString("hoChieu"));
+            if (rs.getDate("ngaySinh") != null) {
+                tthk.setNgaySinh(rs.getDate("ngaySinh").toLocalDate());
+            }
+            tthk.setGioiTinh(rs.getString("gioiTinh"));
+            tthk.setDiemTichLuy(rs.getInt("diemTichLuy"));
+            tthk.setLoaiHanhKhach(rs.getString("loaiHanhKhach"));
+            list.add(tthk);
+        }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    } 
+
+    public boolean saveOrUpdate(ThongTinHanhKhach hk) {
+    String checkSql = "SELECT COUNT(*) FROM ThongTinHanhKhach WHERE maHK = ?";
+    boolean isExist = false;
+    
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement psCheck = conn.prepareStatement(checkSql)) {
+        psCheck.setString(1, hk.getMaHK());
+        ResultSet rs = psCheck.executeQuery();
+        if (rs.next() && rs.getInt(1) > 0) {
+            isExist = true;
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+        return false;
     }
+
+    if (isExist) {
+        String updateSql = "UPDATE ThongTinHanhKhach SET hoTen=?, cccd=?, hoChieu=?, gioiTinh=?, ngaySinh=?, loaiHanhKhach=? WHERE maHK=?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement psUpdate = conn.prepareStatement(updateSql)) {
+            psUpdate.setString(1, hk.getHoTen());
+            psUpdate.setString(2, hk.getCccd());
+            psUpdate.setString(3, hk.getHoChieu());
+            psUpdate.setString(4, hk.getGioiTinh());
+            
+            if (hk.getNgaySinh() != null) {
+                psUpdate.setDate(5, java.sql.Date.valueOf(hk.getNgaySinh()));
+            } else {
+                psUpdate.setNull(5, java.sql.Types.DATE);
+            }
+            
+            psUpdate.setString(6, hk.getLoaiHanhKhach());
+            psUpdate.setString(7, hk.getMaHK());
+            return psUpdate.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    } else {
+        String insertSql = "INSERT INTO ThongTinHanhKhach (maHK, maNguoiDung, hoTen, cccd, hoChieu, gioiTinh, ngaySinh, loaiHanhKhach, trangThai) VALUES (?, ?, ?, ?, ?, ?, ?, ?, N'Hoạt động')";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement psInsert = conn.prepareStatement(insertSql)) {
+            psInsert.setString(1, hk.getMaHK());
+            psInsert.setString(2, hk.getMaNguoiDung());
+            psInsert.setString(3, hk.getHoTen());
+            psInsert.setString(4, hk.getCccd());
+            psInsert.setString(5, hk.getHoChieu());
+            psInsert.setString(6, hk.getGioiTinh());
+            
+            if (hk.getNgaySinh() != null) {
+                psInsert.setDate(7, java.sql.Date.valueOf(hk.getNgaySinh()));
+            } else {
+                psInsert.setNull(7, java.sql.Types.DATE);
+            }
+            
+            psInsert.setString(8, hk.getLoaiHanhKhach());
+            return psInsert.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+}
+
+
+
 }

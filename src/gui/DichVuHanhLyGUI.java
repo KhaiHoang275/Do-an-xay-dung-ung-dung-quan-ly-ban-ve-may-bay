@@ -1,6 +1,6 @@
 package gui;
 
-import bus.DichVuBoSungBUS;
+import bll.DichVuBoSungBUS;
 import model.DichVuBoSung;
 
 import javax.swing.*;
