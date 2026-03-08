@@ -136,4 +136,25 @@ public class GheMayBayDAO {
         }
         return ghe;
     }
+
+    public String timMaGhe(Connection conn, String soGhe, String maMayBay) {
+        try{
+            String sql = "SELECT maGhe FROM GheMayBay WHERE soGhe = ? AND maMayBay = ?";
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setString(1, soGhe.trim());
+            ps.setString(2, maMayBay);
+
+            ResultSet rs = ps.executeQuery();
+
+            if(rs.next()){
+                return rs.getString("maGhe");
+            }
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 }

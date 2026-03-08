@@ -1,4 +1,4 @@
-package test;
+package Test;
 import dal.*;
 import model.NguoiDung;
 import java.util.ArrayList;

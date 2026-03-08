@@ -57,6 +57,6 @@ public class HangVe {
 
     @Override
     public String toString() {
-        return maHangVe + " " + tenHang + " " + heSoHangVe + " " + trangThai;
+        return tenHang; 
     }
 }
