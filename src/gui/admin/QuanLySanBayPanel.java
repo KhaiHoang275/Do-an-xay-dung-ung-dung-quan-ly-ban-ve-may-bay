@@ -141,12 +141,17 @@ public class QuanLySanBayPanel extends JPanel {
         table.setRowHeight(35);
         table.setShowHorizontalLines(true);
         table.setGridColor(new Color(230, 230, 230));
-        table.setSelectionBackground(new Color(241, 245, 249));
+        
+    
+        table.setSelectionBackground(new Color(28, 48, 96)); 
+        table.setSelectionForeground(Color.WHITE);
+      
+        
         table.setFont(new Font("Arial", Font.PLAIN, 14));
 
         JTableHeader header = table.getTableHeader();
         header.setPreferredSize(new Dimension(header.getWidth(), 40));
-        header.setBackground(TABLE_HEADER);
+        header.setBackground(TABLE_HEADER); 
         header.setForeground(Color.WHITE);
         header.setFont(new Font("Arial", Font.BOLD, 14));
 
@@ -158,11 +163,17 @@ public class QuanLySanBayPanel extends JPanel {
 
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.getViewport().setBackground(Color.WHITE);
+        
+   
+        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+   
+        
         pnlTable.add(scrollPane, BorderLayout.CENTER);
 
         return pnlTable;
     }
-
+    
     private JButton createButton(String text, Color bg) {
         JButton btn = new JButton(text);
         btn.setFont(new Font("Arial", Font.BOLD, 14));
@@ -258,7 +269,7 @@ public class QuanLySanBayPanel extends JPanel {
             if (table.getSelectedRow() == -1) { JOptionPane.showMessageDialog(this, "Vui lòng chọn sân bay!"); return; }
             String ma = txtMaSanBay.getText().trim();
             
-            if (cboHienThi.getSelectedIndex() == 1) { // Chế độ Khôi phục
+            if (cboHienThi.getSelectedIndex() == 1) { 
                 SanBay sb = sanBayBUS.getSanBayTrongThungRac().stream().filter(s -> s.getMaSanBay().equals(ma)).findFirst().orElse(null);
                 if (sb != null) {
                     sb.setTrangThai(SanBay.TrangThai.HOAT_DONG);
@@ -266,7 +277,7 @@ public class QuanLySanBayPanel extends JPanel {
                     JOptionPane.showMessageDialog(this, "Khôi phục sân bay thành công!");
                     btnLamMoi.doClick();
                 }
-            } else { // Chế độ Xóa vào thùng rác
+            } else { 
                 int confirm = JOptionPane.showConfirmDialog(this, "Đưa sân bay này vào thùng rác?", "Xác nhận", JOptionPane.YES_NO_OPTION);
                 if (confirm == JOptionPane.YES_OPTION) {
                     String result = sanBayBUS.xoaSanBay(ma);
