@@ -10,6 +10,8 @@ import java.text.NumberFormat;
 import java.util.Locale;
 import javax.swing.table.DefaultTableModel;
 
+import dal.ChuyenBayDAO;
+import dal.GheMayBayDAO;
 import dal.PhieuDatVeDAO;
 import dal.VeBanDAO;
 import db.DBConnection;
@@ -37,6 +39,8 @@ public class VeBanPanel extends JPanel {
     private PhieuDatVeDAO pdv = new PhieuDatVeDAO();
     private JTextField txtTongTien;
     private BigDecimal giaGhe = BigDecimal.ZERO;
+    private GheMayBayDAO gmb = new GheMayBayDAO();
+    private ChuyenBayDAO cbDAO = new ChuyenBayDAO();
 
     public VeBanPanel() {
         setLayout(new BorderLayout(15,15));
@@ -444,9 +448,9 @@ public class VeBanPanel extends JPanel {
                             veBanDAO.tinhGiaVeFull(maCB, maHangVe, "Em bé"));
                 
                 tongTien = tongTien.add(giaGhe);
-
-                try(Connection conn = DBConnection.getConnection()){
-
+                Connection conn = null;
+                try{
+                conn = DBConnection.getConnection();    
                 conn.setAutoCommit(false);
 
                 PhieuDatVe phieu = new PhieuDatVe();
@@ -456,16 +460,38 @@ public class VeBanPanel extends JPanel {
                 phieu.setTrangThaiThanhToan("Chưa thanh toán");
 
                 String maPDV = pdv.insert(phieu, conn);
+                if(maPDV == null){
+                    throw new RuntimeException("Không tạo được phiếu đặt vé!");
+                }
                 int index = 0;
+                String maMB = cbDAO.layMaMayBay(conn, maCB);
 
-                for(int i=0;i<soNguoiLon;i++)
-                    taoVe(conn, maPDV, maHK, maCB, dsGhe[index++], maHangVe, "Người lớn", loaiVe);
+                for(int i=0;i<soNguoiLon;i++){
+                    String soGhe = chuanHoaGhe(dsGhe[index++]);
+                    String maGhe = gmb.timMaGhe(conn, soGhe, maMB);
+                    if(maGhe == null){
+                        throw new RuntimeException("Không tìm thấy ghế " + soGhe);
+                    }
+                    taoVe(conn, maPDV, maHK, maCB, maGhe, maHangVe, "Người lớn", loaiVe);
+                }
 
-                for(int i=0;i<soTreEm;i++)
-                    taoVe(conn, maPDV, maHK, maCB, dsGhe[index++], maHangVe, "Trẻ em", loaiVe);
+                for(int i=0;i<soTreEm;i++){
+                    String soGhe = chuanHoaGhe(dsGhe[index++]);
+                    String maGhe = gmb.timMaGhe(conn, soGhe, maMB);
+                    if(maGhe == null){
+                        throw new RuntimeException("Không tìm thấy ghế " + soGhe);
+                    }
+                    taoVe(conn, maPDV, maHK, maCB, maGhe, maHangVe, "Trẻ em", loaiVe);
+                }
 
-                for(int i=0;i<soEmBe;i++)
-                    taoVe(conn, maPDV, maHK, maCB, dsGhe[index++], maHangVe, "Em bé", loaiVe);
+                for(int i=0;i<soEmBe;i++){
+                    String soGhe = chuanHoaGhe(dsGhe[index++]);
+                    String maGhe = gmb.timMaGhe(conn, soGhe, maMB);
+                    if(maGhe == null){
+                        throw new RuntimeException("Không tìm thấy ghế " + soGhe);
+                    }
+                    taoVe(conn, maPDV, maHK, maCB, maGhe, maHangVe, "Em bé", loaiVe);
+                }
 
                 conn.commit();
 
@@ -475,6 +501,12 @@ public class VeBanPanel extends JPanel {
 
             }catch(Exception ex){
                 ex.printStackTrace();
+                try{
+                    conn.rollback();
+                }catch(Exception ez){
+                    ez.printStackTrace();
+                }
+                JOptionPane.showMessageDialog(this,"Lỗi khi lưu vé: " + ex.getMessage());
             }
 
             } catch (Exception ex) {
