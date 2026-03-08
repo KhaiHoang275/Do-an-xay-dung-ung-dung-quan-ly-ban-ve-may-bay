@@ -585,9 +585,13 @@ public class MainFrame extends javax.swing.JFrame {
     };
 
     tblKetQua = new javax.swing.JTable(model);
+    tblKetQua.setFillsViewportHeight(true); 
+        
     scrollPaneKetQua = new javax.swing.JScrollPane(tblKetQua);
-    
-    scrollPaneKetQua.setPreferredSize(new java.awt.Dimension(1200, 250)); 
+
+    scrollPaneKetQua.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS); 
+
+    scrollPaneKetQua.setPreferredSize(new java.awt.Dimension(1200, 300)); 
     scrollPaneKetQua.setMaximumSize(new java.awt.Dimension(1200, 300));
     
     tblKetQua.setRowHeight(45);
