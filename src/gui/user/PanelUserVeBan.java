@@ -4,7 +4,6 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -146,24 +145,25 @@ public class PanelUserVeBan extends JPanel {
         table = new JTable(tableModel);
 
         table.getSelectionModel().addListSelectionListener(e -> {
-        int row = table.getSelectedRow();
-
-        if(row == -1){
-            btnDoiVe.setEnabled(false);
-            return;
-        }
-
-        String trangThai = table.getValueAt(row,6).toString();
-
-        if(trangThai.equalsIgnoreCase("Đã hủy")){
-            btnDoiVe.setEnabled(true);
-        } else {
-            btnDoiVe.setEnabled(false);
-        }
-
-    });
-        table.setRowHeight(28);
+            int row = table.getSelectedRow();
+            if(row == -1){
+                btnDoiVe.setEnabled(false);
+                return;
+            }
+            String trangThai = table.getValueAt(row,6).toString();
+            if(trangThai.equalsIgnoreCase("Đã hủy")){
+                btnDoiVe.setEnabled(true);
+            } else {
+                btnDoiVe.setEnabled(false);
+            }
+        });
+        
+        table.setRowHeight(35); // Đổi 28 thành 35 cho dễ nhìn
         table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        
+        // SỬA LỖI UI: Thêm màu xanh đậm khi chọn dòng
+        table.setSelectionBackground(new Color(28, 48, 96));
+        table.setSelectionForeground(Color.WHITE);
 
         // Style header xanh đậm
         table.getTableHeader().setBackground(new Color(20,40,90));
@@ -171,7 +171,9 @@ public class PanelUserVeBan extends JPanel {
         table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
 
         JScrollPane scroll = new JScrollPane(table);
-        scroll.setBorder(BorderFactory.createEmptyBorder());
+        scroll.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
+        // SỬA LỖI UI: Bật thanh kéo dọc
+        scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
         panel.add(scroll, BorderLayout.CENTER);
 
@@ -184,25 +186,18 @@ public class PanelUserVeBan extends JPanel {
         btnDoiVe.setForeground(Color.WHITE);
 
         panelButton.add(btnDoiVe);
-
         panel.add(panelButton, BorderLayout.SOUTH);
 
         btnDoiVe.addActionListener(e -> {
-        int row = table.getSelectedRow();
-
-        if(row == -1) return;
-
-        String maVe = table.getValueAt(row,0).toString();
-
-        JFrame frame = new JFrame("Đổi vé");
-        frame.setSize(900,600);
-        frame.setLocationRelativeTo(null);
-
-        frame.setContentPane(new DoiVePanel(maVe, maHK));
-
-        frame.setVisible(true);
-
-    });
+            int row = table.getSelectedRow();
+            if(row == -1) return;
+            String maVe = table.getValueAt(row,0).toString();
+            JFrame frame = new JFrame("Đổi vé");
+            frame.setSize(900,600);
+            frame.setLocationRelativeTo(null);
+            frame.setContentPane(new DoiVePanel(maVe, maHK));
+            frame.setVisible(true);
+        });
 
         return panel;
     }
@@ -304,6 +299,8 @@ public class PanelUserVeBan extends JPanel {
 
         txtTongTien = new JTextField(15);
         txtTongTien.setEditable(false);
+        txtTongTien.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        txtTongTien.setForeground(new Color(220, 38, 38));
 
         gbc.gridx=1;
         panel.add(txtTongTien, gbc);
@@ -320,13 +317,21 @@ public class PanelUserVeBan extends JPanel {
         gbc.gridx = 1; 
         panel.add(cboKhuyenMai, gbc);
 
-row++;
+        row++;
 
         JPanel pButton = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
 
         Dimension btnSize = new Dimension(120, 35);
         btnLuu.setPreferredSize(btnSize);
         btnReset.setPreferredSize(btnSize);
+        
+        btnLuu.setBackground(new Color(34, 197, 94));
+        btnLuu.setForeground(Color.WHITE);
+        btnLuu.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        
+        btnReset.setBackground(new Color(168, 162, 158));
+        btnReset.setForeground(Color.WHITE);
+        btnReset.setFont(new Font("Segoe UI", Font.BOLD, 14));
 
         pButton.add(btnLuu);
         pButton.add(btnReset);
@@ -339,102 +344,63 @@ row++;
         // ================= LOGIC =================
 
         btnChonCB.addActionListener(e -> 
-            chonChuyenBay(txtMaChuyenBay, cboHangVe, spNguoiLon, spTreEm, spEmBe)
+            chonChuyenBay(txtMaChuyenBay, txtGhe, cboHangVe, spNguoiLon, spTreEm, spEmBe)
         );
 
         cboKhuyenMai.addActionListener(e -> tinhTongTien(txtMaChuyenBay,cboHangVe,spNguoiLon,spTreEm,spEmBe));
 
-        // Chọn ghế (demo)
+        // CHỌN GHẾ - SỬA LỖI INTERFACE
         btnChonGhe.addActionListener(e -> {
+            int tongHK = (int) spNguoiLon.getValue() + (int) spTreEm.getValue() + (int) spEmBe.getValue();        
+            String maCB = txtMaChuyenBay.getText().trim();
 
-        int tongHK =
-                (int) spNguoiLon.getValue() +
-                (int) spTreEm.getValue() +
-                (int) spEmBe.getValue();        
-        
-        String maCB = txtMaChuyenBay.getText().trim();
-
-
-        if(maCB.isEmpty()){
-            JOptionPane.showMessageDialog(this,
-                    "Vui lòng chọn chuyến bay trước khi chọn ghế!");
-            return;
-        }
-
-        String maMayBay = layMaMayBay(txtMaChuyenBay.getText());
-        giaGhe = BigDecimal.ZERO;
-        SoDoGhePanel Panel = new SoDoGhePanel(maMayBay, "Máy bay", tongHK);
-        List<String> ds = new ArrayList<>();
-        String ghe = txtGhe.getText().trim();
-        if(!ghe.isEmpty()){
-            for(String g : ghe.split(",")){
-                ds.add(chuanHoaGhe(g));
-            }
-        }
-        Panel.setSelectedSeats(ds);
-
-        JDialog dialog = new JDialog(
-                (Frame) SwingUtilities.getWindowAncestor(this),
-                "Chọn ghế",
-                true
-        );
-
-        dialog.setSize(900,600);
-        dialog.setLocationRelativeTo(this);
-
-        Panel.setListener(new SoDoGhePanel.SoDoGheListener() {
-
-            @Override
-            public void onBack() {
-                dialog.dispose();
+            if(maCB.isEmpty()){
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn chuyến bay trước khi chọn ghế!");
+                return;
             }
 
-            public void onSeatSelected(GheMayBay ghe) {
+            String maMayBay = layMaMayBay(txtMaChuyenBay.getText());
+            SoDoGhePanel Panel = new SoDoGhePanel(maMayBay, "Máy bay", tongHK);
+            
+            List<String> ds = new ArrayList<>();
+            String ghe = txtGhe.getText().trim();
+            if(!ghe.isEmpty()){
+                for(String g : ghe.split(",")){
+                    ds.add(chuanHoaGhe(g));
+                }
+            }
+            Panel.setSelectedSeats(ds);
 
-                String maGhe = chuanHoaGhe(ghe.getSoGhe());
-                String gheHienTai = txtGhe.getText().trim();
+            JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Chọn ghế", true);
+            dialog.setSize(900,600);
+            dialog.setLocationRelativeTo(this);
 
-                List<String> dsGhe = new ArrayList<>();
+            Panel.setListener(new SoDoGhePanel.SoDoGheListener() {
+                @Override
+                public void onBack() {
+                    dialog.dispose();
+                }
 
-                if (!gheHienTai.isEmpty()) {
-                    for(String g : gheHienTai.split(",")){
-                        dsGhe.add(chuanHoaGhe(g));
+                @Override
+                public void onSeatsConfirmed(List<GheMayBay> selectedSeats) {
+                    List<String> tenGheMoi = new ArrayList<>();
+                    giaGhe = BigDecimal.ZERO; 
+                    
+                    for(GheMayBay g : selectedSeats) {
+                        tenGheMoi.add(chuanHoaGhe(g.getSoGhe()));
+                        giaGhe = giaGhe.add(g.getGiaGhe());
                     }
+                    
+                    txtGhe.setText(String.join(",", tenGheMoi));
+                    tinhTongTien(txtMaChuyenBay, cboHangVe, spNguoiLon, spTreEm, spEmBe);
                 }
+            });
 
-                int tongHK =
-                        (int) spNguoiLon.getValue() +
-                        (int) spTreEm.getValue() +
-                        (int) spEmBe.getValue();
-
-                if (dsGhe.contains(maGhe)) {
-                    dsGhe.remove(maGhe);
-                    giaGhe = giaGhe.subtract(ghe.getGiaGhe());
-                }
-                else {
-
-                    if (dsGhe.size() >= tongHK) {
-                        JOptionPane.showMessageDialog(dialog,
-                                "Chỉ được chọn tối đa " + tongHK + " ghế!");
-                        return;
-                    }
-
-                    dsGhe.add(maGhe);
-                    giaGhe = giaGhe.add(ghe.getGiaGhe());
-                }
-
-                txtGhe.setText(String.join(",", dsGhe));
-
-                tinhTongTien(txtMaChuyenBay, cboHangVe, spNguoiLon, spTreEm, spEmBe);
-            }
+            dialog.add(Panel);
+            dialog.setVisible(true);
         });
 
-        dialog.add(Panel);
-
-        dialog.setVisible(true);
-    });
-
-        // LƯU VÉ
+        // LƯU VÉ - SỬA LỖI TÍNH TIỀN
         btnLuu.addActionListener(e -> {
             try {
 
@@ -444,7 +410,7 @@ row++;
                 String[] dsGhe = ghe.split(",");
 
                 if (maHK.isEmpty() || maCB.isEmpty() || ghe.isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "Thiếu thông tin!");
+                    JOptionPane.showMessageDialog(this, "Thiếu thông tin chuyến bay hoặc ghế!");
                     return;
                 }
 
@@ -462,93 +428,93 @@ row++;
                 }
 
                 if(dsGhe.length != tongSoVe){
-                    JOptionPane.showMessageDialog(this,
-                            "Số ghế phải bằng số hành khách!");
+                    JOptionPane.showMessageDialog(this, "Số lượng ghế đã chọn phải bằng số lượng hành khách (" + tongSoVe + " ghế)!");
                     return;
                 }
 
                 BigDecimal tongTien = BigDecimal.ZERO;
 
                 for(int i=0;i<soNguoiLon;i++)
-                    tongTien = tongTien.add(
-                            veBanDAO.tinhGiaVeFull(maCB, maHangVe, "Người lớn"));
+                    tongTien = tongTien.add(veBanDAO.tinhGiaVeFull(maCB, maHangVe, "Người lớn"));
 
                 for(int i=0;i<soTreEm;i++)
-                    tongTien = tongTien.add(
-                            veBanDAO.tinhGiaVeFull(maCB, maHangVe, "Trẻ em"));
+                    tongTien = tongTien.add(veBanDAO.tinhGiaVeFull(maCB, maHangVe, "Trẻ em"));
 
                 for(int i=0;i<soEmBe;i++)
-                    tongTien = tongTien.add(
-                            veBanDAO.tinhGiaVeFull(maCB, maHangVe, "Em bé"));
+                    tongTien = tongTien.add(veBanDAO.tinhGiaVeFull(maCB, maHangVe, "Em bé"));
                 
+                // CỘNG TIỀN GHẾ VÀ NHÂN HỆ SỐ KHỨ HỒI TRƯỚC KHI TRỪ GIẢM GIÁ
                 tongTien = tongTien.add(giaGhe);
+                if(rdKhuHoi.isSelected()){
+                    tongTien = tongTien.multiply(new BigDecimal("1.25"));
+                }
+                
+                // TRỪ KHUYẾN MÃI
                 tongTien = tongTien.subtract(giamGia);
+                if (tongTien.compareTo(BigDecimal.ZERO) < 0) {
+                    tongTien = BigDecimal.ZERO;
+                }
+                
                 Connection conn = null;
                 try{
-                conn = DBConnection.getConnection();    
-                conn.setAutoCommit(false);
+                    conn = DBConnection.getConnection();    
+                    conn.setAutoCommit(false);
 
-                PhieuDatVe phieu = new PhieuDatVe();
-                phieu.setNgayDat(LocalDate.now());
-                phieu.setSoLuongVe(tongSoVe);
-                phieu.setTongTien(tongTien);
-                phieu.setTrangThaiThanhToan("Chưa thanh toán");
+                    PhieuDatVe phieu = new PhieuDatVe();
+                    phieu.setNgayDat(LocalDate.now());
+                    phieu.setSoLuongVe(tongSoVe);
+                    phieu.setTongTien(tongTien);
+                    phieu.setTrangThaiThanhToan("Chưa thanh toán");
 
-                String maPDV = pdv.insert(phieu, conn);
-                if(maPDV == null){
-                    throw new RuntimeException("Không tạo được phiếu đặt vé!");
-                }
-                int index = 0;
-                String maMB = cbDAO.layMaMayBay(conn, maCB);
-
-                for(int i=0;i<soNguoiLon;i++){
-                    String soGhe = chuanHoaGhe(dsGhe[index++]);
-                    String maGhe = gmb.timMaGhe(conn, soGhe, maMB);
-                    if(maGhe == null){
-                        throw new RuntimeException("Không tìm thấy ghế " + soGhe);
+                    String maPDV = pdv.insert(phieu, conn);
+                    if(maPDV == null){
+                        throw new RuntimeException("Không tạo được phiếu đặt vé!");
                     }
-                    taoVe(conn, maPDV, maHK, maCB, maGhe, maHangVe, "Người lớn", loaiVe);
-                }
+                    
+                    int index = 0;
+                    String maMB = cbDAO.layMaMayBay(conn, maCB);
 
-                for(int i=0;i<soTreEm;i++){
-                    String soGhe = chuanHoaGhe(dsGhe[index++]);
-                    String maGhe = gmb.timMaGhe(conn, soGhe, maMB);
-                    if(maGhe == null){
-                        throw new RuntimeException("Không tìm thấy ghế " + soGhe);
+                    for(int i=0;i<soNguoiLon;i++){
+                        String soGhe = chuanHoaGhe(dsGhe[index++]);
+                        String maGhe = gmb.timMaGhe(conn, soGhe, maMB);
+                        if(maGhe == null) throw new RuntimeException("Không tìm thấy ghế " + soGhe);
+                        taoVe(conn, maPDV, maHK, maCB, maGhe, maHangVe, "Người lớn", loaiVe);
                     }
-                    taoVe(conn, maPDV, maHK, maCB, maGhe, maHangVe, "Trẻ em", loaiVe);
-                }
 
-                for(int i=0;i<soEmBe;i++){
-                    String soGhe = chuanHoaGhe(dsGhe[index++]);
-                    String maGhe = gmb.timMaGhe(conn, soGhe, maMB);
-                    if(maGhe == null){
-                        throw new RuntimeException("Không tìm thấy ghế " + soGhe);
+                    for(int i=0;i<soTreEm;i++){
+                        String soGhe = chuanHoaGhe(dsGhe[index++]);
+                        String maGhe = gmb.timMaGhe(conn, soGhe, maMB);
+                        if(maGhe == null) throw new RuntimeException("Không tìm thấy ghế " + soGhe);
+                        taoVe(conn, maPDV, maHK, maCB, maGhe, maHangVe, "Trẻ em", loaiVe);
                     }
-                    taoVe(conn, maPDV, maHK, maCB, maGhe, maHangVe, "Em bé", loaiVe);
+
+                    for(int i=0;i<soEmBe;i++){
+                        String soGhe = chuanHoaGhe(dsGhe[index++]);
+                        String maGhe = gmb.timMaGhe(conn, soGhe, maMB);
+                        if(maGhe == null) throw new RuntimeException("Không tìm thấy ghế " + soGhe);
+                        taoVe(conn, maPDV, maHK, maCB, maGhe, maHangVe, "Em bé", loaiVe);
+                    }
+                    
+                    // cập nhật số lượng khuyến mãi đã dùng
+                    KhuyenMai km = (KhuyenMai) cboKhuyenMai.getSelectedItem();
+                    if(km != null){
+                        kmDAO.incrementSoLuongDaDung(conn, km.getMaKhuyenMai());
+                    }
+
+                    conn.commit();
+                    JOptionPane.showMessageDialog(this,"Tạo vé thành công!");
+                    btnReset.doClick();
+                    loadTable();
+
+                }catch(Exception ex){
+                    ex.printStackTrace();
+                    try{
+                        if(conn != null) conn.rollback();
+                    }catch(Exception ez){
+                        ez.printStackTrace();
+                    }
+                    JOptionPane.showMessageDialog(this,"Lỗi khi lưu vé: " + ex.getMessage());
                 }
-                // cập nhật số lượng khuyến mãi đã dùng
-                KhuyenMai km = (KhuyenMai) cboKhuyenMai.getSelectedItem();
-
-                if(km != null){
-                    kmDAO.incrementSoLuongDaDung(conn, km.getMaKhuyenMai());
-                }
-
-                conn.commit();
-
-                JOptionPane.showMessageDialog(this,"Tạo vé thành công!");
-
-                loadTable();
-
-            }catch(Exception ex){
-                ex.printStackTrace();
-                try{
-                    conn.rollback();
-                }catch(Exception ez){
-                    ez.printStackTrace();
-                }
-                JOptionPane.showMessageDialog(this,"Lỗi khi lưu vé: " + ex.getMessage());
-            }
 
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -662,6 +628,7 @@ row++;
     }
 
     private void chonChuyenBay(JTextField txtMaCB,
+                           JTextField txtGhe, 
                            JComboBox<String> cboHangVe,
                            JSpinner spNguoiLon,
                            JSpinner spTreEm,
@@ -678,15 +645,24 @@ row++;
                 "Giờ khởi hành"
         };
 
-        DefaultTableModel model = new DefaultTableModel(cols,0);
+        DefaultTableModel model = new DefaultTableModel(cols,0){
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
         JTable tb = new JTable(model);
-        JScrollPane scroll = new JScrollPane(tb);
-
-        dialog.add(scroll);
+        tb.setRowHeight(30);
+        tb.setSelectionBackground(new Color(28, 48, 96));
+        tb.setSelectionForeground(Color.WHITE);
+        tb.getTableHeader().setBackground(new Color(20,40,90));
+        tb.getTableHeader().setForeground(Color.WHITE);
         
+        JScrollPane scroll = new JScrollPane(tb);
+        dialog.add(scroll);
 
         try(Connection conn = DBConnection.getConnection()){
-
+            // SỬA LỖI SQL: Lọc CHUA_KHOI_HANH và Order ngày bay
             String sql = """
             SELECT 
                 cb.maChuyenBay,
@@ -697,7 +673,8 @@ row++;
             FROM ChuyenBay cb
             JOIN TuyenBay tb 
             ON cb.maTuyenBay = tb.maTuyenBay
-            WHERE tb.trangThai = N'Hoạt động'
+            WHERE tb.trangThai = N'Hoạt động' AND cb.trangThai LIKE 'CHUA_KHOI_HANH%'
+            ORDER BY cb.ngayGioDi ASC
             """;
 
             PreparedStatement ps = conn.prepareStatement(sql);
@@ -721,6 +698,11 @@ row++;
                 int row = tb.getSelectedRow();
                 String maCB = tb.getValueAt(row,0).toString();
                 txtMaCB.setText(maCB);
+                
+        
+                txtGhe.setText("");
+                giaGhe = BigDecimal.ZERO;
+                
                 tinhTongTien(txtMaCB,cboHangVe,spNguoiLon,spTreEm,spEmBe);
                 dialog.dispose();
             }
@@ -782,6 +764,8 @@ row++;
                 if(tongTien.compareTo(BigDecimal.ZERO) < 0){
                     tongTien = BigDecimal.ZERO;
                 }
+            } else {
+                giamGia = BigDecimal.ZERO;
             }
 
             NumberFormat vn = NumberFormat.getInstance(new Locale("vi", "VN"));
@@ -825,9 +809,7 @@ row++;
     private void loadKhuyenMai(){
         try(Connection conn = DBConnection.getConnection()){
 
-            List<KhuyenMai> list =
-                    kmDAO.getKhuyenMaiDangHoatDong(conn);
-
+            List<KhuyenMai> list = kmDAO.getKhuyenMaiDangHoatDong(conn);
             cboKhuyenMai.addItem(null);
 
             for(KhuyenMai km : list){
@@ -842,6 +824,7 @@ row++;
     public static void main(String[] args) {
 
         javax.swing.SwingUtilities.invokeLater(() -> {
+            try { UIManager.setLookAndFeel(new com.formdev.flatlaf.FlatIntelliJLaf()); } catch (Exception ex) {}
 
             JFrame frame = new JFrame("Test Panel User Vé Bán");
 
@@ -855,7 +838,6 @@ row++;
             PanelUserVeBan panel = new PanelUserVeBan(maHK);
 
             frame.add(panel);
-
             frame.setVisible(true);
 
         });
