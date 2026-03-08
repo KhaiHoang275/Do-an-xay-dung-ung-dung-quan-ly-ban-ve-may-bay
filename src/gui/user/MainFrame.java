@@ -4,6 +4,8 @@
  */
 package gui.user;
 
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author DellU
@@ -612,16 +614,24 @@ public class MainFrame extends javax.swing.JFrame {
             
             if (row >= 0 && col == 6) { 
                 String maCB = tblKetQua.getValueAt(row, 0).toString();
-                String tongTien = tblKetQua.getValueAt(row, 5).toString();
                 
-                int xacNhan = javax.swing.JOptionPane.showConfirmDialog(MainFrame.this, 
-                    "Xác nhận đặt chuyến bay: " + maCB + "\nTổng thanh toán: " + tongTien, 
-                    "Tiếp tục đặt vé", 
-                    javax.swing.JOptionPane.YES_NO_OPTION);
-                    
-                if (xacNhan == javax.swing.JOptionPane.YES_OPTION) {
-                    javax.swing.JOptionPane.showMessageDialog(MainFrame.this, "Hệ thống đang chuyển sang trang điền thông tin khách hàng...");
-                }
+                
+                model.DatVeSession session = new model.DatVeSession();
+                session.maNguoiDung = userHienTai.getMaNguoiDung(); 
+                session.maChuyenBay = maCB;
+                
+                // Lấy số lượng hành khách từ MainFrame
+                session.soNguoiLon = MainFrame.this.soNL;
+                session.soTreEm = MainFrame.this.soTE;
+                session.soEmBe = MainFrame.this.soEB;
+
+                session.loaiVe = jRadioButton2.isSelected() ? "Khứ hồi" : "Một chiều";
+
+                pnlContent.removeAll();
+                pnlContent.setLayout(new java.awt.BorderLayout());
+                pnlContent.add(new gui.user.PanelUserVeBan(session), java.awt.BorderLayout.CENTER);
+                pnlContent.revalidate();
+                pnlContent.repaint();
             }
         }
     });
@@ -1108,7 +1118,7 @@ public class MainFrame extends javax.swing.JFrame {
         pnlMultiCities.setLayout(new javax.swing.BoxLayout(pnlMultiCities, javax.swing.BoxLayout.Y_AXIS));
         pnlMultiCities.setVisible(false); 
         pnlMultiCities.setPreferredSize(null); 
-    pnlMultiCities.setMaximumSize(new java.awt.Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE)); 
+        pnlMultiCities.setMaximumSize(new java.awt.Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE)); 
     
         java.util.function.Consumer<Boolean> anHienHangGoc = (isHien) -> {
             jLabel2.setVisible(isHien);  
@@ -1245,7 +1255,37 @@ public class MainFrame extends javax.swing.JFrame {
             pnlContent.add(scrollPaneKetQua); 
         } else {
             System.out.println("CẢNH BÁO: scrollPaneKetQua bị null, hãy kiểm tra initTableKetQua");
-        }
+        } 
+
+        btnDatCho.addActionListener(e -> {
+            int row = tblKetQua.getSelectedRow();
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn một chuyến bay từ danh sách!");
+                return;
+            }
+            
+            String maCB = tblKetQua.getValueAt(row, 0).toString();
+            
+            // 1. TẠO SESSION VÀ GÓI DỮ LIỆU Y HỆT NHƯ KHI CLICK VÀO BẢNG
+            model.DatVeSession session = new model.DatVeSession();
+            session.maNguoiDung = userHienTai.getMaNguoiDung(); // Sau này bạn thay bằng mã User thật
+            session.maChuyenBay = maCB;
+            
+            // Lấy số lượng khách từ MainFrame
+            session.soNguoiLon = this.soNL;
+            session.soTreEm = this.soTE;
+            session.soEmBe = this.soEB;
+            
+            // Lấy Loại vé từ MainFrame (Một chiều / Khứ hồi)
+            session.loaiVe = jRadioButton2.isSelected() ? "Khứ hồi" : "Một chiều";
+            
+            // 2. CHUYỂN TRANG MƯỢT MÀ
+            pnlContent.removeAll();
+            pnlContent.setLayout(new java.awt.BorderLayout());
+            pnlContent.add(new gui.user.PanelUserVeBan(session), java.awt.BorderLayout.CENTER);
+            pnlContent.revalidate();
+            pnlContent.repaint();
+        });
     }   
 
     private void loadRealHangVeToCombo() {

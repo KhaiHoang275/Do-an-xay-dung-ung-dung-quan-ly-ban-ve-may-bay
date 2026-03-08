@@ -1,28 +1,42 @@
 package main;
 
-import gui.DichVuHanhLyGUI;
-import gui.ThanhToanGUI;
-import gui.QuanLyHoaDonGUI;
-
+import java.util.prefs.Preferences;
+import gui.user.DangNhapFrm;
+import gui.user.MainFrame;
+import dal.NguoiDungDAO;
+import model.NguoiDung;
 import javax.swing.*;
 
 public class MainTestGUI {
 
     public static void main(String[] args) {
+        // 1. Thiết lập giao diện
+        try {
+            UIManager.setLookAndFeel(new com.formdev.flatlaf.FlatIntelliJLaf());
+        } catch (Exception e) {
+            System.err.println("Sử dụng giao diện mặc định.");
+        }
+
         SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("TEST HỆ THỐNG BÁN VÉ MÁY BAY");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(1100, 650);
-            frame.setLocationRelativeTo(null);
+            // 2. TRUY XUẤT THÔNG TIN ĐÃ GHI NHỚ
+            Preferences prefs = Preferences.userNodeForPackage(DangNhapFrm.class);
+            String savedUser = prefs.get("saved_user", null);
+            String savedPass = prefs.get("saved_pass", null);
 
-            JTabbedPane tabbedPane = new JTabbedPane();
+            if (savedUser != null && savedPass != null) {
+                // Thử đăng nhập tự động bằng dữ liệu đã lưu
+                NguoiDungDAO dao = new NguoiDungDAO();
+                NguoiDung user = dao.checkLogin(savedUser, savedPass);
 
-            tabbedPane.addTab("Dịch vụ & Hành lý", new DichVuHanhLyGUI());
-            tabbedPane.addTab("Thanh toán", new ThanhToanGUI());
-            tabbedPane.addTab("Quản lý hóa đơn", new QuanLyHoaDonGUI());
+                if (user != null) {
+                    System.out.println("Tự động đăng nhập: " + user.getUsername());
+                    new MainFrame(user).setVisible(true); // Vào thẳng trang chủ
+                    return;
+                }
+            }
 
-            frame.add(tabbedPane);
-            frame.setVisible(true);
+            // 3. NẾU KHÔNG CÓ THÔNG TIN LƯU -> MỞ TRANG ĐĂNG NHẬP
+            new DangNhapFrm().setVisible(true);
         });
     }
 }

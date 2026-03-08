@@ -78,12 +78,12 @@ public class HeaderHelper {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (!(currentFrame instanceof MainFrame)) {
-                    if (currentUser != null) {
-                        new gui.user.MainFrame(currentUser).setVisible(true); 
-                    } else {
-                        new gui.user.MainFrame().setVisible(true); 
-                    }
-                    currentFrame.dispose(); 
+                    MainFrame main = new MainFrame();
+                    
+                    main.setVisible(true);
+                    currentFrame.dispose();
+                } else {
+                    System.out.println("Đang ở trang chủ rồi, không nhân đôi trang!");
                 }
             }
         });
