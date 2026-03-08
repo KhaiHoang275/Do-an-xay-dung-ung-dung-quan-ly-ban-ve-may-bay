@@ -4,7 +4,6 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -146,6 +145,7 @@ public class PanelUserVeBan extends JPanel {
         table = new JTable(tableModel);
 
         table.getSelectionModel().addListSelectionListener(e -> {
+
         int row = table.getSelectedRow();
 
         if(row == -1){
@@ -153,14 +153,20 @@ public class PanelUserVeBan extends JPanel {
             return;
         }
 
-        String trangThai = table.getValueAt(row,6).toString();
+        String maVe = table.getValueAt(row,0).toString();
 
-        if(trangThai.equalsIgnoreCase("Đã hủy")){
-            btnDoiVe.setEnabled(true);
-        } else {
-            btnDoiVe.setEnabled(false);
+        List<VeBan> dsVeDoi = veBanDAO.selectVeCoTheDoi(maHK);
+
+        boolean coTheDoi = false;
+
+        for(VeBan v : dsVeDoi){
+            if(v.getMaVe().equals(maVe)){
+                coTheDoi = true;
+                break;
+            }
         }
 
+        btnDoiVe.setEnabled(coTheDoi);
     });
         table.setRowHeight(28);
         table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
