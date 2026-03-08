@@ -587,11 +587,12 @@ public class MainFrame extends javax.swing.JFrame {
     tblKetQua = new javax.swing.JTable(model);
     scrollPaneKetQua = new javax.swing.JScrollPane(tblKetQua);
     
-    scrollPaneKetQua.setPreferredSize(new java.awt.Dimension(1100, 200)); 
-    scrollPaneKetQua.setMaximumSize(new java.awt.Dimension(1100, 200));
+    scrollPaneKetQua.setPreferredSize(new java.awt.Dimension(1200, 250)); 
+    scrollPaneKetQua.setMaximumSize(new java.awt.Dimension(1200, 300));
     
-    tblKetQua.setRowHeight(40);
-    tblKetQua.getTableHeader().setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 14));
+    tblKetQua.setRowHeight(45);
+    tblKetQua.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 16));
+    tblKetQua.getTableHeader().setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 18));
     
     javax.swing.table.DefaultTableCellRenderer centerRenderer = new javax.swing.table.DefaultTableCellRenderer();
     centerRenderer.setHorizontalAlignment(javax.swing.JLabel.CENTER);
@@ -621,6 +622,7 @@ public class MainFrame extends javax.swing.JFrame {
         }
     });
 }
+    
     private void setupCurrencyComboBox() {
         javax.swing.JComboBox rawCombo = cbDonViTienTe;
         rawCombo.removeAllItems();
@@ -1281,6 +1283,18 @@ public class MainFrame extends javax.swing.JFrame {
             java.math.BigDecimal gia1Ve = cbBUS.tinhGiaVe(cb.getMaChuyenBay(), hangVeSel.getMaHangVe());
             java.math.BigDecimal tongDoan = gia1Ve.multiply(java.math.BigDecimal.valueOf(soNL)); 
 
+            String htmlButton = "<html><div style='" +
+                                "background-color: #FFC107; " + 
+                                "color: #122040; " + 
+                                "padding: 8px 15px; " +
+                                "border-radius: 8px; " +
+                                "font-weight: bold; " +
+                                "cursor: hand; " +
+                                "text-align: center; " +
+                                "font-family: Arial, sans-serif; " +
+                                "font-size: 14px;" +
+                                "'>🛒 Đặt Vé</div></html>";
+
             modelTable.addRow(new Object[]{
                 cb.getMaChuyenBay(),
                 cb.getNgayGioDi().format(timeFmt) + " (" + cb.getNgayGioDi().format(dateFmt) + ")", 
@@ -1288,7 +1302,7 @@ public class MainFrame extends javax.swing.JFrame {
                 "Còn chỗ", 
                 String.format("%,d VNĐ", gia1Ve.longValue()),
                 String.format("%,d VNĐ", tongDoan.longValue()),
-                "<html><b style='color:blue; text-decoration:underline; cursor:pointer;'>🛒 Đặt Vé</b></html>" // <-- Thêm cột nút bấm
+                htmlButton 
             });
         } catch (Exception e) {
             System.out.println("Lỗi tính giá cho CB: " + cb.getMaChuyenBay() + " - " + e.getMessage());

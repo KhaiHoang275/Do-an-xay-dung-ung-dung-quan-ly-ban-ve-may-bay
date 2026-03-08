@@ -28,7 +28,22 @@ public class UserInfoFrm extends javax.swing.JFrame {
      * Creates new form UserInfoFrm
      */
     public UserInfoFrm() {
-        initComponents(); 
+        initComponents();  
+        for(java.awt.event.ActionListener al : btnPassengerInfo.getActionListeners()) {
+            btnPassengerInfo.removeActionListener(al);
+        }
+
+        btnPassengerInfo.addActionListener(e -> {
+            jPanel5.removeAll();
+            jPanel5.setLayout(new java.awt.BorderLayout());
+    
+            QuanLyHanhKhachPanel pnlHK = new QuanLyHanhKhachPanel(this.currentUser);
+    
+            jPanel5.add(pnlHK, java.awt.BorderLayout.CENTER);
+    
+            jPanel5.revalidate();
+            jPanel5.repaint();
+        });
         setupLogo(); 
         applyButtonColors();
         this.getContentPane().setBackground(new java.awt.Color(245, 247, 250));

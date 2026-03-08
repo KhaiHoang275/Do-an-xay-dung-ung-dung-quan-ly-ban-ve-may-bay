@@ -306,7 +306,6 @@ public class VeBanPanel extends JPanel {
             chonChuyenBay(txtMaChuyenBay, cboHangVe, spNguoiLon, spTreEm, spEmBe)
         );
 
-        // Chọn ghế (demo)
         btnChonGhe.addActionListener(e -> {
 
         int tongHK =
@@ -345,50 +344,22 @@ public class VeBanPanel extends JPanel {
         dialog.setLocationRelativeTo(this);
 
         Panel.setListener(new SoDoGhePanel.SoDoGheListener() {
+                @Override
+                public void onBack() { dialog.dispose(); }
 
-            @Override
-            public void onBack() {
-                dialog.dispose();
-            }
-
-            public void onSeatSelected(GheMayBay ghe) {
-
-                String maGhe = chuanHoaGhe(ghe.getSoGhe());
-                String gheHienTai = txtGhe.getText().trim();
-
-                List<String> dsGhe = new ArrayList<>();
-
-                if (!gheHienTai.isEmpty()) {
-                    for(String g : gheHienTai.split(",")){
-                        dsGhe.add(chuanHoaGhe(g));
-                    }
+                @Override
+                public void onSeatsConfirmed(List<GheMayBay> dsGheMoi) {
+                        List<String> tenGheMoi = new ArrayList<>();
+                        giaGhe = BigDecimal.ZERO;
+                        
+                        for(GheMayBay g : dsGheMoi) {
+                                tenGheMoi.add(chuanHoaGhe(g.getSoGhe()));
+                                giaGhe = giaGhe.add(g.getGiaGhe());
+                        }
+                        
+                        txtGhe.setText(String.join(",", tenGheMoi));
+                        tinhTongTien(txtMaChuyenBay, cboHangVe, spNguoiLon, spTreEm, spEmBe);
                 }
-
-                int tongHK =
-                        (int) spNguoiLon.getValue() +
-                        (int) spTreEm.getValue() +
-                        (int) spEmBe.getValue();
-
-                if (dsGhe.contains(maGhe)) {
-                    dsGhe.remove(maGhe);
-                    giaGhe = giaGhe.subtract(ghe.getGiaGhe());
-                }
-                else {
-
-                    if (dsGhe.size() >= tongHK) {
-                        JOptionPane.showMessageDialog(dialog,
-                                "Chỉ được chọn tối đa " + tongHK + " ghế!");
-                        return;
-                    }
-
-                    dsGhe.add(maGhe);
-                    giaGhe = giaGhe.add(ghe.getGiaGhe());
-                }
-
-                txtGhe.setText(String.join(",", dsGhe));
-
-                tinhTongTien(txtMaChuyenBay, cboHangVe, spNguoiLon, spTreEm, spEmBe);
-            }
         });
 
         dialog.add(Panel);
@@ -443,7 +414,11 @@ public class VeBanPanel extends JPanel {
                     tongTien = tongTien.add(
                             veBanDAO.tinhGiaVeFull(maCB, maHangVe, "Em bé"));
                 
-                tongTien = tongTien.add(giaGhe);
+                tongTien = tongTien.add(giaGhe); 
+
+                if(rdKhuHoi.isSelected()){
+                    tongTien = tongTien.multiply(new BigDecimal("1.25"));
+                }
 
                 try(Connection conn = DBConnection.getConnection()){
 

@@ -87,7 +87,23 @@ public class DangNhapFrm extends javax.swing.JFrame {
         this.add(LoginLable, java.awt.BorderLayout.CENTER); 
         this.pack(); 
         this.setResizable(false); 
-        this.setLocationRelativeTo(null);
+        this.setLocationRelativeTo(null); 
+
+        javax.swing.JLabel lblAdminLogin = new javax.swing.JLabel("Admin login page");
+        lblAdminLogin.setForeground(new java.awt.Color(18, 32, 64));
+        lblAdminLogin.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD | java.awt.Font.ITALIC, 14));
+        lblAdminLogin.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        
+        lblAdminLogin.addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override
+                public void mouseClicked(java.awt.event.MouseEvent e) {
+                        new gui.admin.DangNhapPanel().setVisible(true);
+                        dispose();
+                }
+        });
+
+        LoginLable.add(lblAdminLogin); 
+        lblAdminLogin.setBounds(150, 400, 150, 30);
 
     }
 
