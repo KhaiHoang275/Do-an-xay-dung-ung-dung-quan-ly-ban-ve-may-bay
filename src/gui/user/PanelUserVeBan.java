@@ -39,6 +39,7 @@ public class PanelUserVeBan extends JPanel {
     private JComboBox<String> cboTrangThai;
     private JRadioButton rdMotChieu;
     private JRadioButton rdKhuHoi;
+    private JButton btnDoiVe;
     private PhieuDatVeDAO pdv = new PhieuDatVeDAO();
     private JTextField txtTongTien;
     private KhuyenMaiDAO kmDAO = new KhuyenMaiDAO();
@@ -143,6 +144,24 @@ public class PanelUserVeBan extends JPanel {
         };
 
         table = new JTable(tableModel);
+
+        table.getSelectionModel().addListSelectionListener(e -> {
+        int row = table.getSelectedRow();
+
+        if(row == -1){
+            btnDoiVe.setEnabled(false);
+            return;
+        }
+
+        String trangThai = table.getValueAt(row,6).toString();
+
+        if(trangThai.equalsIgnoreCase("Đã hủy")){
+            btnDoiVe.setEnabled(true);
+        } else {
+            btnDoiVe.setEnabled(false);
+        }
+
+    });
         table.setRowHeight(28);
         table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
 
@@ -155,6 +174,35 @@ public class PanelUserVeBan extends JPanel {
         scroll.setBorder(BorderFactory.createEmptyBorder());
 
         panel.add(scroll, BorderLayout.CENTER);
+
+        JPanel panelButton = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        panelButton.setBackground(Color.WHITE);
+
+        btnDoiVe = new JButton("Đổi vé");
+        btnDoiVe.setEnabled(false); // disable mặc định
+        btnDoiVe.setBackground(new Color(59,130,246));
+        btnDoiVe.setForeground(Color.WHITE);
+
+        panelButton.add(btnDoiVe);
+
+        panel.add(panelButton, BorderLayout.SOUTH);
+
+        btnDoiVe.addActionListener(e -> {
+        int row = table.getSelectedRow();
+
+        if(row == -1) return;
+
+        String maVe = table.getValueAt(row,0).toString();
+
+        JFrame frame = new JFrame("Đổi vé");
+        frame.setSize(900,600);
+        frame.setLocationRelativeTo(null);
+
+        frame.setContentPane(new DoiVePanel(maVe, maHK));
+
+        frame.setVisible(true);
+
+    });
 
         return panel;
     }
@@ -802,7 +850,7 @@ row++;
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
             // mã hành khách test
-            String maHK = "HK001";
+            String maHK = "HK010";
 
             PanelUserVeBan panel = new PanelUserVeBan(maHK);
 
