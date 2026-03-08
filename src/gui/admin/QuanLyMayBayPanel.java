@@ -56,6 +56,7 @@ public class QuanLyMayBayPanel extends JPanel {
         lblTitle.setBorder(BorderFactory.createEmptyBorder(0, 5, 10, 0));
         panelNorth.add(lblTitle, BorderLayout.NORTH);
 
+        // Khai báo 3 hàng, 4 cột (chứa chính xác 12 thành phần)
         JPanel pnlForm = new JPanel(new GridLayout(3, 4, 15, 15));
         pnlForm.setBackground(Color.WHITE);
         pnlForm.setBorder(BorderFactory.createCompoundBorder(
@@ -63,6 +64,7 @@ public class QuanLyMayBayPanel extends JPanel {
                 new EmptyBorder(15, 15, 15, 15)
         ));
 
+        // --- HÀNG 1 ---
         pnlForm.add(new JLabel("Mã Máy Bay (*):"));
         txtMaMayBay = new JTextField();
         pnlForm.add(txtMaMayBay);
@@ -71,6 +73,7 @@ public class QuanLyMayBayPanel extends JPanel {
         txtSoHieu = new JTextField();
         pnlForm.add(txtSoHieu);
 
+        // --- HÀNG 2 ---
         pnlForm.add(new JLabel("Hãng Sản Xuất:"));
         txtHangSanXuat = new JTextField();
         pnlForm.add(txtHangSanXuat);
@@ -79,12 +82,12 @@ public class QuanLyMayBayPanel extends JPanel {
         spinnerTongSoGhe = new JSpinner(new SpinnerNumberModel(100, 1, 1000, 1));
         pnlForm.add(spinnerTongSoGhe);
         
+        // --- HÀNG 3 ---
         pnlForm.add(new JLabel("Trạng Thái:"));
         cboTrangThai = new JComboBox<>(new String[]{"Hoạt động", "Ngừng hoạt động"});
         pnlForm.add(cboTrangThai);
 
-        // Đệm ô trống
-        pnlForm.add(new JLabel(""));
+        // Đệm đúng 2 ô trống để lấp đầy 12 slots của hàng 3 (10 ô dữ liệu + 2 ô trống = 12)
         pnlForm.add(new JLabel(""));
         pnlForm.add(new JLabel(""));
 
