@@ -49,39 +49,44 @@ public class QuanLyHanhKhachPanel extends JPanel {
         loadDanhSachHanhKhach(); // Load dữ liệu lần đầu
     }
 
-    // ==========================================================
-    // 1. MÀN HÌNH DANH SÁCH (Các ô vuông)
-    // ==========================================================
     private void initListView() {
         pnlListView = new JPanel(new BorderLayout());
         pnlListView.setBackground(Color.WHITE);
         
+        JPanel pnlTop = new JPanel(new BorderLayout());
+        pnlTop.setBackground(Color.WHITE);
+        pnlTop.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        
         JLabel lblTitle = new JLabel("Danh sách Hành khách của tôi");
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        lblTitle.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        pnlListView.add(lblTitle, BorderLayout.NORTH);
-        
-        // Dùng WrapLayout (hoặc FlowLayout) để các ô tự động rớt dòng
-        pnlGridHanhKhach = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 20));
-        pnlGridHanhKhach.setBackground(Color.WHITE);
-        
-        JScrollPane scrollPane = new JScrollPane(pnlGridHanhKhach);
-        scrollPane.setBorder(null);
-        pnlListView.add(scrollPane, BorderLayout.CENTER);
+        pnlTop.add(lblTitle, BorderLayout.WEST);
         
         JButton btnAdd = new JButton("+ Thêm hành khách mới");
         btnAdd.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        btnAdd.setBackground(new Color(255, 193, 7)); // Màu vàng
+        btnAdd.setBackground(new Color(255, 193, 7));
         btnAdd.setFocusPainted(false);
-        btnAdd.addActionListener(e -> moFormChiTiet(null)); // null = Tạo mới
+        btnAdd.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnAdd.addActionListener(e -> moFormChiTiet(null));
+        pnlTop.add(btnAdd, BorderLayout.EAST);
         
-        JPanel pnlBottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        pnlBottom.setBackground(Color.WHITE);
-        pnlBottom.setBorder(BorderFactory.createEmptyBorder(10, 20, 20, 20));
-        pnlBottom.add(btnAdd);
-        pnlListView.add(pnlBottom, BorderLayout.SOUTH);
+        pnlListView.add(pnlTop, BorderLayout.NORTH);
+        
+        pnlGridHanhKhach = new JPanel(new GridLayout(0, 3, 20, 20)); 
+        pnlGridHanhKhach.setBackground(Color.WHITE);
+        pnlGridHanhKhach.setBorder(BorderFactory.createEmptyBorder(0, 20, 20, 20));
+        
+        JPanel gridWrapper = new JPanel(new BorderLayout());
+        gridWrapper.setBackground(Color.WHITE);
+        gridWrapper.add(pnlGridHanhKhach, BorderLayout.NORTH);
+        
+        JScrollPane scrollPane = new JScrollPane(gridWrapper);
+        scrollPane.setBorder(null);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        
+        pnlListView.add(scrollPane, BorderLayout.CENTER);
     }
-
+    
     private void loadDanhSachHanhKhach() {
         pnlGridHanhKhach.removeAll();
         
@@ -96,13 +101,41 @@ public class QuanLyHanhKhachPanel extends JPanel {
         pnlGridHanhKhach.repaint();
     }
 
-    // Tạo giao diện cho 1 ô (card) hành khách
     private JPanel taoOHanhKhach(ThongTinHanhKhach hk) {
         JPanel pnl = new JPanel(new BorderLayout());
         pnl.setPreferredSize(new Dimension(250, 120));
         pnl.setBackground(new Color(245, 247, 250));
         pnl.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1));
-        pnl.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
+        JPanel pnlHeaderCard = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 5));
+        pnlHeaderCard.setOpaque(false);
+        
+        JButton btnDelete = new JButton("X");
+        btnDelete.setFont(new Font("Arial", Font.BOLD, 12));
+        btnDelete.setBackground(new Color(244, 67, 54)); 
+        btnDelete.setForeground(Color.WHITE);
+        btnDelete.setFocusPainted(false);
+        btnDelete.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
+        btnDelete.addActionListener(e -> {
+            int confirm = JOptionPane.showConfirmDialog(this, 
+                "Bạn có chắc muốn xóa hành khách " + hk.getHoTen() + "?", 
+                "Xác nhận xóa", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                if (dao.delete(hk.getMaHK())) {
+                    JOptionPane.showMessageDialog(this, "Đã xóa!");
+                    loadDanhSachHanhKhach(); 
+                } else {
+                    JOptionPane.showMessageDialog(this, "Xóa thất bại!");
+                }
+            }
+        });
+        pnlHeaderCard.add(btnDelete);
+        pnl.add(pnlHeaderCard, BorderLayout.NORTH);
+        
+        JPanel pnlInfo = new JPanel(new GridLayout(2, 1));
+        pnlInfo.setOpaque(false);
+        pnlInfo.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
         JLabel lblName = new JLabel(hk.getHoTen() != null ? hk.getHoTen() : "Khách chưa có tên");
         lblName.setFont(new Font("Segoe UI", Font.BOLD, 18));
@@ -112,11 +145,11 @@ public class QuanLyHanhKhachPanel extends JPanel {
         lblType.setHorizontalAlignment(SwingConstants.CENTER);
         lblType.setForeground(Color.GRAY);
         
-        pnl.add(lblName, BorderLayout.CENTER);
-        pnl.add(lblType, BorderLayout.SOUTH);
+        pnlInfo.add(lblName);
+        pnlInfo.add(lblType);
+        pnl.add(pnlInfo, BorderLayout.CENTER);
         
-        // Bấm vào ô sẽ mở form chi tiết
-        pnl.addMouseListener(new java.awt.event.MouseAdapter() {
+        pnlInfo.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 moFormChiTiet(hk);
@@ -125,30 +158,33 @@ public class QuanLyHanhKhachPanel extends JPanel {
         
         return pnl;
     }
-
-    // ==========================================================
-    // 2. MÀN HÌNH CHI TIẾT (Form)
-    // ==========================================================
+    
     private void initDetailView() {
         pnlDetailView = new JPanel(new BorderLayout());
         pnlDetailView.setBackground(Color.WHITE);
         
-        // Các trường nhập liệu
-        JPanel pnlForm = new JPanel(new GridLayout(6, 2, 15, 25));
+        JPanel pnlForm = new JPanel(new GridLayout(6, 2, 15, 12)); 
         pnlForm.setBackground(Color.WHITE);
-        pnlForm.setBorder(BorderFactory.createEmptyBorder(40, 50, 40, 300));
+        pnlForm.setBorder(BorderFactory.createEmptyBorder(20, 50, 10, 100)); 
         
         txtHoTen = new JTextField();
         txtCCCD = new JTextField();
         txtHoChieu = new JTextField();
-        txtNgaySinh = new JTextField(); // Format: dd/MM/yyyy
+        txtNgaySinh = new JTextField(); 
         cbGioiTinh = new JComboBox<>(new String[]{"Nam", "Nữ", "Khác"});
         cbLoaiHK = new JComboBox<>(new String[]{"Nguoi lon", "Tre em", "Em be"});
         
-        Font fontLabel = new Font("Segoe UI", Font.BOLD, 16);
-        Font fontInput = new Font("Segoe UI", Font.PLAIN, 16);
+        Dimension fieldSize = new Dimension(300, 35);
+        txtHoTen.setPreferredSize(fieldSize);
+        txtCCCD.setPreferredSize(fieldSize);
+        txtHoChieu.setPreferredSize(fieldSize);
+        txtNgaySinh.setPreferredSize(fieldSize);
+        cbGioiTinh.setPreferredSize(fieldSize);
+        cbLoaiHK.setPreferredSize(fieldSize);
         
-        // Helper thêm dòng
+        Font fontLabel = new Font("Segoe UI", Font.BOLD, 15); 
+        Font fontInput = new Font("Segoe UI", Font.PLAIN, 15);
+        
         themTruongVaoForm(pnlForm, "Họ và Tên:", txtHoTen, fontLabel, fontInput);
         themTruongVaoForm(pnlForm, "CCCD:", txtCCCD, fontLabel, fontInput);
         themTruongVaoForm(pnlForm, "Hộ chiếu (Nếu có):", txtHoChieu, fontLabel, fontInput);
@@ -162,11 +198,9 @@ public class QuanLyHanhKhachPanel extends JPanel {
         cbLoaiHK.setFont(fontInput);
         pnlForm.add(lblType); pnlForm.add(cbLoaiHK);
         
-        pnlDetailView.add(pnlForm, BorderLayout.CENTER);
-        
-        // Khung chứa các nút điều khiển dưới cùng
         JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         pnlButtons.setBackground(Color.WHITE);
+        pnlButtons.setBorder(BorderFactory.createEmptyBorder(10, 0, 20, 0)); 
         
         btnQuayLai = createButton("Quay lại", new Color(150, 150, 150));
         btnSua = createButton("Chỉnh sửa", new Color(45, 72, 140));
@@ -176,19 +210,22 @@ public class QuanLyHanhKhachPanel extends JPanel {
         pnlButtons.add(btnSua);
         pnlButtons.add(btnLuu);
         
-        pnlDetailView.add(pnlButtons, BorderLayout.SOUTH);
+        JPanel wrapperTop = new JPanel(new BorderLayout());
+        wrapperTop.setBackground(Color.WHITE);
+        wrapperTop.add(pnlForm, BorderLayout.CENTER); 
+        wrapperTop.add(pnlButtons, BorderLayout.SOUTH); 
         
-        // Logic Nút
+        pnlDetailView.add(wrapperTop, BorderLayout.NORTH);
+        
         btnQuayLai.addActionListener(e -> {
             cardLayout.show(pnlCards, "LIST");
-            loadDanhSachHanhKhach(); // Reload lại nếu ko lưu
+            loadDanhSachHanhKhach(); 
         });
         
         btnSua.addActionListener(e -> setTrangThaiChinhSua(true));
-        
         btnLuu.addActionListener(e -> luuThongTin());
     }
-
+    
     private void moFormChiTiet(ThongTinHanhKhach hk) {
         this.currentHK = hk;
         
@@ -196,7 +233,7 @@ public class QuanLyHanhKhachPanel extends JPanel {
             // Trường hợp TẠO MỚI
             this.currentHK = new ThongTinHanhKhach();
             this.currentHK.setMaNguoiDung(currentUser.getMaNguoiDung());
-            this.currentHK.setMaHK("HK" + System.currentTimeMillis()); // Tạm thời tạo mã tự động
+            this.currentHK.setMaHK("HK" + (System.currentTimeMillis() % 100000));
             
             txtHoTen.setText("");
             txtCCCD.setText("");

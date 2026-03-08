@@ -58,8 +58,8 @@ public class ThongTinHanhKhachDAO {
                 ps.setNull(5, java.sql.Types.DATE);
             }
             
-            ps.setString(6, hk.getLoaiHanhKhach() != null ? hk.getLoaiHanhKhach() : "NGUOILON");
-            ps.setString(7, "Hoạt động"); // Giá trị mặc định để tránh lỗi SQL từ chối bản ghi trống
+            ps.setString(6, hk.getLoaiHanhKhach() != null ? hk.getLoaiHanhKhach() : "Nguoi lon");
+            ps.setString(7, "Hoạt động"); 
 
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
