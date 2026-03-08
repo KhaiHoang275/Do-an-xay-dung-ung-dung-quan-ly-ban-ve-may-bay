@@ -1,60 +1,42 @@
 package main;
 
-import gui.DichVuHanhLyGUI;
-import gui.ThanhToanGUI;
-import gui.QuanLyHoaDonGUI;
-import model.DatVeSession;
-import model.ThongTinHanhKhach;
-import java.util.ArrayList;
-
+import java.util.prefs.Preferences;
+import gui.user.DangNhapFrm;
+import gui.user.MainFrame;
+import dal.NguoiDungDAO;
+import model.NguoiDung;
 import javax.swing.*;
 
 public class MainTestGUI {
 
     public static void main(String[] args) {
-        // Cài đặt giao diện hiện đại FlatLaf (nếu bạn có thư viện này)
+        // 1. Thiết lập giao diện
         try {
             UIManager.setLookAndFeel(new com.formdev.flatlaf.FlatIntelliJLaf());
         } catch (Exception e) {
-            System.err.println("Không tìm thấy FlatLaf, sử dụng giao diện mặc định.");
+            System.err.println("Sử dụng giao diện mặc định.");
         }
 
         SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("TEST HỆ THỐNG BÁN VÉ MÁY BAY");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(1150, 700);
-            frame.setLocationRelativeTo(null);
+            // 2. TRUY XUẤT THÔNG TIN ĐÃ GHI NHỚ
+            Preferences prefs = Preferences.userNodeForPackage(DangNhapFrm.class);
+            String savedUser = prefs.get("saved_user", null);
+            String savedPass = prefs.get("saved_pass", null);
 
-            // 1. TẠO DỮ LIỆU GIẢ LẬP (MOCK SESSION) ĐỂ TEST GIAO DIỆN
-            DatVeSession mockSession = new DatVeSession();
-            mockSession.maNguoiDung = "HK001";
-            mockSession.maChuyenBay = "CB001";
-            mockSession.soNguoiLon = 2; // Giả sử đặt cho 2 người lớn
-            
-            // Phải add sẵn hành khách mẫu thì Form Hành Lý mới sinh ra các dòng chọn
-            ThongTinHanhKhach hk1 = new ThongTinHanhKhach();
-            hk1.setHoTen("Nguyễn Văn A");
-            ThongTinHanhKhach hk2 = new ThongTinHanhKhach();
-            hk2.setHoTen("Trần Thị B");
-            
-            mockSession.danhSachHanhKhach.add(hk1);
-            mockSession.danhSachHanhKhach.add(hk2);
+            if (savedUser != null && savedPass != null) {
+                // Thử đăng nhập tự động bằng dữ liệu đã lưu
+                NguoiDungDAO dao = new NguoiDungDAO();
+                NguoiDung user = dao.checkLogin(savedUser, savedPass);
 
-            JTabbedPane tabbedPane = new JTabbedPane();
-            tabbedPane.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 14));
+                if (user != null) {
+                    System.out.println("Tự động đăng nhập: " + user.getUsername());
+                    new MainFrame(user).setVisible(true); // Vào thẳng trang chủ
+                    return;
+                }
+            }
 
-            // 2. TRUYỀN SESSION VÀO CÁC PANEL (Sửa lỗi constructor trống)
-            // Truyền mockSession vào DichVuHanhLyGUI
-            tabbedPane.addTab("1. Dịch vụ & Hành lý", new gui.DichVuHanhLyGUI(mockSession));
-            
-            // Truyền mockSession vào ThanhToanGUI (Giả định bạn đã sửa Constructor bên đó)
-            // Nếu ThanhToanGUI chưa sửa Constructor, bạn tạm thời để trống hoặc sửa file đó sau
-            tabbedPane.addTab("2. Thanh toán", new gui.ThanhToanGUI());
-            
-            tabbedPane.addTab("3. Quản lý hóa đơn", new gui.QuanLyHoaDonGUI());
-
-            frame.add(tabbedPane);
-            frame.setVisible(true);
+            // 3. NẾU KHÔNG CÓ THÔNG TIN LƯU -> MỞ TRANG ĐĂNG NHẬP
+            new DangNhapFrm().setVisible(true);
         });
     }
 }
