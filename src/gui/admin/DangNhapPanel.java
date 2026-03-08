@@ -158,7 +158,7 @@ public class DangNhapPanel extends JFrame {
         });
     
         btnReturn.addActionListener(e -> {
-            new gui.DangNhapFrm().setVisible(true);
+            new gui.user.DangNhapFrm().setVisible(true);
             this.dispose();
         });
     }
