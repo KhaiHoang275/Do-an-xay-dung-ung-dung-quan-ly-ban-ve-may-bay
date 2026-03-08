@@ -4,6 +4,9 @@
  */
 package gui.user;
 
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author DellU
@@ -630,15 +633,24 @@ public class UserInfoFrm extends javax.swing.JFrame {
 
         btnVeMB.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
         btnVeMB.setText("Vé Máy Bay");
-        btnVeMB.addActionListener(this::btnVeMBActionPerformed);
+        btnVeMB.addActionListener(this::btnVeMBActionPerformed); 
+
 
         btnDiary.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
         btnDiary.setText("Cẩm Nang Du Lịch");
         btnDiary.addActionListener(this::btnDiaryActionPerformed);
 
         jButton1.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
-        jButton1.setText("Phiếu quà tặng");
+        jButton1.setText("Phiếu quà tặng"); 
 
+        btnVeMB.addActionListener(e -> {
+            if (this.currentUser != null) {
+                new MainFrame(this.currentUser).setVisible(true);
+            } else {
+                new MainFrame().setVisible(true);
+            }
+            this.dispose(); 
+        });
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
@@ -1168,7 +1180,44 @@ layout.setVerticalGroup(
         }
     }
 
-    private void setupMenuEvents() {
+    private void setupMenuEvents() { 
+        btnDatChoPG1.addActionListener(e -> {
+            if (currentUser != null) {
+                JDialog dialog = new JDialog(this, "Quản Lý Đặt Chỗ", true);
+                dialog.setSize(850, 500);
+                dialog.setLocationRelativeTo(this);
+                dialog.add(new QuanLyDatChoPanel(currentUser));
+                dialog.setVisible(true);
+            } else {
+                JOptionPane.showMessageDialog(this, "Vui lòng đăng nhập!");
+            }
+        });  
+
+        btnDatChoPGheader.addActionListener(e -> {
+            if (currentUser != null) {
+                JDialog dialog = new JDialog(this, "Quản Lý Đặt Chỗ", true);
+                dialog.setSize(850, 500);
+                dialog.setLocationRelativeTo(this);
+                dialog.add(new QuanLyDatChoPanel(currentUser));
+                dialog.setVisible(true);
+            } else {
+                JOptionPane.showMessageDialog(this, "Vui lòng đăng nhập!");
+            }
+        }); 
+
+
+        btnTradeList.addActionListener(e -> {
+            if (currentUser != null) {
+                JDialog dialog = new JDialog(this, "Danh sách Giao Dịch", true);
+                dialog.setSize(850, 500);
+                dialog.setLocationRelativeTo(this);
+                dialog.add(new LichSuGiaoDichPanel(currentUser));
+                dialog.setVisible(true);
+            } else {
+                JOptionPane.showMessageDialog(this, "Vui lòng đăng nhập!");
+            }
+        }); 
+
         for(java.awt.event.ActionListener al : btnInfoModify.getActionListeners()) btnInfoModify.removeActionListener(al);
         if (btnTabPass != null) {
             for(java.awt.event.ActionListener al : btnTabPass.getActionListeners()) btnTabPass.removeActionListener(al);
