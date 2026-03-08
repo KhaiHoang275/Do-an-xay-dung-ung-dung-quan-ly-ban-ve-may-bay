@@ -225,7 +225,7 @@ public class AdminMainFrame extends JFrame {
         return sidebar;
     }
 
-    private JButton createSidebarButton(String text, String iconPath) {
+ private JButton createSidebarButton(String text, String iconPath) {
         JButton btn = new JButton(text);
         btn.setBackground(BUTTON_COLOR);
         btn.setForeground(Color.WHITE);
