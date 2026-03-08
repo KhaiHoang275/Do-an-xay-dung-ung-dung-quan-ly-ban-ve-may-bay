@@ -578,7 +578,7 @@ public class MainFrame extends javax.swing.JFrame {
     private void initTableKetQua() {
     if (scrollPaneKetQua != null) return;
     
-    String[] columnNames = {"Mã CB", "Giờ Đi", "Giờ Đến", "Trạng Thái", "Giá 1 Vé", "Tổng Tiền"};
+    String[] columnNames = {"Mã CB", "Giờ Đi", "Giờ Đến", "Trạng Thái", "Giá 1 Vé", "Tổng Tiền", "Thao Tác"};
     javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(columnNames, 0) {
         @Override
         public boolean isCellEditable(int row, int column) { return false; }
@@ -587,13 +587,40 @@ public class MainFrame extends javax.swing.JFrame {
     tblKetQua = new javax.swing.JTable(model);
     scrollPaneKetQua = new javax.swing.JScrollPane(tblKetQua);
     
-    scrollPaneKetQua.setPreferredSize(new java.awt.Dimension(1100, 300));
-    scrollPaneKetQua.setMaximumSize(new java.awt.Dimension(1100, 600));
+    scrollPaneKetQua.setPreferredSize(new java.awt.Dimension(1100, 200)); 
+    scrollPaneKetQua.setMaximumSize(new java.awt.Dimension(1100, 200));
     
     tblKetQua.setRowHeight(40);
     tblKetQua.getTableHeader().setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 14));
-}
     
+    javax.swing.table.DefaultTableCellRenderer centerRenderer = new javax.swing.table.DefaultTableCellRenderer();
+    centerRenderer.setHorizontalAlignment(javax.swing.JLabel.CENTER);
+    for(int x = 0; x < tblKetQua.getColumnCount(); x++){
+         tblKetQua.getColumnModel().getColumn(x).setCellRenderer(centerRenderer);
+    }
+
+    tblKetQua.addMouseListener(new java.awt.event.MouseAdapter() {
+        @Override
+        public void mouseClicked(java.awt.event.MouseEvent e) {
+            int row = tblKetQua.rowAtPoint(e.getPoint());
+            int col = tblKetQua.columnAtPoint(e.getPoint());
+            
+            if (row >= 0 && col == 6) { 
+                String maCB = tblKetQua.getValueAt(row, 0).toString();
+                String tongTien = tblKetQua.getValueAt(row, 5).toString();
+                
+                int xacNhan = javax.swing.JOptionPane.showConfirmDialog(MainFrame.this, 
+                    "Xác nhận đặt chuyến bay: " + maCB + "\nTổng thanh toán: " + tongTien, 
+                    "Tiếp tục đặt vé", 
+                    javax.swing.JOptionPane.YES_NO_OPTION);
+                    
+                if (xacNhan == javax.swing.JOptionPane.YES_OPTION) {
+                    javax.swing.JOptionPane.showMessageDialog(MainFrame.this, "Hệ thống đang chuyển sang trang điền thông tin khách hàng...");
+                }
+            }
+        }
+    });
+}
     private void setupCurrencyComboBox() {
         javax.swing.JComboBox rawCombo = cbDonViTienTe;
         rawCombo.removeAllItems();
@@ -1249,22 +1276,24 @@ public class MainFrame extends javax.swing.JFrame {
 
     java.time.format.DateTimeFormatter timeFmt = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
     java.time.format.DateTimeFormatter dateFmt = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
     for (model.ChuyenBay cb : dsCB) {
-    java.math.BigDecimal gia1Ve = veDAO.tinhGiaVeFull(cb.getMaChuyenBay(), hangVeSel.getMaHangVe(), "Người lớn");
-    
-    
-    java.math.BigDecimal tongDoan = gia1Ve.multiply(java.math.BigDecimal.valueOf(soNL)); 
+        try {
+            java.math.BigDecimal gia1Ve = cbBUS.tinhGiaVe(cb.getMaChuyenBay(), hangVeSel.getMaHangVe());
+            java.math.BigDecimal tongDoan = gia1Ve.multiply(java.math.BigDecimal.valueOf(soNL)); 
 
-    modelTable.addRow(new Object[]{
-        cb.getMaChuyenBay(),
-        cb.getNgayGioDi().format(timeFmt) + " (" + cb.getNgayGioDi().format(dateFmt) + ")", 
-        cb.getNgayGioDen().format(timeFmt), 
-        "Còn chỗ", 
-        String.format("%,d VNĐ", gia1Ve.longValue()),
-        String.format("%,d VNĐ", tongDoan.longValue()) 
-    });
-}
+            modelTable.addRow(new Object[]{
+                cb.getMaChuyenBay(),
+                cb.getNgayGioDi().format(timeFmt) + " (" + cb.getNgayGioDi().format(dateFmt) + ")", 
+                cb.getNgayGioDen().format(timeFmt), 
+                "Còn chỗ", 
+                String.format("%,d VNĐ", gia1Ve.longValue()),
+                String.format("%,d VNĐ", tongDoan.longValue()),
+                "<html><b style='color:blue; text-decoration:underline; cursor:pointer;'>🛒 Đặt Vé</b></html>" // <-- Thêm cột nút bấm
+            });
+        } catch (Exception e) {
+            System.out.println("Lỗi tính giá cho CB: " + cb.getMaChuyenBay() + " - " + e.getMessage());
+        }
+    }
 }    
     /**
      * @param args the command line arguments
