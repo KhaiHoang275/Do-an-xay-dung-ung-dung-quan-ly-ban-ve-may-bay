@@ -14,6 +14,7 @@ import dal.ChuyenBayDAO;
 import dal.GheMayBayDAO;
 import dal.KhuyenMaiDAO;
 import dal.PhieuDatVeDAO;
+import dal.ThongTinHanhKhachDAO;
 import dal.VeBanDAO;
 import db.DBConnection;
 import gui.admin.SoDoGhePanel;
@@ -48,6 +49,7 @@ public class PanelUserVeBan extends JPanel {
     private BigDecimal giaGhe = BigDecimal.ZERO;
     private GheMayBayDAO gmb = new GheMayBayDAO();
     private ChuyenBayDAO cbDAO = new ChuyenBayDAO();
+    private ThongTinHanhKhachDAO hkDAO = new ThongTinHanhKhachDAO();
 
     public PanelUserVeBan(String maHK) {
         this.maHK = maHK;
@@ -65,8 +67,9 @@ public class PanelUserVeBan extends JPanel {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
         panel.setBackground(Color.WHITE);
+        String tenHK = hkDAO.getTenHanhKhach(maHK);
 
-        JLabel title = new JLabel("QUẢN LÝ VÉ BÁN");
+        JLabel title = new JLabel("LỊCH SỬ VÉ CỦA" + " " + tenHK.toUpperCase());
         title.setFont(new Font("Segoe UI", Font.BOLD, 26));
         title.setForeground(new Color(220, 38, 38));
 
@@ -124,7 +127,7 @@ public class PanelUserVeBan extends JPanel {
         panel.setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
         panel.setBackground(Color.WHITE);
 
-        JLabel title = new JLabel("DANH SÁCH VÉ BÁN");
+        JLabel title = new JLabel("DANH SÁCH VÉ");
         title.setFont(new Font("Segoe UI", Font.BOLD, 20));
         title.setForeground(new Color(25,40,80));
 
@@ -146,6 +149,7 @@ public class PanelUserVeBan extends JPanel {
         table = new JTable(tableModel);
 
         table.getSelectionModel().addListSelectionListener(e -> {
+
         int row = table.getSelectedRow();
 
         if(row == -1){
@@ -153,14 +157,20 @@ public class PanelUserVeBan extends JPanel {
             return;
         }
 
-        String trangThai = table.getValueAt(row,6).toString();
+        String maVe = table.getValueAt(row,0).toString();
 
-        if(trangThai.equalsIgnoreCase("Đã hủy")){
-            btnDoiVe.setEnabled(true);
-        } else {
-            btnDoiVe.setEnabled(false);
+        List<VeBan> dsVeDoi = veBanDAO.selectVeCoTheDoi(maHK);
+
+        boolean coTheDoi = false;
+
+        for(VeBan v : dsVeDoi){
+            if(v.getMaVe().equals(maVe)){
+                coTheDoi = true;
+                break;
+            }
         }
 
+        btnDoiVe.setEnabled(coTheDoi);
     });
         table.setRowHeight(28);
         table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
@@ -212,7 +222,7 @@ public class PanelUserVeBan extends JPanel {
 
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(Color.WHITE);
-        TitledBorder border = BorderFactory.createTitledBorder("FORM TẠO VÉ BÁN");
+        TitledBorder border = BorderFactory.createTitledBorder("ĐẶT VÉ");
         border.setTitleFont(new Font("Segoe UI", Font.BOLD, 16));
         border.setTitleColor(new Color(25,40,80)); 
         panel.setBorder(border);
@@ -384,50 +394,28 @@ row++;
 
         Panel.setListener(new SoDoGhePanel.SoDoGheListener() {
 
-            @Override
-            public void onBack() {
-                dialog.dispose();
-            }
+        @Override
+        public void onBack() {
+            dialog.dispose();
+        }
 
-            public void onSeatSelected(GheMayBay ghe) {
+        @Override
+        public void onSeatsConfirmed(List<GheMayBay> selectedSeats) {
 
+            List<String> dsGhe = new ArrayList<>();
+            giaGhe = BigDecimal.ZERO;
+
+            for(GheMayBay ghe : selectedSeats){
                 String maGhe = chuanHoaGhe(ghe.getSoGhe());
-                String gheHienTai = txtGhe.getText().trim();
-
-                List<String> dsGhe = new ArrayList<>();
-
-                if (!gheHienTai.isEmpty()) {
-                    for(String g : gheHienTai.split(",")){
-                        dsGhe.add(chuanHoaGhe(g));
-                    }
-                }
-
-                int tongHK =
-                        (int) spNguoiLon.getValue() +
-                        (int) spTreEm.getValue() +
-                        (int) spEmBe.getValue();
-
-                if (dsGhe.contains(maGhe)) {
-                    dsGhe.remove(maGhe);
-                    giaGhe = giaGhe.subtract(ghe.getGiaGhe());
-                }
-                else {
-
-                    if (dsGhe.size() >= tongHK) {
-                        JOptionPane.showMessageDialog(dialog,
-                                "Chỉ được chọn tối đa " + tongHK + " ghế!");
-                        return;
-                    }
-
-                    dsGhe.add(maGhe);
-                    giaGhe = giaGhe.add(ghe.getGiaGhe());
-                }
-
-                txtGhe.setText(String.join(",", dsGhe));
-
-                tinhTongTien(txtMaChuyenBay, cboHangVe, spNguoiLon, spTreEm, spEmBe);
+                dsGhe.add(maGhe);
+                giaGhe = giaGhe.add(ghe.getGiaGhe());
             }
-        });
+
+            txtGhe.setText(String.join(",", dsGhe));
+
+            tinhTongTien(txtMaChuyenBay, cboHangVe, spNguoiLon, spTreEm, spEmBe);
+        }
+    });
 
         dialog.add(Panel);
 
@@ -837,27 +825,5 @@ row++;
         }catch(Exception e){
             e.printStackTrace();
         }
-    }
-
-    public static void main(String[] args) {
-
-        javax.swing.SwingUtilities.invokeLater(() -> {
-
-            JFrame frame = new JFrame("Test Panel User Vé Bán");
-
-            frame.setSize(1200,700);
-            frame.setLocationRelativeTo(null);
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-            // mã hành khách test
-            String maHK = "HK010";
-
-            PanelUserVeBan panel = new PanelUserVeBan(maHK);
-
-            frame.add(panel);
-
-            frame.setVisible(true);
-
-        });
     }
 }
