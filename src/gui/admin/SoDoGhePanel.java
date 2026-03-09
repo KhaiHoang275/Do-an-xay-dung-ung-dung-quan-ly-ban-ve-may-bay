@@ -54,6 +54,7 @@ package gui.admin;
 
                 public SoDoGhePanel(String maMayBay, String tenMayBay, int maxSeats) {
                         this.maMayBay = maMayBay;
+                        System.out.println("maMayBay được truyền vào: " + maMayBay);
                         this.tenMayBay = tenMayBay;
                         this.maxSeats = maxSeats;
                         this.gheMayBayBUS = new GheMayBayBUS();
@@ -321,29 +322,29 @@ package gui.admin;
                         btnChonGhe.setEnabled(!selectedSeats.isEmpty());
                 }
 
-                public static void main(String[] args) {
-                        JFrame testFrame = new JFrame("Test Sơ Đồ Ghế");
-                        testFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                        testFrame.setSize(800, 600);
-                        testFrame.setLocationRelativeTo(null);
-
-                        SoDoGhePanel panel = new SoDoGhePanel("MB001", "Boeing 737", 3);
-                        panel.setListener(new SoDoGheListener() {
-                                @Override
-                                public void onBack() {
-                                        System.out.println("Đã bấm trở về danh sách!");
-                                }
-
-                                @Override
-                                public void onSeatsConfirmed(List<GheMayBay> selectedSeats) {
-                                        System.out.println("Đã chọn các ghế: ");
-                                        for (GheMayBay ghe : selectedSeats) {
-                                                System.out.println("- " + ghe.getSoGhe() + " | Giá: " + ghe.getGiaGhe());
-                                        }
-                                }
-                        });
-
-                        testFrame.add(panel);
-                        testFrame.setVisible(true);
-                }
+//                public static void main(String[] args) {
+//                        JFrame testFrame = new JFrame("Test Sơ Đồ Ghế");
+//                        testFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//                        testFrame.setSize(800, 600);
+//                        testFrame.setLocationRelativeTo(null);
+//
+//                        SoDoGhePanel panel = new SoDoGhePanel("MB009", "Boeing 737", 3);
+//                        panel.setListener(new SoDoGheListener() {
+//                                @Override
+//                                public void onBack() {
+//                                        System.out.println("Đã bấm trở về danh sách!");
+//                                }
+//
+//                                @Override
+//                                public void onSeatsConfirmed(List<GheMayBay> selectedSeats) {
+//                                        System.out.println("Đã chọn các ghế: ");
+//                                        for (GheMayBay ghe : selectedSeats) {
+//                                                System.out.println("- " + ghe.getSoGhe() + " | Giá: " + ghe.getGiaGhe());
+//                                        }
+//                                }
+//                        });
+//
+//                        testFrame.add(panel);
+//                        testFrame.setVisible(true);
+//                }
         }
