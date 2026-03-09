@@ -5,10 +5,10 @@ import javax.swing.border.TitledBorder;
 import java.util.ArrayList;
 import java.util.List;
 
+import bll.ChuyenBayBUS;
+import bll.MayBayBUS;
 import dal.HangVeDAO;
-import model.DatVeSession;
-import model.GheMayBay;
-import model.HangVe;
+import model.*;
 
 import java.awt.*;
 
@@ -18,9 +18,14 @@ public class PanelUserVeBan extends JPanel {
     private JTextField txtGhe;
     private JComboBox<HangVe> cboHangVe;
 
+    private ChuyenBayBUS chuyenBayBUS;
+    private MayBayBUS mayBayBUS;
+
     // CONSTRUCTOR CHỈ NHẬN SESSION
     public PanelUserVeBan(DatVeSession session) {
         this.session = session;
+        this.chuyenBayBUS = new ChuyenBayBUS();
+        this.mayBayBUS = new MayBayBUS();
         setLayout(new BorderLayout(15, 15));
         setBackground(new Color(245, 247, 250));
 
@@ -131,7 +136,16 @@ public class PanelUserVeBan extends JPanel {
         // ================= LOGIC SỰ KIỆN =================
 
         btnChonGhe.addActionListener(e -> {
-            String maMB = "MB001"; // Lấy từ DB theo chuyến bay thực tế
+            ChuyenBay cb = chuyenBayBUS.getChuyenBayById(session.maChuyenBay);
+            if(cb == null) {
+                JOptionPane.showMessageDialog(this, "Không tìm thấy thông tin chuyến bay!");
+                return;
+            }
+            String maMB = cb.getMaMayBay() ; // Lấy từ DB theo chuyến bay thực tế
+
+            MayBay mb = mayBayBUS.getMayBayById(maMB);
+            String tenMB = (mb != null) ? mb.getSoHieu() : "Máy bay";
+
             int tongKhach = session.soNguoiLon + session.soTreEm + session.soEmBe;
             gui.admin.SoDoGhePanel soDo = new gui.admin.SoDoGhePanel(maMB, "Máy bay", tongKhach);
             
