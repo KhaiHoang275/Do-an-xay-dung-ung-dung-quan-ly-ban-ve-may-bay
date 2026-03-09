@@ -284,7 +284,7 @@ public class VeBanPanel extends JPanel {
 
         gbc.gridx = 0;
         gbc.gridy = row + 1;
-        gbc.gridwidth = 6;   // cho nó chiếm hết hàng
+        gbc.gridwidth = 6;
         panel.add(pButton, gbc);
 
         // ================= LOGIC =================
@@ -348,23 +348,29 @@ public class VeBanPanel extends JPanel {
         dialog.setLocationRelativeTo(this);
 
         Panel.setListener(new SoDoGhePanel.SoDoGheListener() {
-                @Override
-                public void onBack() { dialog.dispose(); }
 
-                @Override
-                public void onSeatsConfirmed(List<GheMayBay> dsGheMoi) {
-                        List<String> tenGheMoi = new ArrayList<>();
-                        giaGhe = BigDecimal.ZERO;
-                        
-                        for(GheMayBay g : dsGheMoi) {
-                                tenGheMoi.add(chuanHoaGhe(g.getSoGhe()));
-                                giaGhe = giaGhe.add(g.getGiaGhe());
-                        }
-                        
-                        txtGhe.setText(String.join(",", tenGheMoi));
-                        tinhTongTien(txtMaChuyenBay, cboHangVe, spNguoiLon, spTreEm, spEmBe);
-                }
-        });
+        @Override
+        public void onBack() {
+            dialog.dispose();
+        }
+
+        @Override
+        public void onSeatsConfirmed(List<GheMayBay> selectedSeats) {
+
+            List<String> dsGhe = new ArrayList<>();
+            giaGhe = BigDecimal.ZERO;
+
+            for(GheMayBay ghe : selectedSeats){
+                String maGhe = chuanHoaGhe(ghe.getSoGhe());
+                dsGhe.add(maGhe);
+                giaGhe = giaGhe.add(ghe.getGiaGhe());
+            }
+
+            txtGhe.setText(String.join(",", dsGhe));
+
+            tinhTongTien(txtMaChuyenBay, cboHangVe, spNguoiLon, spTreEm, spEmBe);
+        }
+    });
 
         dialog.add(Panel);
 
@@ -418,14 +424,10 @@ public class VeBanPanel extends JPanel {
                     tongTien = tongTien.add(
                             veBanDAO.tinhGiaVeFull(maCB, maHangVe, "Em bé"));
                 
-                tongTien = tongTien.add(giaGhe); 
-
-                if(rdKhuHoi.isSelected()){
-                    tongTien = tongTien.multiply(new BigDecimal("1.25"));
-                }
-
-                try(Connection conn = DBConnection.getConnection()){
-
+                tongTien = tongTien.add(giaGhe);
+                Connection conn = null;
+                try{
+                conn = DBConnection.getConnection();    
                 conn.setAutoCommit(false);
 
                 PhieuDatVe phieu = new PhieuDatVe();
