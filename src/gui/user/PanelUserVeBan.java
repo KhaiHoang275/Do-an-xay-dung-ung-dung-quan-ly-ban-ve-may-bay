@@ -128,12 +128,10 @@ public class PanelUserVeBan extends JPanel {
         gbc.fill = GridBagConstraints.NONE;
         panel.add(btnTiepTuc, gbc);
 
-        // ================= LOGIC SỰ KIỆN =================
-
         btnChonGhe.addActionListener(e -> {
-            String maMB = "MB001"; // Lấy từ DB theo chuyến bay thực tế
+            String maMB = "MB001"; 
             int tongKhach = session.soNguoiLon + session.soTreEm + session.soEmBe;
-            gui.admin.SoDoGhePanel soDo = new gui.admin.SoDoGhePanel(maMB, "Máy bay", tongKhach);
+            gui.admin.SoDoGhePanel soDo = new gui.admin.SoDoGhePanel(session.maChuyenBay, maMB, "Máy bay", tongKhach);
             
             JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Sơ đồ ghế", true);
             dialog.setSize(900, 650);
@@ -158,6 +156,15 @@ public class PanelUserVeBan extends JPanel {
             if(danhSachGheDaChon.size() < tongKhach) {
                 JOptionPane.showMessageDialog(this, "Vui lòng chọn đủ " + tongKhach + " ghế cho hành khách!");
                 return;
+            } 
+
+            dal.GheMayBayDAO gheDAO = new dal.GheMayBayDAO();
+            java.util.List<String> gheDaBan = gheDAO.layDanhSachGheDaDat(session.maChuyenBay);
+            for (model.GheMayBay g : danhSachGheDaChon) {
+                if (gheDaBan.contains(g.getMaGhe())) {
+                    JOptionPane.showMessageDialog(this, "Rất tiếc! Ghế " + g.getSoGhe() + " vừa có người đặt mất rồi. Vui lòng chọn ghế khác!", "Ghế đã bán", JOptionPane.WARNING_MESSAGE);
+                    return; 
+                }
             }
      
             session.maHangVe = ((HangVe)cboHangVe.getSelectedItem()).getMaHangVe();

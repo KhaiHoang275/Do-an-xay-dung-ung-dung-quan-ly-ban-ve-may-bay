@@ -180,7 +180,7 @@ public class VeBanPanel extends JPanel {
             if (maCB.isEmpty()) { JOptionPane.showMessageDialog(this, "Chọn chuyến bay trước!"); return; }
 
             String maMB = layMaMayBay(maCB);
-            SoDoGhePanel soDo = new SoDoGhePanel(maMB, "Máy bay", tongHK);
+            SoDoGhePanel soDo = new SoDoGhePanel(maCB, maMB, "Máy bay", tongHK);
             
             JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Chọn ghế", true);
             dialog.setSize(800, 600);

@@ -71,7 +71,6 @@ public class AdminMainFrame extends JFrame {
 
         sidebar.add(logoPanel, BorderLayout.NORTH);
 
-        // ===== MENU PANEL (Chứa các nút) =====
         JPanel menuPanel = new JPanel();
         menuPanel.setBackground(SIDEBAR_COLOR);
         menuPanel.setLayout(new GridLayout(0, 1, 0, 5));
@@ -132,7 +131,7 @@ public class AdminMainFrame extends JFrame {
                 
                 gheMayBayPanel.setPanelSwitchListener((maMayBay, tenMayBay) -> {
                     
-                        SoDoGhePanel soDoPanel = new SoDoGhePanel(maMayBay, tenMayBay, 1);
+                        SoDoGhePanel soDoPanel = new SoDoGhePanel("", maMayBay, tenMayBay, 1);
                     
                         soDoPanel.setListener(new SoDoGhePanel.SoDoGheListener() {
                                 @Override

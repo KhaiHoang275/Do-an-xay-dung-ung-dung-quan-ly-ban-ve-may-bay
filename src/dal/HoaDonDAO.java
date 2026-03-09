@@ -158,45 +158,94 @@ public class HoaDonDAO {
         }
         return isSuccess;
     }
-   public ThanhToanDTO getChiTietThanhToan(String maPhieu) {
-    ThanhToanDTO dto = null;
-    try (Connection con = DBConnection.getConnection()) {
-        // SQL JOIN lấy thông tin KH, Chuyến bay và SUM tiền dịch vụ bổ sung
-        String sql = "SELECT hk.hoTen, nd.sdt, nd.email, sbDi.tenSanBay AS diemDi, sbDen.tenSanBay AS diemDen, " +
-                     "v.maVe, v.maGhe, cb.ngayGioDi, cb.ngayGioDen, " +
-                     "v.giaVe, " + // Lấy giá vé gốc
-                     "(SELECT ISNULL(SUM(thanhTien), 0) FROM ChiTietDichVu WHERE maVe = v.maVe) AS tienDichVu " + // Cộng tiền dịch vụ
-                     "FROM PhieuDatVe pdv " +
-                     "JOIN ThongTinHanhKhach hk ON pdv.maNguoiDung = hk.maNguoiDung " +
-                     "JOIN NguoiDung nd ON hk.maNguoiDung = nd.maNguoiDung " +
-                     "JOIN VeBan v ON pdv.maPhieuDatVe = v.maPhieuDatVe " +
-                     "JOIN ChuyenBay cb ON v.maChuyenBay = cb.maChuyenBay " +
-                     "JOIN TuyenBay tb ON cb.maTuyenBay = tb.maTuyenBay " +
-                     "JOIN SanBay sbDi ON tb.sanBayDi = sbDi.maSanBay " +
-                     "JOIN SanBay sbDen ON tb.sanBayDen = sbDen.maSanBay " +
-                     "WHERE pdv.maPhieuDatVe = ?";
+
+    public ThanhToanDTO getChiTietThanhToan(String maPhieu) {
+        ThanhToanDTO dto = new ThanhToanDTO();
         
-        PreparedStatement pst = con.prepareStatement(sql);
-        pst.setString(1, maPhieu);
-        ResultSet rs = pst.executeQuery();
-        
-        if (rs.next()) {
-            dto = new ThanhToanDTO();
-            dto.tenKH = rs.getString("hoTen");
-            dto.sdt = rs.getString("sdt");
-            dto.email = rs.getString("email");
-            dto.tuyenBay = rs.getString("diemDi") + " -> " + rs.getString("diemDen");
-            dto.veGhe = rs.getString("maVe") + " / Ghế " + rs.getString("maGhe");
-            dto.gioDi = rs.getTimestamp("ngayGioDi").toString();
-            dto.gioDen = rs.getTimestamp("ngayGioDen").toString();
-            
-            // Lấy giá trị tiền để tính toán VAT trên giao diện
-            dto.giaVeGoc = rs.getBigDecimal("giaVe");
-            dto.tongTienDichVu = rs.getBigDecimal("tienDichVu");
+        dto.giaVeGoc = java.math.BigDecimal.ZERO;
+        dto.tongTienDichVu = java.math.BigDecimal.ZERO;
+        if (dto.danhSachChiTiet == null) {
+            dto.danhSachChiTiet = new java.util.ArrayList<>();
         }
-    } catch (Exception e) {
-        e.printStackTrace();
+        
+        try (Connection con = DBConnection.getConnection()) {
+
+            String sqlBase = "SELECT TOP 1 hk.hoTen, nd.sdt, nd.email, " +
+                             "sbDi.tenSanBay AS diemDi, sbDen.tenSanBay AS diemDen, " +
+                             "v.maVe, v.maGhe, cb.ngayGioDi, cb.ngayGioDen " +
+                             "FROM PhieuDatVe pdv " +
+                             "JOIN ThongTinHanhKhach hk ON pdv.maNguoiDung = hk.maNguoiDung " +
+                             "JOIN NguoiDung nd ON hk.maNguoiDung = nd.maNguoiDung " +
+                             "JOIN VeBan v ON pdv.maPhieuDatVe = v.maPhieuDatVe " +
+                             "JOIN ChuyenBay cb ON v.maChuyenBay = cb.maChuyenBay " +
+                             "JOIN TuyenBay tb ON cb.maTuyenBay = tb.maTuyenBay " +
+                             "JOIN SanBay sbDi ON tb.sanBayDi = sbDi.maSanBay " +
+                             "JOIN SanBay sbDen ON tb.sanBayDen = sbDen.maSanBay " +
+                             "WHERE pdv.maPhieuDatVe = ?";
+            try (PreparedStatement pst = con.prepareStatement(sqlBase)) {
+                pst.setString(1, maPhieu);
+                ResultSet rs = pst.executeQuery();
+                if (rs.next()) {
+                    dto.tenKH = rs.getString("hoTen");
+                    dto.sdt = rs.getString("sdt");
+                    dto.email = rs.getString("email");
+                    dto.tuyenBay = rs.getString("diemDi") + " -> " + rs.getString("diemDen");
+                    dto.veGhe = rs.getString("maVe") + " / Ghế " + rs.getString("maGhe");
+                    
+                    if (rs.getTimestamp("ngayGioDi") != null) {
+                        dto.gioDi = rs.getTimestamp("ngayGioDi").toLocalDateTime().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+                    }
+                }
+            }
+
+            String sqlVe = "SELECT loaiVe, maGhe, giaVe FROM VeBan WHERE maPhieuDatVe = ?";
+            try (PreparedStatement pst = con.prepareStatement(sqlVe)) {
+                pst.setString(1, maPhieu);
+                ResultSet rs = pst.executeQuery();
+                while (rs.next()) {
+                    String tenMuc = "Vé máy bay hạng " + (rs.getString("loaiVe") != null ? rs.getString("loaiVe") : "Thường") + " (Ghế " + rs.getString("maGhe") + ")";
+                    java.math.BigDecimal gia = rs.getBigDecimal("giaVe");
+                    if (gia == null) gia = java.math.BigDecimal.ZERO;
+
+                    dto.giaVeGoc = dto.giaVeGoc.add(gia);
+                    dto.danhSachChiTiet.add(new ThanhToanDTO.MucHoaDon(tenMuc, 1, gia, gia));
+                }
+            }
+
+            String sqlHanhLy = "SELECT hl.soKg, hl.giaTien FROM HanhLy hl JOIN VeBan v ON hl.maVe = v.maVe WHERE v.maPhieuDatVe = ?";
+            try (PreparedStatement pst = con.prepareStatement(sqlHanhLy)) {
+                pst.setString(1, maPhieu);
+                ResultSet rs = pst.executeQuery();
+                while (rs.next()) {
+                    String tenMuc = "Hành lý ký gửi (" + rs.getInt("soKg") + " kg)";
+                    java.math.BigDecimal gia = rs.getBigDecimal("giaTien");
+                    if (gia == null) gia = java.math.BigDecimal.ZERO;
+
+                    dto.tongTienDichVu = dto.tongTienDichVu.add(gia);
+                    dto.danhSachChiTiet.add(new ThanhToanDTO.MucHoaDon(tenMuc, 1, gia, gia));
+                }
+            }
+
+            String sqlDichVu = "SELECT dv.tenDichVu, ct.soLuong, ct.thanhTien FROM ChiTietDichVu ct JOIN DichVuBoSung dv ON ct.maDichVu = dv.maDichVu JOIN VeBan v ON ct.maVe = v.maVe WHERE v.maPhieuDatVe = ?";
+            try (PreparedStatement pst = con.prepareStatement(sqlDichVu)) {
+                pst.setString(1, maPhieu);
+                ResultSet rs = pst.executeQuery();
+                while (rs.next()) {
+                    String tenMuc = "Dịch vụ: " + rs.getString("tenDichVu");
+                    int sl = rs.getInt("soLuong");
+                    java.math.BigDecimal tt = rs.getBigDecimal("thanhTien");
+                    if (tt == null) tt = java.math.BigDecimal.ZERO;
+                    
+                    java.math.BigDecimal donGia = sl > 0 ? tt.divide(new java.math.BigDecimal(sl), java.math.RoundingMode.HALF_UP) : tt;
+                   
+                    dto.tongTienDichVu = dto.tongTienDichVu.add(tt);
+                    dto.danhSachChiTiet.add(new ThanhToanDTO.MucHoaDon(tenMuc, sl, donGia, tt));
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return dto;
     }
-    return dto;
-}
 }

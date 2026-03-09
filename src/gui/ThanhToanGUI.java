@@ -148,14 +148,20 @@ public class ThanhToanGUI extends JPanel {
     private void loadPromotions() {
         cboKhuyenMai.removeAllItems();
         cboKhuyenMai.addItem(null); 
+
         try {
-            List<KhuyenMai> list = kmDAO.getAll();
-            if(list != null) {
+      
+            List<KhuyenMai> list = kmDAO.getKhuyenMaiHopLe(); 
+            if(list != null && !list.isEmpty()) {
                 for(KhuyenMai km : list) {
-                    cboKhuyenMai.addItem(km); 
+                    cboKhuyenMai.addItem(km);
                 }
+            } else {
+                System.out.println("Không có mã KM nào khả dụng trong thời gian này.");
             }
-        } catch(Exception e) { System.err.println("Lỗi tải KM: " + e.getMessage()); }
+        } catch(Exception e) { 
+            e.printStackTrace(); 
+        }
 
         cboKhuyenMai.setRenderer(new DefaultListCellRenderer() {
             @Override
@@ -163,7 +169,8 @@ public class ThanhToanGUI extends JPanel {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 if (value instanceof KhuyenMai) {
                     KhuyenMai km = (KhuyenMai) value;
-                    setText(km.getMaKhuyenMai() + " (Giảm " + km.getGiaTri() + ")");
+                    String dvi = "PHAN_TRAM".equals(km.getLoaiKM()) ? "%" : " VNĐ";
+                    setText(km.getMaKhuyenMai() + " - Giảm " + km.getGiaTri() + dvi);
                 } else {
                     setText("--- Không áp dụng mã ---");
                 }
@@ -171,7 +178,7 @@ public class ThanhToanGUI extends JPanel {
             }
         });
     }
-
+    
     private void updatePriceDisplay() {
         BigDecimal base = session.tongTienVe;
         BigDecimal sv = session.tongTienDichVu;
