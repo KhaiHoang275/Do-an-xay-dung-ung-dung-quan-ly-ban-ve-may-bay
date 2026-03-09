@@ -4,6 +4,8 @@ import bll.GiaoDichVeBUS;
 import dal.ChuyenBayDAO;
 import dal.HangVeDAO;
 import dal.TuyenBayDAO;
+import dal.MayBayDAO; // THÊM: Giả định bạn có MayBayDAO để lấy thông tin máy bay. Nếu không, thêm class này.
+import gui.admin.SoDoGhePanel; // THÊM: Import SoDoGhePanel
 import model.*;
 
 import javax.swing.*;
@@ -32,6 +34,7 @@ public class DoiVePanel extends JPanel {
     private ChuyenBayDAO chuyenBayDAO;
     private TuyenBayDAO tuyenBayDAO;
     private HangVeDAO hangVeDAO;
+    private MayBayDAO mayBayDAO; // THÊM: Để lấy thông tin máy bay (ví dụ: tenMayBay)
 
     private String maVeCu;
     private String maNguoiDung;
@@ -40,9 +43,13 @@ public class DoiVePanel extends JPanel {
     private DefaultTableModel tblModelVeCu;
     private JComboBox<String> cboChuyenBayMoi;
     private JComboBox<String> cboHangVeMoi;
-    private JTextField txtMaGheMoi;
     private JTextField txtTuyenBay; // Non-editable
     private JTextArea txtLyDo;
+
+    // THAY ĐỔI: Thay txtMaGheMoi bằng button và label để hiển thị ghế đã chọn
+    private JButton btnChonGheMoi;
+    private JLabel lblGheDaChon;
+    private String maGheMoi = ""; // Biến private để lưu mã ghế mới
 
     private JButton btnXacNhan;
     private JButton btnHuy;
@@ -59,6 +66,7 @@ public class DoiVePanel extends JPanel {
         this.chuyenBayDAO = new ChuyenBayDAO();
         this.tuyenBayDAO = new TuyenBayDAO();
         this.hangVeDAO = new HangVeDAO();
+        this.mayBayDAO = new MayBayDAO(); // THÊM: Khởi tạo MayBayDAO
 
         setLayout(new BorderLayout(30, 30));
         setBackground(BG_MAIN);
@@ -146,54 +154,83 @@ public class DoiVePanel extends JPanel {
         content.add(panelVeCu);
         content.add(Box.createVerticalStrut(20));
 
-        // ================= Thông tin vé mới =================
         JPanel panelVeMoi = new JPanel(new BorderLayout(10,10));
         panelVeMoi.setOpaque(false);
         panelVeMoi.add(createSectionLabel("Chọn vé mới"), BorderLayout.NORTH);
 
-        JPanel selectionPanel = new JPanel(new GridLayout(2, 2, 20, 20));
+        JPanel selectionPanel = new JPanel();
+        selectionPanel.setLayout(new BoxLayout(selectionPanel, BoxLayout.Y_AXIS));  // Sửa: BoxLayout vertical để stack hàng ngang
         selectionPanel.setOpaque(false);
 
-        // Tuyen bay (non-editable)
+    // Row 1: Tuyến bay + Chuyến bay (ngang nhau)
+        JPanel row1 = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 10));  // THÊM: Nested panel ngang, space 20 giữa component
+        row1.setOpaque(false);
+
+    // Tuyen bay (non-editable)
         JLabel lblTuyenBay = new JLabel("Tuyến bay:");
         lblTuyenBay.setFont(new Font("Segoe UI", Font.BOLD, 14));
         txtTuyenBay = new JTextField();
         txtTuyenBay.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtTuyenBay.setPreferredSize(new Dimension(400, 40));
+        txtTuyenBay.setPreferredSize(new Dimension(250, 40));  // Sửa: Giảm width để fit ngang (tùy chỉnh nếu cần)
         txtTuyenBay.setEditable(false);
         txtTuyenBay.putClientProperty("JComponent.roundRect", true);
-        selectionPanel.add(lblTuyenBay);
-        selectionPanel.add(txtTuyenBay);
+        row1.add(lblTuyenBay);
+        row1.add(txtTuyenBay);
 
-        // Chuyen bay moi
+    // Chuyen bay moi
         JLabel lblChuyenBayMoi = new JLabel("Chuyến bay mới:");
         lblChuyenBayMoi.setFont(new Font("Segoe UI", Font.BOLD, 14));
         cboChuyenBayMoi = new JComboBox<>();
         cboChuyenBayMoi.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        cboChuyenBayMoi.setPreferredSize(new Dimension(400, 40));
+        cboChuyenBayMoi.setPreferredSize(new Dimension(350, 40));  // Sửa: Adjust width để fit ngang
         cboChuyenBayMoi.putClientProperty("JComponent.roundRect", true);
-        selectionPanel.add(lblChuyenBayMoi);
-        selectionPanel.add(cboChuyenBayMoi);
+        row1.add(lblChuyenBayMoi);
+        row1.add(cboChuyenBayMoi);
 
-        // Hang ve moi
+        selectionPanel.add(row1);
+        selectionPanel.add(Box.createVerticalStrut(20));  // THÊM: Space giữa row
+
+    // Row 2: Hang ve + Ma ghe (ngang nhau)
+        JPanel row2 = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 10));  // THÊM: Nested panel ngang tương tự
+        row2.setOpaque(false);
+
+    // Hang ve moi
         JLabel lblHangVeMoi = new JLabel("Hạng vé mới:");
         lblHangVeMoi.setFont(new Font("Segoe UI", Font.BOLD, 14));
         cboHangVeMoi = new JComboBox<>();
         cboHangVeMoi.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        cboHangVeMoi.setPreferredSize(new Dimension(400, 40));
+        cboHangVeMoi.setPreferredSize(new Dimension(250, 40));  // Sửa: Giảm width
         cboHangVeMoi.putClientProperty("JComponent.roundRect", true);
-        selectionPanel.add(lblHangVeMoi);
-        selectionPanel.add(cboHangVeMoi);
+        row2.add(lblHangVeMoi);
+        row2.add(cboHangVeMoi);
 
-        // Ma ghe moi
+    // Ma ghe moi
         JLabel lblMaGheMoi = new JLabel("Mã ghế mới:");
         lblMaGheMoi.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        txtMaGheMoi = new JTextField();
-        txtMaGheMoi.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtMaGheMoi.setPreferredSize(new Dimension(400, 40));
-        txtMaGheMoi.putClientProperty("JComponent.roundRect", true);
-        selectionPanel.add(lblMaGheMoi);
-        selectionPanel.add(txtMaGheMoi);
+        row2.add(lblMaGheMoi);
+
+        JPanel ghePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        ghePanel.setOpaque(false);
+
+        btnChonGheMoi = createButton("Chọn ghế mới", new Color(59, 130, 246));
+        btnChonGheMoi.setPreferredSize(new Dimension(150, 40));
+        setButtonIcon(btnChonGheMoi, "/resources/icons/icons8-seat-24.png");
+        addHoverEffect(btnChonGheMoi, new Color(59, 130, 246));
+
+        lblGheDaChon = new JLabel("Ghế đã chọn: Chưa chọn");
+        lblGheDaChon.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        lblGheDaChon.setForeground(new Color(33, 37, 41));
+
+        ghePanel.add(btnChonGheMoi);
+        ghePanel.add(lblGheDaChon);
+
+        row2.add(ghePanel);
+
+        selectionPanel.add(row2);
+        selectionPanel.add(Box.createVerticalStrut(20));  // THÊM: Space trước lý do
+
+        // Để fill space dưới khi full screen (tránh dồn lên trên)
+        selectionPanel.add(Box.createVerticalGlue());  // THÊM: Glue để push content lên giữa, space dưới tự động
 
         panelVeMoi.add(selectionPanel, BorderLayout.CENTER);
 
@@ -248,6 +285,7 @@ public class DoiVePanel extends JPanel {
         add(card, BorderLayout.CENTER);
 
         // EVENTS
+        btnChonGheMoi.addActionListener(e -> moSoDoGhePanel()); // THÊM event cho btnChonGheMoi
         btnXacNhan.addActionListener(e -> moPanelThanhToan());
         btnLamMoi.addActionListener(e -> lamMoi());
         btnHuy.addActionListener(e -> {
@@ -356,7 +394,8 @@ public class DoiVePanel extends JPanel {
     private void lamMoi() {
         cboChuyenBayMoi.setSelectedIndex(-1);
         cboHangVeMoi.setSelectedIndex(-1);
-        txtMaGheMoi.setText("");
+        maGheMoi = ""; // THAY ĐỔI: Reset maGheMoi
+        lblGheDaChon.setText("Ghế đã chọn: Chưa chọn");
         txtLyDo.setText("Nhập lý do đổi vé của bạn...");
         txtLyDo.setForeground(Color.GRAY);
     }
@@ -430,7 +469,7 @@ public class DoiVePanel extends JPanel {
             btnXacNhan.setEnabled(false);
         }
 
-        // Load tất cả hạng vé (giả định tất cả hạng vé khả dụng cho mọi chuyến bay)
+        // ===== Load tất cả hạng vé (giả định tất cả hạng vé khả dụng cho mọi chuyến bay)
         loadHangVeMoi();
     }
 
@@ -445,6 +484,58 @@ public class DoiVePanel extends JPanel {
         }
     }
 
+    // THÊM: Method mở SoDoGhePanel (sửa syntax split, thêm truyền maHangVeMoi, đổi getTenMayBay)
+    private void moSoDoGhePanel() {
+        if (cboChuyenBayMoi.getSelectedItem() == null) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn chuyến bay mới trước!");
+            return;
+        }
+
+        String selectedChuyenBay = cboChuyenBayMoi.getSelectedItem().toString();
+        String maChuyenBayMoi = selectedChuyenBay.split(" - ")[0];
+
+        ChuyenBay cbMoi = chuyenBayDAO.selectById(maChuyenBayMoi);
+        if (cbMoi == null) {
+            JOptionPane.showMessageDialog(this, "Không tìm thấy thông tin chuyến bay mới!");
+            return;
+        }
+
+        String maMayBay = cbMoi.getMaMayBay();
+        MayBay mayBay = mayBayDAO.selectById(maMayBay);
+        if (mayBay == null) {
+            JOptionPane.showMessageDialog(this, "Không tìm thấy thông tin máy bay!");
+            return;
+        }
+        String tenMayBay = mayBay.getHangSanXuat();  // Sửa: Dùng getHangSanXuat() dựa trên model và DB
+
+        Frame parentFrame = (Frame) SwingUtilities.getWindowAncestor(this);
+        JDialog dialog = new JDialog(parentFrame, "Sơ đồ chỗ ngồi", true);
+
+        SoDoGhePanel soDoPanel = new SoDoGhePanel(maMayBay, tenMayBay, 1);  // Giữ constructor cũ, không filter hạng vé
+
+        soDoPanel.setListener(new SoDoGhePanel.SoDoGheListener() {
+            @Override
+            public void onBack() {
+                dialog.dispose();
+            }
+
+            @Override
+            public void onSeatsConfirmed(List<GheMayBay> selectedSeats) {
+                if (!selectedSeats.isEmpty()) {
+                    maGheMoi = selectedSeats.get(0).getSoGhe();
+                    lblGheDaChon.setText("Ghế đã chọn: " + maGheMoi);
+                }
+                dialog.dispose();
+            }
+        });
+
+        dialog.add(soDoPanel);
+        dialog.pack();
+        dialog.setSize(850, 700);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+
     private void moPanelThanhToan() {
 
         if (cboChuyenBayMoi.getSelectedItem() == null) {
@@ -457,17 +548,16 @@ public class DoiVePanel extends JPanel {
             return;
         }
 
-        String maGheMoi = txtMaGheMoi.getText().trim();
         if (maGheMoi.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập mã ghế mới!");
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn ghế mới!");
             return;
         }
 
         String selectedChuyenBay = cboChuyenBayMoi.getSelectedItem().toString();
-        String maChuyenBayMoi = selectedChuyenBay.split(" - ")[0];
+        String maChuyenBayMoi = selectedChuyenBay.split(" - ")[0];  // SỬA: Xóa "regex "
 
         String selectedHangVe = cboHangVeMoi.getSelectedItem().toString();
-        String maHangVeMoi = selectedHangVe.split(" - ")[0];
+        String maHangVeMoi = selectedHangVe.split(" - ")[0];  // SỬA: Xóa "regex " nếu có
 
         String lyDo = txtLyDo.getText().trim();
 
