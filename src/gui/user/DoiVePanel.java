@@ -29,6 +29,7 @@ public class DoiVePanel extends JPanel {
     private final Color BTN_CONFIRM = new Color(34, 197, 94);
     private final Color BTN_REFRESH = new Color(168, 85, 247);
     private final Color BTN_EXIT = new Color(120,120,120);
+    private final Color BTN_VIEW_MAP = new Color(255, 152, 0);
 
     private GiaoDichVeBUS bus;
     private ChuyenBayDAO chuyenBayDAO;
@@ -212,10 +213,10 @@ public class DoiVePanel extends JPanel {
         JPanel ghePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         ghePanel.setOpaque(false);
 
-        btnChonGheMoi = createButton("Chọn ghế mới", new Color(59, 130, 246));
+        btnChonGheMoi = createButton("Chọn ghế mới", BTN_VIEW_MAP);
         btnChonGheMoi.setPreferredSize(new Dimension(150, 40));
         setButtonIcon(btnChonGheMoi, "/resources/icons/icons8-seat-24.png");
-        addHoverEffect(btnChonGheMoi, new Color(59, 130, 246));
+        addHoverEffect(btnChonGheMoi, BTN_VIEW_MAP);
 
         lblGheDaChon = new JLabel("Ghế đã chọn: Chưa chọn");
         lblGheDaChon.setFont(new Font("Segoe UI", Font.PLAIN, 14));
