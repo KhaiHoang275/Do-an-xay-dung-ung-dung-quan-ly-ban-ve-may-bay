@@ -16,6 +16,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -198,7 +199,17 @@ public class HeaderHelper {
                     currentFrame.dispose();
                 }
             });
-            itemLichSu.addActionListener(e -> JOptionPane.showMessageDialog(currentFrame, "Đang xây dựng form Lịch sử đặt vé..."));
+            itemLichSu.addActionListener(e -> {
+                if (currentUser != null) {
+                    JDialog dialog = new JDialog(currentFrame, "Danh sách Giao Dịch", true);
+                    dialog.setSize(850, 500);
+                    dialog.setLocationRelativeTo(currentFrame);
+                    dialog.add(new gui.user.LichSuGiaoDichPanel(currentUser));
+                    dialog.setVisible(true);
+                } else {
+                    JOptionPane.showMessageDialog(currentFrame, "Vui lòng đăng nhập!");
+                }
+            });
             itemDangXuat.addActionListener(e -> {
                 Preferences prefs = Preferences.userNodeForPackage(DangNhapFrm.class);
                 prefs.remove("saved_user");

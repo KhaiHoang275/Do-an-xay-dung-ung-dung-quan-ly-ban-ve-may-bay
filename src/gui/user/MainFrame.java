@@ -1266,20 +1266,20 @@ public class MainFrame extends javax.swing.JFrame {
             
             String maCB = tblKetQua.getValueAt(row, 0).toString();
             
-            // 1. TẠO SESSION VÀ GÓI DỮ LIỆU Y HỆT NHƯ KHI CLICK VÀO BẢNG
+            
             model.DatVeSession session = new model.DatVeSession();
-            session.maNguoiDung = userHienTai.getMaNguoiDung(); // Sau này bạn thay bằng mã User thật
+            session.maNguoiDung = userHienTai.getMaNguoiDung(); 
             session.maChuyenBay = maCB;
             
-            // Lấy số lượng khách từ MainFrame
             session.soNguoiLon = this.soNL;
             session.soTreEm = this.soTE;
             session.soEmBe = this.soEB;
             
-            // Lấy Loại vé từ MainFrame (Một chiều / Khứ hồi)
+            
             session.loaiVe = jRadioButton2.isSelected() ? "Khứ hồi" : "Một chiều";
             
-            // 2. CHUYỂN TRANG MƯỢT MÀ
+   
+            
             pnlContent.removeAll();
             pnlContent.setLayout(new java.awt.BorderLayout());
             pnlContent.add(new gui.user.PanelUserVeBan(session), java.awt.BorderLayout.CENTER);
