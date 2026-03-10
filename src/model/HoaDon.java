@@ -3,6 +3,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class HoaDon {
+    private String trangThai;
     private String maHoaDon;
     private String maPhieuDatVe;
     private String maNV;
@@ -14,7 +15,7 @@ public class HoaDon {
     public HoaDon() {
     }
     public HoaDon(String maHoaDon, String maPhieuDatVe, String maNV, LocalDateTime ngayLap, 
-                  BigDecimal tongTien, String phuongThuc, String donViTienTe, BigDecimal thue) {
+                  BigDecimal tongTien, String phuongThuc, String donViTienTe, BigDecimal thue, String trangThai) {
         this.maHoaDon = maHoaDon;
         this.maPhieuDatVe = maPhieuDatVe;
         this.maNV = maNV;
@@ -23,6 +24,7 @@ public class HoaDon {
         this.phuongThuc = phuongThuc;
         this.donViTienTe = donViTienTe;
         this.thue = thue;
+        this.trangThai = trangThai;
     }
     public HoaDon(HoaDon hd){
          this.maHoaDon = hd.maHoaDon;
@@ -33,6 +35,7 @@ public class HoaDon {
         this.phuongThuc = hd.phuongThuc;
         this.donViTienTe = hd.donViTienTe;
         this.thue = hd.thue;
+        this.trangThai = hd.trangThai;;
     }
     public String getMaHoaDon() {
         return maHoaDon;
@@ -97,9 +100,16 @@ public class HoaDon {
     public void setThue(BigDecimal thue) {
         this.thue = thue;
     }
+    public String getTrangThai() {
+        return trangThai;
+    }
+
+    public void setTrangThai(String trangThai) {
+        this.trangThai = trangThai;
+    }
    @Override
     public String toString() {
         return " " + maHoaDon + " " + maPhieuDatVe + " " + maNV + " " + ngayLap 
-                + " " + tongTien + " " + phuongThuc + " " + donViTienTe + " " + thue + " ";
+                + " " + tongTien + " " + phuongThuc + " " + donViTienTe + " " + thue + "  " + trangThai;
     }
 }

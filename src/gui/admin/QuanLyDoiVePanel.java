@@ -28,10 +28,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * Panel quản lý yêu cầu đổi vé — giao diện đã được cải tiến theo mẫu (hai khung vé cách nhau, chữ to hơn,
- * thẻ thông tin chi tiết bo góc và nền màu nhẹ), với tiêu đề Vé cũ/Vé mới và icon bổ sung.
- */
 public class QuanLyDoiVePanel extends JPanel {
 
     private final Color PRIMARY = new Color(220, 38, 38);
@@ -54,7 +50,6 @@ public class QuanLyDoiVePanel extends JPanel {
     private JTable tblYeuCau;
     private DefaultTableModel tblModel;
 
-    // detail components (will be filled)
     private JLabel lblVeCuRoute;
     private JLabel lblVeCuClass;
     private JLabel lblVeCuPrice;
@@ -89,7 +84,6 @@ public class QuanLyDoiVePanel extends JPanel {
     }
 
     private void initComponents() {
-        // Title
         ImageIcon icon = loadIcon("/resources/icons/icons8-change-24.png", 24, 24);
         JLabel lblTitle = new JLabel("QUẢN LÝ YÊU CẦU ĐỔI VÉ", icon, JLabel.LEFT);
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 26));
@@ -97,11 +91,9 @@ public class QuanLyDoiVePanel extends JPanel {
         lblTitle.setBorder(new EmptyBorder(0, 0, 6, 0));
         add(lblTitle, BorderLayout.NORTH);
 
-        // Card chính chứa table + detail
         JPanel formCard = createCardPanel();
         formCard.setLayout(new BorderLayout(0, 18));
 
-        // Table danh sách yêu cầu
         String[] columns = {"Mã GD", "Vé Cũ", "Vé Mới", "Phí GD", "Phí Chênh Lệch", "Lý Do", "Ngày Yêu Cầu", "Trạng Thái"};
         tblModel = new DefaultTableModel(columns, 0) {
             public boolean isCellEditable(int row, int column) { return false; }
@@ -113,7 +105,6 @@ public class QuanLyDoiVePanel extends JPanel {
         scrollTable.setPreferredSize(new Dimension(100, 220));
         formCard.add(scrollTable, BorderLayout.CENTER);
 
-        // Khi chọn row -> hiển thị chi tiết
         tblYeuCau.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting() && tblYeuCau.getSelectedRow() >= 0) {
                 String maGD = (String) tblModel.getValueAt(tblYeuCau.getSelectedRow(), 0);
@@ -121,21 +112,16 @@ public class QuanLyDoiVePanel extends JPanel {
             }
         });
 
-        // Panel chi tiết: bo góc, nền nhẹ, bên trong hai cột vé (song song)
         RoundedPanel detailCard = new RoundedPanel(CARD_RADIUS, DETAIL_BG);
         detailCard.setLayout(new BorderLayout());
         detailCard.setBorder(new EmptyBorder(14, 14, 14, 14));
 
-        // two-columns container
         JPanel twoCols = new JPanel(new GridLayout(1, 2, 18, 0));
         twoCols.setOpaque(false);
 
-        // left (Vé cũ) panel
         JPanel left = createTicketPanel("Vé cũ", "/resources/icons/icons8-plane-24.png");
-        // right (Vé mới) panel
         JPanel right = createTicketPanel("Vé mới", "/resources/icons/icons8-plane-24.png");
 
-        // lấy controls tham chiếu để fill dữ liệu
         lblVeCuRoute = (JLabel) left.getClientProperty("route");
         lblVeCuClass = (JLabel) left.getClientProperty("hang");
         lblVeCuPrice = (JLabel) left.getClientProperty("price");
@@ -147,7 +133,6 @@ public class QuanLyDoiVePanel extends JPanel {
         twoCols.add(left);
         twoCols.add(right);
 
-        // dưới hai cột: user + ly do trong 1 hàng (chiếm full width)
         JPanel bottom = new JPanel();
         bottom.setLayout(new BoxLayout(bottom, BoxLayout.Y_AXIS));
         bottom.setOpaque(false);
@@ -173,7 +158,6 @@ public class QuanLyDoiVePanel extends JPanel {
 
         add(formCard, BorderLayout.CENTER);
 
-        // Buttons
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 14, 8));
         buttonPanel.setOpaque(false);
         btnDuyet = createButton("Duyệt", BTN_APPROVE);
@@ -190,13 +174,11 @@ public class QuanLyDoiVePanel extends JPanel {
 
         add(buttonPanel, BorderLayout.SOUTH);
 
-        // events
         btnDuyet.addActionListener(e -> xuLyDuyet());
         btnTuChoi.addActionListener(e -> xuLyTuChoi());
         btnLamMoi.addActionListener(e -> loadDanhSachYeuCau());
     }
 
-    // tạo panel nhỏ cho 1 vé (trả về panel có 3 label route/hang/price lưu trong client properties)
     private JPanel createTicketPanel(String titleText, String iconPath) {
         JPanel p = new JPanel(new BorderLayout());
         p.setOpaque(false);
@@ -209,25 +191,21 @@ public class QuanLyDoiVePanel extends JPanel {
         title.setIcon(loadIcon(iconPath, 20, 20));
         title.setIconTextGap(8);
 
-        // content box (white background with slight round inside card)
         RoundedPanel box = new RoundedPanel(10, Color.WHITE);
         box.setLayout(new BoxLayout(box, BoxLayout.Y_AXIS));
         box.setBorder(new EmptyBorder(12, 12, 12, 12));
 
-        // big route label
         JLabel route = new JLabel("MÃ - SGN → DAD (dd/MM/yyyy HH:mm)");
         route.setFont(new Font("Segoe UI", Font.BOLD, 16));
         route.setForeground(new Color(18, 32, 64));
         route.setBorder(new EmptyBorder(6, 0, 8, 0));
 
-        // hạng
         JLabel hang = new JLabel("Hạng: Hạng Phổ Thông");
         hang.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         hang.setBorder(new EmptyBorder(6, 0, 6, 0));
         hang.setIcon(loadIcon("/resources/icons/icons8-prize-24.png", 16, 16));
         hang.setIconTextGap(6);
 
-        // giá
         JLabel price = new JLabel("Giá: 1.300.000 VNĐ");
         price.setFont(new Font("Segoe UI", Font.BOLD, 15));
         price.setForeground(new Color(34, 97, 140));

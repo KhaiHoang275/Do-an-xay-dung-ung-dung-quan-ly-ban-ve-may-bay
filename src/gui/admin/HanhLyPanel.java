@@ -62,13 +62,8 @@ public class HanhLyPanel extends JPanel {
         txtTimKiem = createTextField();
         txtTimKiem.setPreferredSize(new Dimension(200, 35));
 
-        btnTimKiem = new JButton("Tìm kiếm");
+        btnTimKiem = createRoundedButton("Tìm kiếm", TABLE_HEADER, "/resources/icons/icons8-search-24.png", 16);
         btnTimKiem.setPreferredSize(new Dimension(130, 35));
-        btnTimKiem.setBackground(TABLE_HEADER);
-        btnTimKiem.setForeground(Color.WHITE);
-        btnTimKiem.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnTimKiem.setFocusPainted(false);
-        try { setButtonIcon(btnTimKiem, "/resources/icons/icons8-search-24.png", 16); } catch (Exception e){}
 
         cboHienThi = new JComboBox<>(new String[]{"Đang hiển thị", "Thùng rác"});
         cboHienThi.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -97,6 +92,7 @@ public class HanhLyPanel extends JPanel {
 
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        scrollPane.getViewport().setBackground(Color.WHITE); 
         tableCard.add(scrollPane, BorderLayout.CENTER);
         add(tableCard, BorderLayout.CENTER);
 
@@ -113,8 +109,8 @@ public class HanhLyPanel extends JPanel {
         txtGiaTien = createTextField();
         txtGhiChu = createTextField();
         
-        cbTrangThai = new JComboBox<>(new String[]{"Chưa sử dụng", "Đã sử dụng", "Hủy"});
-        cbTrangThai.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        cbTrangThai = new JComboBox<>(new String[]{"Chưa Check-in", "Đã Check-in", "Đã Check-out", "Hủy"});
+        cbTrangThai.setFont(new Font("Segoe UI", Font.BOLD, 14));
 
         formPanel.add(createLabel("Mã Hành Lý:"));
         formPanel.add(txtMaHanhLy);
@@ -141,17 +137,10 @@ public class HanhLyPanel extends JPanel {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
         buttonPanel.setOpaque(false);
 
-        btnThem = createButton("Thêm", BTN_ADD);
-        btnSua = createButton("Cập nhật", BTN_UPDATE);
-        btnXoa = createButton("Xóa", BTN_DELETE);
-        btnLamMoi = createButton("Làm mới", BTN_REFRESH);
-
-        try {
-            setButtonIcon(btnThem, "/resources/icons/icons8-add-24.png", 20);
-            setButtonIcon(btnSua, "/resources/icons/icons8-update-24.png", 20);
-            setButtonIcon(btnXoa, "/resources/icons/icons8-delete-24.png", 20);
-            setButtonIcon(btnLamMoi, "/resources/icons/icons8-erase-24.png", 20);
-        } catch (Exception e) {}
+        btnThem = createRoundedButton("Thêm", BTN_ADD, "/resources/icons/icons8-add-24.png", 20);
+        btnSua = createRoundedButton("Cập nhật", BTN_UPDATE, "/resources/icons/icons8-update-24.png", 20);
+        btnXoa = createRoundedButton("Xóa", BTN_DELETE, "/resources/icons/icons8-delete-24.png", 20);
+        btnLamMoi = createRoundedButton("Làm mới", BTN_REFRESH, "/resources/icons/icons8-erase-24.png", 20);
 
         buttonPanel.add(btnThem);
         buttonPanel.add(btnSua);
@@ -162,6 +151,43 @@ public class HanhLyPanel extends JPanel {
         add(formCard, BorderLayout.SOUTH);
 
         setupListeners();
+    }
+
+    private JButton createRoundedButton(String text, Color bgColor, String iconPath, int iconSize) {
+        JButton btn = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                if (getModel().isPressed()) {
+                    g2.setColor(bgColor.darker());
+                } else if (getModel().isRollover()) {
+                    g2.setColor(bgColor.brighter());
+                } else {
+                    g2.setColor(bgColor);
+                }
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
+                g2.dispose();
+                super.paintComponent(g); 
+            }
+        };
+        btn.setPreferredSize(new Dimension(140, 40));
+        btn.setForeground(Color.WHITE);
+        btn.setFocusPainted(false);
+        btn.setBorderPainted(false);
+        btn.setContentAreaFilled(false); 
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        if (iconPath != null && !iconPath.isEmpty()) {
+            try {
+                ImageIcon icon = new ImageIcon(getClass().getResource(iconPath));
+                Image scaled = icon.getImage().getScaledInstance(iconSize, iconSize, Image.SCALE_SMOOTH);
+                btn.setIcon(new ImageIcon(scaled));
+                btn.setIconTextGap(8);
+            } catch (Exception e) {}
+        }
+        return btn;
     }
 
     private JPanel createCardPanel() {
@@ -191,17 +217,6 @@ public class HanhLyPanel extends JPanel {
         return txt;
     }
 
-    private JButton createButton(String text, Color bgColor) {
-        JButton btn = new JButton(text);
-        btn.setPreferredSize(new Dimension(140, 40));
-        btn.setBackground(bgColor);
-        btn.setForeground(Color.WHITE);
-        btn.setFocusPainted(false);
-        btn.setBorderPainted(false);
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        return btn;
-    }
-
     private void styleTable() {
         table.setRowHeight(35);
         table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -211,23 +226,61 @@ public class HanhLyPanel extends JPanel {
         table.setShowVerticalLines(false);
 
         JTableHeader header = table.getTableHeader();
-        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        header.setBackground(TABLE_HEADER);
-        header.setForeground(Color.WHITE);
         header.setPreferredSize(new Dimension(header.getWidth(), 40));
+        header.setFocusable(false); 
+
+        DefaultTableCellRenderer headerRenderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                setBackground(TABLE_HEADER); 
+                setForeground(Color.WHITE);  
+                setFont(new Font("Segoe UI", Font.BOLD, 14));
+                setHorizontalAlignment(JLabel.CENTER);
+                setBorder(BorderFactory.createMatteBorder(0, 0, 1, 1, new Color(60, 70, 90))); 
+                return this;
+            }
+        };
+
+        for (int i = 0; i < table.getColumnModel().getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setHeaderRenderer(headerRenderer);
+        }
         
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+
+        DefaultTableCellRenderer statusRenderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                setHorizontalAlignment(JLabel.CENTER);
+                setFont(new Font("Segoe UI", Font.BOLD, 14));
+                
+                if (value != null) {
+                    String status = value.toString();
+                    if (status.equalsIgnoreCase("Đã Check-in")) {
+                        setForeground(new Color(59, 130, 246)); // Xanh dương
+                    } else if (status.equalsIgnoreCase("Đã Check-out")) {
+                        setForeground(new Color(34, 197, 94)); // Xanh lá
+                    } else if (status.equalsIgnoreCase("Chưa Check-in")) {
+                        setForeground(new Color(239, 68, 68)); // Đỏ
+                    } else {
+                        setForeground(new Color(156, 163, 175)); // Xám
+                    }
+                }
+                
+                if (isSelected) setForeground(Color.WHITE);
+                return c;
+            }
+        };
+
         for(int i = 0; i < table.getColumnCount(); i++){
-             table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+            if (i == 5) {
+                table.getColumnModel().getColumn(i).setCellRenderer(statusRenderer); 
+            } else {
+                table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+            }
         }
-    }
-    
-    private void setButtonIcon(JButton btn, String path, int size) {
-        ImageIcon icon = new ImageIcon(getClass().getResource(path));
-        Image scaled = icon.getImage().getScaledInstance(size, size, Image.SCALE_SMOOTH);
-        btn.setIcon(new ImageIcon(scaled));
-        btn.setIconTextGap(8);
     }
 
     private void loadDataToTable(List<HanhLy> list) {
@@ -240,7 +293,7 @@ public class HanhLyPanel extends JPanel {
                 hl.getSoKg(),
                 hl.getKichThuoc(),
                 String.format("%,.0f", hl.getGiaTien()),
-                hl.getTrangThai(),
+                hl.getTrangThai() != null ? hl.getTrangThai() : "Chưa Check-in",
                 hl.getGhiChu()
             });
         }
@@ -260,7 +313,9 @@ public class HanhLyPanel extends JPanel {
                     String giaTienStr = tableModel.getValueAt(row, 4) != null ? tableModel.getValueAt(row, 4).toString().replace(",", "") : "0";
                     txtGiaTien.setText(giaTienStr);
                     
-                    cbTrangThai.setSelectedItem(tableModel.getValueAt(row, 5) != null ? tableModel.getValueAt(row, 5).toString() : "Chưa sử dụng");
+                    String status = tableModel.getValueAt(row, 5) != null ? tableModel.getValueAt(row, 5).toString() : "Chưa Check-in";
+                    cbTrangThai.setSelectedItem(status);
+
                     txtGhiChu.setText(tableModel.getValueAt(row, 6) != null ? tableModel.getValueAt(row, 6).toString() : "");
                 }
             }
@@ -310,7 +365,7 @@ public class HanhLyPanel extends JPanel {
 
                 if (cboHienThi.getSelectedIndex() == 1) {
                     HanhLy hlKhPhuc = getFormInput();
-                    hlKhPhuc.setTrangThai("Chưa sử dụng"); 
+                    hlKhPhuc.setTrangThai("Chưa Check-in"); 
                     String result = hanhLyBUS.capNhatHanhLy(hlKhPhuc);
                     JOptionPane.showMessageDialog(this, "Khôi phục " + result.toLowerCase());
                     if (result.contains("Thành công")) btnLamMoi.doClick();
@@ -409,4 +464,6 @@ public class HanhLyPanel extends JPanel {
 
         return new HanhLy(maHL, maVe, soKg, kichThuoc, giaTien, trangThai, ghiChu);
     }
+    
+   
 }

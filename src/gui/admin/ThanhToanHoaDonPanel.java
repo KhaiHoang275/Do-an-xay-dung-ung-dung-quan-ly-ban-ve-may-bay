@@ -276,23 +276,38 @@ public class ThanhToanHoaDonPanel extends JPanel {
         btnXuatPDF.addActionListener(e -> showPDFPreviewDialog());
     }
 
+    // ĐÃ SỬA LẠI PDF ĐỂ HIỆN ĐỦ 2 DÒNG GIÁ VÉ VÀ DỊCH VỤ
+    // private String buildHtmlInvoice() {
+    //     String thoiGianIn = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+    //     return "<html><body style='font-family: Arial, sans-serif; padding: 20px; color: #333;'><div style='text-align: center;'><h1 style='color: #dc2626; margin-bottom: 0px;'>HÓA ĐƠN ĐIỆN TỬ VÉ MÁY BAY</h1><p style='color: #666; margin-top: 5px;'>Mã HĐ: <b>" + maHD + "</b> | Mã tra cứu: <b>" + valMaPhieu.getText() + "</b></p><p style='color: #666; margin-top: 0px;'>Ngày in: " + thoiGianIn + "</p></div><hr style='border: 1px solid #ccc; margin: 20px 0;'><h3>1. THÔNG TIN KHÁCH HÀNG</h3><table width='100%' style='font-size: 14px; margin-bottom: 20px;'><tr><td width='30%'>Họ và tên:</td><td><b>" + valTenKH.getText() + "</b></td></tr><tr><td>Số điện thoại:</td><td><b>" + valSDT.getText() + "</b></td></tr><tr><td>Email:</td><td><b>" + valEmail.getText() + "</b></td></tr></table><h3>2. THÔNG TIN CHUYẾN BAY</h3><table width='100%' border='1' cellspacing='0' cellpadding='8' style='border-collapse: collapse; font-size: 14px; text-align: left; margin-bottom: 20px; border-color: #ddd;'><tr style='background-color: #f8f9fa;'><th>Tuyến bay</th><th>Mã vé / Ghế</th><th>Giờ đi</th><th>Giờ đến</th></tr><tr><td>" + valTuyenBay.getText() + "</td><td>" + valMaVe.getText() + "</td><td>" + valGioDi.getText() + "</td><td>" + valGioDen.getText() + "</td></tr></table><h3>3. CHI TIẾT THANH TOÁN</h3><table width='100%' style='font-size: 14px;'><tr><td width='70%' align='right'>Phương thức TT:</td><td align='right'><b>" + cboPhuongThuc.getSelectedItem().toString() + "</b></td></tr><tr><td align='right'>Giá vé gốc:</td><td align='right'>" + lblGiaVe.getText() + "</td></tr><tr><td align='right'>Dịch vụ bổ sung:</td><td align='right'>" + lblDichVu.getText() + "</td></tr><tr><td align='right'>Thuế VAT:</td><td align='right'>" + lblThue.getText() + "</td></tr><tr><td colspan='2'><hr style='border: 0.5px solid #ccc;'></td></tr><tr><td align='right'><b style='font-size: 18px;'>TỔNG TIỀN:</b></td><td align='right'><b style='color: #dc2626; font-size: 18px;'>" + lblTongTien.getText() + "</b></td></tr></table><br><br><p style='text-align: center; font-size: 12px; color: #888;'>Cảm ơn quý khách đã sử dụng dịch vụ của KH AirLine!</p></body></html>";
+    // }
+
     private void showPDFPreviewDialog() {
         Window parentWindow = SwingUtilities.getWindowAncestor(this);
         JDialog previewDialog = new JDialog(parentWindow, "Xem trước Hóa Đơn PDF", Dialog.ModalityType.APPLICATION_MODAL);
-        previewDialog.setSize(750, 850); previewDialog.setLocationRelativeTo(this); previewDialog.setLayout(new BorderLayout());
+        previewDialog.setSize(750, 850); 
+        previewDialog.setLocationRelativeTo(this); 
+        previewDialog.setLayout(new BorderLayout());
 
-        JTextPane pdfPage = new JTextPane(); pdfPage.setContentType("text/html"); pdfPage.setEditable(false); pdfPage.setBackground(Color.WHITE);
-        pdfPage.setText(buildHtmlInvoice());
+        // Thay vì dùng HTML, ta gọi hàm tạo JPanel thuần Java
+        JPanel invoicePanel = createInvoicePreviewPanel();
         
-        JScrollPane scrollPane = new JScrollPane(pdfPage); scrollPane.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40)); scrollPane.getViewport().setBackground(new Color(210, 210, 210)); 
+        JScrollPane scrollPane = new JScrollPane(invoicePanel); 
+        scrollPane.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40)); 
+        scrollPane.getViewport().setBackground(new Color(210, 210, 210)); 
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16); // Lăn chuột mượt hơn
 
-        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 15)); bottomPanel.setBackground(Color.WHITE);
-        JButton btnLuuPdf = createRoundedButton("Xác nhận Lưu PDF", BTN_PAY, null, 0); btnLuuPdf.setPreferredSize(new Dimension(180, 40));
-        JButton btnThoat = createRoundedButton("Thoát", BTN_DELETE, null, 0); btnThoat.setPreferredSize(new Dimension(120, 40));
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 15)); 
+        bottomPanel.setBackground(Color.WHITE);
+        JButton btnLuuPdf = createRoundedButton("Xác nhận Lưu PDF", BTN_PAY, null, 0); 
+        btnLuuPdf.setPreferredSize(new Dimension(180, 40));
+        JButton btnThoat = createRoundedButton("Thoát", BTN_DELETE, null, 0); 
+        btnThoat.setPreferredSize(new Dimension(120, 40));
 
         btnThoat.addActionListener(e -> previewDialog.dispose());
         btnLuuPdf.addActionListener(e -> {
-            JFileChooser fileChooser = new JFileChooser(); fileChooser.setSelectedFile(new java.io.File("HoaDon_" + maHD + ".pdf"));
+            JFileChooser fileChooser = new JFileChooser(); 
+            fileChooser.setSelectedFile(new java.io.File("HoaDon_" + maHD + ".pdf"));
             if (fileChooser.showSaveDialog(previewDialog) == JFileChooser.APPROVE_OPTION) {
                 JOptionPane.showMessageDialog(previewDialog, "Đã lưu PDF thành công tại:\n" + fileChooser.getSelectedFile().getAbsolutePath(), "Thành công", JOptionPane.INFORMATION_MESSAGE);
                 previewDialog.dispose();
@@ -300,12 +315,153 @@ public class ThanhToanHoaDonPanel extends JPanel {
         });
 
         bottomPanel.add(btnLuuPdf); bottomPanel.add(btnThoat);
-        previewDialog.add(scrollPane, BorderLayout.CENTER); previewDialog.add(bottomPanel, BorderLayout.SOUTH); previewDialog.setVisible(true);
+        previewDialog.add(scrollPane, BorderLayout.CENTER); 
+        previewDialog.add(bottomPanel, BorderLayout.SOUTH); 
+        previewDialog.setVisible(true);
+    }
+   // ================= VẼ HÓA ĐƠN BẰNG JAVA THUẦN (FIX CHUẨN TRÁI - GIỮA) =================
+    private JPanel createInvoicePreviewPanel() {
+        // Chia không gian tờ giấy làm 3 khu vực rõ ràng (Trên, Giữa, Dưới)
+        JPanel panel = new JPanel(new BorderLayout(0, 20)); 
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40)); // Lề giấy
+
+        Font fontTitle = new Font("Arial", Font.BOLD, 22);
+        Font fontHeader = new Font("Arial", Font.BOLD, 16);
+        Font fontNormal = new Font("Arial", Font.PLAIN, 14);
+        Font fontBold = new Font("Arial", Font.BOLD, 14);
+
+        // ================= 1. HEADER (KHU VỰC CĂN GIỮA TUYỆT ĐỐI) =================
+        JPanel pnlHeader = new JPanel();
+        pnlHeader.setLayout(new BoxLayout(pnlHeader, BoxLayout.Y_AXIS));
+        pnlHeader.setBackground(Color.WHITE);
+
+        JLabel lblTitle = new JLabel("HÓA ĐƠN ĐIỆN TỬ VÉ MÁY BAY");
+        lblTitle.setFont(fontTitle); lblTitle.setForeground(new Color(220, 38, 38));
+        lblTitle.setAlignmentX(Component.CENTER_ALIGNMENT); // Ép vô giữa
+
+        JLabel lblMa = new JLabel("Mã HĐ: " + maHD + "   |   Mã tra cứu: " + valMaPhieu.getText());
+        lblMa.setFont(fontBold); lblMa.setForeground(Color.DARK_GRAY);
+        lblMa.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        String thoiGianIn = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+        JLabel lblDate = new JLabel("Ngày in: " + thoiGianIn);
+        lblDate.setFont(fontNormal); lblDate.setForeground(Color.GRAY);
+        lblDate.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        pnlHeader.add(lblTitle); pnlHeader.add(Box.createVerticalStrut(5));
+        pnlHeader.add(lblMa); pnlHeader.add(Box.createVerticalStrut(5));
+        pnlHeader.add(lblDate); pnlHeader.add(Box.createVerticalStrut(15));
+        
+        JSeparator sep1 = new JSeparator();
+        sep1.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
+        pnlHeader.add(sep1);
+
+        // Nhét khu vực Header lên TẬN CÙNG PHÍA TRÊN của tờ giấy
+        panel.add(pnlHeader, BorderLayout.NORTH);
+
+
+        // ================= 2. BODY (KHU VỰC CĂN TRÁI TUYỆT ĐỐI CHỨA 1, 2, 3) =================
+        JPanel pnlBody = new JPanel();
+        pnlBody.setLayout(new BoxLayout(pnlBody, BoxLayout.Y_AXIS));
+        pnlBody.setBackground(Color.WHITE);
+
+        // --- 1. THÔNG TIN KHÁCH HÀNG ---
+        JLabel titleKH = new JLabel("1. THÔNG TIN KHÁCH HÀNG");
+        titleKH.setFont(fontHeader);
+        titleKH.setAlignmentX(Component.LEFT_ALIGNMENT); // Ép sát lề trái
+        pnlBody.add(titleKH); pnlBody.add(Box.createVerticalStrut(10));
+
+        JPanel pnlKH = new JPanel(new GridLayout(3, 2, 10, 5));
+        pnlKH.setBackground(Color.WHITE);
+        pnlKH.setMaximumSize(new Dimension(450, 80)); 
+        pnlKH.setAlignmentX(Component.LEFT_ALIGNMENT); // Ép sát lề trái
+        
+        pnlKH.add(new JLabel("Họ và tên:")); pnlKH.add(createBoldLabel(valTenKH.getText(), fontBold));
+        pnlKH.add(new JLabel("Số điện thoại:")); pnlKH.add(createBoldLabel(valSDT.getText(), fontBold));
+        pnlKH.add(new JLabel("Email:")); pnlKH.add(createBoldLabel(valEmail.getText(), fontBold));
+        pnlBody.add(pnlKH); pnlBody.add(Box.createVerticalStrut(25));
+
+        // --- 2. THÔNG TIN CHUYẾN BAY ---
+        JLabel titleCB = new JLabel("2. THÔNG TIN CHUYẾN BAY");
+        titleCB.setFont(fontHeader);
+        titleCB.setAlignmentX(Component.LEFT_ALIGNMENT); // Ép sát lề trái
+        pnlBody.add(titleCB); pnlBody.add(Box.createVerticalStrut(10));
+
+        JPanel pnlTable = new JPanel(new GridLayout(2, 4));
+        pnlTable.setBackground(Color.WHITE);
+        pnlTable.setMaximumSize(new Dimension(650, 60)); 
+        pnlTable.setAlignmentX(Component.LEFT_ALIGNMENT); // Ép sát lề trái
+
+        String[] headers = {"Tuyến bay", "Mã vé / Ghế", "Giờ đi", "Giờ đến"};
+        for (String h : headers) {
+            JLabel l = new JLabel(h, SwingConstants.CENTER); l.setFont(fontBold);
+            l.setOpaque(true); l.setBackground(new Color(248, 249, 250)); 
+            l.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+            pnlTable.add(l);
+        }
+        String[] data = {valTuyenBay.getText(), valMaVe.getText(), valGioDi.getText(), valGioDen.getText()};
+        for (String d : data) {
+            JLabel l = new JLabel(d, SwingConstants.CENTER); l.setFont(fontNormal); 
+            l.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+            pnlTable.add(l);
+        }
+        pnlBody.add(pnlTable); pnlBody.add(Box.createVerticalStrut(25));
+
+        // --- 3. CHI TIẾT THANH TOÁN ---
+        JLabel titleTT = new JLabel("3. CHI TIẾT THANH TOÁN");
+        titleTT.setFont(fontHeader);
+        titleTT.setAlignmentX(Component.LEFT_ALIGNMENT); // Ép sát lề trái
+        pnlBody.add(titleTT); pnlBody.add(Box.createVerticalStrut(10));
+
+        JPanel pnlTT = new JPanel(new GridLayout(6, 2, 10, 8));
+        pnlTT.setBackground(Color.WHITE);
+        pnlTT.setMaximumSize(new Dimension(350, 160)); 
+        pnlTT.setAlignmentX(Component.LEFT_ALIGNMENT); // Ép sát lề trái
+
+        pnlTT.add(new JLabel("Phương thức TT:")); pnlTT.add(createBoldLabel(cboPhuongThuc.getSelectedItem().toString(), fontBold));
+        pnlTT.add(new JLabel("Giá vé gốc:")); pnlTT.add(new JLabel(lblGiaVe.getText()));
+        pnlTT.add(new JLabel("Dịch vụ bổ sung:")); pnlTT.add(new JLabel(lblDichVu.getText()));
+        pnlTT.add(new JLabel("Thuế VAT:")); pnlTT.add(new JLabel(lblThue.getText()));
+        pnlTT.add(new JLabel("")); 
+        JSeparator sep2 = new JSeparator();
+        pnlTT.add(sep2);
+
+        JLabel lblTotalText = new JLabel("TỔNG TIỀN:");
+        lblTotalText.setFont(new Font("Arial", Font.BOLD, 18));
+        JLabel lblTotalValue = new JLabel(lblTongTien.getText());
+        lblTotalValue.setFont(new Font("Arial", Font.BOLD, 18));
+        lblTotalValue.setForeground(new Color(220, 38, 38)); 
+        pnlTT.add(lblTotalText); pnlTT.add(lblTotalValue);
+
+        pnlBody.add(pnlTT);
+        
+        // Nhét khu vực Body vào CHÍNH GIỮA tờ giấy
+        panel.add(pnlBody, BorderLayout.CENTER);
+
+
+        // ================= 3. FOOTER (KHU VỰC CĂN GIỮA TUYỆT ĐỐI) =================
+        // Dùng FlowLayout.CENTER để chắc chắn 100% dòng chữ nằm ở giữa
+        JPanel pnlFooter = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        pnlFooter.setBackground(Color.WHITE);
+        
+        JLabel lblFooter = new JLabel("Cảm ơn quý khách đã sử dụng dịch vụ của KH AirLine!");
+        lblFooter.setFont(new Font("Arial", Font.ITALIC, 12)); 
+        lblFooter.setForeground(Color.GRAY);
+        pnlFooter.add(lblFooter);
+
+        // Nhét khu vực Footer xuống TẬN CÙNG PHÍA DƯỚI tờ giấy
+        panel.add(pnlFooter, BorderLayout.SOUTH);
+
+        return panel;
     }
 
-    // ĐÃ SỬA LẠI PDF ĐỂ HIỆN ĐỦ 2 DÒNG GIÁ VÉ VÀ DỊCH VỤ
-    private String buildHtmlInvoice() {
-        String thoiGianIn = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
-        return "<html><body style='font-family: Arial, sans-serif; padding: 20px; color: #333;'><div style='text-align: center;'><h1 style='color: #dc2626; margin-bottom: 0px;'>HÓA ĐƠN ĐIỆN TỬ VÉ MÁY BAY</h1><p style='color: #666; margin-top: 5px;'>Mã HĐ: <b>" + maHD + "</b> | Mã tra cứu: <b>" + valMaPhieu.getText() + "</b></p><p style='color: #666; margin-top: 0px;'>Ngày in: " + thoiGianIn + "</p></div><hr style='border: 1px solid #ccc; margin: 20px 0;'><h3>1. THÔNG TIN KHÁCH HÀNG</h3><table width='100%' style='font-size: 14px; margin-bottom: 20px;'><tr><td width='30%'>Họ và tên:</td><td><b>" + valTenKH.getText() + "</b></td></tr><tr><td>Số điện thoại:</td><td><b>" + valSDT.getText() + "</b></td></tr><tr><td>Email:</td><td><b>" + valEmail.getText() + "</b></td></tr></table><h3>2. THÔNG TIN CHUYẾN BAY</h3><table width='100%' border='1' cellspacing='0' cellpadding='8' style='border-collapse: collapse; font-size: 14px; text-align: left; margin-bottom: 20px; border-color: #ddd;'><tr style='background-color: #f8f9fa;'><th>Tuyến bay</th><th>Mã vé / Ghế</th><th>Giờ đi</th><th>Giờ đến</th></tr><tr><td>" + valTuyenBay.getText() + "</td><td>" + valMaVe.getText() + "</td><td>" + valGioDi.getText() + "</td><td>" + valGioDen.getText() + "</td></tr></table><h3>3. CHI TIẾT THANH TOÁN</h3><table width='100%' style='font-size: 14px;'><tr><td width='70%' align='right'>Phương thức TT:</td><td align='right'><b>" + cboPhuongThuc.getSelectedItem().toString() + "</b></td></tr><tr><td align='right'>Giá vé gốc:</td><td align='right'>" + lblGiaVe.getText() + "</td></tr><tr><td align='right'>Dịch vụ bổ sung:</td><td align='right'>" + lblDichVu.getText() + "</td></tr><tr><td align='right'>Thuế VAT:</td><td align='right'>" + lblThue.getText() + "</td></tr><tr><td colspan='2'><hr style='border: 0.5px solid #ccc;'></td></tr><tr><td align='right'><b style='font-size: 18px;'>TỔNG TIỀN:</b></td><td align='right'><b style='color: #dc2626; font-size: 18px;'>" + lblTongTien.getText() + "</b></td></tr></table><br><br><p style='text-align: center; font-size: 12px; color: #888;'>Cảm ơn quý khách đã sử dụng dịch vụ của KH AirLine!</p></body></html>";
+    // Các hàm hỗ trợ gõ code cho nhanh
+    private JLabel createBoldLabel(String text, Font font) {
+        JLabel l = new JLabel(text); l.setFont(font); return l;
+    }
+
+    private JLabel createRightLabel(String text, Font font) {
+        JLabel l = new JLabel(text, SwingConstants.RIGHT); l.setFont(font); return l;
     }
 }

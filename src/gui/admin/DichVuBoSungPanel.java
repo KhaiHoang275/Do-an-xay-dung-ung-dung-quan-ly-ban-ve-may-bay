@@ -24,7 +24,6 @@ public class DichVuBoSungPanel extends JPanel {
 
     private DichVuBoSungBUS dichVuBUS;
 
-    // Bảng màu chuẩn dự án
     private final Color PRIMARY = new Color(220, 38, 38);
     private final Color BG_MAIN = new Color(245, 247, 250);
     private final Color TABLE_HEADER = new Color(30, 41, 59);
@@ -44,7 +43,6 @@ public class DichVuBoSungPanel extends JPanel {
     }
 
     private void initComponents() {
-        // ================= HEADER & SEARCH =================
         JPanel headerPanel = new JPanel(new BorderLayout(10, 10));
         headerPanel.setOpaque(false);
 
@@ -63,7 +61,6 @@ public class DichVuBoSungPanel extends JPanel {
         txtTimKiem = createTextField();
         txtTimKiem.setPreferredSize(new Dimension(200, 35));
 
-        // NÚT TÌM KIẾM BO TRÒN
         btnTimKiem = createRoundedButton("Tìm kiếm", TABLE_HEADER, "/resources/icons/icons8-search-24.png", 16);
         btnTimKiem.setPreferredSize(new Dimension(130, 35));
 
@@ -81,7 +78,6 @@ public class DichVuBoSungPanel extends JPanel {
         headerPanel.add(searchPanel, BorderLayout.EAST);
         add(headerPanel, BorderLayout.NORTH);
 
-        // ================= TABLE =================
         JPanel tableCard = createCardPanel();
         tableCard.setLayout(new BorderLayout());
 
@@ -99,7 +95,6 @@ public class DichVuBoSungPanel extends JPanel {
         tableCard.add(scrollPane, BorderLayout.CENTER);
         add(tableCard, BorderLayout.CENTER);
 
-        // ================= FORM =================
         JPanel formCard = createCardPanel();
         formCard.setLayout(new BorderLayout(20, 20));
 
@@ -117,8 +112,8 @@ public class DichVuBoSungPanel extends JPanel {
 
         formPanel.add(createLabel("Đơn Giá (VNĐ):"));
         formPanel.add(txtDonGia);
-        formPanel.add(new JLabel()); // Giữ chỗ
-        formPanel.add(new JLabel()); // Giữ chỗ
+        formPanel.add(new JLabel());
+        formPanel.add(new JLabel()); 
 
         JPanel formWrapper = new JPanel(new BorderLayout());
         formWrapper.setOpaque(false);
@@ -126,11 +121,9 @@ public class DichVuBoSungPanel extends JPanel {
 
         formCard.add(formWrapper, BorderLayout.CENTER);
 
-        // ================= BUTTONS CÁC NÚT BO TRÒN =================
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
         buttonPanel.setOpaque(false);
 
-        // Gọi hàm tạo nút bo tròn siêu cấp
         btnThem = createRoundedButton("Thêm", BTN_ADD, "/resources/icons/icons8-add-24.png", 20);
         btnSua = createRoundedButton("Cập nhật", BTN_UPDATE, "/resources/icons/icons8-update-24.png", 20);
         btnXoa = createRoundedButton("Xóa", BTN_DELETE, "/resources/icons/icons8-delete-24.png", 20);
@@ -147,9 +140,6 @@ public class DichVuBoSungPanel extends JPanel {
         setupListeners();
     }
 
-    // =========================================================================
-    // HÀM TẠO NÚT BO TRÒN (KHẮC PHỤC TRIỆT ĐỂ LỖI TRẮNG BÓC)
-    // =========================================================================
     private JButton createRoundedButton(String text, Color bgColor, String iconPath, int iconSize) {
         JButton btn = new JButton(text) {
             @Override
@@ -157,30 +147,27 @@ public class DichVuBoSungPanel extends JPanel {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 
-                // Xử lý hiệu ứng Hover cực mượt
                 if (getModel().isPressed()) {
                     g2.setColor(bgColor.darker());
                 } else if (getModel().isRollover()) {
-                    g2.setColor(bgColor.brighter()); // Sáng lên nhẹ khi đưa chuột vào
+                    g2.setColor(bgColor.brighter()); 
                 } else {
                     g2.setColor(bgColor);
                 }
                 
-                // Vẽ hình chữ nhật bo góc 15px
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
                 g2.dispose();
-                super.paintComponent(g); // Vẽ chữ và Icon đè lên trên nền
+                super.paintComponent(g); 
             }
         };
         btn.setPreferredSize(new Dimension(140, 40));
         btn.setForeground(Color.WHITE);
         btn.setFocusPainted(false);
         btn.setBorderPainted(false);
-        btn.setContentAreaFilled(false); // QUAN TRỌNG: Tắt nền mặc định gây lỗi của Java
+        btn.setContentAreaFilled(false); 
         btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        // Nạp icon
         if (iconPath != null && !iconPath.isEmpty()) {
             try {
                 ImageIcon icon = new ImageIcon(getClass().getResource(iconPath));
@@ -192,7 +179,6 @@ public class DichVuBoSungPanel extends JPanel {
         return btn;
     }
 
-    // Các hàm helper giao diện khác giữ nguyên form chuẩn
     private JPanel createCardPanel() {
         JPanel panel = new JPanel();
         panel.setBackground(Color.WHITE);
@@ -229,10 +215,25 @@ public class DichVuBoSungPanel extends JPanel {
         table.setShowVerticalLines(false);
 
         JTableHeader header = table.getTableHeader();
-        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        header.setBackground(TABLE_HEADER);
-        header.setForeground(Color.WHITE);
         header.setPreferredSize(new Dimension(header.getWidth(), 40));
+        header.setFocusable(false);
+
+        DefaultTableCellRenderer headerRenderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                setBackground(TABLE_HEADER); 
+                setForeground(Color.WHITE);  
+                setFont(new Font("Segoe UI", Font.BOLD, 14));
+                setHorizontalAlignment(JLabel.CENTER);
+                setBorder(BorderFactory.createMatteBorder(0, 0, 1, 1, new Color(60, 70, 90))); 
+                return this;
+            }
+        };
+
+        for (int i = 0; i < table.getColumnModel().getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setHeaderRenderer(headerRenderer);
+        }
 
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
@@ -272,9 +273,9 @@ public class DichVuBoSungPanel extends JPanel {
             boolean isTrash = cboHienThi.getSelectedIndex() == 1;
             if (isTrash) {
                 btnThem.setEnabled(false);
-                btnSua.setEnabled(false); // Vì DB không có Trạng thái nên ko có khái niệm khôi phục
+                btnSua.setEnabled(false); 
                 btnXoa.setEnabled(false);
-                tableModel.setRowCount(0); // Rỗng vì chưa có trong DB
+                tableModel.setRowCount(0); 
             } else {
                 btnThem.setEnabled(true);
                 btnSua.setEnabled(true);
@@ -370,18 +371,4 @@ public class DichVuBoSungPanel extends JPanel {
         return new DichVuBoSung(maDV, tenDV, donGia);
     }
 
-    // =======================================================
-    // HÀM MAIN ĐỂ BẠN TEST NÚT BO TRÒN NGAY LẬP TỨC
-    // =======================================================
-    public static void main(String[] args) {
-        try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); } catch (Exception ex) {}
-        SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("Test Giao Diện Dịch Vụ - Nút Mới Bo Tròn");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(1050, 700);
-            frame.setLocationRelativeTo(null);
-            frame.add(new DichVuBoSungPanel());
-            frame.setVisible(true);
-        });
-    }
 }
