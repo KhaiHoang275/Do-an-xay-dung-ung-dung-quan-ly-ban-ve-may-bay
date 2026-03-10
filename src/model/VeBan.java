@@ -19,6 +19,7 @@ public class VeBan {
     private String sanBayDi;
     private String sanBayDen;
     private Timestamp ngayGioDi;
+    private String tenHang;
 
     public VeBan(){}
 
@@ -169,6 +170,12 @@ public class VeBan {
     public void setNgayGioDi(Timestamp ngayGioDi) {
         this.ngayGioDi = ngayGioDi;
     }
+    public String getTenHang() {
+        return tenHang;
+    }
 
+    public void setTenHang(String tenHang) {
+        this.tenHang = tenHang;
+    }
     
 }

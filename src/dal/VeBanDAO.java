@@ -155,6 +155,7 @@ public class VeBanDAO {
         return null;
     }
 
+
     public boolean checkAvailable(String maChuyenBay, String maGhe){
         String sql = """
                 SELECT COUNT(*)
@@ -283,6 +284,8 @@ public class VeBanDAO {
         return false;
     }
 
+
+
     public List<VeBan> selectVeCoTheDoi(String maHK) {
         List<VeBan> list = new ArrayList<>();
         String sql = """
@@ -387,6 +390,81 @@ public class VeBanDAO {
             }
         } catch (Exception e) {
 
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public List<VeBan> selectDetailedByMaPhieuDatVe(String maPhieu) {
+        List<VeBan> list = new ArrayList<>();
+        String sql = """
+    SELECT 
+        vb.maVe,
+        vb.maPhieuDatVe,
+        vb.maChuyenBay,
+        vb.maHangVe,  -- Mã hạng vé
+        vb.maGhe,     -- Mã ghế
+        vb.loaiHK,
+        vb.loaiVe,
+        vb.giaVe,
+        vb.trangThaiVe,
+
+        tb.sanBayDi,
+        tb.sanBayDen,
+        cb.ngayGioDi,
+
+        hv.tenHang    -- Tên hạng vé từ HangVe
+
+    FROM VeBan vb
+    JOIN ChuyenBay cb ON vb.maChuyenBay = cb.maChuyenBay
+    JOIN TuyenBay tb ON cb.maTuyenBay = tb.maTuyenBay
+    JOIN HangVe hv ON vb.maHangVe = hv.maHangVe  -- Join HangVe để lấy tenHang
+
+    WHERE vb.maPhieuDatVe = ?
+    """;
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, maPhieu);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                VeBan v = new VeBan();
+                v.setMaVe(rs.getString("maVe"));
+                v.setMaPhieuDatVe(rs.getString("maPhieuDatVe"));
+                v.setMaChuyenBay(rs.getString("maChuyenBay"));
+                v.setMaHangVe(rs.getString("maHangVe"));
+                v.setMaGhe(rs.getString("maGhe"));
+                v.setLoaiHK(rs.getString("loaiHK"));
+                v.setLoaiVe(rs.getString("loaiVe"));
+                v.setGiaVe(rs.getBigDecimal("giaVe"));
+                v.setTrangThaiVe(rs.getString("trangThaiVe"));
+
+                // Set các field join với kiểm tra null
+                String sanBayDi = rs.getString("sanBayDi");
+                if (sanBayDi != null) {
+                    v.setSanBayDi(sanBayDi);
+                }
+
+                String sanBayDen = rs.getString("sanBayDen");
+                if (sanBayDen != null) {
+                    v.setSanBayDen(sanBayDen);
+                }
+
+                Timestamp ts = rs.getTimestamp("ngayGioDi");
+                if (ts != null) {
+                    v.setNgayGioDi(ts);
+                }
+
+                String tenHang = rs.getString("tenHang");
+                if (tenHang != null) {
+                    v.setTenHang(tenHang);
+                }
+
+                list.add(v);
+            }
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return list;
