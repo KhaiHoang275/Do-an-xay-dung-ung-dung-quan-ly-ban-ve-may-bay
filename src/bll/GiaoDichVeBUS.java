@@ -105,13 +105,26 @@ public class GiaoDichVeBUS {
         }
     }
 
-    private boolean validateGheMoiTonTai(String maGheMoi){
-        if(!kiemTraGheMoiTonTai(maGheMoi)){
-            throw new IllegalArgumentException("Ghế mới không tồn tại trong hệ thống");
+    private boolean validateGheMoiTonTai(String maGheMoi, String maChuyenBayMoi){  // THÊM param maChuyenBayMoi
+        if(maGheMoi == null || maGheMoi.trim().isEmpty()) return false;
+        GheMayBay gheMayBay = gheMayBayDAO.selectById(maGheMoi);
+        if (gheMayBay == null) {
+            throw new IllegalArgumentException("Ghế mới không tồn tại trong hệ thống!");
         }
+
+        // THÊM: Check ghế thuộc máy bay của chuyến bay mới
+        ChuyenBay cbMoi = chuyenBayDAO.selectById(maChuyenBayMoi);
+        if (cbMoi == null || !gheMayBay.getMaMayBay().equals(cbMoi.getMaMayBay())) {
+            throw new IllegalArgumentException("Ghế mới không thuộc chuyến bay mới!");
+        }
+
+        // THÊM: Check trạng thái ghế phải TRONG
+        if (gheMayBay.getTrangThai() != TrangThaiGhe.TRONG) {
+            throw new IllegalArgumentException("Ghế mới không khả dụng (đã đặt hoặc bảo trì)!");
+        }
+
         return true;
     }
-
     // check xem trang thai giao dich co hop le de thuc hien hanh dong hay khong
     private void validateTrangThai(GiaoDichVe gd, TrangThaiGiaoDich trangThaiYeuCau) {
         if (gd.getTrangThai() != trangThaiYeuCau) {
@@ -282,7 +295,7 @@ public class GiaoDichVeBUS {
         validateVeCuTonTai(maVeCu);
         validateChuyenBayMoiTonTai(maChuyenBayMoi);
         validateHangVeMoiTonTai(maHangVeMoi);
-        validateGheMoiTonTai(maGheMoi);
+        validateGheMoiTonTai(maGheMoi, maChuyenBayMoi);
 
 
         //b2: tao ma giao dich tu dong
@@ -367,6 +380,11 @@ public class GiaoDichVeBUS {
             }
             System.out.println("  ✓ Cập nhật vé cũ -> Đã hủy");
 
+            if (!veBanDAO.updateGheTrangThai(conn, veCu.getMaGhe(), TrangThaiGhe.TRONG)) {
+                throw new SQLException("Không thể cập nhật trạng thái ghế cũ!");
+            }
+            System.out.println("  ✓ Cập nhật ghế cũ -> TRONG");
+
             //b6: tao va insert ve moi -> DA_THANH_TOAN
             VeBan veMoi = new VeBan();
             veMoi.setMaVe(taoMaVe()); // Tạo mã vé mới
@@ -385,6 +403,12 @@ public class GiaoDichVeBUS {
                 throw new SQLException("Không thể tạo vé mới!");
             }
             System.out.println("  ✓ Tạo vé mới -> Đã thanh toán");
+
+            // THÊM: Update ghế mới sang 'DA_DAT'
+            if (!veBanDAO.updateGheTrangThai(conn, veMoi.getMaGhe(), TrangThaiGhe.DA_DAT)) {
+                throw new SQLException("Không thể cập nhật trạng thái ghế mới!");
+            }
+            System.out.println("  ✓ Cập nhật ghế mới -> DA_DAT");
 
             //b7: commit transaction
             conn.commit();
@@ -507,6 +531,11 @@ public class GiaoDichVeBUS {
         if(ve == null){
             return "Vé không tồn tại";
         }
+
+        if (!"Đã thanh toán".equalsIgnoreCase(ve.getTrangThaiVe())) {
+            return "Vé phải ở trạng thái 'Đã thanh toán' để đổi vé!";
+        }
+
         ThongTinHanhKhach tthkCuaVe = thongTinHanhKhachDAO.getByMaHK(ve.getMaHK());
         if (tthkCuaVe == null) {
             return "Không tìm thấy thông tin hành khách của vé.";

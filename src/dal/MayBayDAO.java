@@ -49,6 +49,7 @@ public class MayBayDAO {
         mb.setSoHieu(rs.getString("soHieu"));
         mb.setHangSanXuat(rs.getString("hangSanXuat"));
         mb.setTongSoGhe(rs.getInt("tongSoGhe"));
+        mb.setTrangThai(MayBay.TrangThai.fromString(rs.getString("trangThai")));
         return mb;
     }
 

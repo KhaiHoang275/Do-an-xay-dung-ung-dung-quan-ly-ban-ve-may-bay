@@ -131,7 +131,7 @@ public class AdminMainFrame extends JFrame {
                 
                 gheMayBayPanel.setPanelSwitchListener((maMayBay, tenMayBay) -> {
                     
-                        SoDoGhePanel soDoPanel = new SoDoGhePanel("", maMayBay, tenMayBay, 1);
+                        SoDoGhePanel soDoPanel = new SoDoGhePanel(maMayBay, tenMayBay, 1);
                     
                         soDoPanel.setListener(new SoDoGhePanel.SoDoGheListener() {
                                 @Override
@@ -186,6 +186,24 @@ public class AdminMainFrame extends JFrame {
             showPanel(new QuanLyMayBayPanel());
         });
 
+        JButton btnHoaDon = createSidebarButton("Quản lý Hóa Đơn", "/resources/icons/invoice.png");
+        btnHoaDon.addActionListener(e -> {
+            setActiveButton(btnHoaDon);
+            showPanel(new HoaDonPanel());
+        });
+
+        JButton btnHanhLy = createSidebarButton("Quản lý Hành Lý", "/resources/icons/luggage.png");
+        btnHanhLy.addActionListener(e -> {
+            setActiveButton(btnHanhLy);
+            showPanel(new HanhLyPanel());
+        });
+
+        JButton btnDichVuBoSung = createSidebarButton("Quản lý Dịch Vụ Bổ Sung", "/resources/icons/service.png");
+        btnDichVuBoSung.addActionListener(e -> {
+            setActiveButton(btnDichVuBoSung);
+            showPanel(new DichVuBoSungPanel());
+        });
+
         // Thêm các nút vào menuPanel
         menuPanel.add(btnChuyenBay);
         menuPanel.add(btnTuyenBay);
@@ -201,6 +219,9 @@ public class AdminMainFrame extends JFrame {
         menuPanel.add(btnNhanVien);
         menuPanel.add(btnSanBay);
         menuPanel.add(btnMayBay);
+        menuPanel.add(btnHoaDon);
+        menuPanel.add(btnHanhLy);
+        menuPanel.add(btnDichVuBoSung);
 
         // ===== TẠO THANH CUỘN (SCROLL PANE) ĐỂ LƯỚT XUỐNG =====
         // Dùng 1 Panel bọc ngoài để các nút dồn lên trên (không bị kéo giãn nếu ít nút)
