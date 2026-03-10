@@ -109,8 +109,20 @@ public class MainFrame extends javax.swing.JFrame {
             infoFrm.setVisible(true);
             this.dispose(); 
         });
-        itemLichSu.addActionListener(e -> javax.swing.JOptionPane.showMessageDialog(this, "Đang xây dựng form Lịch sử đặt vé..."));
         
+        itemLichSu.addActionListener(e -> {
+            if (userHienTai != null) {
+                pnlContent.removeAll();
+                pnlContent.setLayout(new java.awt.BorderLayout());
+                // Gắn Panel Lịch sử vào giữa màn hình
+                pnlContent.add(new gui.user.LichSuDatVePanel(userHienTai.getMaNguoiDung()), java.awt.BorderLayout.CENTER);
+                pnlContent.revalidate();
+                pnlContent.repaint();
+            } else {
+                JOptionPane.showMessageDialog(this, "Vui lòng đăng nhập để xem lịch sử!");
+            }
+        });   
+
         itemDangXuat.addActionListener(e -> {
             java.util.prefs.Preferences prefs = java.util.prefs.Preferences.userNodeForPackage(gui.user.DangNhapFrm.class);
             prefs.remove("saved_user");
@@ -578,64 +590,83 @@ public class MainFrame extends javax.swing.JFrame {
     }  
 
     private void initTableKetQua() {
-    if (scrollPaneKetQua != null) return;
-    
-    String[] columnNames = {"Mã CB", "Giờ Đi", "Giờ Đến", "Trạng Thái", "Giá 1 Vé", "Tổng Tiền", "Thao Tác"};
-    javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(columnNames, 0) {
-        @Override
-        public boolean isCellEditable(int row, int column) { return false; }
-    };
-
-    tblKetQua = new javax.swing.JTable(model);
-    tblKetQua.setFillsViewportHeight(true); 
+        if (scrollPaneKetQua != null) return;
         
-    scrollPaneKetQua = new javax.swing.JScrollPane(tblKetQua);
+        String[] columnNames = {"Mã CB", "Giờ Đi", "Giờ Đến", "Trạng Thái", "Giá 1 Vé", "Tổng Tiền", "Thao Tác"};
+        javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(columnNames, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) { return false; }
+        };
 
-    scrollPaneKetQua.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS); 
-
-    scrollPaneKetQua.setPreferredSize(new java.awt.Dimension(1200, 300)); 
-    scrollPaneKetQua.setMaximumSize(new java.awt.Dimension(1200, 300));
-    
-    tblKetQua.setRowHeight(45);
-    tblKetQua.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 16));
-    tblKetQua.getTableHeader().setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 18));
-    
-    javax.swing.table.DefaultTableCellRenderer centerRenderer = new javax.swing.table.DefaultTableCellRenderer();
-    centerRenderer.setHorizontalAlignment(javax.swing.JLabel.CENTER);
-    for(int x = 0; x < tblKetQua.getColumnCount(); x++){
-         tblKetQua.getColumnModel().getColumn(x).setCellRenderer(centerRenderer);
-    }
-
-    tblKetQua.addMouseListener(new java.awt.event.MouseAdapter() {
-        @Override
-        public void mouseClicked(java.awt.event.MouseEvent e) {
-            int row = tblKetQua.rowAtPoint(e.getPoint());
-            int col = tblKetQua.columnAtPoint(e.getPoint());
+        tblKetQua = new javax.swing.JTable(model);
+        tblKetQua.setFillsViewportHeight(true); 
             
-            if (row >= 0 && col == 6) { 
-                String maCB = tblKetQua.getValueAt(row, 0).toString();
-                
-                
-                model.DatVeSession session = new model.DatVeSession();
-                session.maNguoiDung = userHienTai.getMaNguoiDung(); 
-                session.maChuyenBay = maCB;
-                
-                // Lấy số lượng hành khách từ MainFrame
-                session.soNguoiLon = MainFrame.this.soNL;
-                session.soTreEm = MainFrame.this.soTE;
-                session.soEmBe = MainFrame.this.soEB;
-
-                session.loaiVe = jRadioButton2.isSelected() ? "Khứ hồi" : "Một chiều";
-
-                pnlContent.removeAll();
-                pnlContent.setLayout(new java.awt.BorderLayout());
-                pnlContent.add(new gui.user.PanelUserVeBan(session), java.awt.BorderLayout.CENTER);
-                pnlContent.revalidate();
-                pnlContent.repaint();
-            }
+        scrollPaneKetQua = new javax.swing.JScrollPane(tblKetQua);
+        scrollPaneKetQua.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS); 
+        scrollPaneKetQua.setPreferredSize(new java.awt.Dimension(1200, 300)); 
+        scrollPaneKetQua.setMaximumSize(new java.awt.Dimension(1200, 300));
+        
+        tblKetQua.setRowHeight(45);
+        tblKetQua.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 16));
+        tblKetQua.getTableHeader().setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 18));
+        
+        javax.swing.table.DefaultTableCellRenderer centerRenderer = new javax.swing.table.DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(javax.swing.JLabel.CENTER);
+        for(int x = 0; x < tblKetQua.getColumnCount(); x++){
+             tblKetQua.getColumnModel().getColumn(x).setCellRenderer(centerRenderer);
         }
-    });
-}
+
+        // ĐÂY LÀ ĐOẠN CLICK VÀO BẢNG ĐỂ ĐẶT VÉ (ĐÃ ĐẶT ĐÚNG CHỖ)
+        tblKetQua.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                int row = tblKetQua.rowAtPoint(e.getPoint());
+                int col = tblKetQua.columnAtPoint(e.getPoint());
+                
+                if (row >= 0 && col == 6) { 
+                    String maCB = tblKetQua.getValueAt(row, 0).toString();
+                    
+                    model.DatVeSession session = new model.DatVeSession();
+                    
+                    if (userHienTai != null) {
+                        session.maNguoiDung = userHienTai.getMaNguoiDung(); 
+                    } else {
+                        session.maNguoiDung = "KHACH_LE"; 
+                    }
+                    
+                    session.maChuyenBay = maCB;
+                    session.soNguoiLon = MainFrame.this.soNL;
+                    session.soTreEm = MainFrame.this.soTE;
+                    session.soEmBe = MainFrame.this.soEB;
+                    session.loaiVe = jCheckBox1.isSelected() ? "Khứ hồi" : "Một chiều"; 
+
+                    // === BẮT HẠNG VÉ ===
+                    if (jComboBox1.getSelectedItem() != null) {
+                        String hangVeDuocChon = jComboBox1.getSelectedItem().toString().trim();
+                        if (hangVeDuocChon.equalsIgnoreCase("Phổ thông")) {
+                            session.maHangVe = "ECO";
+                        } else if (hangVeDuocChon.equalsIgnoreCase("Thương gia")) {
+                            session.maHangVe = "BUS";
+                        } else if (hangVeDuocChon.equalsIgnoreCase("Phổ thông đặc biệt")) {
+                            session.maHangVe = "PECO";
+                        } else if (hangVeDuocChon.equalsIgnoreCase("Hạng nhất")) {
+                            session.maHangVe = "FST";
+                        } else {
+                            session.maHangVe = "ECO"; 
+                        }
+                    } else {
+                        session.maHangVe = "ECO"; 
+                    }
+
+                    pnlContent.removeAll();
+                    pnlContent.setLayout(new java.awt.BorderLayout());
+                    pnlContent.add(new gui.user.PanelUserVeBan(session), java.awt.BorderLayout.CENTER);
+                    pnlContent.revalidate();
+                    pnlContent.repaint();
+                }
+            }
+        });
+    }
     
     private void setupCurrencyComboBox() {
         javax.swing.JComboBox rawCombo = cbDonViTienTe;
