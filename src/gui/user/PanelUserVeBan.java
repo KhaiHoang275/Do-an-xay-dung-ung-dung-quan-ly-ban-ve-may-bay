@@ -51,6 +51,15 @@ public class PanelUserVeBan extends JPanel {
     private ChuyenBayDAO cbDAO = new ChuyenBayDAO();
     private ThongTinHanhKhachDAO hkDAO = new ThongTinHanhKhachDAO();
 
+
+    private JTabbedPane tabs;
+    private JTextField txtMaChuyenBay;
+    private JTextField txtGhe;
+    private JComboBox<String> cboHangVe;
+    private JSpinner spNguoiLon;
+    private JSpinner spTreEm;
+    private JSpinner spEmBe;
+
     public PanelUserVeBan(String maHK) {
         this.maHK = maHK;
         setLayout(new BorderLayout(15,15));
@@ -60,6 +69,44 @@ public class PanelUserVeBan extends JPanel {
         add(initTabs(), BorderLayout.CENTER);
         loadTable();
         loadKhuyenMai();
+    }
+
+    // CONSTRUCTOR NHẬN DỮ LIỆU TỪ MAINFRAME
+    public PanelUserVeBan(model.DatVeSession session) {
+        // 1. Lấy mã khách hàng (người dùng) từ Session
+        this.maHK = session.maNguoiDung; 
+        
+        // 2. Khởi tạo UI (Giao diện)
+        setLayout(new BorderLayout(15,15));
+        setBackground(new Color(245,247,250));
+
+        add(initHeader(), BorderLayout.NORTH);
+        
+        tabs = initTabs(); // Tạo các tab (Trong này sẽ chạy hàm initFormPanel)
+        add(tabs, BorderLayout.CENTER);
+        
+        loadTable();
+        loadKhuyenMai();
+        
+        // 3. Đổ dữ liệu từ Session vào Form "Tạo vé máy bay"
+        if (session != null) {
+            tabs.setSelectedIndex(1); // Tự động nhảy sang tab Tạo vé
+            
+            // Gán các giá trị từ MainFrame sang Form
+            txtMaChuyenBay.setText(session.maChuyenBay);
+            spNguoiLon.setValue(session.soNguoiLon);
+            spTreEm.setValue(session.soTreEm);
+            spEmBe.setValue(session.soEmBe);
+            
+            if ("Khứ hồi".equalsIgnoreCase(session.loaiVe)) {
+                rdKhuHoi.setSelected(true);
+            } else {
+                rdMotChieu.setSelected(true);
+            }
+            
+            // Tự động tính tiền luôn cho khách xem
+            tinhTongTien(txtMaChuyenBay, cboHangVe, spNguoiLon, spTreEm, spEmBe);
+        }
     }
 
     // ================= HEADER =================
