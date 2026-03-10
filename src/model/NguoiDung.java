@@ -5,21 +5,21 @@ import java.time.LocalDate;
 public class NguoiDung { 
 
     public enum TrangThai {
-        HOAT_DONG("Hoạt động"),
-        NGUNG_HOAT_DONG("Ngừng hoạt động");
+    HOAT_DONG("HOAT_DONG"), 
+    NGUNG_HOAT_DONG("NGUNG_HOAT_DONG");
 
-        private final String value;
-        TrangThai(String value) { this.value = value; }
-        public String getValue() { return value; }
+    private final String value;
+    TrangThai(String value) { this.value = value; }
+    public String getValue() { return value; }
 
-        public static TrangThai fromString(String text) {
-            for (TrangThai t : TrangThai.values()) {
-                if (t.value.equalsIgnoreCase(text)) {
-                    return t;
-                }
+    public static TrangThai fromString(String text) {
+        for (TrangThai t : TrangThai.values()) {
+            if (t.value.equalsIgnoreCase(text)) {
+                return t;
             }
-            return HOAT_DONG;
         }
+        return HOAT_DONG;
+    }
     }
     
     private String maNguoiDung; 

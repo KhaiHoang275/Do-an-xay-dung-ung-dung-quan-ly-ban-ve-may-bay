@@ -216,50 +216,39 @@ public class ThanhToanHoaDonPanel extends JPanel {
         return btn;
     }
 
-    // ================= NẠP DỮ LIỆU ĐỘNG TỪ SQL =================
-    private void loadDynamicData() {
-        // Gán Mã Phiếu và set Phương thức thanh toán theo dữ liệu bảng truyền qua
-        valMaPhieu.setText(maPhieu);
-        if(phuongThuc != null) {
-            for(int i = 0; i < cboPhuongThuc.getItemCount(); i++) {
-                if(cboPhuongThuc.getItemAt(i).equalsIgnoreCase(phuongThuc.trim())) {
-                    cboPhuongThuc.setSelectedIndex(i); 
-                    break;
-                }
-            }
-        }
+   private void loadDynamicData() {
+    valMaPhieu.setText(maPhieu);
+    
+    // GỌI DATABASE QUA BUS
+    HoaDonBUS bus = new HoaDonBUS();
+    ThanhToanDTO data = bus.layChiTietThanhToan(maPhieu); 
+    
+    if (data != null) {
+        // Đổ dữ liệu từ Database vào các Label
+        valTenKH.setText(data.tenKH != null ? data.tenKH : "N/A");
+        valSDT.setText(data.sdt != null ? data.sdt : "N/A");
+        valEmail.setText(data.email != null ? data.email : "N/A");
+        valTuyenBay.setText(data.tuyenBay != null ? data.tuyenBay : "N/A");
+        valMaVe.setText(data.veGhe != null ? data.veGhe : "N/A");
+        valGioDi.setText(data.gioDi != null ? data.gioDi : "N/A");
+        valGioDen.setText(data.gioDen != null ? data.gioDen : "N/A");
 
-        // GỌI DATABASE LẤY DỮ LIỆU THẬT
-        HoaDonBUS bus = new HoaDonBUS();
-        ThanhToanDTO data = bus.layChiTietThanhToan(maPhieu); 
+        // Tính toán tiền dựa trên dữ liệu thật từ DB
+        BigDecimal veGoc = (data.giaVeGoc != null) ? data.giaVeGoc : BigDecimal.ZERO;
+        BigDecimal dvBS = (data.tongTienDichVu != null) ? data.tongTienDichVu : BigDecimal.ZERO;
         
-        if (data != null) {
-            valTenKH.setText(data.tenKH != null ? data.tenKH : "N/A");
-            valSDT.setText(data.sdt != null ? data.sdt : "N/A");
-            valEmail.setText(data.email != null ? data.email : "N/A");
-            valTuyenBay.setText(data.tuyenBay != null ? data.tuyenBay : "N/A");
-            valMaVe.setText(data.veGhe != null ? data.veGhe : "N/A");
-            valGioDi.setText(data.gioDi != null ? data.gioDi : "N/A");
-            valGioDen.setText(data.gioDen != null ? data.gioDen : "N/A");
+        BigDecimal tongTruocThue = veGoc.add(dvBS);
+        BigDecimal vat = tongTruocThue.multiply(new BigDecimal("0.1"));
+        BigDecimal finalTotal = tongTruocThue.add(vat);
 
-            // LOGIC TÍNH TOÁN TIỀN (Vé Gốc + Dịch vụ + Thuế)
-            BigDecimal veGoc = (data.giaVeGoc != null) ? data.giaVeGoc : BigDecimal.ZERO;
-            BigDecimal dvBS = (data.tongTienDichVu != null) ? data.tongTienDichVu : BigDecimal.ZERO;
-            
-            BigDecimal tongTruocThue = veGoc.add(dvBS);
-            BigDecimal vat = tongTruocThue.multiply(new BigDecimal("0.1")); // Thuế VAT 10%
-            BigDecimal finalTotal = tongTruocThue.add(vat);
-
-            // HIỂN THỊ LÊN GIAO DIỆN
-            lblGiaVe.setText(String.format("%,.0f VND", veGoc));
-            lblDichVu.setText(String.format("%,.0f VND", dvBS)); 
-            lblThue.setText(String.format("%,.0f VND", vat));
-            lblTongTien.setText(String.format("%,.0f VND", finalTotal));
-            
-        } else {
-            valTenKH.setText("Không tìm thấy dữ liệu trong CSDL!");
-        }
+        lblGiaVe.setText(String.format("%,.0f VND", veGoc));
+        lblDichVu.setText(String.format("%,.0f VND", dvBS)); 
+        lblThue.setText(String.format("%,.0f VND", vat));
+        lblTongTien.setText(String.format("%,.0f VND", finalTotal));
+    } else {
+        JOptionPane.showMessageDialog(this, "Không tìm thấy chi tiết cho phiếu đặt: " + maPhieu);
     }
+}
 
     // ================= EVENTS & LOGIC =================
     private void setupListeners() {
@@ -439,9 +428,6 @@ public class ThanhToanHoaDonPanel extends JPanel {
         // Nhét khu vực Body vào CHÍNH GIỮA tờ giấy
         panel.add(pnlBody, BorderLayout.CENTER);
 
-
-        // ================= 3. FOOTER (KHU VỰC CĂN GIỮA TUYỆT ĐỐI) =================
-        // Dùng FlowLayout.CENTER để chắc chắn 100% dòng chữ nằm ở giữa
         JPanel pnlFooter = new JPanel(new FlowLayout(FlowLayout.CENTER));
         pnlFooter.setBackground(Color.WHITE);
         
@@ -461,7 +447,5 @@ public class ThanhToanHoaDonPanel extends JPanel {
         JLabel l = new JLabel(text); l.setFont(font); return l;
     }
 
-    private JLabel createRightLabel(String text, Font font) {
-        JLabel l = new JLabel(text, SwingConstants.RIGHT); l.setFont(font); return l;
-    }
+   
 }

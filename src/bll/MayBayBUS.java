@@ -64,4 +64,9 @@ public class MayBayBUS {
         if (dao.delete(maMayBay)) return "Đã đưa máy bay vào thùng rác!";
         return "Đưa vào thùng rác thất bại!";
     }
+
+    public MayBay getMayBayById(String maMayBay) {
+        return dao.selectById(maMayBay);
+    }
+
 }

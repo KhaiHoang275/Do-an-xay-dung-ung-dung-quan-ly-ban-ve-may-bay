@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import db.DBConnection;
+import model.TrangThaiGhe;
 import model.VeBan;
 
 public class VeBanDAO {
@@ -244,6 +245,15 @@ public class VeBanDAO {
         return false;
     }
 
+    public boolean updateGheTrangThai(Connection conn, String maGhe, TrangThaiGhe trangThai) throws SQLException {
+        String sql = "UPDATE GheMayBay SET TrangThai = ? WHERE maGhe = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, trangThai.name());  // 'DA_DAT' hoặc 'TRONG'
+            ps.setString(2, maGhe);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
      public boolean checkSeatAvailable(String maChuyenBay, String maGhe) {
 
         String sql = """
@@ -271,6 +281,47 @@ public class VeBanDAO {
         }
 
         return false;
+    }
+
+    public List<VeBan> selectVeCoTheDoi(String maHK) {
+        List<VeBan> list = new ArrayList<>();
+        String sql = """
+                       SELECT v.*
+                       FROM VeBan v
+                       JOIN ChuyenBay cb ON v.maChuyenBay = cb.maChuyenBay
+                       JOIN PhieuDatVe pdv ON v.maPhieuDatVe = pdv.maPhieuDatVe
+                       WHERE v.maHK = ?
+                         AND v.trangThaiVe IN (N'Đã xuất', N'Chưa sử dụng')
+                         AND pdv.trangThaiThanhToan = N'Đã thanh toán'
+                         AND cb.trangThai <> N'Đã bay'
+                         AND cb.ngayGioDi > GETDATE()       
+                """;
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maHK);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                VeBan ve = new VeBan();
+
+                ve.setMaVe(rs.getString("maVe"));
+                ve.setMaPhieuDatVe(rs.getString("maPhieuDatVe"));
+                ve.setMaChuyenBay(rs.getString("maChuyenBay"));
+                ve.setMaHK(rs.getString("maHK"));
+                ve.setMaHangVe(rs.getString("maHangVe"));
+                ve.setMaGhe(rs.getString("maGhe"));
+                ve.setLoaiVe(rs.getString("loaiVe"));
+                ve.setLoaiHK(rs.getString("loaiHK"));
+                ve.setGiaVe(rs.getBigDecimal("giaVe"));
+                ve.setTrangThaiVe(rs.getString("trangThaiVe"));
+
+                list.add(ve);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 
     public int countByChuyenBay(String maChuyenBay) {
@@ -394,6 +445,21 @@ public class VeBanDAO {
         return list;
     }
 
+    private VeBan map(ResultSet rs) throws Exception {
+        VeBan v = new VeBan();
+
+        v.setMaVe(rs.getString("maVe"));
+        v.setMaPhieuDatVe(rs.getString("maPhieuDatVe"));
+        v.setMaHK(rs.getString("maHK"));
+        v.setMaChuyenBay(rs.getString("maChuyenBay"));
+        v.setLoaiHK(rs.getString("loaiHK"));
+        v.setLoaiVe(rs.getString("loaiVe"));
+        v.setGiaVe(rs.getBigDecimal("giaVe"));
+        v.setTrangThaiVe(rs.getString("trangThaiVe"));
+
+        return v;
+    }
+
     public BigDecimal tinhGiaVeFull(String maChuyenBay,
                                 String maHangVe,
                                 String loaiHK) {
@@ -433,5 +499,69 @@ public class VeBanDAO {
                 .multiply(heSoThoiDiem)
                 .multiply(heSoLoaiHK)
                 .setScale(0, RoundingMode.HALF_UP);
+    }
+
+    public List<VeBan> selectByMaHK(String maHK){
+
+        List<VeBan> list = new ArrayList<>();
+
+        try(Connection conn = DBConnection.getConnection()){
+
+            String sql = "SELECT * FROM VeBan WHERE maHK = ?";
+
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, maHK);
+
+            ResultSet rs = ps.executeQuery();
+
+            while(rs.next()){
+                VeBan v = map(rs);
+                list.add(v);
+            }
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    public List<VeBan> searchByMaHK(String maHK, String keyword, String trangThai){
+        List<VeBan> list = new ArrayList<>();
+
+        try(Connection conn = DBConnection.getConnection()){
+
+            String sql = """
+            SELECT * FROM VeBan
+            WHERE maHK = ?
+            AND (maVe LIKE ? OR maPhieuDatVe LIKE ?)
+            """;
+
+            if(trangThai != null){
+                sql += " AND trangThaiVe = ?";
+            }
+
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setString(1, maHK);
+            ps.setString(2, "%" + keyword + "%");
+            ps.setString(3, "%" + keyword + "%");
+
+            if(trangThai != null){
+                ps.setString(4, trangThai);
+            }
+
+            ResultSet rs = ps.executeQuery();
+
+            while(rs.next()){
+                VeBan v = map(rs);
+                list.add(v);
+            }
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return list;
     }
 }

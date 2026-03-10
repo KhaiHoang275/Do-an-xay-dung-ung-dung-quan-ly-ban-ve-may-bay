@@ -250,4 +250,23 @@ public class ChuyenBayDAO {
 
         return null;
     }
+
+    public String layMaMayBay(Connection conn, String maChuyenBay){
+        try{
+            String sql = "SELECT maMayBay FROM ChuyenBay WHERE maChuyenBay = ?";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, maChuyenBay);
+
+            ResultSet rs = ps.executeQuery();
+
+            if(rs.next()){
+                return rs.getString("maMayBay");
+            }
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 }

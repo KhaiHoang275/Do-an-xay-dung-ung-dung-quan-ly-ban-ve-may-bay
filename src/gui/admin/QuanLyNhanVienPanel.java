@@ -59,6 +59,7 @@ public class QuanLyNhanVienPanel extends JPanel {
         lblTitle.setBorder(BorderFactory.createEmptyBorder(0, 5, 10, 0));
         panelNorth.add(lblTitle, BorderLayout.NORTH);
 
+  
         JPanel pnlForm = new JPanel(new GridLayout(3, 4, 15, 15));
         pnlForm.setBackground(Color.WHITE);
         pnlForm.setBorder(BorderFactory.createCompoundBorder(
@@ -66,6 +67,7 @@ public class QuanLyNhanVienPanel extends JPanel {
                 new EmptyBorder(15, 15, 15, 15)
         ));
 
+    
         pnlForm.add(new JLabel("Mã Nhân Viên (*):"));
         txtMaNV = new JTextField();
         pnlForm.add(txtMaNV);
@@ -74,6 +76,7 @@ public class QuanLyNhanVienPanel extends JPanel {
         txtMaNguoiDung = new JTextField();
         pnlForm.add(txtMaNguoiDung);
 
+  
         pnlForm.add(new JLabel("Họ và Tên (*):"));
         txtHoTen = new JTextField();
         pnlForm.add(txtHoTen);
@@ -82,6 +85,7 @@ public class QuanLyNhanVienPanel extends JPanel {
         txtChucVu = new JTextField();
         pnlForm.add(txtChucVu);
 
+   
         pnlForm.add(new JLabel("Ngày Vào Làm:"));
         spinnerNgayVaoLam = new JSpinner(new SpinnerDateModel());
         JSpinner.DateEditor dateEditor = new JSpinner.DateEditor(spinnerNgayVaoLam, "dd/MM/yyyy");
@@ -92,8 +96,7 @@ public class QuanLyNhanVienPanel extends JPanel {
         cboTrangThai = new JComboBox<>(new String[]{"Hoạt động", "Ngừng hoạt động"});
         pnlForm.add(cboTrangThai);
         
-        pnlForm.add(new JLabel(""));
-        pnlForm.add(new JLabel(""));
+
 
         JPanel pnlActions = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         pnlActions.setBackground(BG_MAIN);
@@ -135,42 +138,48 @@ public class QuanLyNhanVienPanel extends JPanel {
     }
 
     private JPanel initTable() {
-        JPanel pnlTable = new JPanel(new BorderLayout());
-        pnlTable.setBackground(Color.WHITE);
-        pnlTable.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+                JPanel pnlTable = new JPanel(new BorderLayout());
+                pnlTable.setBackground(Color.WHITE);
+                pnlTable.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        String[] cols = {"Mã NV", "Mã User", "Họ Tên", "Chức Vụ", "Ngày Vào Làm", "Trạng Thái"};
-        tableModel = new DefaultTableModel(cols, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) { return false; }
-        };
+                String[] cols = {"Mã NV", "Mã User", "Họ Tên", "Chức Vụ", "Ngày Vào Làm", "Trạng Thái"};
+                tableModel = new DefaultTableModel(cols, 0) {
+                        @Override
+                        public boolean isCellEditable(int row, int column) { return false; }
+                };
 
-        table = new JTable(tableModel);
-        table.setRowHeight(35);
-        table.setShowHorizontalLines(true);
-        table.setGridColor(new Color(230, 230, 230));
-        table.setSelectionBackground(new Color(241, 245, 249));
-        table.setFont(new Font("Arial", Font.PLAIN, 14));
+                table = new JTable(tableModel);
+                table.setRowHeight(35);
+                table.setShowHorizontalLines(true);
+                table.setGridColor(new Color(230, 230, 230));
+                
+                table.setSelectionBackground(new Color(28, 48, 96)); 
+                table.setSelectionForeground(Color.WHITE);
+                
+                table.setFont(new Font("Arial", Font.PLAIN, 14));
 
-        JTableHeader header = table.getTableHeader();
-        header.setPreferredSize(new Dimension(header.getWidth(), 40));
-        header.setBackground(TABLE_HEADER);
-        header.setForeground(Color.WHITE);
-        header.setFont(new Font("Arial", Font.BOLD, 14));
+                JTableHeader header = table.getTableHeader();
+                header.setPreferredSize(new Dimension(header.getWidth(), 40));
+                header.setBackground(TABLE_HEADER);
+                header.setForeground(Color.WHITE);
+                header.setFont(new Font("Arial", Font.BOLD, 14));
 
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-        for (int i = 0; i < table.getColumnCount(); i++) {
-            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+                DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+                centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+                for (int i = 0; i < table.getColumnCount(); i++) {
+                        table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+                }
+
+                JScrollPane scrollPane = new JScrollPane(table);
+                scrollPane.getViewport().setBackground(Color.WHITE);
+                
+                scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+                scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+                
+                pnlTable.add(scrollPane, BorderLayout.CENTER);
+
+                return pnlTable;
         }
-
-        JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.getViewport().setBackground(Color.WHITE);
-        pnlTable.add(scrollPane, BorderLayout.CENTER);
-
-        return pnlTable;
-    }
-
     private JButton createButton(String text, Color bg) {
         JButton btn = new JButton(text);
         btn.setFont(new Font("Arial", Font.BOLD, 14));

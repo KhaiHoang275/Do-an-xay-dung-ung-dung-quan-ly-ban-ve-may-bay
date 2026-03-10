@@ -25,8 +25,9 @@ public class HoaDonPanel extends JPanel {
     private JTextField txtMaHoaDon, txtMaPhieuDatVe, txtMaNV, txtTongTien, txtThue, txtTimKiem;
     private JSpinner spinnerNgayLap;
     private JComboBox<String> cboPhuongThuc, cboDonViTienTe, cboHienThi, cboTrangThai;
-    private JButton btnThem, btnSua, btnXoa, btnLamMoi, btnTimKiem; 
-
+    private JButton btnThem, btnSua, btnXoa, btnLamMoi, btnTimKiem,btnThanhToan;
+    private JButton btnXuatPDF;
+    
     private HoaDonBUS hoaDonBUS;
 
     private final Color PRIMARY = new Color(220, 38, 38);
@@ -36,7 +37,8 @@ public class HoaDonPanel extends JPanel {
     private final Color BTN_UPDATE = new Color(59, 130, 246);
     private final Color BTN_DELETE = new Color(239, 68, 68);
     private final Color BTN_REFRESH = new Color(168, 85, 247);
-
+    private final Color BTN_PDF = new Color(234, 179, 8); 
+    private final Color BTN_PAYMENT = new Color(16, 185, 200);
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     public HoaDonPanel() {
@@ -113,11 +115,10 @@ public class HoaDonPanel extends JPanel {
         txtMaNV = createTextField();
         txtTongTien = createTextField();
         txtThue = createTextField();
-        txtThue.setEditable(false); // Khóa ô Thuế, không cho người dùng tự gõ tay
-        txtThue.setBackground(new Color(230, 235, 240)); // Đổi màu xám nhẹ để báo hiệu đây là ô tự động
+        txtThue.setEditable(false);
+        txtThue.setBackground(new Color(230, 235, 240));
         txtThue.setToolTipText("Thuế VAT được tự động tính = 10% Tổng tiền");
 
-        // Lắng nghe sự kiện mỗi khi người dùng gõ phím vào ô Tổng Tiền
         txtTongTien.addKeyListener(new java.awt.event.KeyAdapter() {
             @Override
             public void keyReleased(java.awt.event.KeyEvent evt) {
@@ -125,9 +126,7 @@ public class HoaDonPanel extends JPanel {
                     String input = txtTongTien.getText().trim().replace(",", "");
                     if (!input.isEmpty()) {
                         BigDecimal tongTien = new BigDecimal(input);
-                        // Tính thuế VAT 10%
                         BigDecimal vat = tongTien.multiply(new BigDecimal("0.10")); 
-                        // Hiển thị ra ô Thuế
                         txtThue.setText(String.format("%.0f", vat));
                     } else {
                         txtThue.setText("0");
@@ -187,12 +186,13 @@ public class HoaDonPanel extends JPanel {
         btnSua = createRoundedButton("Cập nhật", BTN_UPDATE, "/resources/icons/icons8-update-24.png", 20);
         btnXoa = createRoundedButton("Xóa", BTN_DELETE, "/resources/icons/icons8-delete-24.png", 20);
         btnLamMoi = createRoundedButton("Làm mới", BTN_REFRESH, "/resources/icons/icons8-erase-24.png", 20);
-        
-
+        // btnXuatPDF = createRoundedButton("Xuất PDF", BTN_PDF, "/resources/icons/icons8-pdf-24.png", 20);
+        btnThanhToan = createRoundedButton("Thanh toán", BTN_PAYMENT, "/resources/icons/icons8-cash-24.png", 20);
         buttonPanel.add(btnThem);
         buttonPanel.add(btnSua);
         buttonPanel.add(btnXoa);
         buttonPanel.add(btnLamMoi);
+        buttonPanel.add(btnThanhToan);
 
         formCard.add(buttonPanel, BorderLayout.SOUTH);
         add(formCard, BorderLayout.SOUTH);
@@ -316,11 +316,11 @@ public class HoaDonPanel extends JPanel {
                 if (value != null) {
                     String status = value.toString();
                     if (status.equalsIgnoreCase("Đã thanh toán")) {
-                        setForeground(new Color(34, 197, 94)); // Màu Xanh lá
+                        setForeground(new Color(34, 197, 94)); 
                     } else if (status.equalsIgnoreCase("Chưa thanh toán")) {
-                        setForeground(new Color(239, 68, 68)); // Màu Đỏ
+                        setForeground(new Color(239, 68, 68)); 
                     } else {
-                        setForeground(new Color(156, 163, 175)); // Màu Xám
+                        setForeground(new Color(156, 163, 175)); 
                     }
                 }
             
@@ -333,7 +333,7 @@ public class HoaDonPanel extends JPanel {
 
         for(int i = 0; i < table.getColumnCount(); i++){
             if (i == 8) {
-                table.getColumnModel().getColumn(i).setCellRenderer(statusRenderer); // Áp dụng tô màu cho cột số 8 (Trạng thái)
+                table.getColumnModel().getColumn(i).setCellRenderer(statusRenderer); 
             } else {
                 table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
             }
@@ -353,7 +353,7 @@ public class HoaDonPanel extends JPanel {
                     hd.getPhuongThuc(),
                     hd.getDonViTienTe(),
                     String.format("%,.0f", hd.getThue()),
-                    hd.getTrangThai() != null ? hd.getTrangThai() : "Chưa thanh toán" // Load dữ liệu trạng thái
+                    hd.getTrangThai() != null ? hd.getTrangThai() : "Chưa thanh toán" 
             });
         }
     }
@@ -385,7 +385,6 @@ public class HoaDonPanel extends JPanel {
                     String thueStr = tableModel.getValueAt(row, 7) != null ? tableModel.getValueAt(row, 7).toString().replace(",", "") : "0";
                     txtThue.setText(thueStr);
 
-                    // Set lại dữ liệu trạng thái khi click vào bảng
                     cboTrangThai.setSelectedItem(tableModel.getValueAt(row, 8) != null ? tableModel.getValueAt(row, 8).toString() : "Chưa thanh toán");
                 }
             }
@@ -483,8 +482,38 @@ public class HoaDonPanel extends JPanel {
             
             loadDataToTable(ketQua);
         });
-    }
+        btnThanhToan.addActionListener(e -> {
+            int row = table.getSelectedRow();
+            if (row < 0) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn một hóa đơn để thanh toán!");
+                return;
+            }
+        String maHD = txtMaHoaDon.getText();
+            String maPhieu = txtMaPhieuDatVe.getText();
+            String ngayLapStr = tableModel.getValueAt(row, 3).toString();
+            String tongTienStr = txtTongTien.getText();
+            String phuongThucStr = cboPhuongThuc.getSelectedItem().toString();
+            String thueStr = txtThue.getText();
 
+            // Mở Dialog chứa ThanhToanHoaDonPanel
+            openPaymentDialog(maHD, maPhieu, ngayLapStr, tongTienStr, phuongThucStr, thueStr);
+        });
+    }
+    private void openPaymentDialog(String maHD, String maPhieu, String ngay, String tong, String pt, String thue) {
+        Window parentWindow = SwingUtilities.getWindowAncestor(this);
+        JDialog dialog = new JDialog(parentWindow, "Thanh toán hóa đơn", Dialog.ModalityType.APPLICATION_MODAL);
+        
+        // Gọi giao diện ThanhToanHoaDonPanel của bạn
+        ThanhToanHoaDonPanel paymentPanel = new ThanhToanHoaDonPanel(maHD, maPhieu, ngay, tong, pt, thue);
+        
+        dialog.add(paymentPanel);
+        dialog.setSize(1100, 750);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+        
+        // Sau khi đóng dialog, làm mới bảng để cập nhật trạng thái
+        btnLamMoi.doClick();
+    }
     private HoaDon getFormInput() throws Exception {
         String maHD = txtMaHoaDon.getText().trim();
         if (maHD.isEmpty()) throw new Exception("Mã hóa đơn không được để trống!");
@@ -499,14 +528,14 @@ public class HoaDonPanel extends JPanel {
 
         BigDecimal tongTien = BigDecimal.ZERO;
         try {
-            tongTien = new BigDecimal(txtTongTien.getText().trim().isEmpty() ? "0" : txtTongTien.getText().trim());
+            tongTien = new BigDecimal(txtTongTien.getText().trim().isEmpty() ? "0" : txtTongTien.getText().trim().replace(",", ""));
         } catch (NumberFormatException e) {
             throw new Exception("Tổng tiền phải là số hợp lệ!");
         }
         
         BigDecimal thue = BigDecimal.ZERO;
         try {
-            thue = new BigDecimal(txtThue.getText().trim().isEmpty() ? "0" : txtThue.getText().trim());
+            thue = new BigDecimal(txtThue.getText().trim().isEmpty() ? "0" : txtThue.getText().trim().replace(",", ""));
         } catch (NumberFormatException e) {
             throw new Exception("Thuế phải là số hợp lệ!");
         }
@@ -518,5 +547,23 @@ public class HoaDonPanel extends JPanel {
 
         return new HoaDon(maHD, maPhieu, maNV, ngayLap, tongTien, phuongThuc, donViTienTe, thue, trangThai);
     }
-    
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            try {
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            JFrame frame = new JFrame("Hệ thống Quản lý Hóa đơn - KH AirLine (Test Mode)");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setSize(1300, 850); 
+            frame.setLocationRelativeTo(null);
+            HoaDonPanel panel = new HoaDonPanel();
+            frame.add(panel);
+
+            frame.setVisible(true);
+        });
+    }
 }

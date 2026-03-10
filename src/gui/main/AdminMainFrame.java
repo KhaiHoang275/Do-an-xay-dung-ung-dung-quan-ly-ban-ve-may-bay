@@ -125,37 +125,37 @@ public class AdminMainFrame extends JFrame {
         });
 
         JButton btnGheMayBay = createSidebarButton("Quản lý ghế máy bay", "/resources/icons/chair.png");
-                btnGheMayBay.addActionListener(e -> {
-                    setActiveButton(btnGheMayBay);
+        btnGheMayBay.addActionListener(e -> {
+                setActiveButton(btnGheMayBay);
+                
+                GheMayBayPanel gheMayBayPanel = new GheMayBayPanel();
+                
+                gheMayBayPanel.setPanelSwitchListener((maMayBay, tenMayBay) -> {
                     
-                    GheMayBayPanel gheMayBayPanel = new GheMayBayPanel();
-                    
-                    gheMayBayPanel.setPanelSwitchListener((maMayBay, tenMayBay) -> {
-                        
                         SoDoGhePanel soDoPanel = new SoDoGhePanel(maMayBay, tenMayBay, 1);
-                        
-                        soDoPanel.setListener(new SoDoGhePanel.SoDoGheListener() {
-                            @Override
-                            public void onBack() {
-                                // Khi bấm "Trở về danh sách"
-                                showPanel(gheMayBayPanel); 
-                            }
-
-                            @Override
-                            public void onSeatSelected(GheMayBay ghe) {
-                                // Khi bấm "Chọn ghế này"
-                                // MỞ COMMENT DÒNG DƯỚI ĐỂ ĐIỀN DỮ LIỆU VÀO FORM:
-                                gheMayBayPanel.hienThiThongTinGheDaChon(ghe); 
-                                
-                                showPanel(gheMayBayPanel);
-                            }
-                        });
-                        
-                        showPanel(soDoPanel);
-                    });
                     
-                    showPanel(gheMayBayPanel);
+                        soDoPanel.setListener(new SoDoGhePanel.SoDoGheListener() {
+                                @Override
+                                public void onBack() {
+                                        showPanel(gheMayBayPanel); 
+                                }
+
+                                @Override
+                                public void onSeatsConfirmed(java.util.List<GheMayBay> selectedSeats) {
+                                        if (selectedSeats != null && !selectedSeats.isEmpty()) {
+                                                GheMayBay ghe = selectedSeats.get(0);
+                                                gheMayBayPanel.hienThiThongTinGheDaChon(ghe); 
+                                        }
+                                        
+                                        showPanel(gheMayBayPanel);
+                                }
+                        });
+                    
+                        showPanel(soDoPanel);
                 });
+                
+                showPanel(gheMayBayPanel);
+        });
 
         JButton btnDoiVe = createSidebarButton("Quản lý đổi vé", "/resources/icons/icons8-changeticket-24.png");
         btnDoiVe.addActionListener(e -> {
@@ -187,6 +187,24 @@ public class AdminMainFrame extends JFrame {
             showPanel(new QuanLyMayBayPanel());
         });
 
+        JButton btnHoaDon = createSidebarButton("Quản lý Hóa Đơn", "/resources/icons/invoice.png");
+        btnHoaDon.addActionListener(e -> {
+            setActiveButton(btnHoaDon);
+            showPanel(new HoaDonPanel());
+        });
+
+        JButton btnHanhLy = createSidebarButton("Quản lý Hành Lý", "/resources/icons/luggage.png");
+        btnHanhLy.addActionListener(e -> {
+            setActiveButton(btnHanhLy);
+            showPanel(new HanhLyPanel());
+        });
+
+        JButton btnDichVuBoSung = createSidebarButton("Quản lý Dịch Vụ Bổ Sung", "/resources/icons/service.png");
+        btnDichVuBoSung.addActionListener(e -> {
+            setActiveButton(btnDichVuBoSung);
+            showPanel(new DichVuBoSungPanel());
+        });
+
         // Thêm các nút vào menuPanel
         menuPanel.add(btnChuyenBay);
         menuPanel.add(btnTuyenBay);
@@ -202,6 +220,9 @@ public class AdminMainFrame extends JFrame {
         menuPanel.add(btnNhanVien);
         menuPanel.add(btnSanBay);
         menuPanel.add(btnMayBay);
+        menuPanel.add(btnHoaDon);
+        menuPanel.add(btnHanhLy);
+        menuPanel.add(btnDichVuBoSung);
 
         // ===== TẠO THANH CUỘN (SCROLL PANE) ĐỂ LƯỚT XUỐNG =====
         // Dùng 1 Panel bọc ngoài để các nút dồn lên trên (không bị kéo giãn nếu ít nút)

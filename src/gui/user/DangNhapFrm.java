@@ -2,9 +2,13 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package gui;
+package gui.user;
+
+import javax.swing.JOptionPane;
 
 import com.formdev.flatlaf.extras.FlatSVGIcon;
+
+import dal.NguoiDungDAO;
 
 /**
  *
@@ -87,7 +91,23 @@ public class DangNhapFrm extends javax.swing.JFrame {
         this.add(LoginLable, java.awt.BorderLayout.CENTER); 
         this.pack(); 
         this.setResizable(false); 
-        this.setLocationRelativeTo(null);
+        this.setLocationRelativeTo(null); 
+
+        javax.swing.JLabel lblAdminLogin = new javax.swing.JLabel("Admin login page");
+        lblAdminLogin.setForeground(new java.awt.Color(18, 32, 64));
+        lblAdminLogin.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD | java.awt.Font.ITALIC, 14));
+        lblAdminLogin.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        
+        lblAdminLogin.addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override
+                public void mouseClicked(java.awt.event.MouseEvent e) {
+                        new gui.admin.DangNhapPanel().setVisible(true);
+                        dispose();
+                }
+        });
+
+        LoginLable.add(lblAdminLogin); 
+        lblAdminLogin.setBounds(150, 400, 150, 30);
 
     }
 
@@ -304,55 +324,32 @@ public class DangNhapFrm extends javax.swing.JFrame {
         thucHienDangNhap();
     }//GEN-LAST:event_btnConfirmActionPerformed
     private void thucHienDangNhap() {
-        NameAccount.setBorder(defaultBorder);
-        PasswordField1.setBorder(defaultBorder);
-        lblErrorUser.setText(" ");
-        lblErrorPass.setText(" ");
+        String username = NameAccount.getText().trim();
+        String password = new String(PasswordField1.getPassword());
 
-        String user = NameAccount.getText().trim();
-        String pass = new String(PasswordField1.getPassword());
+        NguoiDungDAO dao = new NguoiDungDAO();
+        model.NguoiDung user = dao.checkLogin(username, password);
 
-        boolean hasError = false;
-
-        if (user.isEmpty()) {
-            NameAccount.setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.RED, 2));
-            lblErrorUser.setText("* Chưa nhập tên tài khoản");
-            hasError = true;
-        }
-        if (pass.isEmpty()) {
-            PasswordField1.setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.RED, 2));
-            lblErrorPass.setText("* Chưa nhập mật khẩu");
-            hasError = true;
-        }
-
-        if (hasError) return;
-
-        bll.NguoiDungBUS bus = new bll.NguoiDungBUS();
-        model.NguoiDung nd = bus.checkLogin(user, pass);
-
-        if (nd != null) { 
+        if (user != null) {
+           
+            java.util.prefs.Preferences prefs = java.util.prefs.Preferences.userNodeForPackage(DangNhapFrm.class);
             if (rbtnRemember.isSelected()) {
-                java.util.prefs.Preferences prefs = java.util.prefs.Preferences.userNodeForPackage(DangNhapFrm.class);
-                prefs.put("saved_user", user);
-                prefs.put("saved_pass", pass);
+                prefs.put("saved_user", username);
+                prefs.put("saved_pass", password);
+                System.out.println("Đã ghi nhớ tài khoản.");
+            } else {
+          
+                prefs.remove("saved_user");
+                prefs.remove("saved_pass");
             }
-            javax.swing.JOptionPane.showMessageDialog(this, "Đăng nhập thành công!\nXin chào: " + nd.getUsername(), "Thông báo", javax.swing.JOptionPane.INFORMATION_MESSAGE);
-        
-            for (java.awt.Window window : java.awt.Window.getWindows()) {
-                window.dispose();
-            }
-            
-            new MainFrame(nd).setVisible(true);
-             
-        } else {
-            NameAccount.setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.RED, 2));
-            PasswordField1.setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.RED, 2));
-            lblErrorPass.setText("* Sai tên đăng nhập hoặc mật khẩu");
-            PasswordField1.setText("");
-            NameAccount.requestFocus();
-        }
-    } 
 
+   
+            new MainFrame(user).setVisible(true);
+            this.dispose();
+        } else {
+            JOptionPane.showMessageDialog(this, "Tài khoản hoặc mật khẩu sai!");
+        }
+    }
     private void btnSeeCnPassActionPerformed(java.awt.event.ActionEvent evt) {                                             
         isShowPassword = !isShowPassword;
         

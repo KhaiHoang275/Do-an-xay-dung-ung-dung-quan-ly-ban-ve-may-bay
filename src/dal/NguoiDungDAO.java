@@ -116,7 +116,7 @@ public class NguoiDungDAO {
     }
 
     public NguoiDung checkLogin(String username, String password) {
-        String sql = "SELECT * FROM NguoiDung WHERE username = ? AND password = ? AND trangThaiTK = N'Hoạt động'";
+        String sql = "SELECT * FROM NguoiDung WHERE username = ? AND password = ? AND trangThaiTK = 'HOAT_DONG'";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, username);

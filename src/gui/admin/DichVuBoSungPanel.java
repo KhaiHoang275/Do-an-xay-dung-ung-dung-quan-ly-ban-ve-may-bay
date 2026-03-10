@@ -83,7 +83,10 @@ public class DichVuBoSungPanel extends JPanel {
 
         String[] columns = {"Mã Dịch Vụ", "Tên Dịch Vụ", "Đơn Giá (VNĐ)"};
         tableModel = new DefaultTableModel(columns, 0) {
-            public boolean isCellEditable(int row, int column) { return false; }
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
         };
 
         table = new JTable(tableModel);

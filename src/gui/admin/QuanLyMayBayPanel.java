@@ -56,6 +56,7 @@ public class QuanLyMayBayPanel extends JPanel {
         lblTitle.setBorder(BorderFactory.createEmptyBorder(0, 5, 10, 0));
         panelNorth.add(lblTitle, BorderLayout.NORTH);
 
+        // Khai báo 3 hàng, 4 cột (chứa chính xác 12 thành phần)
         JPanel pnlForm = new JPanel(new GridLayout(3, 4, 15, 15));
         pnlForm.setBackground(Color.WHITE);
         pnlForm.setBorder(BorderFactory.createCompoundBorder(
@@ -63,6 +64,7 @@ public class QuanLyMayBayPanel extends JPanel {
                 new EmptyBorder(15, 15, 15, 15)
         ));
 
+        // --- HÀNG 1 ---
         pnlForm.add(new JLabel("Mã Máy Bay (*):"));
         txtMaMayBay = new JTextField();
         pnlForm.add(txtMaMayBay);
@@ -71,6 +73,7 @@ public class QuanLyMayBayPanel extends JPanel {
         txtSoHieu = new JTextField();
         pnlForm.add(txtSoHieu);
 
+        // --- HÀNG 2 ---
         pnlForm.add(new JLabel("Hãng Sản Xuất:"));
         txtHangSanXuat = new JTextField();
         pnlForm.add(txtHangSanXuat);
@@ -79,12 +82,12 @@ public class QuanLyMayBayPanel extends JPanel {
         spinnerTongSoGhe = new JSpinner(new SpinnerNumberModel(100, 1, 1000, 1));
         pnlForm.add(spinnerTongSoGhe);
         
+        // --- HÀNG 3 ---
         pnlForm.add(new JLabel("Trạng Thái:"));
         cboTrangThai = new JComboBox<>(new String[]{"Hoạt động", "Ngừng hoạt động"});
         pnlForm.add(cboTrangThai);
 
-        // Đệm ô trống
-        pnlForm.add(new JLabel(""));
+        // Đệm đúng 2 ô trống để lấp đầy 12 slots của hàng 3 (10 ô dữ liệu + 2 ô trống = 12)
         pnlForm.add(new JLabel(""));
         pnlForm.add(new JLabel(""));
 
@@ -128,41 +131,48 @@ public class QuanLyMayBayPanel extends JPanel {
     }
 
     private JPanel initTable() {
-        JPanel pnlTable = new JPanel(new BorderLayout());
-        pnlTable.setBackground(Color.WHITE);
-        pnlTable.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+                JPanel pnlTable = new JPanel(new BorderLayout());
+                pnlTable.setBackground(Color.WHITE);
+                pnlTable.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        String[] cols = {"Mã Máy Bay", "Số Hiệu", "Hãng Sản Xuất", "Tổng Số Ghế", "Trạng Thái"};
-        tableModel = new DefaultTableModel(cols, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) { return false; }
-        };
+                String[] cols = {"Mã Máy Bay", "Số Hiệu", "Hãng Sản Xuất", "Tổng Số Ghế", "Trạng Thái"};
+                tableModel = new DefaultTableModel(cols, 0) {
+                        @Override
+                        public boolean isCellEditable(int row, int column) { return false; }
+                };
 
-        table = new JTable(tableModel);
-        table.setRowHeight(35);
-        table.setShowHorizontalLines(true);
-        table.setGridColor(new Color(230, 230, 230));
-        table.setSelectionBackground(new Color(241, 245, 249));
-        table.setFont(new Font("Arial", Font.PLAIN, 14));
+                table = new JTable(tableModel);
+                table.setRowHeight(35);
+                table.setShowHorizontalLines(true);
+                table.setGridColor(new Color(230, 230, 230));
+                
+                table.setSelectionBackground(new Color(28, 48, 96)); 
+                table.setSelectionForeground(Color.WHITE);
+                
+                table.setFont(new Font("Arial", Font.PLAIN, 14));
 
-        JTableHeader header = table.getTableHeader();
-        header.setPreferredSize(new Dimension(header.getWidth(), 40));
-        header.setBackground(TABLE_HEADER);
-        header.setForeground(Color.WHITE);
-        header.setFont(new Font("Arial", Font.BOLD, 14));
+                JTableHeader header = table.getTableHeader();
+                header.setPreferredSize(new Dimension(header.getWidth(), 40));
+                header.setBackground(TABLE_HEADER); 
+                header.setForeground(Color.WHITE);
+                header.setFont(new Font("Arial", Font.BOLD, 14));
 
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-        for (int i = 0; i < table.getColumnCount(); i++) {
-            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+                DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+                centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+                for (int i = 0; i < table.getColumnCount(); i++) {
+                        table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+                }
+
+                JScrollPane scrollPane = new JScrollPane(table);
+                scrollPane.getViewport().setBackground(Color.WHITE);
+                
+                scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+                scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+                
+                pnlTable.add(scrollPane, BorderLayout.CENTER);
+
+                return pnlTable;
         }
-
-        JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.getViewport().setBackground(Color.WHITE);
-        pnlTable.add(scrollPane, BorderLayout.CENTER);
-
-        return pnlTable;
-    }
 
     private JButton createButton(String text, Color bg) {
         JButton btn = new JButton(text);

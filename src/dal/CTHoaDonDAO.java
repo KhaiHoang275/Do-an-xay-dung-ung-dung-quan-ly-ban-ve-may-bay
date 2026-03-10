@@ -75,6 +75,4 @@ public class CTHoaDonDAO {
         return isSuccess;
     }
     
-    // Lưu ý: Bảng chi tiết hóa đơn thường không cần hàm UPDATE vì sai thì xóa đi tạo lại, 
-    // nhưng nếu hệ thống của bạn yêu cầu, bạn có thể bổ sung sau.
 }

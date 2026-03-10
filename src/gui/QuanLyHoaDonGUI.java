@@ -1,6 +1,6 @@
 package gui;
 
-import bus.HoaDonBUS;
+import bll.HoaDonBUS;
 import model.HoaDon;
 
 // Import thư viện iTextPDF

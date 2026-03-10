@@ -16,6 +16,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -26,10 +27,10 @@ import javax.swing.JPopupMenu;
 
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 
-import gui.DangNhapFrm;
-import gui.DangKyFrm;
-import gui.MainFrame;
-import gui.UserInfoFrm;
+import gui.user.DangNhapFrm;
+import gui.user.DangKyFrm;
+import gui.user.MainFrame;
+import gui.user.UserInfoFrm;
 import model.NguoiDung;
 
 public class HeaderHelper {
@@ -78,12 +79,12 @@ public class HeaderHelper {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (!(currentFrame instanceof MainFrame)) {
-                    if (currentUser != null) {
-                        new gui.MainFrame(currentUser).setVisible(true); 
-                    } else {
-                        new gui.MainFrame().setVisible(true); 
-                    }
-                    currentFrame.dispose(); 
+                    MainFrame main = new MainFrame();
+                    
+                    main.setVisible(true);
+                    currentFrame.dispose();
+                } else {
+                    System.out.println("Đang ở trang chủ rồi, không nhân đôi trang!");
                 }
             }
         });
@@ -198,7 +199,17 @@ public class HeaderHelper {
                     currentFrame.dispose();
                 }
             });
-            itemLichSu.addActionListener(e -> JOptionPane.showMessageDialog(currentFrame, "Đang xây dựng form Lịch sử đặt vé..."));
+            itemLichSu.addActionListener(e -> {
+                if (currentUser != null) {
+                    JDialog dialog = new JDialog(currentFrame, "Danh sách Giao Dịch", true);
+                    dialog.setSize(850, 500);
+                    dialog.setLocationRelativeTo(currentFrame);
+                    dialog.add(new gui.user.LichSuGiaoDichPanel(currentUser));
+                    dialog.setVisible(true);
+                } else {
+                    JOptionPane.showMessageDialog(currentFrame, "Vui lòng đăng nhập!");
+                }
+            });
             itemDangXuat.addActionListener(e -> {
                 Preferences prefs = Preferences.userNodeForPackage(DangNhapFrm.class);
                 prefs.remove("saved_user");

@@ -63,5 +63,14 @@ public class SanBay {
     public String getThanhPho() { return thanhPho; }
     
     public void setTrangThai(TrangThai trangThai) { this.trangThai = trangThai; }
-    public TrangThai getTrangThai() { return trangThai; }
+    public TrangThai getTrangThai() { return trangThai; } 
+
+    @Override
+    public String toString() {
+        if (this.maSanBay == null || this.maSanBay.isEmpty()) {
+            return this.thanhPho; 
+        }
+    
+        return this.thanhPho + " (" + this.maSanBay + ")"; 
+    }
 }

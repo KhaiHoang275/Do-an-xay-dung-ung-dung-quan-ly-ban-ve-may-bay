@@ -1,174 +1,221 @@
 package gui.admin;
 
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Font;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import javax.swing.BorderFactory;
-import javax.swing.JOptionPane;
-import javax.swing.border.Border;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
 
-public class DangNhapPanel extends javax.swing.JFrame {
+public class DangNhapPanel extends JFrame {
 
-    private Border defaultBorder;
     private boolean isShowPassword = false;
 
     private final Color BG_MAIN = new Color(240, 244, 248);
     private final Color PANEL_COLOR = Color.WHITE;
     private final Color ADMIN_PRIMARY = new Color(13, 110, 253);
-    private final Color ERROR_COLOR = new Color(220, 53, 69);
+    private final Color BUTTON_HOVER = new Color(10, 88, 202);
+    private final Color TEXT_COLOR = new Color(33, 37, 41);
+
+    private gui.custom.RoundedPanel LoginLable; 
+    private JLabel LableTitle, jLabel1, LablePassword;
+    private JTextField NameAccount;
+    private JPasswordField PasswordField1;
+    private JButton btnConfirm, btnReturn, btnSeeCnPass;
 
     public DangNhapPanel() {
-        initComponents();
-        setupUI();
+        initCustomUI();
         setupEvents();
     }
 
-    private void setupUI() {
-        this.getContentPane().setBackground(BG_MAIN);
+    private void initCustomUI() {
         this.setTitle("Cổng Đăng Nhập Quản Trị Viên");
-        this.setResizable(false);
+        this.setSize(650, 450);
         this.setLocationRelativeTo(null);
-        this.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        this.getContentPane().setBackground(BG_MAIN);
+        
+        this.setLayout(new GridBagLayout()); 
 
+        LoginLable = new gui.custom.RoundedPanel();
         LoginLable.setBackground(PANEL_COLOR);
-        LoginLable.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        LoginLable.setPreferredSize(new Dimension(420, 320));
+        LoginLable.setLayout(new GridBagLayout());
+        
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+        gbc.gridx = 0;
 
-        LableTitle.setText("ADMIN PORTAL");
-        LableTitle.setFont(new Font("Segoe UI", Font.BOLD, 38));
+
+        LableTitle = new JLabel("ĐĂNG NHẬP ADMIN", SwingConstants.CENTER);
+        LableTitle.setFont(new Font("Segoe UI", Font.BOLD, 24));
         LableTitle.setForeground(ADMIN_PRIMARY);
+        gbc.gridy = 0;
+        gbc.insets = new Insets(20, 20, 25, 20); // Top, Left, Bottom, Right
+        LoginLable.add(LableTitle, gbc);
 
-        btnSeeCnPass.setText("👁");
-        btnSeeCnPass.setBorderPainted(false);
-        btnSeeCnPass.setContentAreaFilled(false);
+   
+        jLabel1 = new JLabel("Tên đăng nhập:");
+        jLabel1.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        jLabel1.setForeground(TEXT_COLOR);
+        gbc.gridy = 1;
+        gbc.insets = new Insets(0, 30, 5, 30);
+        LoginLable.add(jLabel1, gbc);
+
+      
+        NameAccount = new JTextField();
+        NameAccount.setPreferredSize(new Dimension(300, 38));
+        NameAccount.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        gbc.gridy = 2;
+        gbc.insets = new Insets(0, 30, 15, 30);
+        LoginLable.add(NameAccount, gbc);
+
+
+        LablePassword = new JLabel("Mật khẩu:");
+        LablePassword.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        LablePassword.setForeground(TEXT_COLOR);
+        gbc.gridy = 3;
+        gbc.insets = new Insets(0, 30, 5, 30);
+        LoginLable.add(LablePassword, gbc);
+
+     
+        JPanel pnlPassword = new JPanel(new BorderLayout());
+        pnlPassword.setBackground(Color.WHITE);
+        pnlPassword.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200))); // Vẽ viền giả
+        pnlPassword.setPreferredSize(new Dimension(300, 38));
+
+        PasswordField1 = new JPasswordField();
+        PasswordField1.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        PasswordField1.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5)); // Xóa viền thật
+        
+        btnSeeCnPass = new JButton("Hiện");
+        btnSeeCnPass.setFont(new Font("Segoe UI", Font.BOLD, 16));
         btnSeeCnPass.setFocusPainted(false);
+        btnSeeCnPass.setBorderPainted(false); 
+        btnSeeCnPass.setForeground(new Color(100, 100, 100));
+        btnSeeCnPass.setContentAreaFilled(false);
         btnSeeCnPass.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnSeeCnPass.setForeground(Color.GRAY);
+        btnSeeCnPass.setPreferredSize(new Dimension(70, 38));
+        pnlPassword.add(PasswordField1, BorderLayout.CENTER);
+        pnlPassword.add(btnSeeCnPass, BorderLayout.EAST);
 
-        btnConfirm.setText("ĐĂNG NHẬP HỆ THỐNG");
+        gbc.gridy = 4;
+        gbc.insets = new Insets(0, 30, 25, 30);
+        LoginLable.add(pnlPassword, gbc);
+
+        // 6. Khung chứa 2 nút bấm (Quay lại & Đăng nhập)
+        JPanel pnlButtons = new JPanel(new GridLayout(1, 2, 15, 0)); // Chia làm 2 nửa bằng nhau
+        pnlButtons.setBackground(PANEL_COLOR);
+        
+        btnReturn = new JButton("Quay lại");
+        btnReturn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnReturn.setBackground(new Color(108, 117, 125));
+        btnReturn.setForeground(Color.WHITE);
+        btnReturn.setFocusPainted(false);
+        btnReturn.setPreferredSize(new Dimension(0, 40));
+
+        btnConfirm = new JButton("Đăng Nhập");
+        btnConfirm.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btnConfirm.setBackground(ADMIN_PRIMARY);
         btnConfirm.setForeground(Color.WHITE);
-        btnConfirm.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        btnConfirm.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnConfirm.setFocusPainted(false);
 
-        btnReturn.setText("Thoát");
-        btnReturn.setBackground(Color.WHITE);
-        btnReturn.setForeground(Color.DARK_GRAY);
-        btnReturn.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btnReturn.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
-        btnReturn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        pnlButtons.add(btnReturn);
+        pnlButtons.add(btnConfirm);
 
-        defaultBorder = NameAccount.getBorder();
-        PasswordField1.setText("");
-        PasswordField1.putClientProperty("JTextField.placeholderText", "Nhập mật khẩu Quản trị...");
-        NameAccount.putClientProperty("JTextField.placeholderText", "Nhập Username...");
+        gbc.gridy = 5;
+        gbc.insets = new Insets(0, 30, 30, 30);
+        LoginLable.add(pnlButtons, gbc);
+
+        // Add khung trắng vào Frame chính
+        this.add(LoginLable);
     }
 
     private void setupEvents() {
-        btnConfirm.addActionListener(e -> thucHienDangNhap());
+        // Sự kiện ấn nút Đăng nhập
+        btnConfirm.addActionListener(e -> thucHienDangNhapAdmin());
+
+        // Phím Enter để đăng nhập nhanh
+        PasswordField1.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    thucHienDangNhapAdmin();
+                }
+            }
+        });
+
+    
+        btnSeeCnPass.addActionListener(e -> {
+                isShowPassword = !isShowPassword;
+                if (isShowPassword) {
+                        PasswordField1.setEchoChar((char) 0);
+                        btnSeeCnPass.setText("Ẩn");
+                        btnSeeCnPass.setForeground(ADMIN_PRIMARY);
+                } else {
+                        PasswordField1.setEchoChar('•');
+                        btnSeeCnPass.setText("Hiện");
+                        btnSeeCnPass.setForeground(new java.awt.Color(100, 100, 100));
+                }
+        });
+    
         btnReturn.addActionListener(e -> {
-            new gui.MainFrame().setVisible(true);
+            new gui.user.DangNhapFrm().setVisible(true);
             this.dispose();
         });
-        
-        btnSeeCnPass.addActionListener(e -> {
-            isShowPassword = !isShowPassword;
-            if (isShowPassword) {
-                PasswordField1.setEchoChar((char) 0);
-                btnSeeCnPass.setForeground(ADMIN_PRIMARY);
-            } else {
-                PasswordField1.setEchoChar('•');
-                btnSeeCnPass.setForeground(Color.GRAY);
-            }
-        });
-
-        KeyAdapter enterEvent = new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent evt) {
-                if (evt.getKeyCode() == KeyEvent.VK_ENTER) thucHienDangNhap();
-            }
-        };
-        NameAccount.addKeyListener(enterEvent);
-        PasswordField1.addKeyListener(enterEvent);
     }
 
-    private void thucHienDangNhap() {
-        NameAccount.setBorder(defaultBorder);
-        PasswordField1.setBorder(defaultBorder);
-        lblErrorUser.setText(" ");
-        lblErrorPass.setText(" ");
 
-        String user = NameAccount.getText().trim();
+    private void thucHienDangNhapAdmin() {
+        String user = NameAccount.getText();
         String pass = new String(PasswordField1.getPassword());
-        boolean hasError = false;
 
-        if (user.isEmpty()) {
-            NameAccount.setBorder(BorderFactory.createLineBorder(ERROR_COLOR, 2));
-            lblErrorUser.setText("* Chưa nhập tài khoản");
-            hasError = true;
+        if (user.isEmpty() || pass.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ tài khoản và mật khẩu!", "Thiếu thông tin", JOptionPane.WARNING_MESSAGE);
+            return;
         }
-        if (pass.isEmpty()) {
-            PasswordField1.setBorder(BorderFactory.createLineBorder(ERROR_COLOR, 2));
-            lblErrorPass.setText("* Chưa nhập mật khẩu");
-            hasError = true;
-        }
-
-        if (hasError) return;
 
         bll.NguoiDungBUS bus = new bll.NguoiDungBUS();
-        model.NguoiDung nd = bus.checkLogin(user, pass);
+        model.NguoiDung admin = bus.checkLogin(user, pass); 
 
-        if (nd != null) {
-            if (nd.getPhanQuyen() != null && nd.getPhanQuyen().equalsIgnoreCase("Admin")) {
-                JOptionPane.showMessageDialog(this, 
-                    "Đăng nhập hệ thống Quản Trị thành công!\nXin chào Admin: " + nd.getUsername(), 
-                    "Ủy quyền thành công", 
-                    JOptionPane.INFORMATION_MESSAGE);
+        if (admin != null) {
+     
+            if ("Admin".equalsIgnoreCase(admin.getPhanQuyen()) || "ADMIN".equalsIgnoreCase(admin.getPhanQuyen())) {
                 
-                for (java.awt.Window window : java.awt.Window.getWindows()) {
-                    window.dispose();
-                }
+ 
+                setupAdminUITheme();
                 
-                applyAdminTheme();
-                new gui.main.AdminMainFrame().setVisible(true);
+           
+                gui.main.AdminMainFrame adminFrame = new gui.main.AdminMainFrame();
+                adminFrame.setVisible(true);
+                this.dispose();
                 
             } else {
-                JOptionPane.showMessageDialog(this, 
-                    "TRUY CẬP BỊ TỪ CHỐI!\nTài khoản của bạn không có quyền truy cập vào cổng Quản trị viên.", 
-                    "Cảnh báo bảo mật", 
-                    JOptionPane.ERROR_MESSAGE);
-                PasswordField1.setText("");
+                JOptionPane.showMessageDialog(this, "Tài khoản này không có quyền Quản trị viên (Admin)!", "Truy cập bị từ chối", JOptionPane.ERROR_MESSAGE);
             }
-            
         } else {
-            NameAccount.setBorder(BorderFactory.createLineBorder(ERROR_COLOR, 2));
-            PasswordField1.setBorder(BorderFactory.createLineBorder(ERROR_COLOR, 2));
-            lblErrorPass.setText("* Sai thông tin đăng nhập Quản trị");
-            PasswordField1.setText("");
-            NameAccount.requestFocus();
+            JOptionPane.showMessageDialog(this, "Sai tên đăng nhập hoặc mật khẩu!", "Đăng nhập thất bại", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private void applyAdminTheme() {
+
+    private void setupAdminUITheme() {
         try {
             javax.swing.UIManager.setLookAndFeel(new com.formdev.flatlaf.FlatIntelliJLaf());
-            javax.swing.UIManager.put("defaultFont", new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 14));
-            javax.swing.UIManager.put("Panel.background", java.awt.Color.WHITE);
-            javax.swing.UIManager.put("Table.background", java.awt.Color.WHITE);
-            javax.swing.UIManager.put("Table.foreground", java.awt.Color.BLACK);
-            javax.swing.UIManager.put("Table.selectionBackground", new java.awt.Color(45, 72, 140));
-            javax.swing.UIManager.put("Table.selectionForeground", java.awt.Color.WHITE);
+            javax.swing.UIManager.put("defaultFont", new Font("Segoe UI", Font.PLAIN, 14));
+            javax.swing.UIManager.put("Panel.background", Color.WHITE);
+            javax.swing.UIManager.put("Table.background", Color.WHITE);
+            javax.swing.UIManager.put("Table.foreground", Color.BLACK);
+            javax.swing.UIManager.put("Table.selectionBackground", new Color(45, 72, 140));
+            javax.swing.UIManager.put("Table.selectionForeground", Color.WHITE);
             javax.swing.UIManager.put("Table.showHorizontalLines", true);
             javax.swing.UIManager.put("Table.showVerticalLines", false);
             javax.swing.UIManager.put("Table.rowHeight", 38);
-            javax.swing.UIManager.put("TableHeader.background", new java.awt.Color(28, 48, 96));
-            javax.swing.UIManager.put("TableHeader.foreground", java.awt.Color.WHITE);
+            javax.swing.UIManager.put("TableHeader.background", new Color(28, 48, 96));
+            javax.swing.UIManager.put("TableHeader.foreground", Color.WHITE);
             javax.swing.UIManager.put("TableHeader.height", 40);
-            javax.swing.UIManager.put("ScrollPane.background", java.awt.Color.WHITE);
-            javax.swing.UIManager.put("ScrollPane.border", javax.swing.BorderFactory.createLineBorder(new java.awt.Color(220, 220, 220)));
-            javax.swing.UIManager.put("TabbedPane.selectedBackground", java.awt.Color.WHITE);
-            javax.swing.UIManager.put("TabbedPane.underlineColor", new java.awt.Color(45, 72, 140));
+            javax.swing.UIManager.put("ScrollPane.background", Color.WHITE);
+            javax.swing.UIManager.put("ScrollPane.border", BorderFactory.createLineBorder(new Color(220,220,220)));
+            javax.swing.UIManager.put("TabbedPane.selectedBackground", Color.WHITE);
+            javax.swing.UIManager.put("TabbedPane.underlineColor", new Color(45, 72, 140));
             javax.swing.UIManager.put("TabbedPane.tabHeight", 40);
             javax.swing.UIManager.put("Button.arc", 12);
             javax.swing.UIManager.put("Component.arc", 12);
@@ -177,115 +224,7 @@ public class DangNhapPanel extends javax.swing.JFrame {
         }
     }
 
-    private void initComponents() {
-        LoginLable = new gui.custom.RoundedPanel();
-        LableTitle = new javax.swing.JLabel();
-        jLabel1 = new javax.swing.JLabel();
-        NameAccount = new javax.swing.JTextField();
-        LablePassword = new javax.swing.JLabel();
-        PasswordField1 = new javax.swing.JPasswordField();
-        btnSeeCnPass = new javax.swing.JButton();
-        lblErrorUser = new javax.swing.JLabel();
-        lblErrorPass = new javax.swing.JLabel();
-        btnConfirm = new javax.swing.JButton();
-        btnReturn = new javax.swing.JButton();
-
-        jLabel1.setFont(new Font("Arial", Font.BOLD, 18));
-        jLabel1.setText("Tài khoản:");
-
-        LablePassword.setFont(new Font("Arial", Font.BOLD, 18));
-        LablePassword.setText("Mật khẩu:");
-
-        lblErrorUser.setFont(new Font("Arial", Font.ITALIC, 13));
-        lblErrorUser.setForeground(ERROR_COLOR);
-        lblErrorUser.setText(" ");
-
-        lblErrorPass.setFont(new Font("Arial", Font.ITALIC, 13));
-        lblErrorPass.setForeground(ERROR_COLOR);
-        lblErrorPass.setText(" ");
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(LoginLable);
-        LoginLable.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(60, 60, 60)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
-                    .addComponent(LableTitle)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1)
-                            .addComponent(LablePassword))
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(lblErrorUser, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(lblErrorPass, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(NameAccount)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(PasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnSeeCnPass, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(btnConfirm, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnReturn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addGap(60, 60, 60))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(40, 40, 40)
-                .addComponent(LableTitle)
-                .addGap(40, 40, 40)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(NameAccount, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(2, 2, 2)
-                .addComponent(lblErrorUser)
-                .addGap(15, 15, 15)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(LablePassword)
-                    .addComponent(PasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnSeeCnPass, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(2, 2, 2)
-                .addComponent(lblErrorPass)
-                .addGap(30, 30, 30)
-                .addComponent(btnConfirm, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(15, 15, 15)
-                .addComponent(btnReturn, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(50, 50, 50))
-        );
-
-        javax.swing.GroupLayout formLayout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(formLayout);
-        formLayout.setHorizontalGroup(
-            formLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(formLayout.createSequentialGroup()
-                .addContainerGap(80, Short.MAX_VALUE)
-                .addComponent(LoginLable, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(80, Short.MAX_VALUE))
-        );
-        formLayout.setVerticalGroup(
-            formLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(formLayout.createSequentialGroup()
-                .addContainerGap(60, Short.MAX_VALUE)
-                .addComponent(LoginLable, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(60, Short.MAX_VALUE))
-        );
-        pack();
-    }
-
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(() -> new DangNhapPanel().setVisible(true));
     }
-
-    private javax.swing.JLabel LablePassword;
-    private javax.swing.JLabel LableTitle;
-    private gui.custom.RoundedPanel LoginLable;
-    private javax.swing.JTextField NameAccount;
-    private javax.swing.JPasswordField PasswordField1;
-    private javax.swing.JButton btnConfirm;
-    private javax.swing.JButton btnReturn;
-    private javax.swing.JButton btnSeeCnPass;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel lblErrorPass;
-    private javax.swing.JLabel lblErrorUser;
 }

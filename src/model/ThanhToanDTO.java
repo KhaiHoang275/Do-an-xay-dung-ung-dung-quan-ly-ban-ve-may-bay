@@ -4,10 +4,18 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public class ThanhToanDTO {
-    public String tenKH, sdt, email, tuyenBay, veGhe, gioDi, gioDen;
+    public String tenKH;
+    public String sdt;
+    public String email;
+    public String tuyenBay;
+    public String veGhe;
+    public String gioDi;
+    public String gioDen;
     
-    // Thêm 3 dòng này để sửa lỗi bạn đang gặp
     public BigDecimal giaVeGoc;      
     public BigDecimal tongTienDichVu; 
     public List<String> danhSachDichVu; 
+
+    public ThanhToanDTO() {
+    }
 }
