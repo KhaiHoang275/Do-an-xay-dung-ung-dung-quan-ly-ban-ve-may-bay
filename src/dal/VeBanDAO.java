@@ -155,6 +155,7 @@ public class VeBanDAO {
         return null;
     }
 
+
     public boolean checkAvailable(String maChuyenBay, String maGhe){
         String sql = """
                 SELECT COUNT(*)
@@ -282,6 +283,8 @@ public class VeBanDAO {
 
         return false;
     }
+
+
 
     public List<VeBan> selectVeCoTheDoi(String maHK) {
         List<VeBan> list = new ArrayList<>();
