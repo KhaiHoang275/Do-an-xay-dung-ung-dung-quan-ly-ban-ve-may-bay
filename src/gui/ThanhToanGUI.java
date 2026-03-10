@@ -6,6 +6,8 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -142,6 +144,7 @@ public class ThanhToanGUI extends JPanel {
             parent.repaint();
         });
 
+        // BẮT SỰ KIỆN GỌI ĐẾN TRÙM CUỐI
         btnConfirm.addActionListener(e -> processBooking());
     }
 
@@ -196,16 +199,22 @@ public class ThanhToanGUI extends JPanel {
         lblTongThanhToan.setText("TỔNG CỘNG: " + vn.format(finalAmount) + " VNĐ");
     }
 
+    // =========================================================================================
+    // HÀM TRÙM CUỐI - LƯU TẤT CẢ VÀO DATABASE (KHÔNG BAO GIỜ LỖI KHÓA NGOẠI NỮA)
+    // =========================================================================================
     private void processBooking() {
         int confirm = JOptionPane.showConfirmDialog(this, "Xác nhận thanh toán số tiền: " + lblTongThanhToan.getText() + "?", "Xác nhận", JOptionPane.YES_NO_OPTION);
         if(confirm != JOptionPane.YES_OPTION) return;
 
-        try (java.sql.Connection conn = db.DBConnection.getConnection()) {
+        Connection conn = null;
+        try {
+            conn = db.DBConnection.getConnection();
             conn.setAutoCommit(false); 
 
-            String maPDV = "PDV" + (System.currentTimeMillis() % 100000);
+            // 1. TẠO PHIẾU ĐẶT VÉ
+            String maPDV = "P" + (System.currentTimeMillis() % 1000000);
             String sqlPDV = "INSERT INTO PhieuDatVe (maPhieuDatVe, maNguoiDung, tongTien, ngayDat, soLuongVe, trangThaiThanhToan) VALUES (?, ?, ?, ?, ?, ?)";
-            try (java.sql.PreparedStatement ps = conn.prepareStatement(sqlPDV)) {
+            try (PreparedStatement ps = conn.prepareStatement(sqlPDV)) {
                 ps.setString(1, maPDV);
                 ps.setString(2, session.maNguoiDung);
                 ps.setBigDecimal(3, finalAmount);
@@ -215,30 +224,66 @@ public class ThanhToanGUI extends JPanel {
                 ps.executeUpdate();
             }
 
-            String sqlVe = "INSERT INTO VeBan (maVe, maPhieuDatVe, maChuyenBay, maGhe, maHangVe, loaiHK, giaVe) VALUES (?, ?, ?, ?, ?, ?, ?)";
-            if (session.danhSachGhe != null && !session.danhSachGhe.isEmpty()) {
-                for (int i = 0; i < session.danhSachGhe.size(); i++) {
-                    model.GheMayBay ghe = session.danhSachGhe.get(i);
-                    model.ThongTinHanhKhach hk = (session.danhSachHanhKhach != null && session.danhSachHanhKhach.size() > i) ? session.danhSachHanhKhach.get(i) : new model.ThongTinHanhKhach();
+            // Các câu lệnh SQL chuẩn bị
+            String sqlHK = "INSERT INTO ThongTinHanhKhach (maHK, maNguoiDung, hoTen, cccd, hoChieu, gioiTinh, ngaySinh, loaiHanhKhach) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            String sqlVe = "INSERT INTO VeBan (maVe, maPhieuDatVe, maHK, maChuyenBay, maGhe, maHangVe, loaiHK, loaiVe, giaVe, trangThaiVe) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            String sqlGhe = "UPDATE GheMayBay SET trangThai = 'DA_DAT' WHERE maGhe = ?";
+
+            String maHangVeAnToan = (session.maHangVe != null) ? session.maHangVe : "ECO";
+            String loaiVeAnToan = (session.loaiVe != null) ? session.loaiVe : "Một chiều";
+
+            // 2. VÒNG LẶP: LƯU HÀNH KHÁCH -> LƯU VÉ -> CẬP NHẬT GHẾ
+            for (int i = 0; i < session.danhSachHanhKhach.size(); i++) {
+                ThongTinHanhKhach hk = session.danhSachHanhKhach.get(i);
+                GheMayBay ghe = session.danhSachGhe.get(i);
+
+                // 2.1 Sinh mã Hành khách ngẫu nhiên để không bị trùng (Ví dụ HK847321)
+                String maHKMoi = "HK" + (System.currentTimeMillis() % 100000) + i;
+                hk.setMaHK(maHKMoi);
+
+                // Lưu thông tin người bay vào CSDL
+                try (PreparedStatement psHK = conn.prepareStatement(sqlHK)) {
+                    psHK.setString(1, hk.getMaHK());
+                    psHK.setString(2, session.maNguoiDung);
+                    psHK.setString(3, hk.getHoTen());
+                    psHK.setString(4, hk.getCccd());
+                    psHK.setString(5, hk.getHoChieu());
+                    psHK.setString(6, hk.getGioiTinh());
+                    if (hk.getNgaySinh() != null) psHK.setDate(7, java.sql.Date.valueOf(hk.getNgaySinh()));
+                    else psHK.setNull(7, java.sql.Types.DATE);
+                    psHK.setString(8, hk.getLoaiHanhKhach() != null ? hk.getLoaiHanhKhach() : "Người lớn");
+                    psHK.executeUpdate();
+                }
+
+                // 2.2 Lưu thông tin Vé Bán (Nối Mã Hành Khách vừa tạo vào đây)
+                String maVe = "V" + (System.currentTimeMillis() % 1000000) + i;
+                try (PreparedStatement psVe = conn.prepareStatement(sqlVe)) {
+                    psVe.setString(1, maVe);
+                    psVe.setString(2, maPDV);
+                    psVe.setString(3, hk.getMaHK()); // Đã có Hành khách, gán Khóa Ngoại vào đây!
+                    psVe.setString(4, session.maChuyenBay);
+                    psVe.setString(5, ghe.getMaGhe());
+                    psVe.setString(6, maHangVeAnToan);
+                    psVe.setString(7, hk.getLoaiHanhKhach() != null ? hk.getLoaiHanhKhach() : "Người lớn");
+                    psVe.setString(8, loaiVeAnToan);
                     
-                    String maVe = "VE" + (System.currentTimeMillis() % 100000) + i;
-                    try (java.sql.PreparedStatement psVe = conn.prepareStatement(sqlVe)) {
-                        psVe.setString(1, maVe);
-                        psVe.setString(2, maPDV);
-                        psVe.setString(3, session.maChuyenBay);
-                        psVe.setString(4, ghe.getMaGhe());
-                        psVe.setString(5, session.maHangVe);
-                        psVe.setString(6, hk.getLoaiHanhKhach() != null ? hk.getLoaiHanhKhach() : "Người lớn");
-                        
-                        BigDecimal giaTungVe = session.tongTienVe.divide(new BigDecimal(session.getTongSoHanhKhach()), 2, java.math.RoundingMode.HALF_UP);
-                        psVe.setBigDecimal(7, giaTungVe);
-                        psVe.executeUpdate();
-                    }
+                    // Chia đều tổng tiền vé gốc ra cho từng người
+                    BigDecimal giaTungVe = session.tongTienVe.divide(new BigDecimal(session.getTongSoHanhKhach()), 2, java.math.RoundingMode.HALF_UP);
+                    psVe.setBigDecimal(9, giaTungVe);
+                    psVe.setString(10, "Đã đặt");
+                    psVe.executeUpdate();
+                }
+
+                // 2.3 Khóa chiếc ghế đó lại để người khác không mua được nữa
+                try (PreparedStatement psGhe = conn.prepareStatement(sqlGhe)) {
+                    psGhe.setString(1, ghe.getMaGhe());
+                    psGhe.executeUpdate();
                 }
             }
 
+            // 3. TẠO HÓA ĐƠN THANH TOÁN TỔNG
             String sqlHD = "INSERT INTO HoaDon (maHoaDon, maPhieuDatVe, ngayLap, tongTien, phuongThuc) VALUES (?, ?, ?, ?, ?)";
-            try (java.sql.PreparedStatement psHD = conn.prepareStatement(sqlHD)) {
+            try (PreparedStatement psHD = conn.prepareStatement(sqlHD)) {
                 psHD.setString(1, "HD" + (System.currentTimeMillis() % 100000));
                 psHD.setString(2, maPDV);
                 psHD.setTimestamp(3, java.sql.Timestamp.valueOf(LocalDateTime.now()));
@@ -247,13 +292,16 @@ public class ThanhToanGUI extends JPanel {
                 psHD.executeUpdate();
             }
 
+            // 4. LƯU TOÀN BỘ XUỐNG DATABASE
             conn.commit(); 
 
-            JOptionPane.showMessageDialog(this, "CHÚC MỪNG BẠN ĐÃ ĐẶT VÉ THÀNH CÔNG!\nMã hóa đơn của bạn: " + maPDV, "Thành công", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, "🎉 CHÚC MỪNG BẠN ĐÃ ĐẶT VÉ THÀNH CÔNG!\nMã hóa đơn của bạn là: " + maPDV, "Thành công", JOptionPane.INFORMATION_MESSAGE);
 
+            // Tắt giao diện đặt vé, trả về Trang chủ MainFrame ban đầu
             JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
             topFrame.dispose(); 
             
+            // Khôi phục lại phiên đăng nhập của người dùng để tránh bị văng ra ngoài
             model.NguoiDung userDaDangNhap = null;
             try {
                 NguoiDungDAO ndDAO = new NguoiDungDAO();
@@ -272,8 +320,11 @@ public class ThanhToanGUI extends JPanel {
             }
 
         } catch (Exception ex) {
+            if (conn != null) try{ conn.rollback(); } catch(Exception ez){}
             ex.printStackTrace();
             JOptionPane.showMessageDialog(this, "Lỗi SQL: Không thể lưu vé! \nChi tiết: " + ex.getMessage(), "Lỗi Database", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            if (conn != null) try{ conn.close(); } catch(Exception ez){}
         }
     }
 
