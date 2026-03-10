@@ -169,6 +169,5 @@ public class VeBan {
     public void setNgayGioDi(Timestamp ngayGioDi) {
         this.ngayGioDi = ngayGioDi;
     }
-
     
 }
