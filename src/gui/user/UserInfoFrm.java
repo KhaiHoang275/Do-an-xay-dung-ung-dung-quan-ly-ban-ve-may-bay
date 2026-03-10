@@ -174,14 +174,13 @@ public class UserInfoFrm extends javax.swing.JFrame {
         jPanel6 = new javax.swing.JPanel();
         btnVeMB = new javax.swing.JButton();
         btnDiary = new javax.swing.JButton();
-        jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 51));
 
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
-        
+
         btnPageThuHang.setBackground(new java.awt.Color(255, 255, 51));
         btnPageThuHang.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
         btnPageThuHang.setText("Bạn là thành viên: ");
@@ -633,24 +632,12 @@ public class UserInfoFrm extends javax.swing.JFrame {
 
         btnVeMB.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
         btnVeMB.setText("Vé Máy Bay");
-        btnVeMB.addActionListener(this::btnVeMBActionPerformed); 
-
+        btnVeMB.addActionListener(this::btnVeMBActionPerformed);
 
         btnDiary.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
         btnDiary.setText("Cẩm Nang Du Lịch");
         btnDiary.addActionListener(this::btnDiaryActionPerformed);
 
-        jButton1.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
-        jButton1.setText("Phiếu quà tặng"); 
-
-        btnVeMB.addActionListener(e -> {
-            if (this.currentUser != null) {
-                new MainFrame(this.currentUser).setVisible(true);
-            } else {
-                new MainFrame().setVisible(true);
-            }
-            this.dispose(); 
-        });
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
@@ -660,9 +647,7 @@ public class UserInfoFrm extends javax.swing.JFrame {
                 .addComponent(btnVeMB)
                 .addGap(37, 37, 37)
                 .addComponent(btnDiary)
-                .addGap(18, 18, 18)
-                .addComponent(jButton1)
-                .addContainerGap(600, Short.MAX_VALUE))
+                .addContainerGap(790, Short.MAX_VALUE))
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -670,8 +655,7 @@ public class UserInfoFrm extends javax.swing.JFrame {
                 .addGap(14, 14, 14)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnVeMB)
-                    .addComponent(btnDiary)
-                    .addComponent(jButton1))
+                    .addComponent(btnDiary))
                 .addContainerGap(14, Short.MAX_VALUE))
         );
 
@@ -929,7 +913,29 @@ public class UserInfoFrm extends javax.swing.JFrame {
         jPanel2.setMaximumSize(new java.awt.Dimension(Integer.MAX_VALUE, 120)); 
         jPanel2.setMinimumSize(new java.awt.Dimension(1200, 120));
         jPanel2.revalidate();
-        jPanel2.repaint();
+        jPanel2.repaint(); 
+
+        btnVeMB.addActionListener(e -> {
+            this.dispose(); 
+            if (currentUser != null) {
+                new gui.user.MainFrame(currentUser).setVisible(true); 
+            } else {
+                new gui.user.MainFrame().setVisible(true);
+            }
+        }); 
+
+        btnDiary.addActionListener(e -> {
+            new gui.user.CamNangDuLichDialog(this).setVisible(true);
+        }); 
+
+        btnKhuyenMai.addActionListener(e -> {
+            JDialog dialog = new JDialog(this, "Kho Khuyến Mãi", true);
+            dialog.setSize(650, 500);
+            dialog.setLocationRelativeTo(this);
+  
+            dialog.add(new KhuyenMaiPanel(currentUser)); 
+            dialog.setVisible(true);
+        });
     } 
 
     private javax.swing.JPanel pnlCards;
@@ -1547,7 +1553,6 @@ java.awt.event.ActionListener openPassTab = e -> {
     private javax.swing.JComboBox<String> cbGender;
     private javax.swing.JComboBox<String> cbMonth;
     private javax.swing.JComboBox<String> cbYears;
-    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;

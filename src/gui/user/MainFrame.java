@@ -4,6 +4,7 @@
  */
 package gui.user;
 
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
 /**
@@ -151,7 +152,6 @@ public class MainFrame extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         btnVeMB = new javax.swing.JButton();
         btnDiary = new javax.swing.JButton();
-        jButton1 = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -192,9 +192,6 @@ public class MainFrame extends javax.swing.JFrame {
         btnDiary.setText("Cẩm Nang Du Lịch");
         btnDiary.addActionListener(this::btnDiaryActionPerformed);
 
-        jButton1.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
-        jButton1.setText("Phiếu quà tặng");
-
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -204,9 +201,7 @@ public class MainFrame extends javax.swing.JFrame {
                 .addComponent(btnVeMB)
                 .addGap(37, 37, 37)
                 .addComponent(btnDiary)
-                .addGap(18, 18, 18)
-                .addComponent(jButton1)
-                .addContainerGap(600, Short.MAX_VALUE))
+                .addContainerGap(790, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -214,8 +209,7 @@ public class MainFrame extends javax.swing.JFrame {
                 .addGap(14, 14, 14)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnVeMB)
-                    .addComponent(btnDiary)
-                    .addComponent(jButton1))
+                    .addComponent(btnDiary))
                 .addContainerGap(14, Short.MAX_VALUE))
         );
 
@@ -226,10 +220,10 @@ public class MainFrame extends javax.swing.JFrame {
         jLabel3.setText("Đến");
 
         cbCities.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        cbCities.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Chọn thành phố ", "Tp.HCM ", " ", " " }));
+        
 
         cbCities1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        cbCities1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Chọn thành phố ", "Tp.HCM ", "Hà Nội ", "Bangkok ", "Tokyo", " " }));
+        
 
         jButton2.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
         jButton2.setText("<=>");
@@ -242,7 +236,7 @@ public class MainFrame extends javax.swing.JFrame {
         jRadioButton2.setText("Nhiều thành phố");
 
         jComboBox1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Phổ thông ", "Phổ thông đặc biệt ", "Thương gia ", "Hạng nhất" }));
+        
 
         jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
         jLabel4.setText("Ngày khởi hành");
@@ -571,10 +565,6 @@ public class MainFrame extends javax.swing.JFrame {
         btnDiary.setBackground(BG_MAIN);
         btnDiary.setForeground(PRIMARY_COLOR);
         btnDiary.setBorderPainted(false);
-
-        jButton1.setBackground(BG_MAIN);
-        jButton1.setForeground(PRIMARY_COLOR);
-        jButton1.setBorderPainted(false);
     }  
 
     private void initTableKetQua() {
@@ -659,21 +649,58 @@ public class MainFrame extends javax.swing.JFrame {
                 }
                 return label;
             }
+        }); 
+
+        cbDonViTienTe.addItemListener(e -> {
+            if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
+                CurrencyItem selectedItem = (CurrencyItem) e.getItem();
+                
+                if (selectedItem.text.contains("USD")) {
+                    thayDoiNgonNguVaTienTe("EN");
+                } else {
+                    thayDoiNgonNguVaTienTe("VI");
+                }
+            }
         });
+    } 
+
+    private void thayDoiNgonNguVaTienTe(String lang) {
+        if (lang.equals("EN")) {
+            btnVeMB.setText("Flights");
+            btnHanhKhach.setText("Passengers");
+            btnKhuyenMai.setText("Promotions");
+            btnLogin.setText("Account");
+            btnDatCho.setText("Search Flights");
+            jLabel1.setText("From");
+            jLabel2.setText("To");
+            jRadioButton1.setText("Round Trip");
+            jRadioButton2.setText("One Way");
+            
+        } else {
+            btnVeMB.setText("Vé máy bay");
+            btnHanhKhach.setText("Hành khách");
+            btnKhuyenMai.setText("Khuyến mãi");
+            btnLogin.setText("Tài khoản");
+            btnDatCho.setText("Tìm Chuyến Bay");
+            jLabel1.setText("Điểm đi");
+            jLabel2.setText("Điểm đến");
+            jRadioButton1.setText("Khứ hồi");
+            jRadioButton2.setText("Một chiều");
+        }
     }
 
-    // Class quản lý Item: Load ảnh ngay từ lúc sinh ra
+
     class CurrencyItem {
         private String text;
-        private javax.swing.Icon icon; // Lưu sẵn cái hình vào đây
+        private javax.swing.Icon icon; 
 
         public CurrencyItem(String text, String iconPath) {
             this.text = text;
             try {
-                // Tạo icon 1 lần duy nhất với kích thước 24x18
+     
                 com.formdev.flatlaf.extras.FlatSVGIcon svgIcon = new com.formdev.flatlaf.extras.FlatSVGIcon(iconPath, 24, 18);
                 
-                // Kiểm tra xem FlatLaf có thực sự tìm thấy và đọc được file SVG không
+        
                 if (svgIcon.hasFound()) {
                     this.icon = svgIcon;
                 } else {
@@ -689,8 +716,10 @@ public class MainFrame extends javax.swing.JFrame {
         public String getText() { return text; }
         public javax.swing.Icon getIcon() { return icon; }
 
-        @Override 
-        public String toString() { return text; } 
+        @Override
+        public String toString() {
+            return this.text; 
+        }
     }  
 
     private void setupHanhKhachPopup() {
@@ -1285,7 +1314,22 @@ public class MainFrame extends javax.swing.JFrame {
             pnlContent.add(new gui.user.PanelUserVeBan(session), java.awt.BorderLayout.CENTER);
             pnlContent.revalidate();
             pnlContent.repaint();
+        });  
+
+        btnDiary.addActionListener(e -> {
+            new gui.user.CamNangDuLichDialog(this).setVisible(true);
         });
+        
+        if (btnKhuyenMai != null) {
+            btnKhuyenMai.addActionListener(e -> {
+                JDialog dialog = new JDialog(this, "Kho Khuyến Mãi", true);
+                dialog.setSize(650, 500);
+                dialog.setLocationRelativeTo(this);
+                dialog.add(new KhuyenMaiPanel(null)); 
+                dialog.setVisible(true);
+            });
+        }
+        
     }   
 
     private void loadRealHangVeToCombo() {
@@ -1294,7 +1338,7 @@ public class MainFrame extends javax.swing.JFrame {
     
         jComboBox1.removeAllItems();
         for (model.HangVe hv : dsHangVe) {
-            jComboBox1.addItem(hv); 
+            jComboBox1.addItem(hv.getTenHang()); 
         }
     }
 
@@ -1399,11 +1443,10 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> cbCities;
     private javax.swing.JComboBox<String> cbCities1;
     private javax.swing.JComboBox<String> cbDonViTienTe;
-    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JCheckBox jCheckBox1;
-    private javax.swing.JComboBox<Object> jComboBox1;
+    private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JFormattedTextField jFormattedTextField1;
     private javax.swing.JFormattedTextField jFormattedTextField2;
     private javax.swing.JLabel jLabel1;
