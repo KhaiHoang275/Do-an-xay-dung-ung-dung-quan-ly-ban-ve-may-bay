@@ -6,27 +6,19 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.NumberFormat;
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import dal.ChuyenBayDAO;
-import dal.GheMayBayDAO;
-import dal.KhuyenMaiDAO;
-import dal.PhieuDatVeDAO;
 import dal.VeBanDAO;
 import db.DBConnection;
 import gui.admin.SoDoGhePanel;
 import model.GheMayBay;
 import model.KhuyenMai;
-import model.PhieuDatVe;
-import model.VeBan;
-import model.TrangThaiGhe;
 import model.DatVeSession;
+import dal.KhuyenMaiDAO;
 
 public class PanelUserVeBan extends JPanel {
 
@@ -39,9 +31,7 @@ public class PanelUserVeBan extends JPanel {
     private final Font FONT_VALUE = new Font("Segoe UI", Font.PLAIN, 16); 
 
     private final VeBanDAO veBanDAO = new VeBanDAO();
-    private final PhieuDatVeDAO pdv = new PhieuDatVeDAO();
     private final KhuyenMaiDAO kmDAO = new KhuyenMaiDAO();
-    private final GheMayBayDAO gmb = new GheMayBayDAO();
 
     private DatVeSession session;
     private BigDecimal giamGia = BigDecimal.ZERO;
@@ -85,7 +75,7 @@ public class PanelUserVeBan extends JPanel {
         int row = 0;
 
         // --- 1. TIÊU ĐỀ ---
-        JLabel formTitle = new JLabel("XÁC NHẬN THÔNG TIN ĐẶT VÉ", SwingConstants.CENTER);
+        JLabel formTitle = new JLabel("BƯỚC 1: XÁC NHẬN THÔNG TIN CHUYẾN BAY", SwingConstants.CENTER);
         formTitle.setFont(FONT_TITLE);
         formTitle.setForeground(PRIMARY_COLOR);
         gbc.gridx = 0; gbc.gridy = row; gbc.gridwidth = 2; gbc.insets = new Insets(0, 0, 20, 0);
@@ -130,7 +120,7 @@ public class PanelUserVeBan extends JPanel {
         gbcAct.gridwidth = 1;
 
         // Dòng Tổng tiền
-        gbcAct.gridx = 0; gbcAct.gridy = 2; actionPanel.add(createStyledLabel("TỔNG THANH TOÁN:"), gbcAct);
+        gbcAct.gridx = 0; gbcAct.gridy = 2; actionPanel.add(createStyledLabel("TỔNG TIỀN VÉ:"), gbcAct);
         txtTongTien = new JTextField();
         txtTongTien.setPreferredSize(new Dimension(250, 45));
         txtTongTien.setFont(new Font("Segoe UI", Font.BOLD, 20));
@@ -147,11 +137,15 @@ public class PanelUserVeBan extends JPanel {
         JPanel pButton = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 20));
         pButton.setBackground(Color.WHITE);
 
-        JButton btnLuu = new JButton("Xác nhận & Lưu vé");
+        JButton btnLuu = new JButton("Tiếp tục nhập Hành khách ⮕");
         JButton btnHuy = new JButton("Quay lại tìm kiếm");
+        
         stylePrimaryButton(btnLuu);
         styleSecondaryButton(btnHuy);
-        btnLuu.setPreferredSize(new Dimension(220, 45));
+        
+        btnLuu.setBackground(new Color(34, 197, 94)); // Nút màu xanh lá đi tiếp
+        btnLuu.setForeground(Color.WHITE);
+        btnLuu.setPreferredSize(new Dimension(300, 45));
         btnHuy.setPreferredSize(new Dimension(180, 45));
         btnHuy.setBackground(new Color(108, 117, 125)); 
 
@@ -180,7 +174,7 @@ public class PanelUserVeBan extends JPanel {
         });
 
         btnChonGhe.addActionListener(e -> {
-            int tongHK = session.soNguoiLon + session.soTreEm + session.soEmBe;
+            int tongHK = session.getTongSoHanhKhach(); // Đã dùng method getTongSoHanhKhach()
             giaGhe = BigDecimal.ZERO;
 
             SoDoGhePanel sodoPanel = new SoDoGhePanel(maMayBayHienTai, "Máy bay", tongHK);
@@ -190,7 +184,11 @@ public class PanelUserVeBan extends JPanel {
 
             sodoPanel.setListener(new SoDoGhePanel.SoDoGheListener() {
                 @Override public void onBack() { dialog.dispose(); }
+                
                 @Override public void onSeatsConfirmed(List<GheMayBay> selectedSeats) {
+                    // LƯU TRỰC TIẾP DANH SÁCH GHẾ VÀO SESSION
+                    session.danhSachGhe = new ArrayList<>(selectedSeats);
+                    
                     List<String> dsGhe = new ArrayList<>();
                     giaGhe = BigDecimal.ZERO;
                     for(GheMayBay g : selectedSeats){
@@ -207,7 +205,8 @@ public class PanelUserVeBan extends JPanel {
             dialog.setVisible(true);
         });
 
-        btnLuu.addActionListener(e -> xulyLuuVe(btnHuy));
+        // CHUYỂN TRANG
+        btnLuu.addActionListener(e -> xulyChuyenTrang());
     }
 
     // ================= TẠO KHUNG HIỂN THỊ THÔNG TIN TỔNG HỢP =================
@@ -238,7 +237,6 @@ public class PanelUserVeBan extends JPanel {
             }
         }catch(Exception e){ e.printStackTrace(); }
 
-        // BỘ LỌC CHỐNG LỖI SẬP NULL POINTER NẾU QUÊN TRUYỀN HẠNG VÉ
         String tenHangVe = "Phổ thông";
         if (session.maHangVe != null) {
             switch (session.maHangVe) {
@@ -256,7 +254,6 @@ public class PanelUserVeBan extends JPanel {
         pnl.add(createSummaryRow("Hành khách:", slKhach, false));
 
         pnl.add(createSummaryRow("Hành trình:", hanhTrinh, true));
-        // Đảm bảo không bị null phần Loại Vé
         pnl.add(createSummaryRow("Loại vé:", (session.loaiVe != null ? session.loaiVe : "Một chiều"), false));
 
         pnl.add(createSummaryRow("Giờ khởi hành:", thoiGian, true));
@@ -269,11 +266,11 @@ public class PanelUserVeBan extends JPanel {
         JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
         p.setOpaque(false);
         JLabel lblTitle = new JLabel(label);
-        lblTitle.setFont(FONT_LABEL);
+        lblTitle.setFont(new Font("Arial", Font.BOLD, 15));
         lblTitle.setForeground(new Color(100, 110, 120)); 
         
         JLabel lblValue = new JLabel(value);
-        lblValue.setFont(new Font("Segoe UI", isHighlight ? Font.BOLD : Font.PLAIN, 16));
+        lblValue.setFont(new Font("Arial", isHighlight ? Font.BOLD : Font.PLAIN, 16));
         lblValue.setForeground(PRIMARY_COLOR);
 
         p.add(lblTitle);
@@ -287,8 +284,6 @@ public class PanelUserVeBan extends JPanel {
             if(session == null) return;
 
             BigDecimal tongTien = BigDecimal.ZERO;
-            
-            // Xử lý mặc định nếu hạng vé bị null từ MainFrame truyền sang
             String maHangVeAnToan = (session.maHangVe != null) ? session.maHangVe : "ECO";
             
             tongTien = tongTien.add(veBanDAO.tinhGiaVeFull(session.maChuyenBay, maHangVeAnToan, "Người lớn").multiply(BigDecimal.valueOf(session.soNguoiLon)));
@@ -315,80 +310,41 @@ public class PanelUserVeBan extends JPanel {
         } catch(Exception ex){ ex.printStackTrace(); }
     }
 
-    private void xulyLuuVe(JButton btnHuy) {
-        try {
-            String maHK = session.maNguoiDung;
-            String gheStr = txtGhe.getText().trim();
-            if (gheStr.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Vui lòng chọn sơ đồ ghế trước khi thanh toán!");
-                return;
-            }
-
-            String[] dsGhe = gheStr.split(", ");
-            int tongSoVe = session.soNguoiLon + session.soTreEm + session.soEmBe;
-            if(dsGhe.length != tongSoVe){
-                JOptionPane.showMessageDialog(this, "Số lượng ghế đã chọn ("+dsGhe.length+") không khớp với tổng số hành khách (" + tongSoVe + ")!");
-                return;
-            }
-
-            Connection conn = null;
-            try {
-                conn = DBConnection.getConnection();
-                conn.setAutoCommit(false);
-                
-                String tienStr = txtTongTien.getText().replaceAll("[^0-9]", "");
-                BigDecimal tongTienFinal = new BigDecimal(tienStr);
-
-                PhieuDatVe phieu = new PhieuDatVe();
-                phieu.setNgayDat(LocalDate.now());
-                phieu.setSoLuongVe(tongSoVe);
-                phieu.setTongTien(tongTienFinal);
-                phieu.setTrangThaiThanhToan("Chưa thanh toán");
-
-                String maPDV = pdv.insert(phieu, conn);
-                if(maPDV == null) throw new RuntimeException("Không tạo được phiếu đặt vé!");
-                
-                String maHangVeAnToan = (session.maHangVe != null) ? session.maHangVe : "ECO";
-                String loaiVeAnToan = (session.loaiVe != null) ? session.loaiVe : "Một chiều";
-                int index = 0;
-
-                for(int i=0;i<session.soNguoiLon;i++){
-                    String maGhe = gmb.timMaGhe(conn, chuanHoaGhe(dsGhe[index++]), maMayBayHienTai);
-                    taoVe(conn, maPDV, maHK, session.maChuyenBay, maGhe, maHangVeAnToan, "Người lớn", loaiVeAnToan);
-                    veBanDAO.updateGheTrangThai(conn, maGhe, TrangThaiGhe.DA_DAT);
-                }
-                for(int i=0;i<session.soTreEm;i++){
-                    String maGhe = gmb.timMaGhe(conn, chuanHoaGhe(dsGhe[index++]), maMayBayHienTai);
-                    taoVe(conn, maPDV, maHK, session.maChuyenBay, maGhe, maHangVeAnToan, "Trẻ em", loaiVeAnToan);
-                    veBanDAO.updateGheTrangThai(conn, maGhe, TrangThaiGhe.DA_DAT);
-                }
-                for(int i=0;i<session.soEmBe;i++){
-                    String maGhe = gmb.timMaGhe(conn, chuanHoaGhe(dsGhe[index++]), maMayBayHienTai);
-                    taoVe(conn, maPDV, maHK, session.maChuyenBay, maGhe, maHangVeAnToan, "Em bé", loaiVeAnToan);
-                    veBanDAO.updateGheTrangThai(conn, maGhe, TrangThaiGhe.DA_DAT);
-                }
-                
-                KhuyenMai km = (KhuyenMai) cboKhuyenMai.getSelectedItem();
-                if(km != null) kmDAO.incrementSoLuongDaDung(conn, km.getMaKhuyenMai());
-
-                conn.commit();
-                JOptionPane.showMessageDialog(this,"🎉 Chúc mừng! Đặt vé thành công.");
-                btnHuy.doClick(); 
-
-            } catch(Exception ex) {
-                if (conn != null) try{ conn.rollback(); } catch(Exception ez){}
-                JOptionPane.showMessageDialog(this,"Lỗi khi lưu vé: " + ex.getMessage());
-            } finally {
-                if (conn != null) try { conn.close(); } catch (Exception ec){}
-            }
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
+    // HÀM MỚI: CHỈ LƯU VÀO SESSION VÀ CHUYỂN TRANG
+    private void xulyChuyenTrang() {
+        if (session.danhSachGhe == null || session.danhSachGhe.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn sơ đồ ghế trước khi tiếp tục!");
+            return;
         }
+
+        int tongSoVe = session.getTongSoHanhKhach();
+        if(session.danhSachGhe.size() != tongSoVe){
+            JOptionPane.showMessageDialog(this, "Số lượng ghế đã chọn (" + session.danhSachGhe.size() + ") không khớp với tổng số hành khách (" + tongSoVe + ")!");
+            return;
+        }
+
+        // Đổ dữ liệu Tiền và Khuyến mãi vào Session chuẩn
+        try {
+            String tienStr = txtTongTien.getText().replaceAll("[^0-9]", "");
+            session.tongTienVe = new BigDecimal(tienStr);
+            
+            KhuyenMai km = (KhuyenMai) cboKhuyenMai.getSelectedItem();
+            session.khuyenMaiApDung = km; // Cập nhật nguyên object Khuyến Mãi
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Chuyển trang sang Form nhập hành khách
+        this.removeAll();
+        this.setLayout(new BorderLayout());
+        this.add(new NhapHanhKhachGUI(session), BorderLayout.CENTER);
+        this.revalidate();
+        this.repaint();
     }
 
     // ================= HELPER =================
     private void stylePrimaryButton(JButton btn) {
-        btn.setBackground(ACCENT_COLOR); btn.setForeground(PRIMARY_COLOR);
         btn.setFont(FONT_LABEL); btn.setFocusPainted(false); btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
     private void styleSecondaryButton(JButton btn) {
@@ -397,13 +353,6 @@ public class PanelUserVeBan extends JPanel {
     }
     private JLabel createStyledLabel(String text) {
         JLabel lbl = new JLabel(text); lbl.setFont(FONT_LABEL); lbl.setForeground(PRIMARY_COLOR); return lbl;
-    }
-    private void taoVe(Connection conn, String maPDV, String maHK, String maCB, String ghe, String maHangVe, String loaiHK, String loaiVe) throws SQLException {
-        VeBan v = new VeBan();
-        v.setMaPhieuDatVe(maPDV); v.setMaHK(maHK); v.setMaChuyenBay(maCB); v.setMaGhe(ghe); 
-        v.setMaHangVe(maHangVe); v.setLoaiHK(loaiHK); v.setLoaiVe(loaiVe); 
-        v.setGiaVe(veBanDAO.tinhGiaVeFull(maCB, maHangVe, loaiHK)); v.setTrangThaiVe("Đã đặt");
-        veBanDAO.insert(v, conn);
     }
     private String chuanHoaGhe(String ghe){
         ghe = ghe.trim().toUpperCase(); if(Character.isLetter(ghe.charAt(0))) return ghe.substring(1) + ghe.charAt(0); return ghe;
