@@ -7,12 +7,19 @@ import model.ThongTinHanhKhach;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 public class NhapHanhKhachGUI extends JPanel {
+
+    // ===== BẢNG MÀU THƯƠNG HIỆU AIRLINER =====
+    private final Color PRIMARY_COLOR = new Color(18, 32, 64); // Xanh Navy
+    private final Color ACCENT_COLOR = new Color(255, 193, 7); // Vàng Gold
+    private final Color BG_MAIN = new Color(245, 247, 250);
+    private final Font FONT_TITLE = new Font("Segoe UI", Font.BOLD, 26);
+    private final Font FONT_LABEL = new Font("Segoe UI", Font.BOLD, 14);
+
     private DatVeSession session;
     private JPanel pnlContainer;
     private List<HanhKhachCard> listCards = new ArrayList<>();
@@ -20,78 +27,75 @@ public class NhapHanhKhachGUI extends JPanel {
     public NhapHanhKhachGUI(DatVeSession session) {
         this.session = session;
         setLayout(new BorderLayout());
-        setBackground(new Color(245, 247, 250));
+        setBackground(BG_MAIN);
 
         // ================= 1. HEADER =================
-        JPanel pnlHeader = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 15));
-        pnlHeader.setBackground(Color.WHITE);
-        pnlHeader.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(200, 200, 200)));
+        JPanel pnlHeader = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 30));
+        pnlHeader.setBackground(BG_MAIN);
+        
         JLabel lblTitle = new JLabel("BƯỚC 2: NHẬP THÔNG TIN HÀNH KHÁCH");
-        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        lblTitle.setForeground(new Color(220, 38, 38));
+        lblTitle.setFont(FONT_TITLE);
+        lblTitle.setForeground(PRIMARY_COLOR);
         pnlHeader.add(lblTitle);
         add(pnlHeader, BorderLayout.NORTH);
 
         // ================= 2. FOOTER (GHIM CHẶT Ở ĐÁY) =================
-        JPanel pnlFooter = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 15));
-        pnlFooter.setBackground(Color.WHITE);
-        pnlFooter.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(200, 200, 200)));
+        JPanel pnlFooter = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 20));
+        pnlFooter.setBackground(BG_MAIN);
 
-        JButton btnBack = new JButton("⬅ Quay lại chọn ghế");
-        btnBack.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btnBack.setPreferredSize(new Dimension(190, 40));
-
+        JButton btnBack = new JButton("Quay lại chọn ghế");
         JButton btnNext = new JButton("Tiếp tục chọn hành lý ⮕");
-        btnNext.setBackground(new Color(34, 197, 94));
-        btnNext.setForeground(Color.WHITE);
-        btnNext.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btnNext.setPreferredSize(new Dimension(220, 40));
+
+        styleSecondaryButton(btnBack);
+        stylePrimaryButton(btnNext);
+        btnBack.setPreferredSize(new Dimension(200, 45));
+        btnNext.setPreferredSize(new Dimension(250, 45));
         
-        pnlFooter.add(btnBack); 
-        pnlFooter.add(btnNext);
+        pnlFooter.add(btnNext); // Để nút Tới bên phải
+        pnlFooter.add(btnBack); // Nút Lui bên trái
         add(pnlFooter, BorderLayout.SOUTH);
 
-        // ================= 3. CONTENT (KHÓA KÍCH THƯỚC CHỐNG TRÀN) =================
+        // ================= 3. CONTENT (DANH SÁCH FORM NHẬP) =================
         pnlContainer = new JPanel();
         pnlContainer.setLayout(new BoxLayout(pnlContainer, BoxLayout.Y_AXIS));
-        pnlContainer.setBackground(new Color(245, 247, 250));
-        pnlContainer.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
+        pnlContainer.setBackground(BG_MAIN);
+        
+        // Thêm khoảng đệm bên trái phải để form không bị bám sát viền màn hình
+        JPanel wrapperPanel = new JPanel(new BorderLayout());
+        wrapperPanel.setBackground(BG_MAIN);
+        wrapperPanel.setBorder(BorderFactory.createEmptyBorder(0, 150, 0, 150));
+        wrapperPanel.add(pnlContainer, BorderLayout.CENTER);
 
-        JScrollPane scroll = new JScrollPane(pnlContainer);
+        JScrollPane scroll = new JScrollPane(wrapperPanel);
         scroll.setBorder(null);
+        scroll.getViewport().setBackground(BG_MAIN);
         scroll.getVerticalScrollBar().setUnitIncrement(16);
-        // DÒNG NÀY SẼ CỨU CÁI GIAO DIỆN CỦA BẠN (Ép cuộn, không cho phình to làm mất nút)
-        scroll.setPreferredSize(new Dimension(800, 400));
         add(scroll, BorderLayout.CENTER);
 
-        // ================= 4. THUẬT TOÁN ĐỔ DỮ LIỆU "KHÁCH QUEN" CỰC KỲ DỄ DÃI =================
+        // ================= 4. THUẬT TOÁN ĐỔ DỮ LIỆU KHÁCH QUEN =================
         List<ThongTinHanhKhach> savedList = new ArrayList<>();
         try {
             ThongTinHanhKhachDAO hkDAO = new ThongTinHanhKhachDAO();
             List<ThongTinHanhKhach> allHK = hkDAO.selectAll(); 
-            System.out.println("---- DEBUG THÔNG TIN KHÁCH ----"); // In ra Terminal để kiểm tra
             
             if (allHK != null && session.maNguoiDung != null) {
                 for (ThongTinHanhKhach hk : allHK) {
-                    // Dọn dẹp khoảng trắng dư thừa trong DB để so sánh cho chắc ăn
                     String dbUser = hk.getMaNguoiDung() != null ? hk.getMaNguoiDung().trim() : "";
                     if (session.maNguoiDung.equals(dbUser)) {
                         savedList.add(hk);
                     }
                 }
             }
-            System.out.println("Đã tìm thấy " + savedList.size() + " hồ sơ khách hàng cho tài khoản " + session.maNguoiDung);
         } catch (Exception ex) {
             System.err.println("Lỗi gọi Database ở trang Nhập Khách: " + ex.getMessage());
         }
 
         // ================= 5. TẠO CÁC FORM =================
-        // Dùng hàm popPassenger để lấy đại bất kỳ khách nào đã lưu, khỏi cần phân biệt Loại
-        for (int i = 1; i <= session.soNguoiLon; i++) addCard("NGƯỜI LỚN " + i, "Người lớn", popPassenger(savedList));
-        for (int i = 1; i <= session.soTreEm; i++) addCard("TRẺ EM " + i, "Trẻ em", popPassenger(savedList));
-        for (int i = 1; i <= session.soEmBe; i++) addCard("EM BÉ " + i, "Em bé", popPassenger(savedList));
+        for (int i = 1; i <= session.soNguoiLon; i++) addCard("Hành khách " + i + " (Người lớn)", "Người lớn", popPassenger(savedList));
+        for (int i = 1; i <= session.soTreEm; i++) addCard("Hành khách (Trẻ em)", "Trẻ em", popPassenger(savedList));
+        for (int i = 1; i <= session.soEmBe; i++) addCard("Hành khách (Em bé)", "Em bé", popPassenger(savedList));
 
-        // ================= 6. SỰ KIỆN NÚT BẤM CỰC KỲ AN TOÀN =================
+        // ================= 6. SỰ KIỆN NÚT BẤM =================
         btnBack.addActionListener(e -> {
             this.removeAll();
             this.setLayout(new BorderLayout());
@@ -100,6 +104,7 @@ public class NhapHanhKhachGUI extends JPanel {
             this.repaint();
         });
 
+        // NÚT "TIẾP TỤC" ĐÃ ĐƯỢC CHỈNH CHUẨN ĐỂ MỞ TRANG HÀNH LÝ
         btnNext.addActionListener(e -> {
             try {
                 session.danhSachHanhKhach.clear();
@@ -109,16 +114,18 @@ public class NhapHanhKhachGUI extends JPanel {
                 
                 this.removeAll();
                 this.setLayout(new BorderLayout());
+                
+                // GỌI TRANG DỊCH VỤ HÀNH LÝ LÊN
                 this.add(new gui.DichVuHanhLyGUI(session), BorderLayout.CENTER);
+                
                 this.revalidate(); 
                 this.repaint();
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Thiếu thông tin", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Cảnh báo thiếu thông tin", JOptionPane.WARNING_MESSAGE);
             }
         });
     }
 
-    // Hàm lấy khách lưu sẵn: Không cần soi xét quá khắt khe, có là bốc ra điền luôn!
     private ThongTinHanhKhach popPassenger(List<ThongTinHanhKhach> list) {
         if (list != null && !list.isEmpty()) {
             return list.remove(0); 
@@ -130,10 +137,27 @@ public class NhapHanhKhachGUI extends JPanel {
         HanhKhachCard card = new HanhKhachCard(title, type, prefillData);
         listCards.add(card);
         pnlContainer.add(card);
-        pnlContainer.add(Box.createRigidArea(new Dimension(0, 20))); 
+        pnlContainer.add(Box.createRigidArea(new Dimension(0, 25))); // Khoảng cách giữa các thẻ
     }
 
-    // ================= KHUNG NHẬP LIỆU (KHÔNG BỊ PHỒNG TO) =================
+    // ================= HELPER STYLE BUTTONS =================
+    private void stylePrimaryButton(JButton btn) {
+        btn.setBackground(ACCENT_COLOR); 
+        btn.setForeground(PRIMARY_COLOR);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 16)); 
+        btn.setFocusPainted(false); 
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+    
+    private void styleSecondaryButton(JButton btn) {
+        btn.setBackground(new Color(108, 117, 125)); 
+        btn.setForeground(Color.WHITE);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 15)); 
+        btn.setFocusPainted(false); 
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    // ================= KHUNG NHẬP LIỆU (CARD) ĐẸP MẮT =================
     class HanhKhachCard extends JPanel {
         private JTextField txtHoTen, txtCCCD, txtHoChieu, txtNgaySinh;
         private JComboBox<String> cbGioiTinh;
@@ -145,42 +169,44 @@ public class NhapHanhKhachGUI extends JPanel {
             setBackground(Color.WHITE);
             
             setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(220,220,220), 1, true), 
                 BorderFactory.createTitledBorder(
-                    BorderFactory.createLineBorder(new Color(200,200,200)), 
-                    title, TitledBorder.LEFT, TitledBorder.TOP, 
-                    new Font("Segoe UI", Font.BOLD, 14), new Color(28, 48, 96)
-                ),
-                BorderFactory.createEmptyBorder(10, 15, 10, 15)
+                    BorderFactory.createEmptyBorder(), 
+                    " ✈ " + title, TitledBorder.LEFT, TitledBorder.TOP, 
+                    new Font("Segoe UI", Font.BOLD, 16), PRIMARY_COLOR
+                )
             ));
             
-            // Khóa chiều cao tối đa của form lại, không cho nó phình to làm mất nút
-            setMaximumSize(new Dimension(900, 170));
+            setMaximumSize(new Dimension(800, 180));
 
             GridBagConstraints gbc = new GridBagConstraints();
-            gbc.insets = new Insets(5, 15, 5, 15);
+            gbc.insets = new Insets(8, 15, 8, 15);
             gbc.fill = GridBagConstraints.HORIZONTAL;
 
             txtHoTen = createTextField();
             txtCCCD = createTextField();
             txtHoChieu = createTextField();
             txtNgaySinh = createTextField();
+            txtNgaySinh.setToolTipText("Định dạng: dd/MM/yyyy");
+            
             cbGioiTinh = new JComboBox<>(new String[]{"Nam", "Nữ"});
-            cbGioiTinh.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            cbGioiTinh.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+            cbGioiTinh.setBackground(Color.WHITE);
 
-            // Bố trí Dòng 1
-            gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0; add(new JLabel("Họ Tên (*):"), gbc);
+            // Bố trí Dòng 1: Họ Tên & Giới tính
+            gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0; add(createStyledLabel("Họ Tên (*):"), gbc);
             gbc.gridx = 1; gbc.weightx = 1.0; add(txtHoTen, gbc);
-            gbc.gridx = 2; gbc.weightx = 0; add(new JLabel("Giới tính:"), gbc);
+            gbc.gridx = 2; gbc.weightx = 0; add(createStyledLabel("Giới tính:"), gbc);
             gbc.gridx = 3; gbc.weightx = 0.5; add(cbGioiTinh, gbc);
 
-            // Bố trí Dòng 2
-            gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0; add(new JLabel("CCCD (*):"), gbc);
+            // Bố trí Dòng 2: CCCD & Hộ chiếu
+            gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0; add(createStyledLabel(type.equals("Em bé") ? "Giấy khai sinh:" : "CCCD (*):"), gbc);
             gbc.gridx = 1; gbc.weightx = 1.0; add(txtCCCD, gbc);
-            gbc.gridx = 2; gbc.weightx = 0; add(new JLabel("Hộ chiếu:"), gbc);
+            gbc.gridx = 2; gbc.weightx = 0; add(createStyledLabel("Hộ chiếu:"), gbc);
             gbc.gridx = 3; gbc.weightx = 0.5; add(txtHoChieu, gbc);
 
-            // Bố trí Dòng 3
-            gbc.gridx = 0; gbc.gridy = 2; gbc.weightx = 0; add(new JLabel("Ngày sinh:"), gbc);
+            // Bố trí Dòng 3: Ngày sinh
+            gbc.gridx = 0; gbc.gridy = 2; gbc.weightx = 0; add(createStyledLabel("Ngày sinh:"), gbc);
             gbc.gridx = 1; gbc.weightx = 1.0; add(txtNgaySinh, gbc);
 
             // ======= TIẾN HÀNH ĐIỀN DỮ LIỆU =======
@@ -202,25 +228,41 @@ public class NhapHanhKhachGUI extends JPanel {
             }
         }
 
+        private JLabel createStyledLabel(String text) {
+            JLabel lbl = new JLabel(text);
+            lbl.setFont(FONT_LABEL);
+            lbl.setForeground(new Color(100, 110, 120));
+            return lbl;
+        }
+
         private JTextField createTextField() {
             JTextField txt = new JTextField();
-            txt.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-            txt.setPreferredSize(new Dimension(200, 30));
+            txt.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+            txt.setPreferredSize(new Dimension(200, 35));
+            // Đổi màu viền nhạt lại cho thanh thoát
+            txt.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200)),
+                BorderFactory.createEmptyBorder(5, 10, 5, 10)
+            ));
             return txt;
         }
 
         public ThongTinHanhKhach getData() throws Exception {
             String ten = txtHoTen.getText().trim();
-            if(ten.isEmpty()) throw new Exception("Vui lòng nhập Họ Tên!");
+            String cccd = txtCCCD.getText().trim();
+
+            if(ten.isEmpty()) throw new Exception("Vui lòng nhập Họ và Tên cho tất cả hành khách!");
+            if(cccd.isEmpty() && !loaiHK.equals("Em bé")) {
+                throw new Exception("Vui lòng nhập số CCCD cho hành khách Người lớn/Trẻ em!");
+            }
 
             ThongTinHanhKhach hk = new ThongTinHanhKhach();
             hk.setMaNguoiDung(session.maNguoiDung);
             hk.setHoTen(ten);
-            hk.setCccd(txtCCCD.getText().trim());
+            hk.setCccd(cccd);
             hk.setHoChieu(txtHoChieu.getText().trim());
             hk.setGioiTinh(cbGioiTinh.getSelectedItem().toString());
             hk.setLoaiHanhKhach(this.loaiHK);
-            // Bỏ qua validate ngày sinh nếu để trống để người dùng dễ thở
             return hk;
         }
     }
