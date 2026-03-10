@@ -325,7 +325,19 @@ public class ThongTinHanhKhachDAO {
         }
     }
 }
-
-
-
+public String getTenHanhKhach(String maHK) {
+    String sql = "SELECT hoTen FROM ThongTinHanhKhach WHERE maHK = ?";
+    String hoTen = null;
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setString(1, maHK);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            hoTen = rs.getString("hoTen");
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return hoTen;
+}
 }
