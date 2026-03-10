@@ -51,6 +51,7 @@ public class DoiVePanel extends JPanel {
     private JButton btnChonGheMoi;
     private JLabel lblGheDaChon;
     private String maGheMoi = ""; // Biến private để lưu mã ghế mới
+    private String soGheMoi = "";
 
     private JButton btnXacNhan;
     private JButton btnHuy;
@@ -215,7 +216,7 @@ public class DoiVePanel extends JPanel {
 
         btnChonGheMoi = createButton("Chọn ghế mới", BTN_VIEW_MAP);
         btnChonGheMoi.setPreferredSize(new Dimension(150, 40));
-        setButtonIcon(btnChonGheMoi, "/resources/icons/icons8-seat-24.png");
+        setButtonIcon(btnChonGheMoi, "/resources/icons/icons8-chair-24.png");
         addHoverEffect(btnChonGheMoi, BTN_VIEW_MAP);
 
         lblGheDaChon = new JLabel("Ghế đã chọn: Chưa chọn");
@@ -523,8 +524,9 @@ public class DoiVePanel extends JPanel {
             @Override
             public void onSeatsConfirmed(List<GheMayBay> selectedSeats) {
                 if (!selectedSeats.isEmpty()) {
-                    maGheMoi = selectedSeats.get(0).getSoGhe();
-                    lblGheDaChon.setText("Ghế đã chọn: " + maGheMoi);
+                    maGheMoi = selectedSeats.get(0).getMaGhe();
+                    soGheMoi = selectedSeats.get(0).getSoGhe(); // Lấy số ghế để hiển thị
+                    lblGheDaChon.setText("Ghế đã chọn: " + soGheMoi + " (Mã: " + maGheMoi + ")");
                 }
                 dialog.dispose();
             }

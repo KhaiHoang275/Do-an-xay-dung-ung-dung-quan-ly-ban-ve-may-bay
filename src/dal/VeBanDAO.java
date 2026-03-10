@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import db.DBConnection;
+import model.TrangThaiGhe;
 import model.VeBan;
 
 public class VeBanDAO {
@@ -242,6 +243,15 @@ public class VeBanDAO {
                 return rs.getInt(1) > 0;
         }
         return false;
+    }
+
+    public boolean updateGheTrangThai(Connection conn, String maGhe, TrangThaiGhe trangThai) throws SQLException {
+        String sql = "UPDATE GheMayBay SET TrangThai = ? WHERE maGhe = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, trangThai.name());  // 'DA_DAT' hoặc 'TRONG'
+            ps.setString(2, maGhe);
+            return ps.executeUpdate() > 0;
+        }
     }
 
      public boolean checkSeatAvailable(String maChuyenBay, String maGhe) {
