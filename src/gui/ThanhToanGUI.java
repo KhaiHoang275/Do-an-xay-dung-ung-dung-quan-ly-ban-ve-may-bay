@@ -32,7 +32,7 @@ public class ThanhToanGUI extends JPanel {
             session.tongTienVe = new BigDecimal("1200000").multiply(new BigDecimal(session.getTongSoHanhKhach()));
         }
         initComponents();
-        loadPromotions(); // Sẽ tự động lấy KM từ session để hiển thị
+        loadPromotions();
         updatePriceDisplay();
     }
 
@@ -54,7 +54,7 @@ public class ThanhToanGUI extends JPanel {
         pnlCenter.setBackground(new Color(245, 247, 250));
         pnlCenter.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
 
-        // ================= PANEL TRÁI: THÔNG TIN ĐẶT CHỖ MỚI =================
+        // ================= PANEL TRÁI: THÔNG TIN ĐẶT CHỖ =================
         JPanel pnlSummary = new JPanel();
         pnlSummary.setLayout(new BoxLayout(pnlSummary, BoxLayout.Y_AXIS));
         pnlSummary.setBackground(Color.WHITE);
@@ -165,7 +165,6 @@ public class ThanhToanGUI extends JPanel {
         pnlFooter.add(btnConfirm);
         add(pnlFooter, BorderLayout.SOUTH);
 
-        // ================= EVENTS =================
         btnBack.addActionListener(e -> {
             Container parent = this.getParent();
             parent.removeAll();
@@ -186,8 +185,6 @@ public class ThanhToanGUI extends JPanel {
             if(list != null) {
                 for(KhuyenMai km : list) {
                     cboKhuyenMai.addItem(km); 
-                    
-                    // ĐÃ SỬA: TỰ ĐỘNG CHỌN MÃ KHUYẾN MÃI ĐÃ LƯU Ở BƯỚC 1
                     if (session.khuyenMaiApDung != null && 
                         km.getMaKhuyenMai().equals(session.khuyenMaiApDung.getMaKhuyenMai())) {
                         cboKhuyenMai.setSelectedItem(km);
@@ -217,8 +214,6 @@ public class ThanhToanGUI extends JPanel {
         BigDecimal discount = BigDecimal.ZERO;
 
         KhuyenMai selected = (KhuyenMai) cboKhuyenMai.getSelectedItem();
-        
-        // ĐÃ SỬA: CẬP NHẬT LẠI SESSION NẾU NGƯỜI DÙNG ĐỔI MÃ KHUYẾN MÃI TRÊN MÀN HÌNH NÀY
         session.khuyenMaiApDung = selected;
 
         if(selected != null) {
@@ -232,9 +227,8 @@ public class ThanhToanGUI extends JPanel {
         BigDecimal tongTruocThue = base.add(sv).subtract(discount);
         if(tongTruocThue.compareTo(BigDecimal.ZERO) < 0) tongTruocThue = BigDecimal.ZERO;
 
-        // Tính 10% VAT
         thueVAT = tongTruocThue.multiply(new BigDecimal("0.1"));
-        finalAmount = tongTruocThue.add(thueVAT); // Tổng cuối cùng ĐÃ BAO GỒM THUẾ
+        finalAmount = tongTruocThue.add(thueVAT); 
 
         NumberFormat vn = NumberFormat.getInstance(new Locale("vi", "VN"));
         lblTongVe.setText("Tiền vé cơ bản: " + vn.format(base) + " VNĐ");
@@ -253,17 +247,26 @@ public class ThanhToanGUI extends JPanel {
         String generatedMaHD = "";  
         String ptThanhToan = radTienMat.isSelected() ? "Tiền mặt" : (radQR.isSelected() ? "Mã QR" : "Thẻ tín dụng");
 
+        // KHỞI TẠO BUS ĐỂ TÍNH ĐIỂM TÍCH LŨY
+        bll.ThuHangBUS thuHangBUS = new bll.ThuHangBUS();
+        String maBac = "TH01"; // Mặc định nếu không tìm thấy DB
+        try {
+            // Tự động tìm Mã hạng cho người 0 điểm (Hạng Bạc)
+            model.ThuHang thBac = thuHangBUS.xacDinhThuHang(0);
+            if (thBac != null && thBac.getMaThuHang() != null) {
+                maBac = thBac.getMaThuHang();
+            }
+        } catch (Exception e) {
+            System.err.println("Cảnh báo: Không thể lấy tự động hạng Bạc. Đang dùng mã mặc định.");
+        }
+
         try {
             conn = db.DBConnection.getConnection();
             conn.setAutoCommit(false); 
 
-            // ==============================================================================
-            // 1. TẠO PHIẾU ĐẶT VÉ (CÓ CỘT maKhuyenMai)
-            // ==============================================================================
             dal.PhieuDatVeDAO pdvDAO = new dal.PhieuDatVeDAO();
             generatedMaPDV = pdvDAO.generateMaPhieuDatVe(conn); 
 
-            // ĐÃ SỬA: THÊM CỘT maKhuyenMai VÀO DATABASE
             String sqlPDV = "INSERT INTO PhieuDatVe (maPhieuDatVe, maNguoiDung, tongTien, ngayDat, soLuongVe, trangThaiThanhToan, maKhuyenMai) VALUES (?, ?, ?, ?, ?, ?, ?)";
             try (PreparedStatement ps = conn.prepareStatement(sqlPDV)) {
                 ps.setString(1, generatedMaPDV);
@@ -273,17 +276,16 @@ public class ThanhToanGUI extends JPanel {
                 ps.setInt(5, session.getTongSoHanhKhach());
                 ps.setString(6, "Đã thanh toán");
                 
-                // LƯU MÃ KHUYẾN MÃI VÀO DATABASE
                 if (session.khuyenMaiApDung != null) {
                     ps.setString(7, session.khuyenMaiApDung.getMaKhuyenMai());
                 } else {
                     ps.setNull(7, java.sql.Types.VARCHAR);
                 }
-                
                 ps.executeUpdate();
             }
 
-            String sqlHK = "INSERT INTO ThongTinHanhKhach (maHK, maNguoiDung, hoTen, cccd, hoChieu, gioiTinh, ngaySinh, loaiHanhKhach) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            // ĐÃ SỬA: Thêm maThuHang và diemTichLuy vào câu lệnh SQL Hành khách
+            String sqlHK = "INSERT INTO ThongTinHanhKhach (maHK, maNguoiDung, hoTen, cccd, hoChieu, gioiTinh, ngaySinh, loaiHanhKhach, maThuHang, diemTichLuy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             String sqlVe = "INSERT INTO VeBan (maVe, maPhieuDatVe, maHK, maChuyenBay, maGhe, maHangVe, loaiHK, loaiVe, giaVe, trangThaiVe) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             String sqlGhe = "UPDATE GheMayBay SET trangThai = 'DA_DAT' WHERE maGhe = ?";
 
@@ -322,9 +324,17 @@ public class ThanhToanGUI extends JPanel {
                     psHK.setString(4, hk.getCccd());
                     psHK.setString(5, hk.getHoChieu());
                     psHK.setString(6, hk.getGioiTinh());
+                    
+                    // Lưu ngày sinh
                     if (hk.getNgaySinh() != null) psHK.setDate(7, java.sql.Date.valueOf(hk.getNgaySinh()));
                     else psHK.setNull(7, java.sql.Types.DATE);
+                    
                     psHK.setString(8, hk.getLoaiHanhKhach() != null ? hk.getLoaiHanhKhach() : "Người lớn");
+                    
+                    // ĐÃ SỬA: GÁN HẠNG BẠC VÀ ĐIỂM TÍCH LŨY = 0 CHO KHÁCH LẦN ĐẦU MUA
+                    psHK.setString(9, maBac);
+                    psHK.setInt(10, 0);
+
                     psHK.executeUpdate();
                 }
 
@@ -340,7 +350,7 @@ public class ThanhToanGUI extends JPanel {
                     
                     BigDecimal giaTungVe = session.tongTienVe.divide(new BigDecimal(session.getTongSoHanhKhach()), 2, java.math.RoundingMode.HALF_UP);
                     psVe.setBigDecimal(9, giaTungVe);
-                    psVe.setString(10, "Đã thanh toán");
+                    psVe.setString(10, "Đã thanh toán"); // Trạng thái vé
                     psVe.executeUpdate();
                 }
 
@@ -382,7 +392,21 @@ public class ThanhToanGUI extends JPanel {
                 psHD.executeUpdate();
             }
 
+            // GIAO DỊCH DATABASE THÀNH CÔNG -> COMMIT
             conn.commit(); 
+
+            // ==============================================================================
+            // ĐÃ SỬA: CỘNG ĐIỂM TÍCH LŨY CHO TỪNG HÀNH KHÁCH SAU KHI THANH TOÁN
+            // ==============================================================================
+            double tienMoiKhach = finalAmount.doubleValue() / session.getTongSoHanhKhach(); // Chia đều tiền bill
+            for (ThongTinHanhKhach hk : session.danhSachHanhKhach) {
+                try {
+                    // Gọi hàm cập nhật từ ThuHangBUS của bạn
+                    thuHangBUS.capNhatDiemVaThuHang(hk.getMaHK(), tienMoiKhach);
+                } catch (Exception ex) {
+                    System.err.println("Lỗi cộng điểm: " + ex.getMessage());
+                }
+            }
 
             JOptionPane.showMessageDialog(this, "🎉 CHÚC MỪNG BẠN ĐÃ ĐẶT VÉ THÀNH CÔNG!\nMã hóa đơn của bạn là: " + generatedMaHD, "Thành công", JOptionPane.INFORMATION_MESSAGE);
 
@@ -407,7 +431,6 @@ public class ThanhToanGUI extends JPanel {
                 );
                 
                 parent.add(pnlHoaDon, BorderLayout.CENTER); 
-                
                 parent.revalidate();
                 parent.repaint();
             }
@@ -426,14 +449,11 @@ public class ThanhToanGUI extends JPanel {
         p.setOpaque(false);
         p.setBackground(Color.WHITE);
         p.setMaximumSize(new Dimension(800, 30));
-        
         JLabel l = new JLabel(label); 
         l.setFont(new Font("Segoe UI", Font.BOLD, 14));
         l.setPreferredSize(new Dimension(130, 25));
-        
         JLabel v = new JLabel(value); 
         v.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        
         p.add(l, BorderLayout.WEST); 
         p.add(v, BorderLayout.CENTER);
         return p;
