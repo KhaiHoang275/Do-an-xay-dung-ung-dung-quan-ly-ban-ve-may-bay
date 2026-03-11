@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 
@@ -37,6 +38,7 @@ public class ThanhToanGUI extends JPanel {
         setLayout(new BorderLayout());
         setBackground(new Color(245, 247, 250));
 
+        // ================= HEADER =================
         JPanel pnlHeader = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 15));
         pnlHeader.setBackground(Color.WHITE);
         pnlHeader.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(200, 200, 200)));
@@ -50,33 +52,61 @@ public class ThanhToanGUI extends JPanel {
         pnlCenter.setBackground(new Color(245, 247, 250));
         pnlCenter.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
 
+        // ================= PANEL TRÁI: THÔNG TIN ĐẶT CHỖ MỚI =================
         JPanel pnlSummary = new JPanel();
         pnlSummary.setLayout(new BoxLayout(pnlSummary, BoxLayout.Y_AXIS));
         pnlSummary.setBackground(Color.WHITE);
-        pnlSummary.setBorder(createCustomTitledBorder("THÔNG TIN ĐẶT CHỖ"));
+        pnlSummary.setBorder(createCustomTitledBorder("THÔNG TIN HÀNH TRÌNH & ĐẶT CHỖ"));
 
-        pnlSummary.add(createSummaryRow("Chuyến bay:", session.maChuyenBay));
-        pnlSummary.add(createSummaryRow("Loại vé:", session.loaiVe));
+        // --- 1. THÔNG TIN CHUYẾN BAY ---
+        pnlSummary.add(Box.createRigidArea(new Dimension(0, 10)));
+        pnlSummary.add(createSectionLabel("✈ THÔNG TIN CHUYẾN BAY"));
         
-        StringBuilder sbGhe = new StringBuilder();
-        if(session.danhSachGhe != null) {
-            for(GheMayBay g : session.danhSachGhe) sbGhe.append(g.getSoGhe()).append(" ");
-        }
-        pnlSummary.add(createSummaryRow("Ghế đã chọn:", sbGhe.toString()));
+        pnlSummary.add(createSummaryRow("Mã chuyến bay:", session.maChuyenBay != null ? session.maChuyenBay : "Chưa rõ"));
+        pnlSummary.add(createSummaryRow("Loại vé:", session.loaiVe != null ? session.loaiVe : "Một chiều"));
         
-        pnlSummary.add(Box.createRigidArea(new Dimension(0, 15)));
-        JLabel lblHK = new JLabel("Danh sách hành khách:");
-        lblHK.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        pnlSummary.add(lblHK);
+        // SỬ DỤNG DỮ LIỆU THẬT ĐÃ LƯU TRONG SESSION
+        String loTrinh = (session.tenSanBayDi != null ? session.tenSanBayDi : "") 
+                         + " ➔ " + 
+                         (session.tenSanBayDen != null ? session.tenSanBayDen : "");
+        pnlSummary.add(createSummaryRow("Lộ trình:", loTrinh)); 
+
+        String thoiGian = (session.thoiGianDi != null ? session.thoiGianDi : "");
+        pnlSummary.add(createSummaryRow("Khởi hành:", thoiGian));
+
+        pnlSummary.add(Box.createRigidArea(new Dimension(0, 20)));
+        JSeparator sep = new JSeparator();
+        sep.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
+        pnlSummary.add(sep);
+        pnlSummary.add(Box.createRigidArea(new Dimension(0, 10)));
+
+        // --- 2. CHI TIẾT HÀNH KHÁCH & GHẾ NGỒI ---
+        pnlSummary.add(createSectionLabel("👤 DANH SÁCH HÀNH KHÁCH & GHẾ"));
         
         if(session.danhSachHanhKhach != null) {
-            for(ThongTinHanhKhach hk : session.danhSachHanhKhach) {
-                JLabel l = new JLabel("  • " + hk.getHoTen() + " [" + hk.getLoaiHanhKhach() + "]");
-                l.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-                pnlSummary.add(l);
+            for(int i = 0; i < session.danhSachHanhKhach.size(); i++) {
+                ThongTinHanhKhach hk = session.danhSachHanhKhach.get(i);
+                
+                String soGhe = "Chưa chọn";
+                if(session.danhSachGhe != null && i < session.danhSachGhe.size()) {
+                    soGhe = session.danhSachGhe.get(i).getSoGhe();
+                }
+                
+                JLabel lblHkInfo = new JLabel("<html><b>" + (i + 1) + ". " + hk.getHoTen() + "</b> (" + hk.getLoaiHanhKhach() + ")"
+                        + "<br>&nbsp;&nbsp;&nbsp;Ghế đã chọn: <font color='red'><b>" + soGhe + "</b></font></html>");
+                lblHkInfo.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+                lblHkInfo.setBorder(BorderFactory.createEmptyBorder(5, 15, 10, 0));
+                lblHkInfo.setAlignmentX(Component.LEFT_ALIGNMENT);
+                
+                pnlSummary.add(lblHkInfo);
             }
         }
+        
+        for (Component c : pnlSummary.getComponents()) {
+            ((JComponent) c).setAlignmentX(Component.LEFT_ALIGNMENT);
+        }
 
+        // ================= PANEL PHẢI: CHI TIẾT THANH TOÁN =================
         JPanel pnlBilling = new JPanel();
         pnlBilling.setLayout(new BoxLayout(pnlBilling, BoxLayout.Y_AXIS));
         pnlBilling.setBackground(Color.WHITE);
@@ -117,6 +147,7 @@ public class ThanhToanGUI extends JPanel {
         pnlCenter.add(pnlBilling);
         add(pnlCenter, BorderLayout.CENTER);
 
+        // ================= FOOTER =================
         JPanel pnlFooter = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 15));
         pnlFooter.setBackground(Color.WHITE);
         pnlFooter.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(200, 200, 200)));
@@ -135,16 +166,16 @@ public class ThanhToanGUI extends JPanel {
         pnlFooter.add(btnConfirm);
         add(pnlFooter, BorderLayout.SOUTH);
 
+        // ================= EVENTS =================
         btnBack.addActionListener(e -> {
             Container parent = this.getParent();
             parent.removeAll();
             parent.setLayout(new BorderLayout());
-            parent.add(new gui.DichVuHanhLyGUI(session), BorderLayout.CENTER);
+            parent.add(new DichVuHanhLyGUI(session), BorderLayout.CENTER);
             parent.revalidate();
             parent.repaint();
         });
 
-        // BẮT SỰ KIỆN GỌI ĐẾN TRÙM CUỐI
         btnConfirm.addActionListener(e -> processBooking());
     }
 
@@ -199,23 +230,26 @@ public class ThanhToanGUI extends JPanel {
         lblTongThanhToan.setText("TỔNG CỘNG: " + vn.format(finalAmount) + " VNĐ");
     }
 
-    // =========================================================================================
-    // HÀM TRÙM CUỐI - LƯU TẤT CẢ VÀO DATABASE (KHÔNG BAO GIỜ LỖI KHÓA NGOẠI NỮA)
-    // =========================================================================================
-    private void processBooking() {
+private void processBooking() {
         int confirm = JOptionPane.showConfirmDialog(this, "Xác nhận thanh toán số tiền: " + lblTongThanhToan.getText() + "?", "Xác nhận", JOptionPane.YES_NO_OPTION);
         if(confirm != JOptionPane.YES_OPTION) return;
 
         Connection conn = null;
+        
+        // Khai báo biến để lát nữa truyền sang trang Hóa Đơn
+        String generatedMaPDV = ""; 
+        String generatedMaHD = "";  
+        String ptThanhToan = radTienMat.isSelected() ? "Tiền mặt" : (radQR.isSelected() ? "Mã QR" : "Thẻ tín dụng");
+
         try {
             conn = db.DBConnection.getConnection();
             conn.setAutoCommit(false); 
 
             // 1. TẠO PHIẾU ĐẶT VÉ
-            String maPDV = "P" + (System.currentTimeMillis() % 1000000);
+            generatedMaPDV = "P" + (System.currentTimeMillis() % 1000000);
             String sqlPDV = "INSERT INTO PhieuDatVe (maPhieuDatVe, maNguoiDung, tongTien, ngayDat, soLuongVe, trangThaiThanhToan) VALUES (?, ?, ?, ?, ?, ?)";
             try (PreparedStatement ps = conn.prepareStatement(sqlPDV)) {
-                ps.setString(1, maPDV);
+                ps.setString(1, generatedMaPDV);
                 ps.setString(2, session.maNguoiDung);
                 ps.setBigDecimal(3, finalAmount);
                 ps.setDate(4, java.sql.Date.valueOf(java.time.LocalDate.now()));
@@ -237,11 +271,9 @@ public class ThanhToanGUI extends JPanel {
                 ThongTinHanhKhach hk = session.danhSachHanhKhach.get(i);
                 GheMayBay ghe = session.danhSachGhe.get(i);
 
-                // 2.1 Sinh mã Hành khách ngẫu nhiên để không bị trùng (Ví dụ HK847321)
                 String maHKMoi = "HK" + (System.currentTimeMillis() % 100000) + i;
                 hk.setMaHK(maHKMoi);
 
-                // Lưu thông tin người bay vào CSDL
                 try (PreparedStatement psHK = conn.prepareStatement(sqlHK)) {
                     psHK.setString(1, hk.getMaHK());
                     psHK.setString(2, session.maNguoiDung);
@@ -255,68 +287,74 @@ public class ThanhToanGUI extends JPanel {
                     psHK.executeUpdate();
                 }
 
-                // 2.2 Lưu thông tin Vé Bán (Nối Mã Hành Khách vừa tạo vào đây)
                 String maVe = "V" + (System.currentTimeMillis() % 1000000) + i;
                 try (PreparedStatement psVe = conn.prepareStatement(sqlVe)) {
                     psVe.setString(1, maVe);
-                    psVe.setString(2, maPDV);
-                    psVe.setString(3, hk.getMaHK()); // Đã có Hành khách, gán Khóa Ngoại vào đây!
+                    psVe.setString(2, generatedMaPDV);
+                    psVe.setString(3, hk.getMaHK()); 
                     psVe.setString(4, session.maChuyenBay);
                     psVe.setString(5, ghe.getMaGhe());
                     psVe.setString(6, maHangVeAnToan);
                     psVe.setString(7, hk.getLoaiHanhKhach() != null ? hk.getLoaiHanhKhach() : "Người lớn");
                     psVe.setString(8, loaiVeAnToan);
                     
-                    // Chia đều tổng tiền vé gốc ra cho từng người
                     BigDecimal giaTungVe = session.tongTienVe.divide(new BigDecimal(session.getTongSoHanhKhach()), 2, java.math.RoundingMode.HALF_UP);
                     psVe.setBigDecimal(9, giaTungVe);
                     psVe.setString(10, "Đã đặt");
                     psVe.executeUpdate();
                 }
 
-                // 2.3 Khóa chiếc ghế đó lại để người khác không mua được nữa
                 try (PreparedStatement psGhe = conn.prepareStatement(sqlGhe)) {
                     psGhe.setString(1, ghe.getMaGhe());
                     psGhe.executeUpdate();
                 }
             }
 
-            // 3. TẠO HÓA ĐƠN THANH TOÁN TỔNG
+            // 3. TẠO HÓA ĐƠN THANH TOÁN
+            generatedMaHD = "HD" + (System.currentTimeMillis() % 100000);
             String sqlHD = "INSERT INTO HoaDon (maHoaDon, maPhieuDatVe, ngayLap, tongTien, phuongThuc) VALUES (?, ?, ?, ?, ?)";
             try (PreparedStatement psHD = conn.prepareStatement(sqlHD)) {
-                psHD.setString(1, "HD" + (System.currentTimeMillis() % 100000));
-                psHD.setString(2, maPDV);
+                psHD.setString(1, generatedMaHD);
+                psHD.setString(2, generatedMaPDV);
                 psHD.setTimestamp(3, java.sql.Timestamp.valueOf(LocalDateTime.now()));
                 psHD.setBigDecimal(4, finalAmount);
-                psHD.setString(5, radTienMat.isSelected() ? "Tiền mặt" : (radQR.isSelected() ? "Mã QR" : "Thẻ tín dụng"));
+                psHD.setString(5, ptThanhToan);
                 psHD.executeUpdate();
             }
 
-            // 4. LƯU TOÀN BỘ XUỐNG DATABASE
             conn.commit(); 
 
-            JOptionPane.showMessageDialog(this, "🎉 CHÚC MỪNG BẠN ĐÃ ĐẶT VÉ THÀNH CÔNG!\nMã hóa đơn của bạn là: " + maPDV, "Thành công", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, "🎉 CHÚC MỪNG BẠN ĐÃ ĐẶT VÉ THÀNH CÔNG!\nMã hóa đơn của bạn là: " + generatedMaHD, "Thành công", JOptionPane.INFORMATION_MESSAGE);
 
-            // Tắt giao diện đặt vé, trả về Trang chủ MainFrame ban đầu
-            JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
-            topFrame.dispose(); 
-            
-            // Khôi phục lại phiên đăng nhập của người dùng để tránh bị văng ra ngoài
-            model.NguoiDung userDaDangNhap = null;
-            try {
-                NguoiDungDAO ndDAO = new NguoiDungDAO();
-                for (model.NguoiDung nd : ndDAO.selectAll()) {
-                    if (nd.getMaNguoiDung().equals(session.maNguoiDung)) {
-                        userDaDangNhap = nd;
-                        break;
-                    }
-                }
-            } catch(Exception e) { System.err.println("Lỗi khôi phục User: " + e.getMessage()); }
+            // =========================================================================
+            // CHUẨN BỊ DỮ LIỆU ĐỂ CHUYỂN SANG PANEL HÓA ĐƠN
+            // =========================================================================
+            String strNgayLap = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+            NumberFormat vn = NumberFormat.getInstance(new Locale("vi", "VN"));
+            String strTongTien = vn.format(finalAmount) + " VNĐ";
+            String strThue = "10%";
 
-            if (userDaDangNhap != null) {
-                new gui.user.MainFrame(userDaDangNhap).setVisible(true); 
-            } else {
-                new gui.user.MainFrame().setVisible(true); 
+            Container parent = this.getParent();
+            if(parent != null) {
+                parent.removeAll();
+                parent.setLayout(new BorderLayout());
+                
+                // Gọi Panel Hóa Đơn và truyền dữ liệu vừa tạo vào
+                // Lưu ý: Đảm bảo đường dẫn gui.user.ThanhToanHoaDonPanel là chính xác
+                gui.user.ThanhToanHoaDonPanel pnlHoaDon = new gui.user.ThanhToanHoaDonPanel(
+                    generatedMaHD,   
+                    generatedMaPDV,  
+                    strNgayLap,      
+                    strTongTien,     
+                    ptThanhToan,     
+                    strThue,
+                    session
+                );
+                
+                parent.add(pnlHoaDon, BorderLayout.CENTER); 
+                
+                parent.revalidate();
+                parent.repaint();
             }
 
         } catch (Exception ex) {
@@ -328,14 +366,32 @@ public class ThanhToanGUI extends JPanel {
         }
     }
 
+    // ================= HELPERS (HÀM BỔ TRỢ GIAO DIỆN) =================
     private JPanel createSummaryRow(String label, String value) {
-        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel p = new JPanel(new BorderLayout());
         p.setOpaque(false);
         p.setBackground(Color.WHITE);
-        JLabel l = new JLabel(label); l.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        JLabel v = new JLabel(value); v.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        p.add(l); p.add(v);
+        p.setMaximumSize(new Dimension(800, 30));
+        
+        JLabel l = new JLabel(label); 
+        l.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        l.setPreferredSize(new Dimension(130, 25));
+        
+        JLabel v = new JLabel(value); 
+        v.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        
+        p.add(l, BorderLayout.WEST); 
+        p.add(v, BorderLayout.CENTER);
         return p;
+    }
+    
+    private JLabel createSectionLabel(String text) {
+        JLabel label = new JLabel(text);
+        label.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        label.setForeground(new Color(28, 48, 96));
+        label.setBorder(BorderFactory.createEmptyBorder(10, 5, 10, 0));
+        label.setAlignmentX(Component.LEFT_ALIGNMENT);
+        return label;
     }
 
     private JLabel createPriceLabel(String text) {

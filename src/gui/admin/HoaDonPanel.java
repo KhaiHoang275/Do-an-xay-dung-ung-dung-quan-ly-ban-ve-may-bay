@@ -1,6 +1,7 @@
 package gui.admin;
 
 import bll.HoaDonBUS;
+import gui.user.ThanhToanHoaDonPanel;
 import model.HoaDon;
 
 import javax.swing.*;
@@ -437,9 +438,7 @@ public class HoaDonPanel extends JPanel {
             dialog.setSize(1050, 700);
             dialog.setLocationRelativeTo(this);
             
-            // ĐÃ SỬA LỖI Ở ĐÂY: Truyền 6 tham số vào
-            dialog.add(new ThanhToanHoaDonPanel(maHD, maPhieu, ngayLap, tongTien, phuongThuc, thue)); 
-            
+            dialog.add(new ThanhToanHoaDonPanel(maHD, maPhieu, ngayLap, tongTien, phuongThuc, thue, null));            
             dialog.setVisible(true);
         });
     }
