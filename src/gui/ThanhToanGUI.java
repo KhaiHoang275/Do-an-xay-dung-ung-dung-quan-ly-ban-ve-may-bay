@@ -230,13 +230,12 @@ public class ThanhToanGUI extends JPanel {
         lblTongThanhToan.setText("TỔNG CỘNG: " + vn.format(finalAmount) + " VNĐ");
     }
 
-private void processBooking() {
+    private void processBooking() {
         int confirm = JOptionPane.showConfirmDialog(this, "Xác nhận thanh toán số tiền: " + lblTongThanhToan.getText() + "?", "Xác nhận", JOptionPane.YES_NO_OPTION);
         if(confirm != JOptionPane.YES_OPTION) return;
 
         Connection conn = null;
         
-        // Khai báo biến để lát nữa truyền sang trang Hóa Đơn
         String generatedMaPDV = ""; 
         String generatedMaHD = "";  
         String ptThanhToan = radTienMat.isSelected() ? "Tiền mặt" : (radQR.isSelected() ? "Mã QR" : "Thẻ tín dụng");
@@ -245,8 +244,12 @@ private void processBooking() {
             conn = db.DBConnection.getConnection();
             conn.setAutoCommit(false); 
 
-            // 1. TẠO PHIẾU ĐẶT VÉ
-            generatedMaPDV = "P" + (System.currentTimeMillis() % 1000000);
+            // ==============================================================================
+            // 1. TẠO PHIẾU ĐẶT VÉ (SỬ DỤNG HÀM TỰ TĂNG TỪ DAO)
+            // ==============================================================================
+            dal.PhieuDatVeDAO pdvDAO = new dal.PhieuDatVeDAO();
+            generatedMaPDV = pdvDAO.generateMaPhieuDatVe(conn); // Gọi hàm sinh mã PDV00x
+
             String sqlPDV = "INSERT INTO PhieuDatVe (maPhieuDatVe, maNguoiDung, tongTien, ngayDat, soLuongVe, trangThaiThanhToan) VALUES (?, ?, ?, ?, ?, ?)";
             try (PreparedStatement ps = conn.prepareStatement(sqlPDV)) {
                 ps.setString(1, generatedMaPDV);
@@ -258,7 +261,6 @@ private void processBooking() {
                 ps.executeUpdate();
             }
 
-            // Các câu lệnh SQL chuẩn bị
             String sqlHK = "INSERT INTO ThongTinHanhKhach (maHK, maNguoiDung, hoTen, cccd, hoChieu, gioiTinh, ngaySinh, loaiHanhKhach) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             String sqlVe = "INSERT INTO VeBan (maVe, maPhieuDatVe, maHK, maChuyenBay, maGhe, maHangVe, loaiHK, loaiVe, giaVe, trangThaiVe) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             String sqlGhe = "UPDATE GheMayBay SET trangThai = 'DA_DAT' WHERE maGhe = ?";
@@ -266,12 +268,17 @@ private void processBooking() {
             String maHangVeAnToan = (session.maHangVe != null) ? session.maHangVe : "ECO";
             String loaiVeAnToan = (session.loaiVe != null) ? session.loaiVe : "Một chiều";
 
+            // ==============================================================================
             // 2. VÒNG LẶP: LƯU HÀNH KHÁCH -> LƯU VÉ -> CẬP NHẬT GHẾ
+            // ==============================================================================
+            dal.VeBanDAO veBanDAO = new dal.VeBanDAO();
+            String currentMaVe = veBanDAO.generateMaVe(conn); // Lấy mã vé khởi đầu: VE00x
+
             for (int i = 0; i < session.danhSachHanhKhach.size(); i++) {
                 ThongTinHanhKhach hk = session.danhSachHanhKhach.get(i);
                 GheMayBay ghe = session.danhSachGhe.get(i);
 
-                String maHKMoi = "HK" + (System.currentTimeMillis() % 100000) + i;
+                String maHKMoi = "HK" + (System.currentTimeMillis() % 100000) + i; // Riêng mã khách hàng vẫn để thời gian cho đỡ trùng lặp nếu khách mua nhiều lần
                 hk.setMaHK(maHKMoi);
 
                 try (PreparedStatement psHK = conn.prepareStatement(sqlHK)) {
@@ -287,9 +294,9 @@ private void processBooking() {
                     psHK.executeUpdate();
                 }
 
-                String maVe = "V" + (System.currentTimeMillis() % 1000000) + i;
+                // LƯU VÉ VÀO DATABASE
                 try (PreparedStatement psVe = conn.prepareStatement(sqlVe)) {
-                    psVe.setString(1, maVe);
+                    psVe.setString(1, currentMaVe); 
                     psVe.setString(2, generatedMaPDV);
                     psVe.setString(3, hk.getMaHK()); 
                     psVe.setString(4, session.maChuyenBay);
@@ -304,21 +311,46 @@ private void processBooking() {
                     psVe.executeUpdate();
                 }
 
+                // CỘNG MÃ VÉ LÊN 1 CHO LẦN LẶP SAU (VE001 -> VE002)
+                try {
+                    String prefix = currentMaVe.substring(0, 2); 
+                    int numberPart = Integer.parseInt(currentMaVe.substring(2)); 
+                    numberPart++; 
+                    currentMaVe = String.format("%s%03d", prefix, numberPart); 
+                } catch (Exception e) {
+                    System.err.println("Lỗi toán học khi tự tăng mã vé: " + e.getMessage());
+                }
+
                 try (PreparedStatement psGhe = conn.prepareStatement(sqlGhe)) {
                     psGhe.setString(1, ghe.getMaGhe());
                     psGhe.executeUpdate();
                 }
             }
 
-            // 3. TẠO HÓA ĐƠN THANH TOÁN
-            generatedMaHD = "HD" + (System.currentTimeMillis() % 100000);
-            String sqlHD = "INSERT INTO HoaDon (maHoaDon, maPhieuDatVe, ngayLap, tongTien, phuongThuc) VALUES (?, ?, ?, ?, ?)";
+            // ==============================================================================
+            // 3. TẠO HÓA ĐƠN THANH TOÁN (SINH MÃ TỰ ĐỘNG)
+            // ==============================================================================
+            String sqlMaxHD = "SELECT MAX(maHoaDon) FROM HoaDon";
+            try (PreparedStatement psMax = conn.prepareStatement(sqlMaxHD);
+                 java.sql.ResultSet rsMax = psMax.executeQuery()) {
+                if (rsMax.next() && rsMax.getString(1) != null) {
+                    String lastHD = rsMax.getString(1).substring(2); // Cắt chữ "HD"
+                    int num = Integer.parseInt(lastHD) + 1;
+                    generatedMaHD = String.format("HD%03d", num);
+                } else {
+                    generatedMaHD = "HD001"; // Nếu chưa có hóa đơn nào
+                }
+            }
+
+            // ĐÃ SỬA: Thêm cột 'trangThai' vào câu lệnh SQL
+            String sqlHD = "INSERT INTO HoaDon (maHoaDon, maPhieuDatVe, ngayLap, tongTien, phuongThuc, trangThai) VALUES (?, ?, ?, ?, ?, ?)";
             try (PreparedStatement psHD = conn.prepareStatement(sqlHD)) {
                 psHD.setString(1, generatedMaHD);
                 psHD.setString(2, generatedMaPDV);
                 psHD.setTimestamp(3, java.sql.Timestamp.valueOf(LocalDateTime.now()));
                 psHD.setBigDecimal(4, finalAmount);
                 psHD.setString(5, ptThanhToan);
+                psHD.setString(6, "Đã thanh toán"); // <--- CẬP NHẬT TRẠNG THÁI Ở ĐÂY
                 psHD.executeUpdate();
             }
 
@@ -326,9 +358,7 @@ private void processBooking() {
 
             JOptionPane.showMessageDialog(this, "🎉 CHÚC MỪNG BẠN ĐÃ ĐẶT VÉ THÀNH CÔNG!\nMã hóa đơn của bạn là: " + generatedMaHD, "Thành công", JOptionPane.INFORMATION_MESSAGE);
 
-            // =========================================================================
-            // CHUẨN BỊ DỮ LIỆU ĐỂ CHUYỂN SANG PANEL HÓA ĐƠN
-            // =========================================================================
+            // Chuyển sang Giao diện Hóa Đơn
             String strNgayLap = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
             NumberFormat vn = NumberFormat.getInstance(new Locale("vi", "VN"));
             String strTongTien = vn.format(finalAmount) + " VNĐ";
@@ -339,8 +369,6 @@ private void processBooking() {
                 parent.removeAll();
                 parent.setLayout(new BorderLayout());
                 
-                // Gọi Panel Hóa Đơn và truyền dữ liệu vừa tạo vào
-                // Lưu ý: Đảm bảo đường dẫn gui.user.ThanhToanHoaDonPanel là chính xác
                 gui.user.ThanhToanHoaDonPanel pnlHoaDon = new gui.user.ThanhToanHoaDonPanel(
                     generatedMaHD,   
                     generatedMaPDV,  
