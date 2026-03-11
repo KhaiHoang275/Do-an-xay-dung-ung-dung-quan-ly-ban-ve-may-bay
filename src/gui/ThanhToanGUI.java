@@ -256,9 +256,7 @@ public class ThanhToanGUI extends JPanel {
             if (thBac != null && thBac.getMaThuHang() != null) {
                 maBac = thBac.getMaThuHang();
             }
-        } catch (Exception e) {
-            System.err.println("Cảnh báo: Không thể lấy tự động hạng Bạc. Đang dùng mã mặc định.");
-        }
+        } catch (Exception e) {}
 
         try {
             conn = db.DBConnection.getConnection();
@@ -284,7 +282,7 @@ public class ThanhToanGUI extends JPanel {
                 ps.executeUpdate();
             }
 
-            // ĐÃ SỬA: Thêm maThuHang và diemTichLuy vào câu lệnh SQL Hành khách
+            // ĐÃ SỬA LẠI: Thêm đu đủ loaiHanhKhach, maThuHang, diemTichLuy (Tổng cộng 10 biến)
             String sqlHK = "INSERT INTO ThongTinHanhKhach (maHK, maNguoiDung, hoTen, cccd, hoChieu, gioiTinh, ngaySinh, loaiHanhKhach, maThuHang, diemTichLuy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             String sqlVe = "INSERT INTO VeBan (maVe, maPhieuDatVe, maHK, maChuyenBay, maGhe, maHangVe, loaiHK, loaiVe, giaVe, trangThaiVe) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             String sqlGhe = "UPDATE GheMayBay SET trangThai = 'DA_DAT' WHERE maGhe = ?";
@@ -317,6 +315,7 @@ public class ThanhToanGUI extends JPanel {
                 
                 hk.setMaHK(currentMaHK);
 
+                // LƯU HỒ SƠ HÀNH KHÁCH
                 try (PreparedStatement psHK = conn.prepareStatement(sqlHK)) {
                     psHK.setString(1, hk.getMaHK());
                     psHK.setString(2, session.maNguoiDung);
@@ -325,19 +324,22 @@ public class ThanhToanGUI extends JPanel {
                     psHK.setString(5, hk.getHoChieu());
                     psHK.setString(6, hk.getGioiTinh());
                     
-                    // Lưu ngày sinh
                     if (hk.getNgaySinh() != null) psHK.setDate(7, java.sql.Date.valueOf(hk.getNgaySinh()));
                     else psHK.setNull(7, java.sql.Types.DATE);
                     
+                    // Cột 8: Loại hành khách
                     psHK.setString(8, hk.getLoaiHanhKhach() != null ? hk.getLoaiHanhKhach() : "Người lớn");
                     
-                    // ĐÃ SỬA: GÁN HẠNG BẠC VÀ ĐIỂM TÍCH LŨY = 0 CHO KHÁCH LẦN ĐẦU MUA
+                    // Cột 9: Mã thứ hạng
                     psHK.setString(9, maBac);
+                    
+                    // Cột 10: Điểm tích lũy
                     psHK.setInt(10, 0);
 
                     psHK.executeUpdate();
                 }
 
+                // LƯU VÉ BÁN
                 try (PreparedStatement psVe = conn.prepareStatement(sqlVe)) {
                     psVe.setString(1, currentMaVe); 
                     psVe.setString(2, generatedMaPDV);
@@ -350,7 +352,7 @@ public class ThanhToanGUI extends JPanel {
                     
                     BigDecimal giaTungVe = session.tongTienVe.divide(new BigDecimal(session.getTongSoHanhKhach()), 2, java.math.RoundingMode.HALF_UP);
                     psVe.setBigDecimal(9, giaTungVe);
-                    psVe.setString(10, "Đã thanh toán"); // Trạng thái vé
+                    psVe.setString(10, "Đã thanh toán"); 
                     psVe.executeUpdate();
                 }
 
@@ -395,17 +397,12 @@ public class ThanhToanGUI extends JPanel {
             // GIAO DỊCH DATABASE THÀNH CÔNG -> COMMIT
             conn.commit(); 
 
-            // ==============================================================================
-            // ĐÃ SỬA: CỘNG ĐIỂM TÍCH LŨY CHO TỪNG HÀNH KHÁCH SAU KHI THANH TOÁN
-            // ==============================================================================
-            double tienMoiKhach = finalAmount.doubleValue() / session.getTongSoHanhKhach(); // Chia đều tiền bill
+            // CỘNG ĐIỂM TÍCH LŨY
+            double tienMoiKhach = finalAmount.doubleValue() / session.getTongSoHanhKhach(); 
             for (ThongTinHanhKhach hk : session.danhSachHanhKhach) {
                 try {
-                    // Gọi hàm cập nhật từ ThuHangBUS của bạn
                     thuHangBUS.capNhatDiemVaThuHang(hk.getMaHK(), tienMoiKhach);
-                } catch (Exception ex) {
-                    System.err.println("Lỗi cộng điểm: " + ex.getMessage());
-                }
+                } catch (Exception ex) {}
             }
 
             JOptionPane.showMessageDialog(this, "🎉 CHÚC MỪNG BẠN ĐÃ ĐẶT VÉ THÀNH CÔNG!\nMã hóa đơn của bạn là: " + generatedMaHD, "Thành công", JOptionPane.INFORMATION_MESSAGE);
