@@ -340,7 +340,7 @@ public class ThanhToanGUI extends JPanel {
                     
                     BigDecimal giaTungVe = session.tongTienVe.divide(new BigDecimal(session.getTongSoHanhKhach()), 2, java.math.RoundingMode.HALF_UP);
                     psVe.setBigDecimal(9, giaTungVe);
-                    psVe.setString(10, "Đã đặt");
+                    psVe.setString(10, "Đã thanh toán");
                     psVe.executeUpdate();
                 }
 
