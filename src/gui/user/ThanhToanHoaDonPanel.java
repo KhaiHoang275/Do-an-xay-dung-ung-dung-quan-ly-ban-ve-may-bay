@@ -297,6 +297,9 @@ public class ThanhToanHoaDonPanel extends JPanel {
     }
 
     private void setupListeners() {
+        // ==============================================================
+        // ĐÃ SỬA: KIỂM TRA ĐĂNG NHẬP TRƯỚC KHI TRỞ VỀ TRANG CHỦ
+        // ==============================================================
         btnDong.addActionListener(e -> {
             Window currentWindow = SwingUtilities.getWindowAncestor(this);
             if (currentWindow != null) { currentWindow.dispose(); }
@@ -307,9 +310,36 @@ public class ThanhToanHoaDonPanel extends JPanel {
                 }
             }
             
-            gui.user.MainFrame newHome = new gui.user.MainFrame();
-            newHome.setLocationRelativeTo(null);
-            newHome.setVisible(true); 
+            // KIỂM TRA: Nếu có session và không phải khách lẻ thì khôi phục đăng nhập
+            if (session != null && session.maNguoiDung != null && !session.maNguoiDung.equals("KHACH_LE")) {
+                model.NguoiDung userDaDangNhap = null;
+                try {
+                    dal.NguoiDungDAO ndDAO = new dal.NguoiDungDAO();
+                    for (model.NguoiDung nd : ndDAO.selectAll()) {
+                        if (nd.getMaNguoiDung().equals(session.maNguoiDung)) {
+                            userDaDangNhap = nd;
+                            break;
+                        }
+                    }
+                } catch (Exception ex) {
+                    System.err.println("Lỗi khôi phục tài khoản: " + ex.getMessage());
+                }
+
+                if (userDaDangNhap != null) {
+                    gui.user.MainFrame newHome = new gui.user.MainFrame(userDaDangNhap); // Truyền user vào
+                    newHome.setLocationRelativeTo(null);
+                    newHome.setVisible(true);
+                } else {
+                    gui.user.MainFrame newHome = new gui.user.MainFrame();
+                    newHome.setLocationRelativeTo(null);
+                    newHome.setVisible(true); 
+                }
+            } else {
+                // Nếu là Khách lẻ mua vé thì về trang chủ mặc định
+                gui.user.MainFrame newHome = new gui.user.MainFrame();
+                newHome.setLocationRelativeTo(null);
+                newHome.setVisible(true); 
+            }
         });
 
         btnXuatPDF.addActionListener(e -> xuatVaMoFilePDF());
