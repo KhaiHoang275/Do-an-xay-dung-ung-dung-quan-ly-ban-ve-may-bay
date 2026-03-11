@@ -22,7 +22,9 @@ public class ThanhToanGUI extends JPanel {
     private JLabel lblTongVe, lblTongDV, lblGiamGia, lblTongThanhToan;
     private JComboBox<KhuyenMai> cboKhuyenMai;
     private JRadioButton radTienMat, radThe, radQR;
+    
     private BigDecimal finalAmount = BigDecimal.ZERO;
+    private BigDecimal thueVAT = BigDecimal.ZERO; 
 
     public ThanhToanGUI(DatVeSession session) {
         this.session = session;
@@ -30,7 +32,7 @@ public class ThanhToanGUI extends JPanel {
             session.tongTienVe = new BigDecimal("1200000").multiply(new BigDecimal(session.getTongSoHanhKhach()));
         }
         initComponents();
-        loadPromotions();
+        loadPromotions(); // Sẽ tự động lấy KM từ session để hiển thị
         updatePriceDisplay();
     }
 
@@ -58,14 +60,12 @@ public class ThanhToanGUI extends JPanel {
         pnlSummary.setBackground(Color.WHITE);
         pnlSummary.setBorder(createCustomTitledBorder("THÔNG TIN HÀNH TRÌNH & ĐẶT CHỖ"));
 
-        // --- 1. THÔNG TIN CHUYẾN BAY ---
         pnlSummary.add(Box.createRigidArea(new Dimension(0, 10)));
         pnlSummary.add(createSectionLabel("✈ THÔNG TIN CHUYẾN BAY"));
         
         pnlSummary.add(createSummaryRow("Mã chuyến bay:", session.maChuyenBay != null ? session.maChuyenBay : "Chưa rõ"));
         pnlSummary.add(createSummaryRow("Loại vé:", session.loaiVe != null ? session.loaiVe : "Một chiều"));
         
-        // SỬ DỤNG DỮ LIỆU THẬT ĐÃ LƯU TRONG SESSION
         String loTrinh = (session.tenSanBayDi != null ? session.tenSanBayDi : "") 
                          + " ➔ " + 
                          (session.tenSanBayDen != null ? session.tenSanBayDen : "");
@@ -80,7 +80,6 @@ public class ThanhToanGUI extends JPanel {
         pnlSummary.add(sep);
         pnlSummary.add(Box.createRigidArea(new Dimension(0, 10)));
 
-        // --- 2. CHI TIẾT HÀNH KHÁCH & GHẾ NGỒI ---
         pnlSummary.add(createSectionLabel("👤 DANH SÁCH HÀNH KHÁCH & GHẾ"));
         
         if(session.danhSachHanhKhach != null) {
@@ -187,6 +186,12 @@ public class ThanhToanGUI extends JPanel {
             if(list != null) {
                 for(KhuyenMai km : list) {
                     cboKhuyenMai.addItem(km); 
+                    
+                    // ĐÃ SỬA: TỰ ĐỘNG CHỌN MÃ KHUYẾN MÃI ĐÃ LƯU Ở BƯỚC 1
+                    if (session.khuyenMaiApDung != null && 
+                        km.getMaKhuyenMai().equals(session.khuyenMaiApDung.getMaKhuyenMai())) {
+                        cboKhuyenMai.setSelectedItem(km);
+                    }
                 }
             }
         } catch(Exception e) { System.err.println("Lỗi tải KM: " + e.getMessage()); }
@@ -212,22 +217,30 @@ public class ThanhToanGUI extends JPanel {
         BigDecimal discount = BigDecimal.ZERO;
 
         KhuyenMai selected = (KhuyenMai) cboKhuyenMai.getSelectedItem();
+        
+        // ĐÃ SỬA: CẬP NHẬT LẠI SESSION NẾU NGƯỜI DÙNG ĐỔI MÃ KHUYẾN MÃI TRÊN MÀN HÌNH NÀY
+        session.khuyenMaiApDung = selected;
+
         if(selected != null) {
             if("PHAN_TRAM".equals(selected.getLoaiKM()) || "Phần trăm".equalsIgnoreCase(selected.getLoaiKM())) {
-                discount = base.multiply(selected.getGiaTri()).divide(new BigDecimal("100"));
+                discount = base.add(sv).multiply(selected.getGiaTri()).divide(new BigDecimal("100"));
             } else {
                 discount = selected.getGiaTri() != null ? selected.getGiaTri() : BigDecimal.ZERO;
             }
         }
 
-        finalAmount = base.add(sv).subtract(discount);
-        if(finalAmount.compareTo(BigDecimal.ZERO) < 0) finalAmount = BigDecimal.ZERO;
+        BigDecimal tongTruocThue = base.add(sv).subtract(discount);
+        if(tongTruocThue.compareTo(BigDecimal.ZERO) < 0) tongTruocThue = BigDecimal.ZERO;
+
+        // Tính 10% VAT
+        thueVAT = tongTruocThue.multiply(new BigDecimal("0.1"));
+        finalAmount = tongTruocThue.add(thueVAT); // Tổng cuối cùng ĐÃ BAO GỒM THUẾ
 
         NumberFormat vn = NumberFormat.getInstance(new Locale("vi", "VN"));
         lblTongVe.setText("Tiền vé cơ bản: " + vn.format(base) + " VNĐ");
         lblTongDV.setText("Hành lý & Dịch vụ: " + vn.format(sv) + " VNĐ");
         lblGiamGia.setText("Giảm giá: -" + vn.format(discount) + " VNĐ");
-        lblTongThanhToan.setText("TỔNG CỘNG: " + vn.format(finalAmount) + " VNĐ");
+        lblTongThanhToan.setText("TỔNG CỘNG (Gồm 10% VAT): " + vn.format(finalAmount) + " VNĐ");
     }
 
     private void processBooking() {
@@ -245,12 +258,13 @@ public class ThanhToanGUI extends JPanel {
             conn.setAutoCommit(false); 
 
             // ==============================================================================
-            // 1. TẠO PHIẾU ĐẶT VÉ (SỬ DỤNG HÀM TỰ TĂNG TỪ DAO)
+            // 1. TẠO PHIẾU ĐẶT VÉ (CÓ CỘT maKhuyenMai)
             // ==============================================================================
             dal.PhieuDatVeDAO pdvDAO = new dal.PhieuDatVeDAO();
-            generatedMaPDV = pdvDAO.generateMaPhieuDatVe(conn); // Gọi hàm sinh mã PDV00x
+            generatedMaPDV = pdvDAO.generateMaPhieuDatVe(conn); 
 
-            String sqlPDV = "INSERT INTO PhieuDatVe (maPhieuDatVe, maNguoiDung, tongTien, ngayDat, soLuongVe, trangThaiThanhToan) VALUES (?, ?, ?, ?, ?, ?)";
+            // ĐÃ SỬA: THÊM CỘT maKhuyenMai VÀO DATABASE
+            String sqlPDV = "INSERT INTO PhieuDatVe (maPhieuDatVe, maNguoiDung, tongTien, ngayDat, soLuongVe, trangThaiThanhToan, maKhuyenMai) VALUES (?, ?, ?, ?, ?, ?, ?)";
             try (PreparedStatement ps = conn.prepareStatement(sqlPDV)) {
                 ps.setString(1, generatedMaPDV);
                 ps.setString(2, session.maNguoiDung);
@@ -258,6 +272,14 @@ public class ThanhToanGUI extends JPanel {
                 ps.setDate(4, java.sql.Date.valueOf(java.time.LocalDate.now()));
                 ps.setInt(5, session.getTongSoHanhKhach());
                 ps.setString(6, "Đã thanh toán");
+                
+                // LƯU MÃ KHUYẾN MÃI VÀO DATABASE
+                if (session.khuyenMaiApDung != null) {
+                    ps.setString(7, session.khuyenMaiApDung.getMaKhuyenMai());
+                } else {
+                    ps.setNull(7, java.sql.Types.VARCHAR);
+                }
+                
                 ps.executeUpdate();
             }
 
@@ -268,18 +290,30 @@ public class ThanhToanGUI extends JPanel {
             String maHangVeAnToan = (session.maHangVe != null) ? session.maHangVe : "ECO";
             String loaiVeAnToan = (session.loaiVe != null) ? session.loaiVe : "Một chiều";
 
-            // ==============================================================================
-            // 2. VÒNG LẶP: LƯU HÀNH KHÁCH -> LƯU VÉ -> CẬP NHẬT GHẾ
-            // ==============================================================================
             dal.VeBanDAO veBanDAO = new dal.VeBanDAO();
-            String currentMaVe = veBanDAO.generateMaVe(conn); // Lấy mã vé khởi đầu: VE00x
+            String currentMaVe = veBanDAO.generateMaVe(conn); 
+            
+            String sqlMaxHK = "SELECT MAX(maHK) FROM ThongTinHanhKhach";
+            String currentMaHK = "HK000"; 
+            try (PreparedStatement psMaxHK = conn.prepareStatement(sqlMaxHK);
+                 java.sql.ResultSet rsMaxHK = psMaxHK.executeQuery()) {
+                if (rsMaxHK.next() && rsMaxHK.getString(1) != null) {
+                    currentMaHK = rsMaxHK.getString(1); 
+                }
+            }
 
             for (int i = 0; i < session.danhSachHanhKhach.size(); i++) {
                 ThongTinHanhKhach hk = session.danhSachHanhKhach.get(i);
                 GheMayBay ghe = session.danhSachGhe.get(i);
 
-                String maHKMoi = "HK" + (System.currentTimeMillis() % 100000) + i; // Riêng mã khách hàng vẫn để thời gian cho đỡ trùng lặp nếu khách mua nhiều lần
-                hk.setMaHK(maHKMoi);
+                try {
+                    String prefixHK = currentMaHK.substring(0, 2); 
+                    int numberPartHK = Integer.parseInt(currentMaHK.substring(2)); 
+                    numberPartHK++; 
+                    currentMaHK = String.format("%s%03d", prefixHK, numberPartHK); 
+                } catch (Exception e) {}
+                
+                hk.setMaHK(currentMaHK);
 
                 try (PreparedStatement psHK = conn.prepareStatement(sqlHK)) {
                     psHK.setString(1, hk.getMaHK());
@@ -294,7 +328,6 @@ public class ThanhToanGUI extends JPanel {
                     psHK.executeUpdate();
                 }
 
-                // LƯU VÉ VÀO DATABASE
                 try (PreparedStatement psVe = conn.prepareStatement(sqlVe)) {
                     psVe.setString(1, currentMaVe); 
                     psVe.setString(2, generatedMaPDV);
@@ -311,15 +344,12 @@ public class ThanhToanGUI extends JPanel {
                     psVe.executeUpdate();
                 }
 
-                // CỘNG MÃ VÉ LÊN 1 CHO LẦN LẶP SAU (VE001 -> VE002)
                 try {
                     String prefix = currentMaVe.substring(0, 2); 
                     int numberPart = Integer.parseInt(currentMaVe.substring(2)); 
                     numberPart++; 
                     currentMaVe = String.format("%s%03d", prefix, numberPart); 
-                } catch (Exception e) {
-                    System.err.println("Lỗi toán học khi tự tăng mã vé: " + e.getMessage());
-                }
+                } catch (Exception e) {}
 
                 try (PreparedStatement psGhe = conn.prepareStatement(sqlGhe)) {
                     psGhe.setString(1, ghe.getMaGhe());
@@ -327,30 +357,28 @@ public class ThanhToanGUI extends JPanel {
                 }
             }
 
-            // ==============================================================================
-            // 3. TẠO HÓA ĐƠN THANH TOÁN (SINH MÃ TỰ ĐỘNG)
-            // ==============================================================================
             String sqlMaxHD = "SELECT MAX(maHoaDon) FROM HoaDon";
             try (PreparedStatement psMax = conn.prepareStatement(sqlMaxHD);
                  java.sql.ResultSet rsMax = psMax.executeQuery()) {
                 if (rsMax.next() && rsMax.getString(1) != null) {
-                    String lastHD = rsMax.getString(1).substring(2); // Cắt chữ "HD"
+                    String lastHD = rsMax.getString(1).substring(2); 
                     int num = Integer.parseInt(lastHD) + 1;
                     generatedMaHD = String.format("HD%03d", num);
                 } else {
-                    generatedMaHD = "HD001"; // Nếu chưa có hóa đơn nào
+                    generatedMaHD = "HD001"; 
                 }
             }
 
-            // ĐÃ SỬA: Thêm cột 'trangThai' vào câu lệnh SQL
-            String sqlHD = "INSERT INTO HoaDon (maHoaDon, maPhieuDatVe, ngayLap, tongTien, phuongThuc, trangThai) VALUES (?, ?, ?, ?, ?, ?)";
+            String sqlHD = "INSERT INTO HoaDon (maHoaDon, maPhieuDatVe, ngayLap, tongTien, phuongThuc, trangThai, donViTienTe, thue) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             try (PreparedStatement psHD = conn.prepareStatement(sqlHD)) {
                 psHD.setString(1, generatedMaHD);
                 psHD.setString(2, generatedMaPDV);
                 psHD.setTimestamp(3, java.sql.Timestamp.valueOf(LocalDateTime.now()));
-                psHD.setBigDecimal(4, finalAmount);
+                psHD.setBigDecimal(4, finalAmount); 
                 psHD.setString(5, ptThanhToan);
-                psHD.setString(6, "Đã thanh toán"); // <--- CẬP NHẬT TRẠNG THÁI Ở ĐÂY
+                psHD.setString(6, "Đã thanh toán"); 
+                psHD.setString(7, "VND"); 
+                psHD.setBigDecimal(8, thueVAT); 
                 psHD.executeUpdate();
             }
 
@@ -358,7 +386,6 @@ public class ThanhToanGUI extends JPanel {
 
             JOptionPane.showMessageDialog(this, "🎉 CHÚC MỪNG BẠN ĐÃ ĐẶT VÉ THÀNH CÔNG!\nMã hóa đơn của bạn là: " + generatedMaHD, "Thành công", JOptionPane.INFORMATION_MESSAGE);
 
-            // Chuyển sang Giao diện Hóa Đơn
             String strNgayLap = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
             NumberFormat vn = NumberFormat.getInstance(new Locale("vi", "VN"));
             String strTongTien = vn.format(finalAmount) + " VNĐ";
@@ -394,7 +421,6 @@ public class ThanhToanGUI extends JPanel {
         }
     }
 
-    // ================= HELPERS (HÀM BỔ TRỢ GIAO DIỆN) =================
     private JPanel createSummaryRow(String label, String value) {
         JPanel p = new JPanel(new BorderLayout());
         p.setOpaque(false);
