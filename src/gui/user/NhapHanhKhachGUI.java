@@ -5,21 +5,21 @@ import model.DatVeSession;
 import model.ThongTinHanhKhach;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class NhapHanhKhachGUI extends JPanel {
 
-    // ===== BẢNG MÀU THƯƠNG HIỆU AIRLINER =====
-    private final Color PRIMARY_COLOR = new Color(18, 32, 64); // Xanh Navy
-    private final Color ACCENT_COLOR = new Color(255, 193, 7); // Vàng Gold
-    private final Color BG_MAIN = new Color(245, 247, 250);
-    private final Font FONT_TITLE = new Font("Segoe UI", Font.BOLD, 26);
+    private final Color PRIMARY_COLOR = new Color(18, 32, 64); 
+    private final Color ACCENT_COLOR = new Color(255, 193, 7); 
     private final Font FONT_LABEL = new Font("Segoe UI", Font.BOLD, 14);
 
     private DatVeSession session;
@@ -29,294 +29,164 @@ public class NhapHanhKhachGUI extends JPanel {
     public NhapHanhKhachGUI(DatVeSession session) {
         this.session = session;
         setLayout(new BorderLayout());
-        setBackground(BG_MAIN);
+        setOpaque(false); // Trong suốt để thấy nền từ MainFrame
 
-        // ================= 1. HEADER =================
-        JPanel pnlHeader = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 30));
-        pnlHeader.setBackground(BG_MAIN);
-        
-        JLabel lblTitle = new JLabel("BƯỚC 2: NHẬP THÔNG TIN HÀNH KHÁCH");
-        lblTitle.setFont(FONT_TITLE);
-        lblTitle.setForeground(PRIMARY_COLOR);
-        pnlHeader.add(lblTitle);
+        // Tạo khung bọc Stepper
+        JPanel pnlHeader = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 20));
+        pnlHeader.setOpaque(false);
+        pnlHeader.add(createStepper());
         add(pnlHeader, BorderLayout.NORTH);
 
-        // ================= 2. FOOTER (GHIM CHẶT Ở ĐÁY) =================
-        JPanel pnlFooter = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 20));
-        pnlFooter.setBackground(BG_MAIN);
-
-        JButton btnBack = new JButton("Quay lại chọn ghế");
-        JButton btnNext = new JButton("Tiếp tục chọn hành lý ⮕");
-
-        styleSecondaryButton(btnBack);
-        stylePrimaryButton(btnNext);
-        btnBack.setPreferredSize(new Dimension(200, 45));
-        btnNext.setPreferredSize(new Dimension(250, 45));
-        
-        pnlFooter.add(btnNext); 
-        pnlFooter.add(btnBack); 
-        add(pnlFooter, BorderLayout.SOUTH);
-
-        // ================= 3. CONTENT (DANH SÁCH FORM NHẬP) =================
+        // Khung bọc danh sách thẻ (Khắc phục lỗi giãn dọc)
         pnlContainer = new JPanel();
         pnlContainer.setLayout(new BoxLayout(pnlContainer, BoxLayout.Y_AXIS));
-        pnlContainer.setBackground(BG_MAIN);
+        pnlContainer.setOpaque(false); 
         
-        JPanel wrapperPanel = new JPanel(new BorderLayout());
-        wrapperPanel.setBackground(BG_MAIN);
-        wrapperPanel.setBorder(BorderFactory.createEmptyBorder(0, 150, 0, 150));
-        wrapperPanel.add(pnlContainer, BorderLayout.CENTER);
+        for (int i = 1; i <= session.soNguoiLon; i++) addCard("Hành khách " + i + " (Người lớn)", "Người lớn", null);
+        for (int i = 1; i <= session.soTreEm; i++) addCard("Hành khách (Trẻ em)", "Trẻ em", null);
+        for (int i = 1; i <= session.soEmBe; i++) addCard("Hành khách (Em bé)", "Em bé", null);
 
-        JScrollPane scroll = new JScrollPane(wrapperPanel);
-        scroll.setBorder(null);
-        scroll.getViewport().setBackground(BG_MAIN);
-        scroll.getVerticalScrollBar().setUnitIncrement(16);
-        add(scroll, BorderLayout.CENTER);
+        // Đẩy toàn bộ danh sách lên trên cùng
+        JPanel pushUpPanel = new JPanel(new BorderLayout());
+        pushUpPanel.setOpaque(false);
+        pushUpPanel.add(pnlContainer, BorderLayout.NORTH);
 
-        // ================= 4. THUẬT TOÁN ĐỔ DỮ LIỆU KHÁCH QUEN =================
+        JScrollPane scrollPane = new JScrollPane(pushUpPanel); 
+        scrollPane.setBorder(null); 
+        scrollPane.setOpaque(false); 
+        scrollPane.getViewport().setOpaque(false); 
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        add(scrollPane, BorderLayout.CENTER);
+
+        add(createStickyFooter(), BorderLayout.SOUTH);
+        
+        loadOldData();
+    }
+
+    private void loadOldData() {
         List<ThongTinHanhKhach> savedList = new ArrayList<>();
         try {
             ThongTinHanhKhachDAO hkDAO = new ThongTinHanhKhachDAO();
             List<ThongTinHanhKhach> allHK = hkDAO.selectAll(); 
-            
             if (allHK != null && session.maNguoiDung != null) {
                 for (ThongTinHanhKhach hk : allHK) {
-                    String dbUser = hk.getMaNguoiDung() != null ? hk.getMaNguoiDung().trim() : "";
-                    if (session.maNguoiDung.equals(dbUser)) {
-                        savedList.add(hk);
-                    }
+                    if (session.maNguoiDung.equals(hk.getMaNguoiDung() != null ? hk.getMaNguoiDung().trim() : "")) savedList.add(hk);
                 }
             }
-        } catch (Exception ex) {
-            System.err.println("Lỗi gọi Database ở trang Nhập Khách: " + ex.getMessage());
+        } catch (Exception ex) {}
+        
+        for(HanhKhachCard card : listCards) {
+            if(savedList.isEmpty()) break;
+            card.fillData(savedList.remove(0));
         }
+    }
 
-        // ================= 5. TẠO CÁC FORM =================
-        for (int i = 1; i <= session.soNguoiLon; i++) addCard("Hành khách " + i + " (Người lớn)", "Người lớn", popPassenger(savedList));
-        for (int i = 1; i <= session.soTreEm; i++) addCard("Hành khách (Trẻ em)", "Trẻ em", popPassenger(savedList));
-        for (int i = 1; i <= session.soEmBe; i++) addCard("Hành khách (Em bé)", "Em bé", popPassenger(savedList));
+    // ĐÃ SỬA: Bọc card vào FlowLayout để khóa kích thước cứng
+    private void addCard(String title, String type, ThongTinHanhKhach prefillData) {
+        HanhKhachCard card = new HanhKhachCard(title, type, prefillData);
+        listCards.add(card); 
+        
+        JPanel wrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        wrapper.setOpaque(false);
+        wrapper.add(card);
+        
+        pnlContainer.add(wrapper); 
+        pnlContainer.add(Box.createRigidArea(new Dimension(0, 10))); 
+    }
 
-        // ================= 6. SỰ KIỆN NÚT BẤM =================
-        btnBack.addActionListener(e -> {
-            this.removeAll();
-            this.setLayout(new BorderLayout());
-            this.add(new PanelUserVeBan(session), BorderLayout.CENTER);
-            this.revalidate();
-            this.repaint();
-        });
+    // Hàm chuyển trang mượt mà
+    private void switchPage(JPanel newPanel) {
+        Container container = SwingUtilities.getAncestorOfClass(MainFrame.class, this);
+        if (container instanceof MainFrame) {
+            MainFrame mainFrame = (MainFrame) container;
+            // Xóa Component Content cũ
+            mainFrame.getContentPane().remove(1); 
+            newPanel.setOpaque(false);
+            mainFrame.getContentPane().add(newPanel, BorderLayout.CENTER);
+            mainFrame.revalidate();
+            mainFrame.repaint();
+        }
+    }
 
+    private JPanel createStickyFooter() {
+        JPanel footer = new JPanel(new BorderLayout()); 
+        footer.setBackground(Color.WHITE); 
+        footer.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(2, 0, 0, 0, new Color(200, 200, 200)), new EmptyBorder(10, 50, 10, 50)));
+        
+        JButton btnQuayLai = new JButton("Quay lại"); 
+        btnQuayLai.setBackground(Color.WHITE); btnQuayLai.setForeground(new Color(100, 100, 100)); btnQuayLai.setFont(new Font("Segoe UI", Font.BOLD, 16)); btnQuayLai.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 2)); btnQuayLai.setPreferredSize(new Dimension(150, 45));
+        btnQuayLai.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
+        btnQuayLai.addActionListener(e -> switchPage(new PanelUserVeBan(session)));
+        footer.add(btnQuayLai, BorderLayout.WEST);
+
+        JPanel pnlRight = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 0)); pnlRight.setOpaque(false);
+        JPanel pnlTotalText = new JPanel(new GridLayout(2, 1)); pnlTotalText.setOpaque(false);
+        JLabel lblTo = new JLabel("Tổng tiền tạm tính:", SwingConstants.RIGHT); lblTo.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        NumberFormat vn = NumberFormat.getInstance(new Locale("vi", "VN"));
+        JLabel lblFooterTotal = new JLabel(vn.format(session.tongTienVe) + " VNĐ", SwingConstants.RIGHT); lblFooterTotal.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        pnlTotalText.add(lblTo); pnlTotalText.add(lblFooterTotal);
+        
+        JButton btnNext = new JButton("Đi tiếp ➔"); btnNext.setBackground(new Color(255, 193, 7)); btnNext.setForeground(new Color(18, 32, 64)); btnNext.setFont(new Font("Segoe UI", Font.BOLD, 18)); btnNext.setPreferredSize(new Dimension(150, 45));
+        btnNext.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnNext.setFocusPainted(false);
+        
         btnNext.addActionListener(e -> {
             try {
                 session.danhSachHanhKhach.clear();
-                // Quá trình này sẽ gọi hàm getData(), tự động kiểm tra Validation
-                for(HanhKhachCard card : listCards) {
-                    session.danhSachHanhKhach.add(card.getData());
-                }
-                
-                this.removeAll();
-                this.setLayout(new BorderLayout());
-                this.add(new gui.DichVuHanhLyGUI(session), BorderLayout.CENTER);
-                this.revalidate(); 
-                this.repaint();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Cảnh báo nhập liệu", JOptionPane.WARNING_MESSAGE);
-            }
+                for(HanhKhachCard card : listCards) session.danhSachHanhKhach.add(card.getData()); 
+                switchPage(new gui.DichVuHanhLyGUI(session));
+            } catch (Exception ex) { JOptionPane.showMessageDialog(this, ex.getMessage(), "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE); }
         });
+        pnlRight.add(pnlTotalText); pnlRight.add(btnNext); footer.add(pnlRight, BorderLayout.EAST);
+        return footer;
     }
 
-    private ThongTinHanhKhach popPassenger(List<ThongTinHanhKhach> list) {
-        if (list != null && !list.isEmpty()) { return list.remove(0); }
-        return null;
+    private JPanel createStepper() {
+        JPanel pnlStepper = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10)); pnlStepper.setBackground(new Color(18, 32, 64, 200)); pnlStepper.setBorder(BorderFactory.createEmptyBorder(10, 30, 10, 30));
+        Font fontStep = new Font("Segoe UI", Font.BOLD, 16); Font fontArrow = new Font("Segoe UI", Font.BOLD, 18);
+        JLabel step1 = new JLabel("1. Chuyến bay"); step1.setForeground(Color.WHITE); step1.setFont(fontStep); JLabel arr1 = new JLabel(" ➔ "); arr1.setForeground(Color.WHITE); arr1.setFont(fontArrow);
+        JLabel step2 = new JLabel("2. Hành khách"); step2.setForeground(ACCENT_COLOR); step2.setFont(fontStep); JLabel arr2 = new JLabel(" ➔ "); arr2.setForeground(Color.WHITE); arr2.setFont(fontArrow);
+        JLabel step3 = new JLabel("3. Dịch vụ"); step3.setForeground(Color.LIGHT_GRAY); step3.setFont(fontStep); JLabel arr3 = new JLabel(" ➔ "); arr3.setForeground(Color.LIGHT_GRAY); arr3.setFont(fontArrow);
+        JLabel step4 = new JLabel("4. Thanh toán"); step4.setForeground(Color.LIGHT_GRAY); step4.setFont(fontStep);
+        pnlStepper.add(step1); pnlStepper.add(arr1); pnlStepper.add(step2); pnlStepper.add(arr2); pnlStepper.add(step3); pnlStepper.add(arr3); pnlStepper.add(step4);
+        return pnlStepper;
     }
 
-    private void addCard(String title, String type, ThongTinHanhKhach prefillData) {
-        HanhKhachCard card = new HanhKhachCard(title, type, prefillData);
-        listCards.add(card);
-        pnlContainer.add(card);
-        pnlContainer.add(Box.createRigidArea(new Dimension(0, 25))); 
-    }
-
-    private void stylePrimaryButton(JButton btn) {
-        btn.setBackground(ACCENT_COLOR); 
-        btn.setForeground(PRIMARY_COLOR);
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 16)); 
-        btn.setFocusPainted(false); 
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-    }
-    
-    private void styleSecondaryButton(JButton btn) {
-        btn.setBackground(new Color(108, 117, 125)); 
-        btn.setForeground(Color.WHITE);
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 15)); 
-        btn.setFocusPainted(false); 
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-    }
-
-    // ================= KHUNG NHẬP LIỆU (CARD) ĐẸP MẮT =================
     class HanhKhachCard extends JPanel {
-        private JTextField txtHoTen, txtCCCD, txtHoChieu;
-        private JFormattedTextField txtNgaySinh; // Đổi sang JFormattedTextField
-        private JComboBox<String> cbGioiTinh;
-        private String loaiHK;
-
+        private JTextField txtHoTen, txtCCCD, txtHoChieu; private JFormattedTextField txtNgaySinh; private JComboBox<String> cbGioiTinh; private String loaiHK;
         public HanhKhachCard(String title, String type, ThongTinHanhKhach prefillData) {
-            this.loaiHK = type;
-            setLayout(new GridBagLayout());
-            setBackground(Color.WHITE);
+            this.loaiHK = type; setLayout(new GridBagLayout()); setBackground(Color.WHITE);
+            setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(220,220,220), 1, true), BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), " ✈ " + title, TitledBorder.LEFT, TitledBorder.TOP, new Font("Segoe UI", Font.BOLD, 16), PRIMARY_COLOR)));
             
-            setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(220,220,220), 1, true), 
-                BorderFactory.createTitledBorder(
-                    BorderFactory.createEmptyBorder(), 
-                    " ✈ " + title, TitledBorder.LEFT, TitledBorder.TOP, 
-                    new Font("Segoe UI", Font.BOLD, 16), PRIMARY_COLOR
-                )
-            ));
+            // Cấu hình cứng chiều cao
+            setPreferredSize(new Dimension(800, 160));
             
-            setMaximumSize(new Dimension(800, 180));
+            GridBagConstraints gbc = new GridBagConstraints(); gbc.insets = new Insets(8, 15, 8, 15); gbc.fill = GridBagConstraints.HORIZONTAL;
 
-            GridBagConstraints gbc = new GridBagConstraints();
-            gbc.insets = new Insets(8, 15, 8, 15);
-            gbc.fill = GridBagConstraints.HORIZONTAL;
-
-            txtHoTen = createTextField();
-            txtCCCD = createTextField();
-            txtHoChieu = createTextField();
-            
-            // TẠO TRƯỜNG NGÀY SINH CÓ SẴN ĐỊNH DẠNG __/__/____
-            txtNgaySinh = createDateTextField();
-            
+            txtHoTen = new JTextField(); txtCCCD = new JTextField(); txtHoChieu = new JTextField();
+            try { txtNgaySinh = new JFormattedTextField(new javax.swing.text.MaskFormatter("##/##/####")); } catch(Exception e){ txtNgaySinh = new JFormattedTextField(); }
             cbGioiTinh = new JComboBox<>(new String[]{"Nam", "Nữ"});
-            cbGioiTinh.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-            cbGioiTinh.setBackground(Color.WHITE);
-
-            // Bố trí Dòng 1: Họ Tên & Giới tính
-            gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0; add(createStyledLabel("Họ Tên (*):"), gbc);
-            gbc.gridx = 1; gbc.weightx = 1.0; add(txtHoTen, gbc);
-            gbc.gridx = 2; gbc.weightx = 0; add(createStyledLabel("Giới tính:"), gbc);
-            gbc.gridx = 3; gbc.weightx = 0.5; add(cbGioiTinh, gbc);
-
-            // Bố trí Dòng 2: CCCD & Hộ chiếu
-            gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0; add(createStyledLabel(type.equals("Em bé") ? "Khai sinh (*):" : "CCCD (*):"), gbc);
-            gbc.gridx = 1; gbc.weightx = 1.0; add(txtCCCD, gbc);
-            gbc.gridx = 2; gbc.weightx = 0; add(createStyledLabel("Hộ chiếu:"), gbc);
-            gbc.gridx = 3; gbc.weightx = 0.5; add(txtHoChieu, gbc);
-
-            // Bố trí Dòng 3: Ngày sinh
-            gbc.gridx = 0; gbc.gridy = 2; gbc.weightx = 0; add(createStyledLabel("Ngày sinh (*):"), gbc);
-            gbc.gridx = 1; gbc.weightx = 1.0; add(txtNgaySinh, gbc);
-
-            // ======= TIẾN HÀNH ĐIỀN DỮ LIỆU CŨ =======
-            if (prefillData != null) {
-                try {
-                    if (prefillData.getHoTen() != null) txtHoTen.setText(prefillData.getHoTen().trim());
-                    if (prefillData.getCccd() != null) txtCCCD.setText(prefillData.getCccd().trim());
-                    if (prefillData.getHoChieu() != null) txtHoChieu.setText(prefillData.getHoChieu().trim());
-                    if (prefillData.getGioiTinh() != null) {
-                        String gt = prefillData.getGioiTinh().toLowerCase();
-                        cbGioiTinh.setSelectedItem(gt.contains("nữ") ? "Nữ" : "Nam");
-                    }
-                    if (prefillData.getNgaySinh() != null) {
-                        txtNgaySinh.setText(prefillData.getNgaySinh().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-                    }
-                } catch (Exception e) {
-                    System.err.println("Lỗi khi điền Form: " + e.getMessage());
-                }
-            }
-        }
-
-        private JLabel createStyledLabel(String text) {
-            JLabel lbl = new JLabel(text);
-            lbl.setFont(FONT_LABEL);
-            lbl.setForeground(new Color(100, 110, 120));
-            return lbl;
-        }
-
-        private JTextField createTextField() {
-            JTextField txt = new JTextField();
-            txt.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-            txt.setPreferredSize(new Dimension(200, 35));
-            txt.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(200, 200, 200)),
-                BorderFactory.createEmptyBorder(5, 10, 5, 10)
-            ));
-            return txt;
-        }
-
-        // HÀM TẠO Ô NHẬP NGÀY SINH (CÓ MẶT NẠ __/__/____)
-        private JFormattedTextField createDateTextField() {
-            JFormattedTextField txt;
-            try {
-                javax.swing.text.MaskFormatter dateMask = new javax.swing.text.MaskFormatter("##/##/####");
-                dateMask.setPlaceholderCharacter('_'); // Hiển thị sẵn gạch dưới
-                txt = new JFormattedTextField(dateMask);
-            } catch (Exception e) {
-                txt = new JFormattedTextField();
-            }
-            txt.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-            txt.setPreferredSize(new Dimension(200, 35));
-            txt.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(200, 200, 200)),
-                BorderFactory.createEmptyBorder(5, 10, 5, 10)
-            ));
-            return txt;
-        }
-
-        // =======================================================
-        // RÀNG BUỘC (VALIDATION) CHUẨN XÁC
-        // =======================================================
-        public ThongTinHanhKhach getData() throws Exception {
-            String ten = txtHoTen.getText().trim();
-            String cccd = txtCCCD.getText().trim();
-            String ngaySinhStr = txtNgaySinh.getText().trim();
-            String labelHanhKhach = ten.isEmpty() ? "Hành khách đang nhập" : ten;
-
-            // 1. Ràng buộc Họ Tên (Không rỗng, Không chứa chữ số)
-            if(ten.isEmpty()) {
-                throw new Exception("Vui lòng không để trống Họ và Tên!");
-            }
-            if(ten.matches(".*\\d.*")) {
-                throw new Exception("Họ và tên tuyệt đối KHÔNG ĐƯỢC CHỨA SỐ!\n(Lỗi tại hành khách: " + ten + ")");
-            }
-
-            // 2. Ràng buộc CCCD / Giấy khai sinh (Không rỗng, Không chứa chữ cái)
-            if(cccd.isEmpty()) {
-                throw new Exception("Vui lòng nhập " + (loaiHK.equals("Em bé") ? "Giấy khai sinh" : "CCCD") + " cho khách: " + labelHanhKhach);
-            }
-            if (!loaiHK.equals("Em bé")) {
-                // Người lớn & Trẻ em: Phải đúng 12 chữ số
-                if (!cccd.matches("\\d{12}")) {
-                    throw new Exception("CCCD phải bao gồm CHÍNH XÁC 12 CHỮ SỐ (Không chứa chữ cái)!\n(Lỗi tại khách: " + labelHanhKhach + ")");
-                }
-            } else {
-                // Em bé: Bắt buộc chỉ là số
-                if (!cccd.matches("\\d+")) {
-                    throw new Exception("Mã Giấy khai sinh CHỈ ĐƯỢC NHẬP SỐ!\n(Lỗi tại khách: " + labelHanhKhach + ")");
-                }
-            }
-
-            // 3. Ràng buộc Ngày Sinh (Bắt buộc nhập đủ, ép định dạng chuẩn)
-            if (ngaySinhStr.equals("__/__/____") || ngaySinhStr.contains("_")) {
-                throw new Exception("Vui lòng nhập ĐẦY ĐỦ ngày tháng năm sinh cho khách: " + labelHanhKhach);
-            }
             
-            LocalDate parsedNgaySinh;
+            gbc.gridx = 0; gbc.gridy = 0; add(new JLabel("Họ Tên (*):"), gbc); gbc.gridx = 1; add(txtHoTen, gbc); gbc.gridx = 2; add(new JLabel("Giới tính:"), gbc); gbc.gridx = 3; add(cbGioiTinh, gbc);
+            gbc.gridx = 0; gbc.gridy = 1; add(new JLabel(type.equals("Em bé") ? "Khai sinh (*):" : "CCCD (*):"), gbc); gbc.gridx = 1; add(txtCCCD, gbc); gbc.gridx = 2; add(new JLabel("Hộ chiếu:"), gbc); gbc.gridx = 3; add(txtHoChieu, gbc);
+            gbc.gridx = 0; gbc.gridy = 2; add(new JLabel("Ngày sinh (*):"), gbc); gbc.gridx = 1; add(txtNgaySinh, gbc);
+        }
+        
+        public void fillData(ThongTinHanhKhach prefillData) {
             try {
-                // Hàm này sẽ báo lỗi nếu bạn nhập ngày không có thực (VD: 30/02/2000)
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-                parsedNgaySinh = LocalDate.parse(ngaySinhStr, formatter);
-            } catch (DateTimeParseException e) {
-                throw new Exception("Ngày sinh của khách '" + labelHanhKhach + "' KHÔNG HỢP LỆ!\nVui lòng nhập đúng ngày thực tế (Ví dụ: 15/08/1990)");
-            }
-
-            ThongTinHanhKhach hk = new ThongTinHanhKhach();
-            hk.setMaNguoiDung(session.maNguoiDung);
-            hk.setHoTen(ten);
-            hk.setCccd(cccd);
-            hk.setHoChieu(txtHoChieu.getText().trim());
-            hk.setGioiTinh(cbGioiTinh.getSelectedItem().toString());
-            hk.setNgaySinh(parsedNgaySinh);
-            hk.setLoaiHanhKhach(this.loaiHK);
+                if (prefillData.getHoTen() != null) txtHoTen.setText(prefillData.getHoTen().trim());
+                if (prefillData.getCccd() != null) txtCCCD.setText(prefillData.getCccd().trim());
+                if (prefillData.getHoChieu() != null) txtHoChieu.setText(prefillData.getHoChieu().trim());
+                if (prefillData.getGioiTinh() != null) { String gt = prefillData.getGioiTinh().toLowerCase(); cbGioiTinh.setSelectedItem(gt.contains("nữ") ? "Nữ" : "Nam"); }
+                if (prefillData.getNgaySinh() != null) txtNgaySinh.setText(prefillData.getNgaySinh().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+            } catch (Exception e) {}
+        }
+        
+        public ThongTinHanhKhach getData() throws Exception {
+            String ten = txtHoTen.getText().trim(); String cccd = txtCCCD.getText().trim(); String ngaySinhStr = txtNgaySinh.getText().trim();
+            if(ten.isEmpty() || cccd.isEmpty() || ngaySinhStr.contains("_")) throw new Exception("Vui lòng điền đầy đủ thông tin cho khách: " + ten);
+            ThongTinHanhKhach hk = new ThongTinHanhKhach(); hk.setMaNguoiDung(session.maNguoiDung); hk.setHoTen(ten); hk.setCccd(cccd); hk.setHoChieu(txtHoChieu.getText().trim()); hk.setGioiTinh(cbGioiTinh.getSelectedItem().toString()); hk.setNgaySinh(LocalDate.parse(ngaySinhStr, DateTimeFormatter.ofPattern("dd/MM/yyyy"))); hk.setLoaiHanhKhach(this.loaiHK);
             return hk;
         }
     }

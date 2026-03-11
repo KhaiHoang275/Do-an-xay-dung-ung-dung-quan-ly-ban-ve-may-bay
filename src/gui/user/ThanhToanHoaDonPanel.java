@@ -14,7 +14,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-// Thư viện iTextPDF
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Element;
@@ -53,7 +52,7 @@ public class ThanhToanHoaDonPanel extends JPanel {
         this.session = session;
         
         setLayout(new BorderLayout(20, 20));
-        setBackground(BG_MAIN);
+        setOpaque(false); // XUYÊN THẤU ẢNH NỀN TỪ MAINFRAME
         setBorder(new EmptyBorder(20, 20, 20, 20));
 
         initComponents();
@@ -297,9 +296,6 @@ public class ThanhToanHoaDonPanel extends JPanel {
     }
 
     private void setupListeners() {
-        // ==============================================================
-        // ĐÃ SỬA: KIỂM TRA ĐĂNG NHẬP TRƯỚC KHI TRỞ VỀ TRANG CHỦ
-        // ==============================================================
         btnDong.addActionListener(e -> {
             Window currentWindow = SwingUtilities.getWindowAncestor(this);
             if (currentWindow != null) { currentWindow.dispose(); }
@@ -310,7 +306,6 @@ public class ThanhToanHoaDonPanel extends JPanel {
                 }
             }
             
-            // KIỂM TRA: Nếu có session và không phải khách lẻ thì khôi phục đăng nhập
             if (session != null && session.maNguoiDung != null && !session.maNguoiDung.equals("KHACH_LE")) {
                 model.NguoiDung userDaDangNhap = null;
                 try {
@@ -335,7 +330,6 @@ public class ThanhToanHoaDonPanel extends JPanel {
                     newHome.setVisible(true); 
                 }
             } else {
-                // Nếu là Khách lẻ mua vé thì về trang chủ mặc định
                 gui.user.MainFrame newHome = new gui.user.MainFrame();
                 newHome.setLocationRelativeTo(null);
                 newHome.setVisible(true); 
@@ -345,9 +339,6 @@ public class ThanhToanHoaDonPanel extends JPanel {
         btnXuatPDF.addActionListener(e -> xuatVaMoFilePDF());
     }
 
-    // ==============================================================
-    // XUẤT PDF GIỐNG HỆT UI (DANH SÁCH LINE GẠCH DƯỚI)
-    // ==============================================================
     private void xuatVaMoFilePDF() {
         JFileChooser fileChooser = new JFileChooser(); 
         fileChooser.setSelectedFile(new java.io.File("HoaDon_" + maHD + ".pdf"));
@@ -374,7 +365,6 @@ public class ThanhToanHoaDonPanel extends JPanel {
                 com.itextpdf.text.Font fontKey = new com.itextpdf.text.Font(bf, 12, com.itextpdf.text.Font.NORMAL, new BaseColor(100, 116, 139)); 
                 com.itextpdf.text.Font fontValue = new com.itextpdf.text.Font(bf, 12, com.itextpdf.text.Font.BOLD, new BaseColor(15, 23, 42)); 
 
-                // ---- TIÊU ĐỀ ----
                 Paragraph title = new Paragraph("CHI TIẾT THANH TOÁN - " + maHD, fontTitle);
                 title.setAlignment(Element.ALIGN_LEFT); 
                 document.add(title);
@@ -385,7 +375,6 @@ public class ThanhToanHoaDonPanel extends JPanel {
                 subTitle.setSpacingAfter(20); 
                 document.add(subTitle);
 
-                // ================= MỤC 1: THÔNG TIN KHÁCH HÀNG =================
                 document.add(new Paragraph("THÔNG TIN KHÁCH HÀNG", fontHeader));
                 PdfPTable tblKH = new PdfPTable(2);
                 tblKH.setWidthPercentage(100); 
@@ -411,7 +400,6 @@ public class ThanhToanHoaDonPanel extends JPanel {
                 addPdfRow(tblKH, "Email:", valEmail.getText(), fontKey, fontValue);
                 document.add(tblKH);
 
-                // ================= MỤC 2: THÔNG TIN CHUYẾN BAY =================
                 document.add(new Paragraph("THÔNG TIN CHUYẾN BAY", fontHeader));
                 PdfPTable tblCB = new PdfPTable(2);
                 tblCB.setWidthPercentage(100); 
@@ -436,7 +424,6 @@ public class ThanhToanHoaDonPanel extends JPanel {
                 addPdfRow(tblCB, "Thời Gian Đến:", valGioDen.getText(), fontKey, fontValue);
                 document.add(tblCB);
 
-                // ================= MỤC 3: TỔNG KẾT THANH TOÁN =================
                 document.add(new Paragraph("TỔNG KẾT THANH TOÁN", fontHeader));
                 PdfPTable tblTT = new PdfPTable(2);
                 tblTT.setWidthPercentage(100); 
