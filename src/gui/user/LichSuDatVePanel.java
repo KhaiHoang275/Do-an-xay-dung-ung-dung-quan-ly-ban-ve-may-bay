@@ -143,24 +143,33 @@ public class LichSuDatVePanel extends JPanel {
         // Nút Đổi vé → Mở DoiVePanel với size & cấu hình GIỐNG HỆT file Test
         btnDoiVe.addActionListener(e -> {
             int row = table.getSelectedRow();
-            if (row >= 0) {
-                String maVe = table.getValueAt(row, 0).toString();
 
-                // Tạo cửa sổ MỚI
-                JFrame doiVeFrame = new JFrame("Đổi Vé Máy Bay");
-                doiVeFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // chỉ đóng cửa sổ này, không đóng app
-
-                DoiVePanel doiVePanel = new DoiVePanel(maVe, maNguoiDung);
-
-                doiVeFrame.add(doiVePanel, BorderLayout.CENTER);
-
-                // === GIỐNG HỆT FILE TEST ===
-                doiVeFrame.setSize(1050, 800);
-                doiVeFrame.setLocationRelativeTo(null);   // giữa màn hình
-                doiVeFrame.setResizable(false);          // không cho thay đổi kích thước (tùy chọn)
-
-                doiVeFrame.setVisible(true);
+            if (row < 0) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn vé trước!");
+                return;
             }
+
+            String maVe = table.getValueAt(row, 0).toString();
+
+            String ketQua = giaoDichVeBUS.kiemTraDieuKienDoiVe(maVe, maNguoiDung);
+
+            if (!ketQua.equals("OK")) {
+                JOptionPane.showMessageDialog(this, ketQua, "Không thể đổi vé", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // ===== Đủ điều kiện mới mở panel =====
+            JFrame doiVeFrame = new JFrame("Đổi Vé Máy Bay");
+            doiVeFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+            DoiVePanel doiVePanel = new DoiVePanel(maVe, maNguoiDung);
+
+            doiVeFrame.add(doiVePanel, BorderLayout.CENTER);
+
+            doiVeFrame.setSize(1050, 800);
+            doiVeFrame.setLocationRelativeTo(null);
+            doiVeFrame.setResizable(false);
+            doiVeFrame.setVisible(true);
         });
     }
 
@@ -180,13 +189,17 @@ public class LichSuDatVePanel extends JPanel {
         if (filter == null) filter = "Tất cả";
         tableModel.setRowCount(0);
 
-        String maHK = getMaHK();
-        if (maHK == null) return;
+        List<ThongTinHanhKhach> dsHK =
+                thongTinHanhKhachDAO.selectAllByMaNguoiDung(maNguoiDung);
 
-        System.out.println("🔍 Đang load vé cho maHK: " + maHK + " | Filter: " + filter);
+        List<VeBan> basicList = new ArrayList<>();
 
-        List<VeBan> basicList = veBanDAO.selectByMaHK(maHK);
-        System.out.println("   → selectByMaHK trả về: " + basicList.size() + " vé");
+        for (ThongTinHanhKhach hk : dsHK) {
+
+            List<VeBan> veHK = veBanDAO.selectByMaHK(hk.getMaHK());
+
+            basicList.addAll(veHK);
+        }
 
         List<VeBan> fullList = new ArrayList<>();
         for (VeBan b : basicList) {
@@ -220,8 +233,7 @@ public class LichSuDatVePanel extends JPanel {
     }
 
     private void checkDieuKienDoiVe(String maVe) {
-        String ketQua = giaoDichVeBUS.kiemTraDieuKienDoiVe(maVe, maNguoiDung);
-        btnDoiVe.setEnabled("OK".equals(ketQua));
+        btnDoiVe.setEnabled(true); // luôn cho bấm
     }
 
     private void styleButton(JButton btn, Color bg, Color fg) {
