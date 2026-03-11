@@ -220,5 +220,5 @@ public class QuanLyHoaDonGUI extends JPanel {
                 tableModel.addRow(row);
             }
         }
-    }
+    } 
 }

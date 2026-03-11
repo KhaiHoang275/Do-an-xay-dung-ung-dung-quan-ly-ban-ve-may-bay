@@ -328,7 +328,7 @@ public class VeBanPanel extends JPanel {
 
         String maMayBay = layMaMayBay(txtMaChuyenBay.getText());
         giaGhe = BigDecimal.ZERO;
-        SoDoGhePanel soDo = new SoDoGhePanel(maCB, maMayBay, "Máy bay", tongHK);
+        SoDoGhePanel soDo = new SoDoGhePanel(maMayBay, "Máy bay", tongHK);
         List<String> ds = new ArrayList<>();
         String ghe = txtGhe.getText().trim();
         if(!ghe.isEmpty()){

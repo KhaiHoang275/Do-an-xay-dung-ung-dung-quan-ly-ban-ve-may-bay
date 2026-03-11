@@ -358,5 +358,39 @@ public class ThanhToanGUI extends JPanel {
         b.setTitleColor(new Color(28, 48, 96));
         b.setBorder(BorderFactory.createCompoundBorder(b.getBorder(), BorderFactory.createEmptyBorder(10, 15, 15, 15)));
         return b;
+    }  
+    // ==========================================================
+    // HÀM MAIN ĐỂ CHẠY THỬ (TEST MODE) - ThanhToanGUI
+    // ==========================================================
+    public static void main(String[] args) {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Kiểm thử - Thanh Toán & Xuất Hóa Đơn");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setSize(1000, 800);
+            frame.setLocationRelativeTo(null);
+
+            // 1. TẠO SESSION GIẢ LẬP CÓ SẴN TIỀN TỆ
+            model.DatVeSession dummySession = new model.DatVeSession();
+            dummySession.maChuyenBay = "CB001";
+            dummySession.soNguoiLon = 2;
+            dummySession.soTreEm = 0;
+            dummySession.soEmBe = 0;
+            dummySession.maNguoiDung = "ND001"; // Mã giả định để load Khuyến mãi nếu có
+            
+            // Set cứng giá trị tiền để test giao diện
+            dummySession.tongTienVe = new java.math.BigDecimal("3500000"); 
+            dummySession.tongTienDichVu = new java.math.BigDecimal("450000"); 
+
+            // 2. GẮN PANEL VÀO FRAME
+            ThanhToanGUI panel = new ThanhToanGUI(dummySession);
+            frame.setContentPane(panel);
+            frame.setVisible(true);
+        });
     }
 }
