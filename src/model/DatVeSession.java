@@ -10,6 +10,10 @@ public class DatVeSession {
     public String maChuyenBay;
     public String loaiVe;      // "Một chiều" hoặc "Khứ hồi"
     public String maHangVe;    // ECO, BUS...
+
+    public String tenSanBayDi;
+    public String tenSanBayDen;
+    public String thoiGianDi;
     
     // 2. Số lượng khách
     public int soNguoiLon = 0;
