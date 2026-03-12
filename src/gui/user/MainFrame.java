@@ -520,9 +520,9 @@ public class MainFrame extends javax.swing.JFrame {
             lblFooterTotal.setText(String.format("%,d VNĐ", tong.longValue()));
             
             if (jCheckBox1.isSelected() && !isSearchingVe) {
-                btnFooterNext.setText("Đi tiếp chuyến về ➔");
+                btnFooterNext.setText("Đi tiếp");
             } else {
-                btnFooterNext.setText("Tiếp tục ➔");
+                btnFooterNext.setText("Tiếp tục");
             }
         } else {
             pnlStickyFooter.setVisible(false);
@@ -555,20 +555,32 @@ public class MainFrame extends javax.swing.JFrame {
 
         model.DatVeSession newSession = new model.DatVeSession();
         newSession.maNguoiDung = (userHienTai != null) ? userHienTai.getMaNguoiDung() : "KHACH_LE"; 
+        
+        // --- CHUYẾN ĐI ---
         newSession.maChuyenBay = cbSelectedDi.getMaChuyenBay();
         newSession.maHangVe = hangVeSelectedDi; 
+        
+        // --- CHUYẾN VỀ (NẾU CÓ) ---
+        if (jCheckBox1.isSelected() && cbSelectedVe != null) {
+            newSession.maChuyenBayVe = cbSelectedVe.getMaChuyenBay();
+            newSession.maHangVeVe = hangVeSelectedVe;
+            java.time.format.DateTimeFormatter timeFmt = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
+            newSession.thoiGianVe = cbSelectedVe.getNgayGioDi().format(timeFmt) + " (" + cbSelectedVe.getNgayGioDi().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) + ")";
+        }
+        
         newSession.soNguoiLon = MainFrame.this.soNL;
         newSession.soTreEm = MainFrame.this.soTE;
         newSession.soEmBe = MainFrame.this.soEB;
         newSession.loaiVe = jCheckBox1.isSelected() ? "Khứ hồi" : "Một chiều"; 
+        
         model.SanBay sbDi = (model.SanBay) cbCities1.getSelectedItem();
         model.SanBay sbDen = (model.SanBay) cbCities.getSelectedItem();
         newSession.tenSanBayDi = sbDi.getTenSanBay();
         newSession.tenSanBayDen = sbDen.getTenSanBay();
+        
         java.time.format.DateTimeFormatter timeFmt = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
         newSession.thoiGianDi = cbSelectedDi.getNgayGioDi().format(timeFmt) + " (" + cbSelectedDi.getNgayGioDi().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) + ")";
 
-        // Chuyển sang trang chọn sơ đồ ghế (PanelUserVeBan)
         switchPanel(new gui.user.PanelUserVeBan(newSession));
     }
     

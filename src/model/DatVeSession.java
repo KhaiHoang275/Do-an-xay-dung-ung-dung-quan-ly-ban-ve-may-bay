@@ -14,6 +14,10 @@ public class DatVeSession {
     public String tenSanBayDi;
     public String tenSanBayDen;
     public String thoiGianDi;
+
+    public String maChuyenBayVe; // Mã chuyến bay lượt về
+    public String maHangVeVe;    // Hạng vé lượt về
+    public String thoiGianVe;     // Thời gian chuyến bay lượt về
     
     // 2. Số lượng khách
     public int soNguoiLon = 0;
