@@ -280,7 +280,7 @@ public class ThanhToanGUI extends JPanel {
         String generatedMaHD = "";  
         String ptThanhToan = radTienMat.isSelected() ? "Tiền mặt" : (radQR.isSelected() ? "Mã QR" : "Thẻ tín dụng");
 
-        String maBac = "TH001"; // GẮN CHUẨN TH001 TRONG DB
+        String maBac = "SILVER"; // GẮN CHUẨN TH001 TRONG DB
 
         try {
             conn = db.DBConnection.getConnection();
