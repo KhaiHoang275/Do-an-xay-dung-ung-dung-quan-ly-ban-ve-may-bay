@@ -260,7 +260,33 @@ public class ThongTinHanhKhachDAO {
             e.printStackTrace();
         }
         return list;
-    } 
+    }
+
+    /**
+     * Kiểm tra xem có khách hàng nào đang sử dụng hạng này không
+     * (chỉ kiểm tra khách hàng trạng thái "Hoạt động" để an toàn)
+     */
+    public boolean coKhachDungThuHang(String maThuHang) {
+        String sql = """
+            SELECT COUNT(*) 
+            FROM ThongTinHanhKhach 
+            WHERE maThuHang = ? 
+        """;
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, maThuHang);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1) > 0;   // có ít nhất 1 khách → không cho xóa mềm
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 
     public boolean saveOrUpdate(ThongTinHanhKhach hk) {
     String checkSql = "SELECT COUNT(*) FROM ThongTinHanhKhach WHERE maHK = ?";
