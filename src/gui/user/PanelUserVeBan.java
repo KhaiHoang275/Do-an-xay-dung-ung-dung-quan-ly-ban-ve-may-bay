@@ -37,14 +37,12 @@ public class PanelUserVeBan extends JPanel {
     private DatVeSession session;
     private BigDecimal giamGia = BigDecimal.ZERO;
     
-    // Dữ liệu lượt Đi
     private BigDecimal giaVeDi = BigDecimal.ZERO;
     private BigDecimal giaGheDi = BigDecimal.ZERO;
     private JTextField txtGheDi;
     private List<GheMayBay> selectedGheDi = new ArrayList<>();
     private String maMayBayDi = "";
     
-    // Dữ liệu lượt Về
     private BigDecimal giaVeVe = BigDecimal.ZERO;
     private BigDecimal giaGheVe = BigDecimal.ZERO;
     private JTextField txtGheVe;
@@ -65,31 +63,37 @@ public class PanelUserVeBan extends JPanel {
     public PanelUserVeBan(DatVeSession session) {
         this.session = session;
         this.isKhuHoi = "Khứ hồi".equalsIgnoreCase(session.loaiVe);
-        
         tinhGiaVeCoBan();
         initPanel();
     }
 
     private void tinhGiaVeCoBan() {
         try {
-            String hangVe = (session.maHangVe != null) ? session.maHangVe : "ECO";
-            
+            // 1. TÍNH TIỀN LƯỢT ĐI
+            String hangVeDi = (session.maHangVe != null) ? session.maHangVe : "ECO";
             BigDecimal tongDi = BigDecimal.ZERO;
-            tongDi = tongDi.add(veBanDAO.tinhGiaVeFull(session.maChuyenBay, hangVe, "Người lớn").multiply(BigDecimal.valueOf(session.soNguoiLon)));
-            if(session.soTreEm > 0) tongDi = tongDi.add(veBanDAO.tinhGiaVeFull(session.maChuyenBay, hangVe, "Trẻ em").multiply(BigDecimal.valueOf(session.soTreEm)));
-            if(session.soEmBe > 0) tongDi = tongDi.add(veBanDAO.tinhGiaVeFull(session.maChuyenBay, hangVe, "Em bé").multiply(BigDecimal.valueOf(session.soEmBe)));
+            tongDi = tongDi.add(veBanDAO.tinhGiaVeFull(session.maChuyenBay, hangVeDi, "Người lớn").multiply(BigDecimal.valueOf(session.soNguoiLon)));
+            if(session.soTreEm > 0) tongDi = tongDi.add(veBanDAO.tinhGiaVeFull(session.maChuyenBay, hangVeDi, "Trẻ em").multiply(BigDecimal.valueOf(session.soTreEm)));
+            if(session.soEmBe > 0) tongDi = tongDi.add(veBanDAO.tinhGiaVeFull(session.maChuyenBay, hangVeDi, "Em bé").multiply(BigDecimal.valueOf(session.soEmBe)));
             this.giaVeDi = tongDi;
 
-            if (isKhuHoi) {
-                this.giaVeVe = tongDi; 
+            // 2. TÍNH TIỀN LƯỢT VỀ (Đã Fix: Tính riêng tiền theo mã vé về và hạng vé về)
+            if (isKhuHoi) { 
+                String hangVeVe = (session.maHangVeVe != null && !session.maHangVeVe.isEmpty()) ? session.maHangVeVe : hangVeDi;
+                String maCBVe = (session.maChuyenBayVe != null && !session.maChuyenBayVe.isEmpty()) ? session.maChuyenBayVe : session.maChuyenBay;
+                
+                BigDecimal tongVe = BigDecimal.ZERO;
+                tongVe = tongVe.add(veBanDAO.tinhGiaVeFull(maCBVe, hangVeVe, "Người lớn").multiply(BigDecimal.valueOf(session.soNguoiLon)));
+                if(session.soTreEm > 0) tongVe = tongVe.add(veBanDAO.tinhGiaVeFull(maCBVe, hangVeVe, "Trẻ em").multiply(BigDecimal.valueOf(session.soTreEm)));
+                if(session.soEmBe > 0) tongVe = tongVe.add(veBanDAO.tinhGiaVeFull(maCBVe, hangVeVe, "Em bé").multiply(BigDecimal.valueOf(session.soEmBe)));
+                this.giaVeVe = tongVe; 
             }
         } catch(Exception e) {}
     }
 
     private void initPanel() {
         setLayout(new BorderLayout());
-        setBackground(BG_MAIN);
-        setOpaque(false); // Xuyên thấu hình nền
+        setOpaque(false); 
 
         JPanel centerWrapper = new JPanel();
         centerWrapper.setLayout(new BoxLayout(centerWrapper, BoxLayout.Y_AXIS));
@@ -98,7 +102,6 @@ public class PanelUserVeBan extends JPanel {
         centerWrapper.add(createStepper());
         centerWrapper.add(Box.createVerticalStrut(20));
 
-        // TIÊU ĐỀ
         JLabel formTitle = new JLabel("XÁC NHẬN THÔNG TIN CHUYẾN BAY", SwingConstants.CENTER);
         formTitle.setFont(FONT_TITLE);
         formTitle.setForeground(PRIMARY_COLOR);
@@ -106,7 +109,6 @@ public class PanelUserVeBan extends JPanel {
         centerWrapper.add(formTitle);
         centerWrapper.add(Box.createVerticalStrut(20));
 
-        // DANH SÁCH CHUYẾN BAY
         JPanel pnlListFlights = new JPanel();
         pnlListFlights.setLayout(new BoxLayout(pnlListFlights, BoxLayout.Y_AXIS));
         pnlListFlights.setOpaque(false);
@@ -114,12 +116,13 @@ public class PanelUserVeBan extends JPanel {
         pnlListFlights.add(createFlightAccordion("CHUYẾN ĐI", session.maChuyenBay, true));
         pnlListFlights.add(Box.createVerticalStrut(15));
         
+        // ĐÃ FIX: TRUYỀN ĐÚNG MÃ CHUYẾN BAY VỀ VÀO PANEL
         if (isKhuHoi) {
-            pnlListFlights.add(createFlightAccordion("CHUYẾN VỀ", session.maChuyenBay, false));
+            String maCBVe = (session.maChuyenBayVe != null && !session.maChuyenBayVe.isEmpty()) ? session.maChuyenBayVe : session.maChuyenBay;
+            pnlListFlights.add(createFlightAccordion("CHUYẾN VỀ", maCBVe, false));
             pnlListFlights.add(Box.createVerticalStrut(15));
         }
 
-        // KHUYẾN MÃI
         JPanel actionPanel = new JPanel(new GridBagLayout());
         actionPanel.setBackground(Color.WHITE);
         actionPanel.setBorder(BorderFactory.createCompoundBorder(
@@ -149,7 +152,6 @@ public class PanelUserVeBan extends JPanel {
         JScrollPane scrollPane = new JScrollPane(scrollWrapper); scrollPane.setBorder(null); scrollPane.setOpaque(false); scrollPane.getViewport().setOpaque(false); scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         add(scrollPane, BorderLayout.CENTER);
 
-        // THÊM FOOTER CỐ ĐỊNH
         add(createStickyFooter(), BorderLayout.SOUTH);
         tinhTongTien();
 
@@ -174,8 +176,20 @@ public class PanelUserVeBan extends JPanel {
         } catch(Exception e){}
         if (isLuotDi) maMayBayDi = maMB; else maMayBayVe = maMB;
 
+        // ĐÃ FIX: Lấy đúng hạng vé theo lượt Đi hoặc Về
+        String maHangVe = isLuotDi ? session.maHangVe : session.maHangVeVe;
+        if (maHangVe == null || maHangVe.isEmpty()) maHangVe = session.maHangVe; 
+        
         String tenHangVe = "Phổ thông";
-        if (session.maHangVe != null) { switch (session.maHangVe) { case "BUS": tenHangVe = "Thương gia"; break; case "FST": tenHangVe = "Hạng nhất"; break; case "PECO": tenHangVe = "Phổ thông đặc biệt"; break; } }
+        if (maHangVe != null) { 
+            switch (maHangVe) { 
+                case "BUS": tenHangVe = "Thương gia"; break; 
+                case "FST": tenHangVe = "Hạng nhất"; break; 
+                case "PECO": tenHangVe = "Phổ thông đặc biệt"; break; 
+                case "ECO": tenHangVe = "Phổ thông"; break;
+            } 
+        }
+        
         String slKhach = String.format("%d Người lớn", session.soNguoiLon); if(session.soTreEm > 0) slKhach += String.format(", %d Trẻ em", session.soTreEm); if(session.soEmBe > 0) slKhach += String.format(", %d Em bé", session.soEmBe);
 
         GridBagConstraints gbc = new GridBagConstraints(); gbc.fill = GridBagConstraints.HORIZONTAL; gbc.insets = new Insets(8, 10, 8, 10);
@@ -223,9 +237,29 @@ public class PanelUserVeBan extends JPanel {
         dialog.add(sodoPanel); dialog.setVisible(true);
     }
 
+    private void switchPage(JPanel newPanel) {
+        Container container = SwingUtilities.getAncestorOfClass(gui.user.MainFrame.class, this);
+        if (container instanceof gui.user.MainFrame) {
+            gui.user.MainFrame mainFrame = (gui.user.MainFrame) container;
+            LayoutManager layout = mainFrame.getContentPane().getLayout();
+            if (layout instanceof BorderLayout) {
+                BorderLayout bl = (BorderLayout) layout;
+                Component centerComp = bl.getLayoutComponent(BorderLayout.CENTER);
+                if (centerComp instanceof JPanel) {
+                    JPanel wrapper = (JPanel) centerComp;
+                    wrapper.removeAll();
+                    newPanel.setOpaque(false);
+                    wrapper.add(newPanel, BorderLayout.CENTER);
+                    wrapper.revalidate();
+                    wrapper.repaint();
+                }
+            }
+        }
+    }
+
     private JPanel createStickyFooter() {
         JPanel footer = new JPanel(new BorderLayout()); footer.setBackground(Color.WHITE); footer.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(2, 0, 0, 0, new Color(200, 200, 200)), new EmptyBorder(10, 50, 10, 50)));
-        JButton btnQuayLai = new JButton("Quay lại Trang Chủ"); btnQuayLai.setBackground(Color.WHITE); btnQuayLai.setForeground(new Color(100, 100, 100)); btnQuayLai.setFont(new Font("Segoe UI", Font.BOLD, 16)); btnQuayLai.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 2)); btnQuayLai.setPreferredSize(new Dimension(200, 45)); btnQuayLai.setFocusPainted(false); btnQuayLai.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        JButton btnQuayLai = new JButton("Quay lại"); btnQuayLai.setBackground(Color.WHITE); btnQuayLai.setForeground(new Color(100, 100, 100)); btnQuayLai.setFont(new Font("Segoe UI", Font.BOLD, 16)); btnQuayLai.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 2)); btnQuayLai.setPreferredSize(new Dimension(200, 45)); btnQuayLai.setFocusPainted(false); btnQuayLai.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnQuayLai.addActionListener(e -> {
             Window window = SwingUtilities.getWindowAncestor(this);
             if (window instanceof JFrame) {
@@ -241,7 +275,7 @@ public class PanelUserVeBan extends JPanel {
         lblFooterTotal = new JLabel("0 VNĐ", SwingConstants.RIGHT); lblFooterTotal.setFont(new Font("Segoe UI", Font.BOLD, 24));
         pnlTotalText.add(lblTo); pnlTotalText.add(lblFooterTotal);
         
-        JButton btnNext = new JButton("Đi tiếp ➔"); btnNext.setBackground(new Color(255, 193, 7)); btnNext.setForeground(new Color(18, 32, 64)); btnNext.setFont(new Font("Segoe UI", Font.BOLD, 18)); btnNext.setPreferredSize(new Dimension(150, 45)); btnNext.setFocusPainted(false); btnNext.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        JButton btnNext = new JButton("Đi tiếp"); btnNext.setBackground(new Color(255, 193, 7)); btnNext.setForeground(new Color(18, 32, 64)); btnNext.setFont(new Font("Segoe UI", Font.BOLD, 18)); btnNext.setPreferredSize(new Dimension(150, 45)); btnNext.setFocusPainted(false); btnNext.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnNext.addActionListener(e -> xulyChuyenTrang());
         
         pnlRight.add(pnlTotalText); pnlRight.add(btnNext); footer.add(pnlRight, BorderLayout.EAST);
@@ -251,9 +285,9 @@ public class PanelUserVeBan extends JPanel {
     private JPanel createStepper() {
         JPanel pnlStepper = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10)); pnlStepper.setBackground(new Color(18, 32, 64, 200)); pnlStepper.setBorder(BorderFactory.createEmptyBorder(10, 30, 10, 30));
         Font fontStep = new Font("Segoe UI", Font.BOLD, 16); Font fontArrow = new Font("Segoe UI", Font.BOLD, 18);
-        JLabel step1 = new JLabel("1. Chuyến bay"); step1.setForeground(ACCENT_COLOR); step1.setFont(fontStep); JLabel arr1 = new JLabel(" ➔ "); arr1.setForeground(Color.WHITE); arr1.setFont(fontArrow);
-        JLabel step2 = new JLabel("2. Hành khách"); step2.setForeground(Color.LIGHT_GRAY); step2.setFont(fontStep); JLabel arr2 = new JLabel(" ➔ "); arr2.setForeground(Color.LIGHT_GRAY); arr2.setFont(fontArrow);
-        JLabel step3 = new JLabel("3. Dịch vụ"); step3.setForeground(Color.LIGHT_GRAY); step3.setFont(fontStep); JLabel arr3 = new JLabel(" ➔ "); arr3.setForeground(Color.LIGHT_GRAY); arr3.setFont(fontArrow);
+        JLabel step1 = new JLabel("1. Chuyến bay"); step1.setForeground(ACCENT_COLOR); step1.setFont(fontStep); JLabel arr1 = new JLabel(" "); arr1.setForeground(Color.WHITE); arr1.setFont(fontArrow);
+        JLabel step2 = new JLabel("2. Hành khách"); step2.setForeground(Color.LIGHT_GRAY); step2.setFont(fontStep); JLabel arr2 = new JLabel(" "); arr2.setForeground(Color.LIGHT_GRAY); arr2.setFont(fontArrow);
+        JLabel step3 = new JLabel("3. Dịch vụ"); step3.setForeground(Color.LIGHT_GRAY); step3.setFont(fontStep); JLabel arr3 = new JLabel(" "); arr3.setForeground(Color.LIGHT_GRAY); arr3.setFont(fontArrow);
         JLabel step4 = new JLabel("4. Thanh toán"); step4.setForeground(Color.LIGHT_GRAY); step4.setFont(fontStep);
         pnlStepper.add(step1); pnlStepper.add(arr1); pnlStepper.add(step2); pnlStepper.add(arr2); pnlStepper.add(step3); pnlStepper.add(arr3); pnlStepper.add(step4);
         return pnlStepper;
@@ -293,14 +327,7 @@ public class PanelUserVeBan extends JPanel {
             session.khuyenMaiApDung = km; 
         } catch (Exception e) {}
 
-        // ĐÃ SỬA: CHUYỂN TRANG MÀ KHÔNG LÀM MẤT NAVBAR GỐC BÊN MAINFRAME
-        Container parent = this.getParent();
-        if (parent != null) {
-            parent.removeAll();
-            parent.add(new NhapHanhKhachGUI(session), BorderLayout.CENTER);
-            parent.revalidate();
-            parent.repaint();
-        }
+        switchPage(new NhapHanhKhachGUI(session));
     }
 
     private JLabel createStyledLabel(String text) { JLabel lbl = new JLabel(text); lbl.setFont(FONT_LABEL); lbl.setForeground(PRIMARY_COLOR); return lbl; }
