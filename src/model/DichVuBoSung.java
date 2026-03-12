@@ -1,22 +1,34 @@
 package model;
+
 import java.math.BigDecimal;
 
 public class DichVuBoSung {
     private String maDichVu;
     private String tenDichVu;
     private BigDecimal donGia;
+    private String trangThai;
+
+    // Default constructor
     public DichVuBoSung() {
     }
-    public DichVuBoSung(String maDichVu, String tenDichVu, BigDecimal donGia) {
+
+    // Parameterized constructor
+    public DichVuBoSung(String maDichVu, String tenDichVu, BigDecimal donGia, String trangThai) {
         this.maDichVu = maDichVu;
         this.tenDichVu = tenDichVu;
         this.donGia = donGia;
+        this.trangThai = trangThai;
     }
-    public DichVuBoSung(DichVuBoSung dvbs){
-         this.maDichVu = dvbs.maDichVu;
+
+    // Copy constructor
+    public DichVuBoSung(DichVuBoSung dvbs) {
+        this.maDichVu = dvbs.maDichVu;
         this.tenDichVu = dvbs.tenDichVu;
         this.donGia = dvbs.donGia;
+        this.trangThai = dvbs.trangThai;
     }
+
+    // Getters and Setters
     public String getMaDichVu() {
         return maDichVu;
     }
@@ -40,8 +52,17 @@ public class DichVuBoSung {
     public void setDonGia(BigDecimal donGia) {
         this.donGia = donGia;
     }
+
+    public String getTrangThai() {
+        return trangThai;
+    }
+
+    public void setTrangThai(String trangThai) {
+        this.trangThai = trangThai;
+    }
+
     @Override
     public String toString() {
-        return " " + maDichVu + " " + tenDichVu + " " + donGia + " ";
+        return " " + maDichVu + " " + tenDichVu + " " + donGia + " " + trangThai + " ";
     }
 }

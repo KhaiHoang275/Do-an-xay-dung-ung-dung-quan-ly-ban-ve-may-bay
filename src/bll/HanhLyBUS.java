@@ -35,6 +35,24 @@ public class HanhLyBUS {
             return "Lỗi: Mã hành lý này đã tồn tại!";
         }
 
+       int soKg = hl.getSoKg().intValue();
+        BigDecimal giaTien;
+
+        if (soKg <= 15) {
+            giaTien = new BigDecimal("150000"); 
+        } else if (soKg <= 20) {
+            giaTien = new BigDecimal("200000"); 
+        } else if (soKg <= 30) {
+            giaTien = new BigDecimal("350000"); 
+        } else {
+            BigDecimal giaGoc = new BigDecimal("350000");
+            BigDecimal kgVuot = new BigDecimal(soKg - 30);
+            BigDecimal phiPhat = new BigDecimal("50000");
+            
+            giaTien = giaGoc.add(kgVuot.multiply(phiPhat));
+        }
+        hl.setGiaTien(giaTien);
+
         boolean isSuccess = hanhLyDAO.insert(hl);
         return isSuccess ? "Thành công" : "Lỗi: Thêm hành lý thất bại!";
     }

@@ -15,18 +15,20 @@ public class CTHoaDonDAO {
     public List<CTHoaDon> selectAll() {
         List<CTHoaDon> list = new ArrayList<>();
         try (Connection con = DBConnection.getConnection()) {
-            // Lưu ý: Tên bảng CT_Hoa_Don có thể viết khác tùy cách bạn tạo trong SQL (ví dụ: CTHoaDon)
-            String sql = "SELECT * FROM CT_Hoa_Don"; 
+            // Tên bảng dựa theo database của bạn (thường là ChiTietHoaDon)
+            String sql = "SELECT * FROM ChiTietHoaDon"; 
             PreparedStatement pst = con.prepareStatement(sql);
             ResultSet rs = pst.executeQuery();
             
             while (rs.next()) {
                 CTHoaDon ct = new CTHoaDon();
-                ct.setMaCTHD(rs.getString("maCTHD"));
                 ct.setMaHoaDon(rs.getString("maHoaDon"));
                 ct.setMaVe(rs.getString("maVe"));
-                ct.setSoTien(rs.getBigDecimal("soTien")); // Chuẩn BigDecimal của form nhóm
-                ct.setMaNguoiDung(rs.getString("maNguoiDung"));
+                ct.setDonGiaVe(rs.getBigDecimal("donGiaVe"));
+                ct.setTienDichVu(rs.getBigDecimal("tienDichVu"));
+                ct.setThueVAT(rs.getBigDecimal("thueVAT"));
+                ct.setThanhTien(rs.getBigDecimal("thanhTien"));
+                
                 list.add(ct);
             }
         } catch (Exception e) {
@@ -39,14 +41,15 @@ public class CTHoaDonDAO {
     public boolean insert(CTHoaDon ct) {
         boolean isSuccess = false;
         try (Connection con = DBConnection.getConnection()) {
-            String sql = "INSERT INTO CT_Hoa_Don (maCTHD, maHoaDon, maVe, soTien, maNguoiDung) VALUES (?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO ChiTietHoaDon (maHoaDon, maVe, donGiaVe, tienDichVu, thueVAT, thanhTien) VALUES (?, ?, ?, ?, ?, ?)";
             PreparedStatement pst = con.prepareStatement(sql);
             
-            pst.setString(1, ct.getMaCTHD());
-            pst.setString(2, ct.getMaHoaDon());
-            pst.setString(3, ct.getMaVe());
-            pst.setBigDecimal(4, ct.getSoTien());
-            pst.setString(5, ct.getMaNguoiDung());
+            pst.setString(1, ct.getMaHoaDon());
+            pst.setString(2, ct.getMaVe());
+            pst.setBigDecimal(3, ct.getDonGiaVe());
+            pst.setBigDecimal(4, ct.getTienDichVu());
+            pst.setBigDecimal(5, ct.getThueVAT());
+            pst.setBigDecimal(6, ct.getThanhTien());
             
             if (pst.executeUpdate() > 0) {
                 isSuccess = true;
@@ -57,14 +60,16 @@ public class CTHoaDonDAO {
         return isSuccess;
     }
 
-    // 3. XÓA CHI TIẾT HÓA ĐƠN (Theo mã chi tiết)
-    public boolean delete(String maCTHD) {
+    // 3. XÓA CHI TIẾT HÓA ĐƠN 
+    // Vì không còn maCTHD, ta dùng kết hợp maHoaDon và maVe để xóa chính xác 1 dòng
+    public boolean delete(String maHoaDon, String maVe) {
         boolean isSuccess = false;
         try (Connection con = DBConnection.getConnection()) {
-            String sql = "DELETE FROM CT_Hoa_Don WHERE maCTHD = ?";
+            String sql = "DELETE FROM ChiTietHoaDon WHERE maHoaDon = ? AND maVe = ?";
             PreparedStatement pst = con.prepareStatement(sql);
             
-            pst.setString(1, maCTHD);
+            pst.setString(1, maHoaDon);
+            pst.setString(2, maVe);
             
             if (pst.executeUpdate() > 0) {
                 isSuccess = true;
@@ -75,6 +80,29 @@ public class CTHoaDonDAO {
         return isSuccess;
     }
     
-    // Lưu ý: Bảng chi tiết hóa đơn thường không cần hàm UPDATE vì sai thì xóa đi tạo lại, 
-    // nhưng nếu hệ thống của bạn yêu cầu, bạn có thể bổ sung sau.
+    // 4. TÌM CHI TIẾT HÓA ĐƠN THEO MÃ HÓA ĐƠN (Thường dùng để hiển thị danh sách vé trong 1 hóa đơn)
+    public List<CTHoaDon> selectByMaHoaDon(String maHoaDon) {
+        List<CTHoaDon> list = new ArrayList<>();
+        try (Connection con = DBConnection.getConnection()) {
+            String sql = "SELECT * FROM ChiTietHoaDon WHERE maHoaDon = ?"; 
+            PreparedStatement pst = con.prepareStatement(sql);
+            pst.setString(1, maHoaDon);
+            ResultSet rs = pst.executeQuery();
+            
+            while (rs.next()) {
+                CTHoaDon ct = new CTHoaDon();
+                ct.setMaHoaDon(rs.getString("maHoaDon"));
+                ct.setMaVe(rs.getString("maVe"));
+                ct.setDonGiaVe(rs.getBigDecimal("donGiaVe"));
+                ct.setTienDichVu(rs.getBigDecimal("tienDichVu"));
+                ct.setThueVAT(rs.getBigDecimal("thueVAT"));
+                ct.setThanhTien(rs.getBigDecimal("thanhTien"));
+                
+                list.add(ct);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 }

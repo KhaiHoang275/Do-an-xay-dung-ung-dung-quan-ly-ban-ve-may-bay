@@ -1,7 +1,7 @@
 package gui.admin;
 
-import bll.DichVuBoSungBUS;
-import model.DichVuBoSung;
+import bll.ChiTietDichVuBUS;
+import model.ChiTietDichVu;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -10,22 +10,21 @@ import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class DichVuBoSungPanel extends JPanel {
+public class ChiTietDichVuPanel extends JPanel {
 
     private JTable table;
     private DefaultTableModel tableModel;
-    private JTextField txtMaDichVu, txtTenDichVu, txtDonGia, txtTimKiem;
+    private JTextField txtMaVe, txtMaDichVu, txtSoLuong, txtThanhTien, txtTimKiem;
     private JComboBox<String> cboHienThi;
-    private JComboBox<String> cboTrangThaiForm;
     private JButton btnThem, btnSua, btnXoa, btnLamMoi, btnTimKiem;
 
-    private DichVuBoSungBUS dichVuBUS;
+    // Gọi đúng tên biến BUS của bạn
+    private ChiTietDichVuBUS ctdvBUS;
 
-    // Bảng màu chuẩn dự án
+    // Bảng màu chuẩn dự án (Khớp 100% với form Hóa Đơn)
     private final Color PRIMARY = new Color(220, 38, 38);
     private final Color BG_MAIN = new Color(245, 247, 250);
     private final Color TABLE_HEADER = new Color(30, 41, 59);
@@ -34,14 +33,15 @@ public class DichVuBoSungPanel extends JPanel {
     private final Color BTN_DELETE = new Color(239, 68, 68);
     private final Color BTN_REFRESH = new Color(168, 85, 247);
 
-    public DichVuBoSungPanel() {
-        dichVuBUS = new DichVuBoSungBUS();
+    public ChiTietDichVuPanel() {
+        ctdvBUS = new ChiTietDichVuBUS();
         setLayout(new BorderLayout(20, 20));
         setBackground(BG_MAIN);
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         initComponents();
-        loadDataToTable(dichVuBUS.docDanhSachDichVu());
+        // Gọi đúng hàm docDanhSachChiTiet() trong file BUS của bạn
+        loadDataToTable(ctdvBUS.docDanhSachChiTiet()); 
     }
 
     private void initComponents() {
@@ -49,7 +49,7 @@ public class DichVuBoSungPanel extends JPanel {
         JPanel headerPanel = new JPanel(new BorderLayout(10, 10));
         headerPanel.setOpaque(false);
 
-        JLabel lblTitle = new JLabel("QUẢN LÝ DỊCH VỤ BỔ SUNG", JLabel.LEFT);
+        JLabel lblTitle = new JLabel("QUẢN LÝ CHI TIẾT DỊCH VỤ", JLabel.LEFT);
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 24));
         lblTitle.setForeground(PRIMARY);
         try {
@@ -64,15 +64,12 @@ public class DichVuBoSungPanel extends JPanel {
         txtTimKiem = createTextField();
         txtTimKiem.setPreferredSize(new Dimension(200, 35));
 
-        // NÚT TÌM KIẾM BO TRÒN
         btnTimKiem = createRoundedButton("Tìm kiếm", TABLE_HEADER, "/resources/icons/icons8-search-24.png", 16);
-        btnTimKiem.setPreferredSize(new Dimension(100, 35));
+        btnTimKiem.setPreferredSize(new Dimension(130, 35));
 
         cboHienThi = new JComboBox<>(new String[]{"Đang hiển thị", "Thùng rác"});
         cboHienThi.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         cboHienThi.setPreferredSize(new Dimension(150, 35));
-        cboTrangThaiForm = new JComboBox<>(new String[]{"Đang hoạt động", "Ngừng hoạt động"});
-        cboTrangThaiForm.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
         searchPanel.add(txtTimKiem);
         searchPanel.add(btnTimKiem);
@@ -88,13 +85,14 @@ public class DichVuBoSungPanel extends JPanel {
         JPanel tableCard = createCardPanel();
         tableCard.setLayout(new BorderLayout());
 
-        String[] columns = {"Mã Dịch Vụ", "Tên Dịch Vụ", "Đơn Giá (VNĐ)", "Trạng thái"}; // Thêm cột thứ 4
+        // 4 Cột chuẩn theo file Model
+        String[] columns = {"Mã Vé", "Mã Dịch Vụ", "Số Lượng", "Thành Tiền (VNĐ)"};
         tableModel = new DefaultTableModel(columns, 0) {
-        public boolean isCellEditable(int row, int column) { return false; }
-    };
+            public boolean isCellEditable(int row, int column) { return false; }
+        };
 
         table = new JTable(tableModel);
-        styleTable();
+        styleTable(); // Đã có sẵn fix lỗi tàng hình tiêu đề
 
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -102,37 +100,42 @@ public class DichVuBoSungPanel extends JPanel {
         tableCard.add(scrollPane, BorderLayout.CENTER);
         add(tableCard, BorderLayout.CENTER);
 
-        // ================= FORM =================
+        // ================= FORM NHẬP LIỆU =================
         JPanel formCard = createCardPanel();
         formCard.setLayout(new BorderLayout(20, 20));
 
-        JPanel formPanel = new JPanel(new GridLayout(2, 5  , 15, 15));
+        JPanel formPanel = new JPanel(new GridLayout(2, 4, 15, 15));
         formPanel.setOpaque(false);
 
+        txtMaVe = createTextField();
         txtMaDichVu = createTextField();
-        txtTenDichVu = createTextField();
-        txtDonGia = createTextField();
+        txtSoLuong = createTextField();
+        
+        // Cột Thành Tiền sẽ bị khóa màu xám (Vì BUS đã tự động tính)
+        txtThanhTien = createTextField();
+        txtThanhTien.setEditable(false);
+        txtThanhTien.setBackground(new Color(235, 235, 235)); 
 
+        formPanel.add(createLabel("Mã Vé (*):"));
+        formPanel.add(txtMaVe);
         formPanel.add(createLabel("Mã Dịch Vụ (*):"));
         formPanel.add(txtMaDichVu);
-        formPanel.add(createLabel("Tên Dịch Vụ (*):"));
-        formPanel.add(txtTenDichVu);
 
-        formPanel.add(createLabel("Đơn Giá (VNĐ):"));
-        formPanel.add(txtDonGia);
-        formPanel.add(createLabel("Trạng thái:"));
-        formPanel.add(cboTrangThaiForm);
+        formPanel.add(createLabel("Số Lượng (*):"));
+        formPanel.add(txtSoLuong);
+        formPanel.add(createLabel("Thành Tiền:"));
+        formPanel.add(txtThanhTien);
+
         JPanel formWrapper = new JPanel(new BorderLayout());
         formWrapper.setOpaque(false);
         formWrapper.add(formPanel, BorderLayout.NORTH);
 
         formCard.add(formWrapper, BorderLayout.CENTER);
 
-        // ================= BUTTONS CÁC NÚT BO TRÒN =================
+        // ================= BUTTONS =================
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
         buttonPanel.setOpaque(false);
 
-        // Gọi hàm tạo nút bo tròn siêu cấp
         btnThem = createRoundedButton("Thêm", BTN_ADD, "/resources/icons/icons8-add-24.png", 20);
         btnSua = createRoundedButton("Cập nhật", BTN_UPDATE, "/resources/icons/icons8-update-24.png", 20);
         btnXoa = createRoundedButton("Xóa", BTN_DELETE, "/resources/icons/icons8-delete-24.png", 20);
@@ -149,40 +152,35 @@ public class DichVuBoSungPanel extends JPanel {
         setupListeners();
     }
 
-    // =========================================================================
-    // HÀM TẠO NÚT BO TRÒN (KHẮC PHỤC TRIỆT ĐỂ LỖI TRẮNG BÓC)
-    // =========================================================================
+    // ====================================================================
+    // CÁC HÀM UI HELPER 
+    // ====================================================================
     private JButton createRoundedButton(String text, Color bgColor, String iconPath, int iconSize) {
         JButton btn = new JButton(text) {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                
-                // Xử lý hiệu ứng Hover cực mượt
                 if (getModel().isPressed()) {
                     g2.setColor(bgColor.darker());
                 } else if (getModel().isRollover()) {
-                    g2.setColor(bgColor.brighter()); // Sáng lên nhẹ khi đưa chuột vào
+                    g2.setColor(bgColor.brighter());
                 } else {
                     g2.setColor(bgColor);
                 }
-                
-                // Vẽ hình chữ nhật bo góc 15px
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
                 g2.dispose();
-                super.paintComponent(g); // Vẽ chữ và Icon đè lên trên nền
+                super.paintComponent(g); 
             }
         };
         btn.setPreferredSize(new Dimension(140, 40));
         btn.setForeground(Color.WHITE);
         btn.setFocusPainted(false);
         btn.setBorderPainted(false);
-        btn.setContentAreaFilled(false); // QUAN TRỌNG: Tắt nền mặc định gây lỗi của Java
+        btn.setContentAreaFilled(false); 
         btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        // Nạp icon
         if (iconPath != null && !iconPath.isEmpty()) {
             try {
                 ImageIcon icon = new ImageIcon(getClass().getResource(iconPath));
@@ -194,7 +192,6 @@ public class DichVuBoSungPanel extends JPanel {
         return btn;
     }
 
-    // Các hàm helper giao diện khác giữ nguyên form chuẩn
     private JPanel createCardPanel() {
         JPanel panel = new JPanel();
         panel.setBackground(Color.WHITE);
@@ -231,68 +228,66 @@ public class DichVuBoSungPanel extends JPanel {
         table.setShowVerticalLines(false);
 
         JTableHeader header = table.getTableHeader();
-        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        header.setBackground(TABLE_HEADER);
-        header.setForeground(Color.WHITE);
         header.setPreferredSize(new Dimension(header.getWidth(), 40));
 
+        DefaultTableCellRenderer headerRenderer = new DefaultTableCellRenderer();
+        headerRenderer.setBackground(TABLE_HEADER);
+        headerRenderer.setForeground(Color.WHITE);
+        headerRenderer.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        headerRenderer.setHorizontalAlignment(JLabel.CENTER);
+
         for (int i = 0; i < table.getColumnCount(); i++) {
-            DefaultTableCellRenderer renderer = new DefaultTableCellRenderer(); // Tạo mới ở đây
-            renderer.setHorizontalAlignment(JLabel.CENTER);
-            table.getColumnModel().getColumn(i).setCellRenderer(renderer);
-        } 
+            table.getColumnModel().getColumn(i).setHeaderRenderer(headerRenderer);
+        }
+
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+        for(int i = 0; i < table.getColumnCount(); i++){
+            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
     }
 
-        private void loadDataToTable(List<DichVuBoSung> list) {
+    // ====================================================================
+    // XỬ LÝ DỮ LIỆU & SỰ KIỆN GỌI XUỐNG BUS
+    // ====================================================================
+    private void loadDataToTable(List<ChiTietDichVu> list) {
         tableModel.setRowCount(0);
         if (list == null) return;
-        for (DichVuBoSung dv : list) {
+        for (ChiTietDichVu ct : list) {
             tableModel.addRow(new Object[]{
-                    dv.getMaDichVu(),
-                    dv.getTenDichVu(),
-                    String.format("%,.0f", dv.getDonGia()),
-                    dv.getTrangThai() // THÊM DÒNG NÀY
+                    ct.getMaVe(),
+                    ct.getMaDichVu(),
+                    ct.getSoLuong(),
+                    ct.getThanhTien() != null ? String.format("%,.0f", ct.getThanhTien()) : "0" // Format dấu phẩy
             });
         }
     }
 
     private void setupListeners() {
+        // Sự kiện Click Chuột
         table.addMouseListener(new MouseAdapter() {
-        public void mouseClicked(MouseEvent e) {
-            int row = table.getSelectedRow();
-            if (row >= 0) {
-                txtMaDichVu.setText(tableModel.getValueAt(row, 0).toString());
-                txtTenDichVu.setText(tableModel.getValueAt(row, 1).toString());
-                txtDonGia.setText(tableModel.getValueAt(row, 2).toString().replace(",", ""));
-                
-                // Hiển thị đúng trạng thái lên ComboBox
-                String tt = tableModel.getValueAt(row, 3).toString();
-                cboTrangThaiForm.setSelectedItem(tt);
-                
-                txtMaDichVu.setEditable(false);
-            }
-        }
-    });
+            public void mouseClicked(MouseEvent e) {
+                int row = table.getSelectedRow();
+                if (row >= 0) {
+                    txtMaVe.setText(tableModel.getValueAt(row, 0).toString());
+                    txtMaVe.setEditable(false); // Khóa chính không cho sửa
+                    
+                    txtMaDichVu.setText(tableModel.getValueAt(row, 1).toString());
+                    txtMaDichVu.setEditable(false); // Khóa chính không cho sửa
 
-        cboHienThi.addActionListener(e -> {
-            boolean isTrash = cboHienThi.getSelectedIndex() == 1;
-            if (isTrash) {
-                btnThem.setEnabled(false);
-                btnSua.setEnabled(false); // Vì DB không có Trạng thái nên ko có khái niệm khôi phục
-                btnXoa.setEnabled(false);
-                tableModel.setRowCount(0); // Rỗng vì chưa có trong DB
-            } else {
-                btnThem.setEnabled(true);
-                btnSua.setEnabled(true);
-                btnXoa.setEnabled(true);
-                loadDataToTable(dichVuBUS.docDanhSachDichVu());
+                    txtSoLuong.setText(tableModel.getValueAt(row, 2).toString());
+                    
+                    String tienStr = tableModel.getValueAt(row, 3) != null ? tableModel.getValueAt(row, 3).toString().replace(",", "") : "0";
+                    txtThanhTien.setText(tienStr);
+                }
             }
         });
 
+        // NÚT THÊM
         btnThem.addActionListener(e -> {
             try {
-                DichVuBoSung dv = getFormInput();
-                String result = dichVuBUS.themDichVu(dv);
+                ChiTietDichVu ct = getFormInput();
+                String result = ctdvBUS.themChiTiet(ct); // Gọi hàm themChiTiet
                 JOptionPane.showMessageDialog(this, result);
                 if (result.contains("Thành công")) btnLamMoi.doClick();
             } catch (Exception ex) {
@@ -300,86 +295,81 @@ public class DichVuBoSungPanel extends JPanel {
             }
         });
 
+        // NÚT CẬP NHẬT (Do bảng khóa kép thường k có Update, nên mình chặn lại)
         btnSua.addActionListener(e -> {
-            try {
-                if (txtMaDichVu.getText().trim().isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "Vui lòng chọn dịch vụ trên bảng!");
-                    return;
-                }
-                DichVuBoSung dv = getFormInput();
-                String result = dichVuBUS.capNhatDichVu(dv);
-                JOptionPane.showMessageDialog(this, result);
-                if (result.contains("Thành công")) btnLamMoi.doClick();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE);
-            }
+             JOptionPane.showMessageDialog(this, "Đối với Chi Tiết Dịch Vụ, vui lòng XÓA và THÊM MỚI thay vì cập nhật trực tiếp!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
         });
 
+        // NÚT XÓA
         btnXoa.addActionListener(e -> {
             int row = table.getSelectedRow();
             if (row < 0) {
-                JOptionPane.showMessageDialog(this, "Vui lòng chọn dịch vụ cần xóa!");
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn dòng cần xóa!");
                 return;
             }
+            String maVe = txtMaVe.getText();
             String maDV = txtMaDichVu.getText();
-            int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn xóa dịch vụ " + maDV + " không?\nHành động này xóa vĩnh viễn khỏi CSDL!", "Xác nhận", JOptionPane.YES_NO_OPTION);
+            int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn xóa dịch vụ " + maDV + " của vé " + maVe + "?", "Xác nhận", JOptionPane.YES_NO_OPTION);
 
             if (confirm == JOptionPane.YES_OPTION) {
-                String result = dichVuBUS.xoaDichVu(maDV);
+                String result = ctdvBUS.xoaChiTiet(maVe, maDV); // Gọi hàm xoaChiTiet với 2 tham số
                 JOptionPane.showMessageDialog(this, result);
                 if (result.contains("Thành công")) btnLamMoi.doClick();
             }
         });
 
+        // NÚT LÀM MỚI
         btnLamMoi.addActionListener(e -> {
+            txtMaVe.setText("");
             txtMaDichVu.setText("");
-            txtTenDichVu.setText("");
-            txtDonGia.setText("");
+            txtSoLuong.setText("");
+            txtThanhTien.setText("");
             txtTimKiem.setText("");
-            txtMaDichVu.setEditable(true);
+            
+            txtMaVe.setEditable(true); // Mở khóa lại
+            txtMaDichVu.setEditable(true); // Mở khóa lại
             table.clearSelection();
-
-            if (cboHienThi.getSelectedIndex() == 0) {
-                loadDataToTable(dichVuBUS.docDanhSachDichVu());
-            } else {
-                tableModel.setRowCount(0);
-            }
+            
+            loadDataToTable(ctdvBUS.docDanhSachChiTiet()); // Load lại bảng
         });
 
+        // NÚT TÌM KIẾM
         btnTimKiem.addActionListener(e -> {
             String keyword = txtTimKiem.getText().trim().toLowerCase();
-            List<DichVuBoSung> allData = dichVuBUS.docDanhSachDichVu();
+            List<ChiTietDichVu> allData = ctdvBUS.docDanhSachChiTiet();
             
-            List<DichVuBoSung> ketQua = allData.stream().filter(dv -> 
-                dv.getMaDichVu().toLowerCase().contains(keyword) || 
-                dv.getTenDichVu().toLowerCase().contains(keyword)
+            List<ChiTietDichVu> ketQua = allData.stream().filter(ct -> 
+                ct.getMaVe().toLowerCase().contains(keyword) || 
+                ct.getMaDichVu().toLowerCase().contains(keyword)
             ).collect(Collectors.toList());
             
             loadDataToTable(ketQua);
         });
     }
 
-    private DichVuBoSung getFormInput() throws Exception {
+    private ChiTietDichVu getFormInput() throws Exception {
+        String maVe = txtMaVe.getText().trim();
+        if (maVe.isEmpty()) throw new Exception("Mã vé không được để trống!");
+
         String maDV = txtMaDichVu.getText().trim();
         if (maDV.isEmpty()) throw new Exception("Mã dịch vụ không được để trống!");
 
-        String tenDV = txtTenDichVu.getText().trim();
-        if (tenDV.isEmpty()) throw new Exception("Tên dịch vụ không được để trống!");
-
-        BigDecimal donGia = BigDecimal.ZERO;
+        int soLuong = 0;
         try {
-            donGia = new BigDecimal(txtDonGia.getText().trim().isEmpty() ? "0" : txtDonGia.getText().trim());
-        } catch (NumberFormatException e) {
-            throw new Exception("Đơn giá phải là số hợp lệ!");
+            soLuong = Integer.parseInt(txtSoLuong.getText().trim());
+            if (soLuong <= 0) throw new Exception();
+        } catch (Exception e) {
+            throw new Exception("Số lượng phải là số nguyên dương lớn hơn 0!");
         }
 
-      DichVuBoSung dv = new DichVuBoSung(); 
-    dv.setMaDichVu(maDV);
-    dv.setTenDichVu(tenDV);
-    dv.setDonGia(donGia);
-    dv.setTrangThai(cboTrangThaiForm.getSelectedItem().toString()); 
-
-    return dv;
+        // Tạo model trống
+        ChiTietDichVu ct = new ChiTietDichVu();
+        ct.setMaVe(maVe);
+        ct.setMaDichVu(maDV);
+        ct.setSoLuong(soLuong);
+        
+        // Không set Thành Tiền vì tầng BUS của bạn đã code tự tính rồi!
+        return ct;
     }
 
 }
