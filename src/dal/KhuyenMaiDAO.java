@@ -292,10 +292,7 @@ public class KhuyenMaiDAO {
         }
     }
 
-    /**
-     * Lấy thông tin khuyến mãi (để kiểm tra điều kiện trước khi bị áp dụng)
-     * Dùng trong transaction để tránh dirty read
-     */
+    
     public KhuyenMai getByIdWithConnection(Connection conn, String maKhuyenMai)
             throws SQLException{
         String sql = "SELECT * FROM KhuyenMai WHERE maKhuyenMai = ? AND isDeleted = 0";
@@ -307,5 +304,31 @@ public class KhuyenMaiDAO {
             }
         }
         return null;
+    } 
+
+    public java.util.List<model.KhuyenMai> getKhuyenMaiHopLe() {
+        java.util.List<model.KhuyenMai> list = new java.util.ArrayList<>();
+        // Lọc: trạng thái = 1, Ngày hiện tại nằm trong khoảng ngayBD và ngayKT, còn số lượng
+        String sql = "SELECT * FROM KhuyenMai WHERE trangThai = 1 " +
+                     "AND CAST(GETDATE() AS DATE) BETWEEN ngayBD AND ngayKT " +
+                     "AND soLuongDaDung < soLuongTong";
+                     
+        try (java.sql.Connection conn = db.DBConnection.getConnection();
+             java.sql.PreparedStatement ps = conn.prepareStatement(sql);
+             java.sql.ResultSet rs = ps.executeQuery()) {
+             
+            while (rs.next()) {
+                model.KhuyenMai km = new model.KhuyenMai();
+                km.setMaKhuyenMai(rs.getString("maKhuyenMai"));
+                km.setTenKM(rs.getString("tenKM"));
+                km.setLoaiKM(rs.getString("loaiKM"));
+                km.setGiaTri(rs.getBigDecimal("giaTri"));
+                list.add(km);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Lỗi load khuyến mãi: " + e.getMessage());
+        }
+        return list;
     }
 }

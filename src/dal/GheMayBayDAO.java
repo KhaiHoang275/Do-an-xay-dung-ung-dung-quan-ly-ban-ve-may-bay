@@ -156,5 +156,20 @@ public class GheMayBayDAO {
         }
 
         return null;
+    } 
+    public java.util.List<String> layDanhSachGheDaDat(String maChuyenBay) {
+        java.util.List<String> list = new java.util.ArrayList<>();
+        String sql = "SELECT maGhe FROM VeBan WHERE maChuyenBay = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maChuyenBay);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(rs.getString("maGhe"));
+            }
+        } catch (Exception e) { 
+            e.printStackTrace(); 
+        }
+        return list;
     }
 }

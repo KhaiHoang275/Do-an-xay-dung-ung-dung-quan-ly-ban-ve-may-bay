@@ -15,6 +15,8 @@ public class MainFrame extends javax.swing.JFrame {
     private int soNL = 1, soTE = 0, soEB = 0; 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(MainFrame.class.getName()); 
     
+<<<<<<< HEAD
+=======
     private javax.swing.JPanel pnlTabsKhuHoi;
     private javax.swing.JButton btnTabDi;
     private javax.swing.JButton btnTabVe;
@@ -39,6 +41,7 @@ public class MainFrame extends javax.swing.JFrame {
     private String hangVeSelectedVe = "";
     private BigDecimal giaVeVe = BigDecimal.ZERO;
 
+>>>>>>> 859d8dc6309af9675e64cfe87d33ebfb0fa53455
     public MainFrame() {
         initComponents();     
         initKetQuaPanel();
@@ -52,7 +55,15 @@ public class MainFrame extends javax.swing.JFrame {
         setupBusinessLogic();  
         
         jButton2.setText(""); 
+<<<<<<< HEAD
+        try {
+            jButton2.setIcon(new com.formdev.flatlaf.extras.FlatSVGIcon("svgmaterials/icons/bx-transfer.svg", 24, 24));
+        } catch (Exception e) {
+            System.out.println("Lỗi icon đổi chiều");
+        } 
+=======
         try { jButton2.setIcon(new com.formdev.flatlaf.extras.FlatSVGIcon("svgmaterials/icons/bx-transfer.svg", 24, 24)); } catch (Exception e) {} 
+>>>>>>> 859d8dc6309af9675e64cfe87d33ebfb0fa53455
         for(java.awt.event.ActionListener al : btnLogin.getActionListeners()) btnLogin.removeActionListener(al);
         btnLogin.addActionListener(e -> {
             DangNhapFrm frm = new DangNhapFrm(); frm.setLocationRelativeTo(this); frm.setVisible(true); this.dispose();
@@ -111,7 +122,15 @@ public class MainFrame extends javax.swing.JFrame {
         
         itemLichSu.addActionListener(e -> {
             if (userHienTai != null) {
+<<<<<<< HEAD
+                pnlContent.removeAll();
+                pnlContent.setLayout(new java.awt.BorderLayout());
+                pnlContent.add(new gui.user.LichSuDatVePanel(userHienTai.getMaNguoiDung()), java.awt.BorderLayout.CENTER);
+                pnlContent.revalidate();
+                pnlContent.repaint();
+=======
                 switchPanel(new gui.user.LichSuDatVePanel(userHienTai.getMaNguoiDung()));
+>>>>>>> 859d8dc6309af9675e64cfe87d33ebfb0fa53455
             } else {
                 JOptionPane.showMessageDialog(this, "Vui lòng đăng nhập để xem lịch sử!");
             }
@@ -131,7 +150,13 @@ public class MainFrame extends javax.swing.JFrame {
         btnSignin.setVisible(false); 
 
         jButton2.setText(""); 
+<<<<<<< HEAD
+        try {
+            jButton2.setIcon(new com.formdev.flatlaf.extras.FlatSVGIcon("svgmaterials/icons/bx-transfer.svg", 24, 24));
+        } catch (Exception e) {}
+=======
         try { jButton2.setIcon(new com.formdev.flatlaf.extras.FlatSVGIcon("svgmaterials/icons/bx-transfer.svg", 24, 24)); } catch (Exception e) {}
+>>>>>>> 859d8dc6309af9675e64cfe87d33ebfb0fa53455
     }
 
     @SuppressWarnings("unchecked")
@@ -398,6 +423,37 @@ public class MainFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>
 
+<<<<<<< HEAD
+    private void btnSigninActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSigninActionPerformed
+        DangKyFrm frm = new DangKyFrm();
+        frm.setLocationRelativeTo(this); 
+        frm.setVisible(true); 
+        this.dispose();
+    }//GEN-LAST:event_btnSigninActionPerformed
+
+    private void cbDonViTienTeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbDonViTienTeActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cbDonViTienTeActionPerformed
+
+    private void btnVeMBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVeMBActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnVeMBActionPerformed
+
+    private void btnDiaryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDiaryActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnDiaryActionPerformed
+
+    private void jRadioButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButton1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jRadioButton1ActionPerformed
+
+    private void jFormattedTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jFormattedTextField1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jFormattedTextField1ActionPerformed
+
+    private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {                                          
+        // TODO add your handling code here:
+=======
     private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {                                          
         boolean isKhuHoi = jCheckBox1.isSelected();
         jFormattedTextField2.setEnabled(isKhuHoi); 
@@ -409,6 +465,7 @@ public class MainFrame extends javax.swing.JFrame {
         } else {
             if (pnlTabsKhuHoi != null) pnlTabsKhuHoi.setVisible(false);
         }
+>>>>>>> 859d8dc6309af9675e64cfe87d33ebfb0fa53455
     }                   
     
     private void applyTheme() {
@@ -553,6 +610,66 @@ public class MainFrame extends javax.swing.JFrame {
             }
         }
 
+<<<<<<< HEAD
+        // ==============================================================
+        // SỰ KIỆN CLICK NÚT "ĐẶT VÉ" TRÊN BẢNG
+        // ==============================================================
+        tblKetQua.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                int row = tblKetQua.rowAtPoint(e.getPoint());
+                int col = tblKetQua.columnAtPoint(e.getPoint());
+                
+                if (row >= 0 && col == 6) { 
+                    String maCB = tblKetQua.getValueAt(row, 0).toString();
+                    
+                    model.DatVeSession session = new model.DatVeSession();
+                    
+                    if (userHienTai != null) {
+                        session.maNguoiDung = userHienTai.getMaNguoiDung(); 
+                    } else {
+                        session.maNguoiDung = "KHACH_LE"; 
+                    }
+                    
+                    session.maChuyenBay = maCB;
+                    session.soNguoiLon = MainFrame.this.soNL;
+                    session.soTreEm = MainFrame.this.soTE;
+                    session.soEmBe = MainFrame.this.soEB;
+                    session.loaiVe = jCheckBox1.isSelected() ? "Khứ hồi" : "Một chiều"; 
+
+                    // Bắt thông tin sân bay và ngày đi từ Giao diện
+                    if (cbCities1.getSelectedItem() != null && cbCities1.getSelectedItem() instanceof model.SanBay) {
+                        session.tenSanBayDi = ((model.SanBay) cbCities1.getSelectedItem()).getTenSanBay();
+                    }
+                    if (cbCities.getSelectedItem() != null && cbCities.getSelectedItem() instanceof model.SanBay) {
+                        session.tenSanBayDen = ((model.SanBay) cbCities.getSelectedItem()).getTenSanBay();
+                    }
+                    session.thoiGianDi = tblKetQua.getValueAt(row, 1).toString();
+
+                    // === BẮT HẠNG VÉ ===
+                    if (jComboBox1.getSelectedItem() != null) {
+                        try {
+                            // Ép kiểu phần tử đang chọn về model.HangVe
+                            model.HangVe hvDuocChon = (model.HangVe) jComboBox1.getSelectedItem();
+                            session.maHangVe = hvDuocChon.getMaHangVe(); 
+                        } catch (ClassCastException cce) {
+                            // Phòng hờ nếu trước đó combobox bị add nhầm String thay vì Object HangVe
+                            session.maHangVe = "ECO";
+                            System.out.println("Lỗi ép kiểu Hạng Vé, dùng mặc định ECO");
+                        }
+                    } else {
+                        session.maHangVe = "ECO"; 
+                    }
+
+                    pnlContent.removeAll();
+                    pnlContent.setLayout(new java.awt.BorderLayout());
+                    pnlContent.add(new gui.user.PanelUserVeBan(session), java.awt.BorderLayout.CENTER);
+                    pnlContent.revalidate();
+                    pnlContent.repaint();
+                }
+            }
+        });
+=======
         model.DatVeSession newSession = new model.DatVeSession();
         newSession.maNguoiDung = (userHienTai != null) ? userHienTai.getMaNguoiDung() : "KHACH_LE"; 
         
@@ -582,6 +699,7 @@ public class MainFrame extends javax.swing.JFrame {
         newSession.thoiGianDi = cbSelectedDi.getNgayGioDi().format(timeFmt) + " (" + cbSelectedDi.getNgayGioDi().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) + ")";
 
         switchPanel(new gui.user.PanelUserVeBan(newSession));
+>>>>>>> 859d8dc6309af9675e64cfe87d33ebfb0fa53455
     }
     
     private void setupCurrencyComboBox() {
@@ -615,9 +733,23 @@ public class MainFrame extends javax.swing.JFrame {
             this.text = text;
             try {
                 com.formdev.flatlaf.extras.FlatSVGIcon svgIcon = new com.formdev.flatlaf.extras.FlatSVGIcon(iconPath, 24, 18);
+<<<<<<< HEAD
+                
+                if (svgIcon.hasFound()) {
+                    this.icon = svgIcon;
+                } else {
+                    System.out.println("BÁO ĐỘNG ĐỎ: FlatLaf không tìm thấy file ảnh tại -> " + iconPath);
+                    this.icon = null;
+                }
+            } catch (Exception e) {
+                System.out.println("Lỗi tàng hình: " + e.getMessage());
+                this.icon = null;
+            }
+=======
                 if (svgIcon.hasFound()) this.icon = svgIcon;
                 else this.icon = null;
             } catch (Exception e) { this.icon = null; }
+>>>>>>> 859d8dc6309af9675e64cfe87d33ebfb0fa53455
         }
         public String getText() { return text; }
         public javax.swing.Icon getIcon() { return icon; }
@@ -684,6 +816,10 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void setupHoTroChonSanBay(javax.swing.JComboBox cbTu, javax.swing.JComboBox cbDen, javax.swing.JButton btnSwap) {
         capNhatHaiComboBox(cbTu, cbDen, null, null);
+<<<<<<< HEAD
+
+=======
+>>>>>>> 859d8dc6309af9675e64cfe87d33ebfb0fa53455
         java.awt.event.ItemListener listener = e -> {
             if (isUpdatingCombo) return;
             if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
@@ -1169,6 +1305,71 @@ public class MainFrame extends javax.swing.JFrame {
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Ngày không hợp lệ!");
             }
+<<<<<<< HEAD
+        }); 
+
+        if (scrollPaneKetQua != null) {
+            pnlContent.add(scrollPaneKetQua); 
+        } else {
+            System.out.println("CẢNH BÁO: scrollPaneKetQua bị null, hãy kiểm tra initTableKetQua");
+        } 
+
+        btnDatCho.addActionListener(e -> {
+            int row = tblKetQua.getSelectedRow();
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn một chuyến bay từ danh sách!");
+                return;
+            }
+            
+            String maCB = tblKetQua.getValueAt(row, 0).toString();
+            
+            model.DatVeSession session = new model.DatVeSession();
+            session.maNguoiDung = (userHienTai != null) ? userHienTai.getMaNguoiDung() : "KHACH_LE"; 
+            session.maChuyenBay = maCB;
+            
+            session.soNguoiLon = this.soNL;
+            session.soTreEm = this.soTE;
+            session.soEmBe = this.soEB;
+            session.loaiVe = jRadioButton2.isSelected() ? "Khứ hồi" : "Một chiều";
+
+            if (cbCities1.getSelectedItem() != null && cbCities1.getSelectedItem() instanceof model.SanBay) {
+                session.tenSanBayDi = ((model.SanBay) cbCities1.getSelectedItem()).getTenSanBay();
+            }
+            if (cbCities.getSelectedItem() != null && cbCities.getSelectedItem() instanceof model.SanBay) {
+                session.tenSanBayDen = ((model.SanBay) cbCities.getSelectedItem()).getTenSanBay();
+            }
+            session.thoiGianDi = tblKetQua.getValueAt(row, 1).toString();
+            
+            pnlContent.removeAll();
+            pnlContent.setLayout(new java.awt.BorderLayout());
+            pnlContent.add(new gui.user.PanelUserVeBan(session), java.awt.BorderLayout.CENTER);
+            pnlContent.revalidate();
+            pnlContent.repaint();
+        });
+    }   
+
+    private void loadRealHangVeToCombo() {
+        bll.HangVeBUS hvBUS = new bll.HangVeBUS();
+        java.util.ArrayList<model.HangVe> dsHangVe = hvBUS.getAllHangVe(); 
+    
+        jComboBox1.removeAllItems();
+        int indexPhoThong = 0; // Biến lưu vị trí của hạng Phổ thông
+        
+        for (int i = 0; i < dsHangVe.size(); i++) {
+            model.HangVe hv = dsHangVe.get(i);
+            jComboBox1.addItem(hv); 
+            
+            // Tìm hạng vé có mã là "ECO" (Phổ thông) để đặt làm mặc định
+            if (hv.getMaHangVe() != null && hv.getMaHangVe().equalsIgnoreCase("ECO")) {
+                indexPhoThong = i;
+            }
+        }
+        
+        // Đặt hiển thị mặc định
+        if (jComboBox1.getItemCount() > 0) {
+            jComboBox1.setSelectedIndex(indexPhoThong);
+        }
+=======
         });
     }   
 
@@ -1177,6 +1378,7 @@ public class MainFrame extends javax.swing.JFrame {
         active.setForeground(java.awt.Color.WHITE);
         inactive.setBackground(new java.awt.Color(220, 220, 220)); 
         inactive.setForeground(new java.awt.Color(100, 100, 100));
+>>>>>>> 859d8dc6309af9675e64cfe87d33ebfb0fa53455
     }
 
     private void renderDateRibbon(java.time.LocalDate centerDate) {
@@ -1188,9 +1390,79 @@ public class MainFrame extends javax.swing.JFrame {
             java.time.LocalDate d = centerDate.plusDays(i);
             if (d.isBefore(java.time.LocalDate.now())) continue; 
 
+<<<<<<< HEAD
+    
+    String textNgay = jFormattedTextField1.getText(); 
+    String[] parts = textNgay.split(" / ");
+    String ngayChuan = parts[2].trim() + "-" + parts[1].trim() + "-" + parts[0].trim(); 
+
+    bll.ChuyenBayBUS cbBUS = new bll.ChuyenBayBUS();
+    dal.VeBanDAO veDAO = new dal.VeBanDAO();
+    
+    java.util.ArrayList<model.ChuyenBay> dsCB = cbBUS.searchChuyenBay(
+        sbDi.getMaSanBay(), sbDen.getMaSanBay(), ngayChuan);
+
+    javax.swing.table.DefaultTableModel modelTable = (javax.swing.table.DefaultTableModel) tblKetQua.getModel();
+    modelTable.setRowCount(0);
+    
+
+    java.time.format.DateTimeFormatter timeFmt = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
+    java.time.format.DateTimeFormatter dateFmt = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    for (model.ChuyenBay cb : dsCB) {
+        try {
+            java.math.BigDecimal gia1Ve = cbBUS.tinhGiaVe(cb.getMaChuyenBay(), hangVeSel.getMaHangVe());
+            java.math.BigDecimal tongDoan = gia1Ve.multiply(java.math.BigDecimal.valueOf(soNL)); 
+
+            String htmlButton = "<html><div style='" +
+                                "background-color: #FFC107; " + 
+                                "color: #122040; " + 
+                                "padding: 8px 15px; " +
+                                "border-radius: 8px; " +
+                                "font-weight: bold; " +
+                                "cursor: hand; " +
+                                "text-align: center; " +
+                                "font-family: Arial, sans-serif; " +
+                                "font-size: 14px;" +
+                                "'>🛒 Đặt Vé</div></html>";
+
+            modelTable.addRow(new Object[]{
+                cb.getMaChuyenBay(),
+                cb.getNgayGioDi().format(timeFmt) + " (" + cb.getNgayGioDi().format(dateFmt) + ")", 
+                cb.getNgayGioDen().format(timeFmt), 
+                "Còn chỗ", 
+                String.format("%,d VNĐ", gia1Ve.longValue()),
+                String.format("%,d VNĐ", tongDoan.longValue()),
+                htmlButton 
+            });
+        } catch (Exception e) {
+            System.out.println("Lỗi tính giá cho CB: " + cb.getMaChuyenBay() + " - " + e.getMessage());
+        }
+    }
+}   
+    
+    public static void main(String args[]) {
+      
+        try {
+     
+            javax.swing.UIManager.setLookAndFeel(new com.formdev.flatlaf.FlatIntelliJLaf());
+            javax.swing.UIManager.put("Button.arc", 12);
+            javax.swing.UIManager.put("Component.arc", 12);
+            javax.swing.UIManager.put("TextComponent.arc", 12);
+
+        } catch (Exception ex) {
+            java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+
+       
+        java.awt.EventQueue.invokeLater(() -> {
+            java.util.prefs.Preferences prefs = java.util.prefs.Preferences.userNodeForPackage(gui.user.DangNhapFrm.class);
+            String savedUser = prefs.get("saved_user", null);
+            String savedPass = prefs.get("saved_pass", null);
+=======
             javax.swing.JButton btnDay = new javax.swing.JButton();
             btnDay.setPreferredSize(new java.awt.Dimension(140, 55));
             btnDay.setFocusPainted(false);
+>>>>>>> 859d8dc6309af9675e64cfe87d33ebfb0fa53455
             
             boolean isSelected = d.isEqual(centerDate);
             if (isSelected) {

@@ -328,7 +328,7 @@ public class VeBanPanel extends JPanel {
 
         String maMayBay = layMaMayBay(txtMaChuyenBay.getText());
         giaGhe = BigDecimal.ZERO;
-        SoDoGhePanel Panel = new SoDoGhePanel(maMayBay, "Máy bay", tongHK);
+        SoDoGhePanel soDo = new SoDoGhePanel(maMayBay, "Máy bay", tongHK);
         List<String> ds = new ArrayList<>();
         String ghe = txtGhe.getText().trim();
         if(!ghe.isEmpty()){
@@ -336,7 +336,7 @@ public class VeBanPanel extends JPanel {
                 ds.add(chuanHoaGhe(g));
             }
         }
-        Panel.setSelectedSeats(ds);
+        soDo.setSelectedSeats(ds);
 
         JDialog dialog = new JDialog(
                 (Frame) SwingUtilities.getWindowAncestor(this),
@@ -347,7 +347,7 @@ public class VeBanPanel extends JPanel {
         dialog.setSize(900,600);
         dialog.setLocationRelativeTo(this);
 
-        Panel.setListener(new SoDoGhePanel.SoDoGheListener() {
+        soDo.setListener(new SoDoGhePanel.SoDoGheListener() {
 
         @Override
         public void onBack() {
@@ -372,7 +372,7 @@ public class VeBanPanel extends JPanel {
         }
     });
 
-        dialog.add(Panel);
+        dialog.add(soDo);
 
         dialog.setVisible(true);
     });
