@@ -1,6 +1,7 @@
 package gui.admin;
 
 import bll.HoaDonBUS;
+import gui.user.ThanhToanHoaDonPanel;
 import model.HoaDon;
 
 import javax.swing.*;
@@ -495,24 +496,16 @@ public class HoaDonPanel extends JPanel {
             String phuongThucStr = cboPhuongThuc.getSelectedItem().toString();
             String thueStr = txtThue.getText();
 
-            // Mở Dialog chứa ThanhToanHoaDonPanel
-            openPaymentDialog(maHD, maPhieu, ngayLapStr, tongTienStr, phuongThucStr, thueStr);
+            // 2. Mở popup và TRUYỀN ĐÚNG 6 THAM SỐ VÀO FILE ThanhToanHoaDonPanel
+            JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Thanh Toán & Xuất Hóa Đơn (" + maHD + ")", true);
+            dialog.setSize(1050, 700);
+            dialog.setLocationRelativeTo(this);
+            
+            // ĐÃ SỬA LỖI Ở ĐÂY: Truyền 6 tham số vào
+            dialog.add(new ThanhToanHoaDonPanel(maHD, maPhieu, ngayLap, tongTien, phuongThuc, thue)); 
+            
+            dialog.setVisible(true);
         });
-    }
-    private void openPaymentDialog(String maHD, String maPhieu, String ngay, String tong, String pt, String thue) {
-        Window parentWindow = SwingUtilities.getWindowAncestor(this);
-        JDialog dialog = new JDialog(parentWindow, "Thanh toán hóa đơn", Dialog.ModalityType.APPLICATION_MODAL);
-        
-        // Gọi giao diện ThanhToanHoaDonPanel của bạn
-        ThanhToanHoaDonPanel paymentPanel = new ThanhToanHoaDonPanel(maHD, maPhieu, ngay, tong, pt, thue);
-        
-        dialog.add(paymentPanel);
-        dialog.setSize(1100, 750);
-        dialog.setLocationRelativeTo(this);
-        dialog.setVisible(true);
-        
-        // Sau khi đóng dialog, làm mới bảng để cập nhật trạng thái
-        btnLamMoi.doClick();
     }
     private HoaDon getFormInput() throws Exception {
         String maHD = txtMaHoaDon.getText().trim();

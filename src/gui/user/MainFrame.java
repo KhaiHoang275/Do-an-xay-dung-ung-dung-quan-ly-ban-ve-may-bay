@@ -1,16 +1,50 @@
 package gui.user;
 
-import javax.swing.JOptionPane;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.math.BigDecimal;
 
 public class MainFrame extends javax.swing.JFrame { 
-    private javax.swing.JTable tblKetQua;
+    // KHU VỰC CHỨA NỘI DUNG CHÍNH (Đã tách riêng khỏi Header)
+    private JPanel pnlContentWrapper;
+    
+    private JPanel pnlKetQuaContainer;
     private javax.swing.JScrollPane scrollPaneKetQua;
+    
     private int soNL = 1, soTE = 0, soEB = 0; 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(MainFrame.class.getName()); 
     
+<<<<<<< HEAD
+=======
+    private javax.swing.JPanel pnlTabsKhuHoi;
+    private javax.swing.JButton btnTabDi;
+    private javax.swing.JButton btnTabVe;
+    private javax.swing.JPanel pnlDateRibbon;
+    
+    private java.time.LocalDate currentSearchDateDi;
+    private java.time.LocalDate currentSearchDateVe;
+    private boolean isSearchingVe = false; 
+
+    // =========================================================
+    // BIẾN LƯU TRỮ GIỎ HÀNG (SHOPPING CART STATE)
+    // =========================================================
+    private JPanel pnlStickyFooter;
+    private JLabel lblFooterTotal;
+    private JButton btnFooterNext;
+    
+    private model.ChuyenBay cbSelectedDi = null;
+    private String hangVeSelectedDi = "";
+    private BigDecimal giaVeDi = BigDecimal.ZERO;
+    
+    private model.ChuyenBay cbSelectedVe = null;
+    private String hangVeSelectedVe = "";
+    private BigDecimal giaVeVe = BigDecimal.ZERO;
+
+>>>>>>> 859d8dc6309af9675e64cfe87d33ebfb0fa53455
     public MainFrame() {
         initComponents();     
-        initTableKetQua();
+        initKetQuaPanel();
         setupLogo(); 
         applyTheme();
         gui.custom.UIHelper.loadSanBayToComboBox(cbCities, cbCities1);
@@ -21,17 +55,18 @@ public class MainFrame extends javax.swing.JFrame {
         setupBusinessLogic();  
         
         jButton2.setText(""); 
+<<<<<<< HEAD
         try {
             jButton2.setIcon(new com.formdev.flatlaf.extras.FlatSVGIcon("svgmaterials/icons/bx-transfer.svg", 24, 24));
         } catch (Exception e) {
             System.out.println("Lỗi icon đổi chiều");
         } 
+=======
+        try { jButton2.setIcon(new com.formdev.flatlaf.extras.FlatSVGIcon("svgmaterials/icons/bx-transfer.svg", 24, 24)); } catch (Exception e) {} 
+>>>>>>> 859d8dc6309af9675e64cfe87d33ebfb0fa53455
         for(java.awt.event.ActionListener al : btnLogin.getActionListeners()) btnLogin.removeActionListener(al);
         btnLogin.addActionListener(e -> {
-            DangNhapFrm frm = new DangNhapFrm();
-            frm.setLocationRelativeTo(this); 
-            frm.setVisible(true);
-            this.dispose();
+            DangNhapFrm frm = new DangNhapFrm(); frm.setLocationRelativeTo(this); frm.setVisible(true); this.dispose();
         });
     } 
 
@@ -39,7 +74,7 @@ public class MainFrame extends javax.swing.JFrame {
 
     public MainFrame(model.NguoiDung nd) {
         initComponents();    
-        initTableKetQua();
+        initKetQuaPanel();
         applyTheme();
         setupLogo();
         gui.custom.UIHelper.loadSanBayToComboBox(cbCities, cbCities1);
@@ -53,22 +88,17 @@ public class MainFrame extends javax.swing.JFrame {
         setTitle("AirLiner - Xin chào: " + userHienTai.getUsername()); 
         
         btnSignin.setVisible(false);
-        
         String chuCaiDau = "U";
         if (userHienTai.getUsername() != null && !userHienTai.getUsername().isEmpty()) {
             chuCaiDau = userHienTai.getUsername().substring(0, 1).toUpperCase();
         }
         
         java.awt.Color[] palette = {
-            new java.awt.Color(234, 67, 53),
-            new java.awt.Color(52, 168, 83),
-            new java.awt.Color(66, 133, 244),
-            new java.awt.Color(251, 188, 5),
-            new java.awt.Color(156, 39, 176),
-            new java.awt.Color(0, 150, 136),
+            new java.awt.Color(234, 67, 53), new java.awt.Color(52, 168, 83),
+            new java.awt.Color(66, 133, 244), new java.awt.Color(251, 188, 5),
+            new java.awt.Color(156, 39, 176), new java.awt.Color(0, 150, 136),
             new java.awt.Color(255, 112, 67)
         };
-        
         int randomIndex = new java.util.Random().nextInt(palette.length);
         
         btnLogin.setText(chuCaiDau); 
@@ -87,20 +117,20 @@ public class MainFrame extends javax.swing.JFrame {
         javax.swing.JMenuItem itemDangXuat = new javax.swing.JMenuItem("Đăng xuất");
 
         itemThongTin.addActionListener(e -> {
-            UserInfoFrm infoFrm = new UserInfoFrm();
-            infoFrm.loadDataToForm(this.userHienTai); 
-            infoFrm.setLocationRelativeTo(this);
-            infoFrm.setVisible(true);
-            this.dispose(); 
+            UserInfoFrm infoFrm = new UserInfoFrm(); infoFrm.loadDataToForm(this.userHienTai); infoFrm.setLocationRelativeTo(this); infoFrm.setVisible(true); this.dispose(); 
         });
         
         itemLichSu.addActionListener(e -> {
             if (userHienTai != null) {
+<<<<<<< HEAD
                 pnlContent.removeAll();
                 pnlContent.setLayout(new java.awt.BorderLayout());
                 pnlContent.add(new gui.user.LichSuDatVePanel(userHienTai.getMaNguoiDung()), java.awt.BorderLayout.CENTER);
                 pnlContent.revalidate();
                 pnlContent.repaint();
+=======
+                switchPanel(new gui.user.LichSuDatVePanel(userHienTai.getMaNguoiDung()));
+>>>>>>> 859d8dc6309af9675e64cfe87d33ebfb0fa53455
             } else {
                 JOptionPane.showMessageDialog(this, "Vui lòng đăng nhập để xem lịch sử!");
             }
@@ -108,39 +138,56 @@ public class MainFrame extends javax.swing.JFrame {
 
         itemDangXuat.addActionListener(e -> {
             java.util.prefs.Preferences prefs = java.util.prefs.Preferences.userNodeForPackage(gui.user.DangNhapFrm.class);
-            prefs.remove("saved_user");
-            prefs.remove("saved_pass");
-            
-            new MainFrame().setVisible(true);
-            this.dispose();
+            prefs.remove("saved_user"); prefs.remove("saved_pass");
+            new MainFrame().setVisible(true); this.dispose();
         });
 
-        avatarMenu.add(itemThongTin);
-        avatarMenu.add(itemLichSu);
-        avatarMenu.addSeparator();
-        avatarMenu.add(itemDangXuat);
+        avatarMenu.add(itemThongTin); avatarMenu.add(itemLichSu);
+        avatarMenu.addSeparator(); avatarMenu.add(itemDangXuat);
 
         for(java.awt.event.ActionListener al : btnLogin.getActionListeners()) btnLogin.removeActionListener(al);
         btnLogin.addActionListener(e -> avatarMenu.show(btnLogin, 0, btnLogin.getHeight()));
         btnSignin.setVisible(false); 
 
         jButton2.setText(""); 
+<<<<<<< HEAD
         try {
             jButton2.setIcon(new com.formdev.flatlaf.extras.FlatSVGIcon("svgmaterials/icons/bx-transfer.svg", 24, 24));
         } catch (Exception e) {}
+=======
+        try { jButton2.setIcon(new com.formdev.flatlaf.extras.FlatSVGIcon("svgmaterials/icons/bx-transfer.svg", 24, 24)); } catch (Exception e) {}
+>>>>>>> 859d8dc6309af9675e64cfe87d33ebfb0fa53455
     }
 
     @SuppressWarnings("unchecked")
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">
     private void initComponents() {
 
         btnGChuyenBay = new javax.swing.ButtonGroup();
         pnlHeader = new javax.swing.JPanel();
+        
+        // Khởi tạo Wrapper chứa ảnh nền
+        pnlContentWrapper = new javax.swing.JPanel() {
+            Image bgImage;
+            {
+                try {
+                    java.net.URL url = getClass().getResource("/resources/images/khairline.jpg");
+                    if (url != null) bgImage = new ImageIcon(url).getImage();
+                    else bgImage = new ImageIcon("src/resources/images/khairline.jpg").getImage();
+                } catch (Exception e) {}
+            }
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                if (bgImage != null) g.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
+            }
+        };
+        pnlContentWrapper.setOpaque(true);
+        pnlContentWrapper.setLayout(new java.awt.BorderLayout());
+        
         pnlContent = new javax.swing.JPanel();
-        jPanel1 = new javax.swing.JPanel();
-        btnVeMB = new javax.swing.JButton();
-        btnDiary = new javax.swing.JButton();
-        jButton1 = new javax.swing.JButton();
+        pnlContent.setOpaque(false);
+        
         jPanel3 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -168,97 +215,122 @@ public class MainFrame extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        pnlHeader.setBackground(new java.awt.Color(255, 0, 51));
-        getContentPane().add(pnlHeader, java.awt.BorderLayout.NORTH);
+        // ĐÃ KHÔI PHỤC MÀU XANH ĐEN CHO NAVBAR
+        pnlHeader.setBackground(new java.awt.Color(18, 32, 64));
+        
+        jLabel1.setFont(new java.awt.Font("VNI-Franko", 1, 32)); 
+        jLabel1.setForeground(Color.WHITE);
+        jLabel1.setText("✈ AirLiner");
 
-        pnlContent.setBackground(new java.awt.Color(255, 255, 255));
+        btnKhuyenMai.setBackground(new java.awt.Color(18, 32, 64));
+        btnKhuyenMai.setFont(new java.awt.Font("Segoe UI", 1, 16)); 
+        btnKhuyenMai.setForeground(Color.WHITE);
+        btnKhuyenMai.setText("Khuyến mãi");
+        btnKhuyenMai.setContentAreaFilled(false);
+        btnKhuyenMai.setBorderPainted(false);
 
-        btnVeMB.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
-        btnVeMB.setText("Vé Máy Bay");
-        btnVeMB.addActionListener(this::btnVeMBActionPerformed);
+        btnDatCho.setBackground(new java.awt.Color(18, 32, 64));
+        btnDatCho.setFont(new java.awt.Font("Segoe UI", 1, 16)); 
+        btnDatCho.setForeground(Color.WHITE);
+        btnDatCho.setText("Đặt chỗ của tôi");
+        btnDatCho.setContentAreaFilled(false);
+        btnDatCho.setBorderPainted(false);
 
-        btnDiary.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
-        btnDiary.setText("Cẩm Nang Du Lịch");
-        btnDiary.addActionListener(this::btnDiaryActionPerformed);
+        btnLogin.setBackground(new java.awt.Color(255, 255, 51));
+        btnLogin.setFont(new java.awt.Font("Segoe UI", 1, 16)); 
+        btnLogin.setForeground(new java.awt.Color(18, 32, 64));
+        btnLogin.setText("Đăng nhập");
 
-        jButton1.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
-        jButton1.setText("Phiếu quà tặng");
+        btnSignin.setBackground(new java.awt.Color(255, 193, 7));
+        btnSignin.setFont(new java.awt.Font("Segoe UI", 1, 16)); 
+        btnSignin.setForeground(new java.awt.Color(18, 32, 64));
+        btnSignin.setText("Đăng ký");
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(184, 184, 184)
-                .addComponent(btnVeMB)
-                .addGap(37, 37, 37)
-                .addComponent(btnDiary)
+        cbDonViTienTe.setBackground(new java.awt.Color(18, 32, 64));
+        cbDonViTienTe.setForeground(Color.WHITE);
+        cbDonViTienTe.setFont(new java.awt.Font("Segoe UI", 1, 14)); 
+        cbDonViTienTe.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { " VND | VI", " USD | EN" }));
+
+        javax.swing.GroupLayout pnlMenuHeaderLayout = new javax.swing.GroupLayout(pnlMenuHeader);
+        pnlMenuHeader.setLayout(pnlMenuHeaderLayout);
+        pnlMenuHeader.setOpaque(false);
+        pnlMenuHeaderLayout.setHorizontalGroup(
+            pnlMenuHeaderLayout.createSequentialGroup()
+                .addGap(2, 2, 2)
+                .addComponent(cbDonViTienTe, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(jButton1)
-                .addContainerGap(600, Short.MAX_VALUE))
+                .addComponent(btnKhuyenMai)
+                .addGap(18, 18, 18)
+                .addComponent(btnDatCho)
+                .addGap(18, 18, 18)
+                .addComponent(btnLogin)
+                .addGap(18, 18, 18)
+                .addComponent(btnSignin, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(20, Short.MAX_VALUE)
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(14, 14, 14)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnVeMB)
-                    .addComponent(btnDiary)
-                    .addComponent(jButton1))
-                .addContainerGap(14, Short.MAX_VALUE))
+        pnlMenuHeaderLayout.setVerticalGroup(
+            pnlMenuHeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(pnlMenuHeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cbDonViTienTe, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnKhuyenMai, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnDatCho, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnLogin, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnSignin, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
-        jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
-        jLabel2.setText("Từ");
+        javax.swing.GroupLayout pnlHeaderLayout = new javax.swing.GroupLayout(pnlHeader);
+        pnlHeader.setLayout(pnlHeaderLayout);
+        pnlHeaderLayout.setHorizontalGroup(
+            pnlHeaderLayout.createSequentialGroup()
+                .addGap(50, 50, 50)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 300, Short.MAX_VALUE)
+                .addComponent(pnlMenuHeader, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(50, 50, 50)
+        );
+        pnlHeaderLayout.setVerticalGroup(
+            pnlHeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                .addGroup(pnlHeaderLayout.createSequentialGroup()
+                    .addGap(15, 15, 15)
+                    .addGroup(pnlHeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                        .addComponent(jLabel1)
+                        .addComponent(pnlMenuHeader, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGap(15, 15, 15))
+        );
 
-        jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
-        jLabel3.setText("Đến");
+        // GẮN HEADER VÀO PHÍA BẮC CỦA FRAME CHÍNH
+        getContentPane().add(pnlHeader, java.awt.BorderLayout.NORTH);
+        
+        // PNL CONTENT CHÍNH THỨC
+        jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 20)); jLabel2.setText("Từ");
+        jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 20)); jLabel3.setText("Đến");
 
-        cbCities.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        cbCities.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Chọn thành phố ", "Tp.HCM ", " ", " " }));
+        cbCities.setFont(new java.awt.Font("Segoe UI", 1, 18)); cbCities.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Chọn thành phố " }));
+        cbCities1.setFont(new java.awt.Font("Segoe UI", 1, 18)); cbCities1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Chọn thành phố " }));
 
-        cbCities1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        cbCities1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Chọn thành phố ", "Tp.HCM ", "Hà Nội ", "Bangkok ", "Tokyo", " " }));
+        jButton2.setFont(new java.awt.Font("Segoe UI", 1, 20)); jButton2.setText("<=>");
 
-        jButton2.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
-        jButton2.setText("<=>");
+        jRadioButton1.setFont(new java.awt.Font("Arial", 1, 18)); jRadioButton1.setText("một chiều / khứ hồi");
+        jRadioButton2.setFont(new java.awt.Font("Arial", 1, 18)); jRadioButton2.setText("Nhiều thành phố");
 
-        jRadioButton1.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
-        jRadioButton1.setText("một chiều / khứ hồi");
-        jRadioButton1.addActionListener(this::jRadioButton1ActionPerformed);
+        jComboBox1.setFont(new java.awt.Font("Segoe UI", 1, 18)); jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Phổ thông " }));
 
-        jRadioButton2.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
-        jRadioButton2.setText("Nhiều thành phố");
+        jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 20)); jLabel4.setText("Ngày khởi hành");
 
-        jComboBox1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Phổ thông ", "Phổ thông đặc biệt ", "Thương gia ", "Hạng nhất" }));
+        jFormattedTextField1.setText("12 th 2 2026"); jFormattedTextField1.setFont(new java.awt.Font("Segoe UI", 1, 18)); 
+        jFormattedTextField2.setText("15 th 2 2026"); jFormattedTextField2.setFont(new java.awt.Font("Segoe UI", 1, 18)); 
 
-        jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
-        jLabel4.setText("Ngày khởi hành");
-
-        jFormattedTextField1.setText("12 th 2 2026");
-        jFormattedTextField1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jFormattedTextField1.addActionListener(this::jFormattedTextField1ActionPerformed);
-
-        jFormattedTextField2.setText("15 th 2 2026");
-        jFormattedTextField2.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-
-        jCheckBox1.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
-        jCheckBox1.setText("Khứ hồi");
+        jCheckBox1.setFont(new java.awt.Font("Segoe UI", 1, 20)); jCheckBox1.setText("Khứ hồi");
         jCheckBox1.addActionListener(this::jCheckBox1ActionPerformed);
 
-        jButton3.setBackground(new java.awt.Color(255, 255, 51));
-        jButton3.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jButton3.setText("Tìm kiếm");
+        jButton3.setBackground(new java.awt.Color(255, 255, 51)); jButton3.setFont(new java.awt.Font("Segoe UI", 1, 18)); jButton3.setText("Tìm kiếm");
 
-        btnHanhKhach.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        btnHanhKhach.setText("1 Người lớn, 0 Trẻ em, 0 Em bé");
+        btnHanhKhach.setFont(new java.awt.Font("Segoe UI", 1, 18)); btnHanhKhach.setText("1 Người lớn, 0 Trẻ em, 0 Em bé");
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
+            jPanel3Layout.createSequentialGroup()
                 .addGap(14, 14, 14)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
@@ -293,11 +365,10 @@ public class MainFrame extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(jButton3))
                             .addComponent(jCheckBox1))))
-                .addContainerGap(112, Short.MAX_VALUE))
+                .addContainerGap(112, Short.MAX_VALUE)
         );
         jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
+            jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jRadioButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -318,144 +389,41 @@ public class MainFrame extends javax.swing.JFrame {
                     .addComponent(jFormattedTextField1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jFormattedTextField2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(27, Short.MAX_VALUE))
+                .addContainerGap(27, Short.MAX_VALUE)
         );
 
         pnlMultiCities.setMaximumSize(new java.awt.Dimension(250, 300));
         pnlMultiCities.setMinimumSize(new java.awt.Dimension(250, 300));
         pnlMultiCities.setPreferredSize(new java.awt.Dimension(1000, 50));
         pnlMultiCities.setVerifyInputWhenFocusTarget(false);
-
-        javax.swing.GroupLayout pnlMultiCitiesLayout = new javax.swing.GroupLayout(pnlMultiCities);
-        pnlMultiCities.setLayout(pnlMultiCitiesLayout);
-        pnlMultiCitiesLayout.setHorizontalGroup(
-            pnlMultiCitiesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1357, Short.MAX_VALUE)
-        );
-        pnlMultiCitiesLayout.setVerticalGroup(
-            pnlMultiCitiesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 321, Short.MAX_VALUE)
-        );
-
-        jPanel2.setBackground(new java.awt.Color(255, 0, 51));
-
-        pnlMenuHeader.setBackground(new java.awt.Color(255, 0, 51));
-
-        btnKhuyenMai.setBackground(new java.awt.Color(255, 255, 0));
-        btnKhuyenMai.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
-        btnKhuyenMai.setText("Khuyến mãi");
-
-        btnDatCho.setBackground(new java.awt.Color(255, 255, 51));
-        btnDatCho.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
-        btnDatCho.setText("Đặt chỗ của tôi");
-
-        btnLogin.setBackground(new java.awt.Color(255, 255, 51));
-        btnLogin.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
-        btnLogin.setText("Đăng nhập");
-
-        btnSignin.setBackground(new java.awt.Color(255, 255, 51));
-        btnSignin.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
-        btnSignin.setText("Đăng ký");
-        btnSignin.setMaximumSize(new java.awt.Dimension(83, 33));
-        btnSignin.setMinimumSize(new java.awt.Dimension(83, 33));
-        btnSignin.addActionListener(this::btnSigninActionPerformed);
-
-        cbDonViTienTe.setBackground(new java.awt.Color(255, 255, 51));
-        cbDonViTienTe.setFont(new java.awt.Font("Segoe UI", 0, 20)); // NOI18N
-        cbDonViTienTe.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { " VND | VI", " USD | EN" }));
-        cbDonViTienTe.addActionListener(this::cbDonViTienTeActionPerformed);
-
-        javax.swing.GroupLayout pnlMenuHeaderLayout = new javax.swing.GroupLayout(pnlMenuHeader);
-        pnlMenuHeader.setLayout(pnlMenuHeaderLayout);
-        pnlMenuHeaderLayout.setHorizontalGroup(
-            pnlMenuHeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pnlMenuHeaderLayout.createSequentialGroup()
-                .addGap(2, 2, 2)
-                .addComponent(cbDonViTienTe, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(btnKhuyenMai)
-                .addGap(18, 18, 18)
-                .addComponent(btnDatCho)
-                .addGap(18, 18, 18)
-                .addComponent(btnLogin)
-                .addGap(18, 18, 18)
-                .addComponent(btnSignin, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(20, Short.MAX_VALUE))
-        );
-        pnlMenuHeaderLayout.setVerticalGroup(
-            pnlMenuHeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pnlMenuHeaderLayout.createSequentialGroup()
-                .addGap(15, 15, 15)
-                .addGroup(pnlMenuHeaderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(cbDonViTienTe, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnKhuyenMai, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnDatCho, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnLogin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnSignin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
-        jLabel1.setFont(new java.awt.Font("VNI-Franko", 0, 40)); // NOI18N
-        jLabel1.setText("AirLiner");
-
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addGap(216, 216, 216)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 371, Short.MAX_VALUE)
-                .addComponent(pnlMenuHeader, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(430, 430, 430))
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(14, 14, 14)
-                .addComponent(pnlMenuHeader, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addComponent(jLabel1)
-                .addGap(0, 0, Short.MAX_VALUE))
-        );
+        pnlMultiCities.setOpaque(false);
 
         javax.swing.GroupLayout pnlContentLayout = new javax.swing.GroupLayout(pnlContent);
         pnlContent.setLayout(pnlContentLayout);
         pnlContentLayout.setHorizontalGroup(
-            pnlContentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pnlContentLayout.createSequentialGroup()
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 540, Short.MAX_VALUE))
-            .addGroup(pnlContentLayout.createSequentialGroup()
+            pnlContentLayout.createSequentialGroup()
                 .addGap(219, 219, 219)
                 .addGroup(pnlContentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(pnlMultiCities, javax.swing.GroupLayout.PREFERRED_SIZE, 1357, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         pnlContentLayout.setVerticalGroup(
-            pnlContentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pnlContentLayout.createSequentialGroup()
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            pnlContentLayout.createSequentialGroup()
+                .addGap(50, 50, 50)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(pnlMultiCities, javax.swing.GroupLayout.PREFERRED_SIZE, 321, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(186, Short.MAX_VALUE))
+                .addContainerGap(186, Short.MAX_VALUE)
         );
 
-        pnlMultiCities.getAccessibleContext().setAccessibleName("");
-        pnlMultiCities.getAccessibleContext().setAccessibleDescription("");
-
-        getContentPane().add(pnlContent, java.awt.BorderLayout.CENTER);
+        pnlContentWrapper.add(pnlContent, java.awt.BorderLayout.CENTER);
+        getContentPane().add(pnlContentWrapper, java.awt.BorderLayout.CENTER);
 
         pack();
-    }// </editor-fold>//GEN-END:initComponents
+    }// </editor-fold>
 
+<<<<<<< HEAD
     private void btnSigninActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSigninActionPerformed
         DangKyFrm frm = new DangKyFrm();
         frm.setLocationRelativeTo(this); 
@@ -485,60 +453,37 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {                                          
         // TODO add your handling code here:
+=======
+    private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {                                          
+        boolean isKhuHoi = jCheckBox1.isSelected();
+        jFormattedTextField2.setEnabled(isKhuHoi); 
+        if (isKhuHoi) {
+            try {
+                java.time.LocalDate ngayDi = java.time.LocalDate.parse(jFormattedTextField1.getText(), dateFormatter);
+                jFormattedTextField2.setText(ngayDi.format(dateFormatter));
+            } catch (Exception ex) {}
+        } else {
+            if (pnlTabsKhuHoi != null) pnlTabsKhuHoi.setVisible(false);
+        }
+>>>>>>> 859d8dc6309af9675e64cfe87d33ebfb0fa53455
     }                   
     
     private void applyTheme() {
         java.awt.Color PRIMARY_COLOR = new java.awt.Color(18, 32, 64);
         java.awt.Color SECONDARY_COLOR = new java.awt.Color(45, 72, 140);
         java.awt.Color ACCENT_COLOR = new java.awt.Color(255, 193, 7);
-        java.awt.Color BG_MAIN = new java.awt.Color(245, 247, 250); // TABLE_ROW_EVEN
 
-        pnlHeader.setBackground(PRIMARY_COLOR);
-        jPanel2.setBackground(PRIMARY_COLOR);
-        pnlMenuHeader.setBackground(PRIMARY_COLOR);
-
-        jLabel1.setForeground(java.awt.Color.WHITE);
-
-        // Header Buttons
-        btnKhuyenMai.setBackground(PRIMARY_COLOR);
-        btnKhuyenMai.setForeground(java.awt.Color.WHITE);
-        btnKhuyenMai.setBorderPainted(false);
-
-        btnDatCho.setBackground(PRIMARY_COLOR);
-        btnDatCho.setForeground(java.awt.Color.WHITE);
-        btnDatCho.setBorderPainted(false);
-
-        btnLogin.setBackground(PRIMARY_COLOR);
-        btnLogin.setForeground(java.awt.Color.WHITE);
-        btnLogin.setBorderPainted(false);
-
-        cbDonViTienTe.setBackground(PRIMARY_COLOR);
-        cbDonViTienTe.setForeground(java.awt.Color.WHITE);
-
-        btnSignin.setBackground(ACCENT_COLOR);
-        btnSignin.setForeground(PRIMARY_COLOR);
-        btnSignin.setBorderPainted(false);
-
-        pnlContent.setBackground(BG_MAIN);
-
-        // Main Search Button
         jButton3.setBackground(ACCENT_COLOR);
         jButton3.setForeground(PRIMARY_COLOR); 
 
-        // Labels
-        jLabel2.setForeground(PRIMARY_COLOR);
-        jLabel3.setForeground(PRIMARY_COLOR);
-        jLabel4.setForeground(PRIMARY_COLOR);
+        jLabel2.setForeground(Color.WHITE);
+        jLabel3.setForeground(Color.WHITE);
+        jLabel4.setForeground(Color.WHITE);
+        jCheckBox1.setForeground(Color.WHITE);
+        jRadioButton1.setForeground(Color.WHITE);
+        jRadioButton2.setForeground(Color.WHITE);
+        jPanel3.setBackground(new Color(220, 38, 38)); 
 
-        // Radio & Checkbox
-        jRadioButton1.setBackground(BG_MAIN);
-        jRadioButton1.setForeground(PRIMARY_COLOR);
-        jRadioButton2.setBackground(BG_MAIN);
-        jRadioButton2.setForeground(PRIMARY_COLOR);
-        jCheckBox1.setBackground(BG_MAIN);
-        jCheckBox1.setForeground(PRIMARY_COLOR);
-
-        // ComboBox & Dropdowns
         cbCities.setBackground(java.awt.Color.WHITE);
         cbCities.setForeground(PRIMARY_COLOR);
         cbCities1.setBackground(java.awt.Color.WHITE);
@@ -548,51 +493,124 @@ public class MainFrame extends javax.swing.JFrame {
         btnHanhKhach.setBackground(java.awt.Color.WHITE);
         btnHanhKhach.setForeground(PRIMARY_COLOR);
 
-        // Swap Button
         jButton2.setBackground(SECONDARY_COLOR); 
         jButton2.setForeground(java.awt.Color.WHITE);
-
-        // Nav Buttons
-        btnVeMB.setBackground(BG_MAIN);
-        btnVeMB.setForeground(SECONDARY_COLOR); 
-        btnVeMB.setBorderPainted(false);
-
-        btnDiary.setBackground(BG_MAIN);
-        btnDiary.setForeground(PRIMARY_COLOR);
-        btnDiary.setBorderPainted(false);
-
-        jButton1.setBackground(BG_MAIN);
-        jButton1.setForeground(PRIMARY_COLOR);
-        jButton1.setBorderPainted(false);
     }  
 
-    private void initTableKetQua() {
+    // ==============================================================
+    // KHỞI TẠO BẢNG CHỨA CÁC THẺ GIAO DIỆN LƯỚI & THANH FOOTER THANH TOÁN
+    // ==============================================================
+    private void initKetQuaPanel() {
         if (scrollPaneKetQua != null) return;
         
-        String[] columnNames = {"Mã CB", "Giờ Đi", "Giờ Đến", "Trạng Thái", "Giá 1 Vé", "Tổng Tiền", "Thao Tác"};
-        javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(columnNames, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) { return false; }
-        };
+        pnlKetQuaContainer = new JPanel();
+        pnlKetQuaContainer.setLayout(new BoxLayout(pnlKetQuaContainer, BoxLayout.Y_AXIS));
+        pnlKetQuaContainer.setOpaque(false);
+        
+        JPanel pnlGridHeader = new JPanel(new GridLayout(1, 5, 2, 0));
+        pnlGridHeader.setBackground(new Color(18, 32, 64)); 
+        pnlGridHeader.setPreferredSize(new Dimension(1200, 45));
+        pnlGridHeader.setMaximumSize(new Dimension(1200, 45));
+        
+        JLabel lbl1 = new JLabel("Chuyến bay", SwingConstants.CENTER);
+        JLabel lbl2 = new JLabel("Phổ thông (ECO)", SwingConstants.CENTER);
+        JLabel lbl3 = new JLabel("Phổ thông ĐB (PECO)", SwingConstants.CENTER);
+        JLabel lbl4 = new JLabel("Thương gia (BUS)", SwingConstants.CENTER);
+        JLabel lbl5 = new JLabel("Hạng nhất (FST)", SwingConstants.CENTER);
+        
+        Font headerFont = new Font("Segoe UI", Font.BOLD, 16);
+        lbl1.setFont(headerFont); lbl1.setForeground(Color.WHITE);
+        lbl2.setFont(headerFont); lbl2.setForeground(Color.WHITE);
+        lbl3.setFont(headerFont); lbl3.setForeground(Color.WHITE);
+        lbl4.setFont(headerFont); lbl4.setForeground(Color.WHITE);
+        lbl5.setFont(headerFont); lbl5.setForeground(Color.WHITE);
+        
+        pnlGridHeader.add(lbl1); pnlGridHeader.add(lbl2); pnlGridHeader.add(lbl3); pnlGridHeader.add(lbl4); pnlGridHeader.add(lbl5);
+        
+        JPanel pnlWrapper = new JPanel(new BorderLayout());
+        pnlWrapper.setOpaque(false);
+        pnlWrapper.add(pnlGridHeader, BorderLayout.NORTH);
+        pnlWrapper.add(pnlKetQuaContainer, BorderLayout.CENTER);
+        
+        scrollPaneKetQua = new JScrollPane(pnlWrapper);
+        scrollPaneKetQua.setOpaque(false); scrollPaneKetQua.getViewport().setOpaque(false);
+        scrollPaneKetQua.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS); 
+        scrollPaneKetQua.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPaneKetQua.setPreferredSize(new Dimension(1200, 380)); // Bóp lại tí để nhường chỗ cho Footer
+        scrollPaneKetQua.setMaximumSize(new Dimension(1200, 380));
+        scrollPaneKetQua.setBorder(BorderFactory.createEmptyBorder());
+        scrollPaneKetQua.getVerticalScrollBar().setUnitIncrement(16);
+        
+        // KHỞI TẠO STICKY FOOTER TỔNG TIỀN
+        pnlStickyFooter = new JPanel(new FlowLayout(FlowLayout.RIGHT, 30, 15));
+        pnlStickyFooter.setBackground(Color.WHITE);
+        pnlStickyFooter.setBorder(BorderFactory.createMatteBorder(2, 0, 0, 0, new Color(200, 200, 200)));
+        pnlStickyFooter.setVisible(false); // Ẩn mặc định
+        
+        JPanel pnlTotalText = new JPanel(new GridLayout(2, 1));
+        pnlTotalText.setOpaque(false);
+        JLabel lblTo = new JLabel("Tổng tiền vé:", SwingConstants.RIGHT);
+        lblTo.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        lblFooterTotal = new JLabel("0 VNĐ", SwingConstants.RIGHT);
+        lblFooterTotal.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        pnlTotalText.add(lblTo); pnlTotalText.add(lblFooterTotal);
+        
+        btnFooterNext = new JButton("Đi tiếp");
+        btnFooterNext.setBackground(new Color(255, 193, 7));
+        btnFooterNext.setForeground(new Color(18, 32, 64));
+        btnFooterNext.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        btnFooterNext.setPreferredSize(new Dimension(200, 45));
+        btnFooterNext.setFocusPainted(false);
+        btnFooterNext.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
+        pnlStickyFooter.add(pnlTotalText);
+        pnlStickyFooter.add(btnFooterNext);
+        
+        // Sự kiện khi bấm "Đi tiếp" ở Footer
+        btnFooterNext.addActionListener(e -> processToNextStep());
+    }
 
-        tblKetQua = new javax.swing.JTable(model);
-        tblKetQua.setFillsViewportHeight(true); 
+    private void updateFooterTotal() {
+        BigDecimal tong = giaVeDi.add(giaVeVe);
+        if (tong.compareTo(BigDecimal.ZERO) > 0) {
+            pnlStickyFooter.setVisible(true);
+            lblFooterTotal.setText(String.format("%,d VNĐ", tong.longValue()));
             
-        scrollPaneKetQua = new javax.swing.JScrollPane(tblKetQua);
-        scrollPaneKetQua.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS); 
-        scrollPaneKetQua.setPreferredSize(new java.awt.Dimension(1200, 300)); 
-        scrollPaneKetQua.setMaximumSize(new java.awt.Dimension(1200, 300));
-        
-        tblKetQua.setRowHeight(45);
-        tblKetQua.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 16));
-        tblKetQua.getTableHeader().setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 18));
-        
-        javax.swing.table.DefaultTableCellRenderer centerRenderer = new javax.swing.table.DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(javax.swing.JLabel.CENTER);
-        for(int x = 0; x < tblKetQua.getColumnCount(); x++){
-             tblKetQua.getColumnModel().getColumn(x).setCellRenderer(centerRenderer);
+            if (jCheckBox1.isSelected() && !isSearchingVe) {
+                btnFooterNext.setText("Đi tiếp");
+            } else {
+                btnFooterNext.setText("Tiếp tục");
+            }
+        } else {
+            pnlStickyFooter.setVisible(false);
+            lblFooterTotal.setText("0 VNĐ"); 
+        }
+        pnlContentWrapper.revalidate();
+    }
+
+    // HÀM SWITCH PANEL GIỮ NGUYÊN NAVBAR
+    private void switchPanel(JPanel newPanel) {
+        pnlContentWrapper.removeAll();
+        newPanel.setOpaque(false); 
+        pnlContentWrapper.add(newPanel, BorderLayout.CENTER);
+        pnlContentWrapper.revalidate();
+        pnlContentWrapper.repaint();
+    }
+
+    private void processToNextStep() {
+        if (jCheckBox1.isSelected()) {
+            if (!isSearchingVe) {
+                isSearchingVe = true;
+                setActiveTab(btnTabVe, btnTabDi);
+                updateSearchUI();
+                return;
+            } else if (cbSelectedVe == null) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn vé cho chuyến về!");
+                return;
+            }
         }
 
+<<<<<<< HEAD
         // ==============================================================
         // SỰ KIỆN CLICK NÚT "ĐẶT VÉ" TRÊN BẢNG
         // ==============================================================
@@ -651,6 +669,37 @@ public class MainFrame extends javax.swing.JFrame {
                 }
             }
         });
+=======
+        model.DatVeSession newSession = new model.DatVeSession();
+        newSession.maNguoiDung = (userHienTai != null) ? userHienTai.getMaNguoiDung() : "KHACH_LE"; 
+        
+        // --- CHUYẾN ĐI ---
+        newSession.maChuyenBay = cbSelectedDi.getMaChuyenBay();
+        newSession.maHangVe = hangVeSelectedDi; 
+        
+        // --- CHUYẾN VỀ (NẾU CÓ) ---
+        if (jCheckBox1.isSelected() && cbSelectedVe != null) {
+            newSession.maChuyenBayVe = cbSelectedVe.getMaChuyenBay();
+            newSession.maHangVeVe = hangVeSelectedVe;
+            java.time.format.DateTimeFormatter timeFmt = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
+            newSession.thoiGianVe = cbSelectedVe.getNgayGioDi().format(timeFmt) + " (" + cbSelectedVe.getNgayGioDi().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) + ")";
+        }
+        
+        newSession.soNguoiLon = MainFrame.this.soNL;
+        newSession.soTreEm = MainFrame.this.soTE;
+        newSession.soEmBe = MainFrame.this.soEB;
+        newSession.loaiVe = jCheckBox1.isSelected() ? "Khứ hồi" : "Một chiều"; 
+        
+        model.SanBay sbDi = (model.SanBay) cbCities1.getSelectedItem();
+        model.SanBay sbDen = (model.SanBay) cbCities.getSelectedItem();
+        newSession.tenSanBayDi = sbDi.getTenSanBay();
+        newSession.tenSanBayDen = sbDen.getTenSanBay();
+        
+        java.time.format.DateTimeFormatter timeFmt = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
+        newSession.thoiGianDi = cbSelectedDi.getNgayGioDi().format(timeFmt) + " (" + cbSelectedDi.getNgayGioDi().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) + ")";
+
+        switchPanel(new gui.user.PanelUserVeBan(newSession));
+>>>>>>> 859d8dc6309af9675e64cfe87d33ebfb0fa53455
     }
     
     private void setupCurrencyComboBox() {
@@ -684,6 +733,7 @@ public class MainFrame extends javax.swing.JFrame {
             this.text = text;
             try {
                 com.formdev.flatlaf.extras.FlatSVGIcon svgIcon = new com.formdev.flatlaf.extras.FlatSVGIcon(iconPath, 24, 18);
+<<<<<<< HEAD
                 
                 if (svgIcon.hasFound()) {
                     this.icon = svgIcon;
@@ -695,20 +745,20 @@ public class MainFrame extends javax.swing.JFrame {
                 System.out.println("Lỗi tàng hình: " + e.getMessage());
                 this.icon = null;
             }
+=======
+                if (svgIcon.hasFound()) this.icon = svgIcon;
+                else this.icon = null;
+            } catch (Exception e) { this.icon = null; }
+>>>>>>> 859d8dc6309af9675e64cfe87d33ebfb0fa53455
         }
-
         public String getText() { return text; }
         public javax.swing.Icon getIcon() { return icon; }
-
-        @Override 
-        public String toString() { return text; } 
+        @Override public String toString() { return text; } 
     }  
 
     private void setupHanhKhachPopup() {
         javax.swing.JPopupMenu popup = new javax.swing.JPopupMenu();
-        
         btnHanhKhach.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 18));
-
         javax.swing.JPanel pnl = new javax.swing.JPanel(new java.awt.GridLayout(3, 2, 10, 10));
         pnl.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -719,14 +769,26 @@ public class MainFrame extends javax.swing.JFrame {
         pnl.add(new javax.swing.JLabel("Người lớn (>=12t):")); pnl.add(spnNL);
         pnl.add(new javax.swing.JLabel("Trẻ em (2-11t):")); pnl.add(spnTE);
         pnl.add(new javax.swing.JLabel("Em bé (<2t):")); pnl.add(spnEB);
-
         popup.add(pnl);
 
         javax.swing.event.ChangeListener updateText = e -> {
-        this.soNL = (int) spnNL.getValue();
-        this.soTE = (int) spnTE.getValue();
-        this.soEB = (int) spnEB.getValue();
-        btnHanhKhach.setText(soNL + " Người lớn, " + soTE + " Trẻ em, " + soEB + " Em bé");
+            this.soNL = (int) spnNL.getValue();
+            this.soTE = (int) spnTE.getValue();
+            this.soEB = (int) spnEB.getValue();
+            btnHanhKhach.setText(soNL + " Người lớn, " + soTE + " Trẻ em, " + soEB + " Em bé");
+            
+            // Xóa state cũ nếu đổi khách
+            giaVeDi = BigDecimal.ZERO; 
+            giaVeVe = BigDecimal.ZERO; 
+            cbSelectedDi = null; 
+            cbSelectedVe = null; 
+            hangVeSelectedDi = ""; 
+            hangVeSelectedVe = "";
+            updateFooterTotal();
+            
+            if (pnlKetQuaContainer != null && pnlKetQuaContainer.getComponentCount() > 0) {
+                updateSearchUI();
+            }
         };
 
         spnNL.addChangeListener(updateText);
@@ -754,7 +816,10 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void setupHoTroChonSanBay(javax.swing.JComboBox cbTu, javax.swing.JComboBox cbDen, javax.swing.JButton btnSwap) {
         capNhatHaiComboBox(cbTu, cbDen, null, null);
+<<<<<<< HEAD
 
+=======
+>>>>>>> 859d8dc6309af9675e64cfe87d33ebfb0fa53455
         java.awt.event.ItemListener listener = e -> {
             if (isUpdatingCombo) return;
             if (e.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
@@ -775,36 +840,32 @@ public class MainFrame extends javax.swing.JFrame {
     }
 
     private void capNhatHaiComboBox(javax.swing.JComboBox cbTu, javax.swing.JComboBox cbDen, model.SanBay selTu, model.SanBay selDen) {
-    isUpdatingCombo = true;
-    
-    cbTu.removeAllItems();
-    cbTu.addItem(new model.SanBay("", "", "", "Chọn thành phố", model.SanBay.TrangThai.HOAT_DONG));
-    for (model.SanBay sb : danhSachSanBayGoc) {
-        if (selDen == null || selDen.getMaSanBay().isEmpty() || !sb.getMaSanBay().equals(selDen.getMaSanBay())) {
-            cbTu.addItem(sb);
+        isUpdatingCombo = true;
+        cbTu.removeAllItems();
+        cbTu.addItem(new model.SanBay("", "", "", "Chọn thành phố", model.SanBay.TrangThai.HOAT_DONG));
+        for (model.SanBay sb : danhSachSanBayGoc) {
+            if (selDen == null || selDen.getMaSanBay().isEmpty() || !sb.getMaSanBay().equals(selDen.getMaSanBay())) {
+                cbTu.addItem(sb);
+            }
         }
-    }
-    setComboSelection(cbTu, selTu);
-    
-    cbDen.removeAllItems();
-    cbDen.addItem(new model.SanBay("", "", "", "Chọn thành phố", model.SanBay.TrangThai.HOAT_DONG));
-    for (model.SanBay sb : danhSachSanBayGoc) {
-        if (selTu == null || selTu.getMaSanBay().isEmpty() || !sb.getMaSanBay().equals(selTu.getMaSanBay())) {
-            cbDen.addItem(sb);
+        setComboSelection(cbTu, selTu);
+        
+        cbDen.removeAllItems();
+        cbDen.addItem(new model.SanBay("", "", "", "Chọn thành phố", model.SanBay.TrangThai.HOAT_DONG));
+        for (model.SanBay sb : danhSachSanBayGoc) {
+            if (selTu == null || selTu.getMaSanBay().isEmpty() || !sb.getMaSanBay().equals(selTu.getMaSanBay())) {
+                cbDen.addItem(sb);
+            }
         }
+        setComboSelection(cbDen, selDen);
+        isUpdatingCombo = false;
     }
-    setComboSelection(cbDen, selDen);
-    
-    isUpdatingCombo = false;
-}
     
     private void setComboSelection(javax.swing.JComboBox cb, model.SanBay target) {
         if (target == null || target.getMaSanBay().isEmpty()) { cb.setSelectedIndex(0); return; }
         for (int i = 0; i < cb.getItemCount(); i++) {
             model.SanBay item = (model.SanBay) cb.getItemAt(i);
-            if (item.getMaSanBay().equals(target.getMaSanBay())) {
-                cb.setSelectedIndex(i); return;
-            }
+            if (item.getMaSanBay().equals(target.getMaSanBay())) { cb.setSelectedIndex(i); return; }
         }
         cb.setSelectedIndex(0);
     }
@@ -814,7 +875,6 @@ public class MainFrame extends javax.swing.JFrame {
         txtField.setBackground(java.awt.Color.WHITE);
         txtField.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         txtField.setText(java.time.LocalDate.now().format(dateFormatter));
-
         txtField.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
@@ -880,10 +940,10 @@ public class MainFrame extends javax.swing.JFrame {
             int soNgayCach = 0;
 
             if (txtField == jFormattedTextField2) {
-                txtPhuThuoc = jFormattedTextField1; soNgayCach = 2;
+                txtPhuThuoc = jFormattedTextField1; 
+                soNgayCach = 0; 
             } else if (listNgayExtra.contains(txtField)) {
                 int index = listNgayExtra.indexOf(txtField);
-       
                 txtPhuThuoc = (index == 0) ? null : listNgayExtra.get(index - 1);
                 soNgayCach = (index == 0) ? 0 : 1;
             }
@@ -948,7 +1008,9 @@ public class MainFrame extends javax.swing.JFrame {
                         if (txtField == jFormattedTextField1 && jCheckBox1.isSelected()) {
                             try {
                                 java.time.LocalDate currentReturn = java.time.LocalDate.parse(jFormattedTextField2.getText(), dateFormatter);
-                                if (currentReturn.isBefore(cellDate.plusDays(2))) jFormattedTextField2.setText(cellDate.plusDays(2).format(dateFormatter));
+                                if (currentReturn.isBefore(cellDate)) { 
+                                    jFormattedTextField2.setText(cellDate.format(dateFormatter));
+                                }
                             } catch (Exception ex) {}
                         } else {
                             int startIndex = (txtField == jFormattedTextField1) ? 0 : (listNgayExtra.indexOf(txtField) + 1);
@@ -974,7 +1036,6 @@ public class MainFrame extends javax.swing.JFrame {
             }
             pnlMain.revalidate(); pnlMain.repaint();
         };
-
         
         spnYear.addChangeListener(ev -> { if (!isUpdatingUI[0]) { currentMonth = currentMonth.withYear((Integer) spnYear.getValue()); drawDays.run(); }});
         btnPrev.addActionListener(ev -> { currentMonth = currentMonth.minusMonths(1); drawDays.run(); });
@@ -1060,61 +1121,38 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void capNhatGiaoDienMultiCity() { 
         boolean hienNutXoa = listBtnXoa.size() > 2; 
-        for (javax.swing.JButton btn : listBtnXoa) {
-            btn.setVisible(hienNutXoa);
-        } 
-
-        pnlMultiCities.revalidate();
-        pnlMultiCities.repaint();
-        
-        if (this.getExtendedState() != java.awt.Frame.MAXIMIZED_BOTH) {
-            this.pack(); 
-        } else {
-            this.revalidate();
-            this.repaint();
-        }
+        for (javax.swing.JButton btn : listBtnXoa) { btn.setVisible(hienNutXoa); } 
+        pnlMultiCities.revalidate(); pnlMultiCities.repaint();
+        if (this.getExtendedState() != java.awt.Frame.MAXIMIZED_BOTH) { this.pack(); } 
+        else { this.revalidate(); this.repaint(); }
     } 
 
     private void setupLogo() {
-        
         jLabel1.setText(""); 
-        
         try {
-            
             javax.swing.ImageIcon originalIcon = new javax.swing.ImageIcon("src/resources/images/finalLogo.png");
-            
-            
             if (originalIcon.getIconWidth() > 0) {
-                
                 java.awt.Image scaledImg = originalIcon.getImage().getScaledInstance(-1, 100, java.awt.Image.SCALE_FAST);
                 jLabel1.setIcon(new javax.swing.ImageIcon(scaledImg));
             } else {
-                System.out.println("Báo động: Không tìm thấy ảnh tại src/resources/images");
                 jLabel1.setText("AirLiner");
             }
-        } catch (Exception e) {
-            System.out.println("Lỗi hiển thị logo: " + e.getMessage());
-        } 
+        } catch (Exception e) {} 
 
-            jLabel1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR)); 
-            jLabel1.addMouseListener(new java.awt.event.MouseAdapter() {
+        jLabel1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR)); 
+        jLabel1.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
-                
-                if (userHienTai != null) {
-                    new MainFrame(userHienTai).setVisible(true);
-                } else {
-                    new MainFrame().setVisible(true);
-                }
+                if (userHienTai != null) new MainFrame(userHienTai).setVisible(true);
+                else new MainFrame().setVisible(true);
                 dispose(); 
             }
         });
     }
 
-
     private void setupBusinessLogic() { 
+        jComboBox1.setVisible(false); 
         jFormattedTextField2.setEnabled(false); 
-
         loadDanhSachSanBay(); 
         setupHoTroChonSanBay(cbCities, cbCities1, jButton2);
 
@@ -1140,48 +1178,39 @@ public class MainFrame extends javax.swing.JFrame {
             jButton3.setVisible(isHien);    
         };
 
-
         javax.swing.JPanel pnlButtonWrapper = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 15, 10));
-    pnlButtonWrapper.setOpaque(false);
-    pnlButtonWrapper.setMaximumSize(new java.awt.Dimension(Integer.MAX_VALUE, 65));
+        pnlButtonWrapper.setOpaque(false);
+        pnlButtonWrapper.setMaximumSize(new java.awt.Dimension(Integer.MAX_VALUE, 65));
 
-    pnlMultiCities.setMaximumSize(new java.awt.Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
+        pnlMultiCities.setMaximumSize(new java.awt.Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
 
-    btnMoreCities = new javax.swing.JButton("(+) Thêm chuyến bay khác");
-    btnMoreCities.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 18));
-    btnMoreCities.setPreferredSize(new java.awt.Dimension(300, 45)); 
-    
+        btnMoreCities = new javax.swing.JButton("(+) Thêm chuyến bay khác");
+        btnMoreCities.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 18));
+        btnMoreCities.setPreferredSize(new java.awt.Dimension(300, 45)); 
 
-    btnSearchMulti = new javax.swing.JButton("Tìm kiếm");
-    btnSearchMulti.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 18));
-     
-    btnSearchMulti.setPreferredSize(new java.awt.Dimension(200, 45));  
+        btnSearchMulti = new javax.swing.JButton("Tìm kiếm");
+        btnSearchMulti.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 18));
+        btnSearchMulti.setPreferredSize(new java.awt.Dimension(200, 45));  
 
-    btnMoreCities.setBackground(new java.awt.Color(245, 247, 250)); 
-    btnMoreCities.setForeground(new java.awt.Color(18, 32, 64)); 
+        btnMoreCities.setBackground(new java.awt.Color(245, 247, 250)); 
+        btnMoreCities.setForeground(new java.awt.Color(18, 32, 64)); 
 
-    btnSearchMulti.setBackground(new java.awt.Color(255, 193, 7)); 
-    btnSearchMulti.setForeground(new java.awt.Color(18, 32, 64)); 
+        btnSearchMulti.setBackground(new java.awt.Color(255, 193, 7)); 
+        btnSearchMulti.setForeground(new java.awt.Color(18, 32, 64)); 
 
-    pnlButtonWrapper.add(btnMoreCities);
-    pnlButtonWrapper.add(btnSearchMulti);
+        pnlButtonWrapper.add(btnMoreCities);
+        pnlButtonWrapper.add(btnSearchMulti);
    
         jRadioButton2.addActionListener(e -> {
             if(jRadioButton2.isSelected()) {
                 anHienHangGoc.accept(false); 
-                
                 pnlMultiCities.removeAll(); 
                 listNgayExtra.clear();
                 listBtnXoa.clear();
-                
-         
                 pnlMultiCities.setOpaque(true);
                 pnlMultiCities.setBackground(jPanel3.getBackground());
-                
                 pnlMultiCities.add(pnlButtonWrapper);
                 pnlMultiCities.setVisible(true);
-                
-    
                 taoHangChuyenBayMoi(); 
                 taoHangChuyenBayMoi(); 
             }
@@ -1199,63 +1228,84 @@ public class MainFrame extends javax.swing.JFrame {
         for (java.awt.event.ActionListener al : btnMoreCities.getActionListeners()) { btnMoreCities.removeActionListener(al); }
         btnMoreCities.addActionListener(e -> taoHangChuyenBayMoi());
 
-        jCheckBox1.addActionListener(e -> {
-            boolean isKhuHoi = jCheckBox1.isSelected();
-            jFormattedTextField2.setEnabled(isKhuHoi); 
-            if (isKhuHoi) {
-                try {
-                    java.time.LocalDate ngayDi = java.time.LocalDate.parse(jFormattedTextField1.getText(), dateFormatter);
-                    jFormattedTextField2.setText(ngayDi.plusDays(2).format(dateFormatter));
-                } catch (Exception ex) {}
-            }
-        }); 
-
+        pnlTabsKhuHoi = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 20, 10));
+        pnlTabsKhuHoi.setBackground(new java.awt.Color(245, 247, 250));
+        btnTabDi = new javax.swing.JButton("CHUYẾN ĐI");
+        btnTabVe = new javax.swing.JButton("CHUYẾN VỀ");
         
-        jPanel2.setLayout(new java.awt.BorderLayout());
-        jPanel2.removeAll(); 
-        javax.swing.JPanel logoWrapper = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 200, 10));
-        logoWrapper.setOpaque(false);
-        logoWrapper.add(jLabel1);
-
-        javax.swing.JPanel menuWrapper = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 100, 10));
-        menuWrapper.setOpaque(false);
-        menuWrapper.add(pnlMenuHeader);
+        btnTabDi.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 18));
+        btnTabVe.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 18));
+        btnTabDi.setPreferredSize(new java.awt.Dimension(350, 45));
+        btnTabVe.setPreferredSize(new java.awt.Dimension(350, 45));
+        btnTabDi.setFocusPainted(false);
+        btnTabVe.setFocusPainted(false);
         
-        jPanel2.add(logoWrapper, java.awt.BorderLayout.WEST);
-        jPanel2.add(menuWrapper, java.awt.BorderLayout.EAST);
+        pnlTabsKhuHoi.add(btnTabDi);
+        pnlTabsKhuHoi.add(btnTabVe);
+        pnlTabsKhuHoi.setVisible(false); 
+        
+        pnlDateRibbon = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 5, 5));
+        pnlDateRibbon.setBackground(new java.awt.Color(245, 247, 250));
+        
+        btnTabDi.addActionListener(e -> {
+            isSearchingVe = false;
+            setActiveTab(btnTabDi, btnTabVe);
+            updateSearchUI();
+        });
 
-        pnlContent.removeAll();
+        btnTabVe.addActionListener(e -> {
+            isSearchingVe = true;
+            setActiveTab(btnTabVe, btnTabDi);
+            updateSearchUI(); 
+        });
+
         pnlContent.setLayout(new javax.swing.BoxLayout(pnlContent, javax.swing.BoxLayout.Y_AXIS));
 
         int contentWidth = 1200;
         
-        jPanel2.setMaximumSize(new java.awt.Dimension(Integer.MAX_VALUE, 120)); 
-        jPanel1.setMaximumSize(new java.awt.Dimension(contentWidth, 60));
         jPanel3.setMaximumSize(new java.awt.Dimension(contentWidth, jPanel3.getPreferredSize().height)); 
         pnlMultiCities.setMaximumSize(new java.awt.Dimension(contentWidth, Integer.MAX_VALUE)); 
-        jPanel2.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT);
-        jPanel1.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT);
         jPanel3.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT);
         pnlMultiCities.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT);
 
-        pnlContent.add(jPanel2); 
         pnlContent.add(javax.swing.Box.createVerticalStrut(20)); 
-        pnlContent.add(jPanel1);                      
         pnlContent.add(jPanel3);          
         pnlContent.add(javax.swing.Box.createVerticalStrut(10));
+        
+        pnlContent.add(pnlTabsKhuHoi); 
+        pnlContent.add(javax.swing.Box.createVerticalStrut(5));
+        pnlContent.add(pnlDateRibbon); 
+        pnlContent.add(javax.swing.Box.createVerticalStrut(10));
+        
         pnlContent.add(scrollPaneKetQua);                  
-        pnlContent.add(pnlMultiCities);     
+        pnlContent.add(pnlMultiCities);      
+        
+        pnlContentWrapper.add(pnlStickyFooter, BorderLayout.SOUTH);
         pnlContent.revalidate();
         pnlContent.repaint();
     
-        loadRealHangVeToCombo();
-        jButton3.addActionListener(e -> thucHienTimKiem());
-
-
-        jComboBox1.addActionListener(e -> {
-            if (tblKetQua != null && tblKetQua.getRowCount() > 0) {
-                thucHienTimKiem();
+        jButton3.addActionListener(e -> {
+            try {
+                currentSearchDateDi = java.time.LocalDate.parse(jFormattedTextField1.getText(), dateFormatter);
+                if (jCheckBox1.isSelected()) {
+                    currentSearchDateVe = java.time.LocalDate.parse(jFormattedTextField2.getText(), dateFormatter);
+                }
+                
+                isSearchingVe = false; 
+                if (jCheckBox1.isSelected()) {
+                    pnlTabsKhuHoi.setVisible(true);
+                    btnTabDi.setText("CHUYẾN ĐI (" + jFormattedTextField1.getText() + ")");
+                    btnTabVe.setText("CHUYẾN VỀ (" + jFormattedTextField2.getText() + ")");
+                    setActiveTab(btnTabDi, btnTabVe);
+                } else {
+                    pnlTabsKhuHoi.setVisible(false);
+                }
+                
+                updateSearchUI();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Ngày không hợp lệ!");
             }
+<<<<<<< HEAD
         }); 
 
         if (scrollPaneKetQua != null) {
@@ -1319,15 +1369,28 @@ public class MainFrame extends javax.swing.JFrame {
         if (jComboBox1.getItemCount() > 0) {
             jComboBox1.setSelectedIndex(indexPhoThong);
         }
+=======
+        });
+    }   
+
+    private void setActiveTab(javax.swing.JButton active, javax.swing.JButton inactive) {
+        active.setBackground(new java.awt.Color(18, 32, 64)); 
+        active.setForeground(java.awt.Color.WHITE);
+        inactive.setBackground(new java.awt.Color(220, 220, 220)); 
+        inactive.setForeground(new java.awt.Color(100, 100, 100));
+>>>>>>> 859d8dc6309af9675e64cfe87d33ebfb0fa53455
     }
 
-    private void thucHienTimKiem() {
-    model.SanBay sbDi = (model.SanBay) cbCities1.getSelectedItem();
-    model.SanBay sbDen = (model.SanBay) cbCities.getSelectedItem();
-    model.HangVe hangVeSel = (model.HangVe) jComboBox1.getSelectedItem();
+    private void renderDateRibbon(java.time.LocalDate centerDate) {
+        pnlDateRibbon.removeAll();
+        java.time.format.DateTimeFormatter dayFmt = java.time.format.DateTimeFormatter.ofPattern("dd/MM");
+        java.time.format.DateTimeFormatter dowFmt = java.time.format.DateTimeFormatter.ofPattern("E", new java.util.Locale("vi", "VN"));
 
-    if (hangVeSel == null || sbDi == null) return;
+        for (int i = -2; i <= 2; i++) {
+            java.time.LocalDate d = centerDate.plusDays(i);
+            if (d.isBefore(java.time.LocalDate.now())) continue; 
 
+<<<<<<< HEAD
     
     String textNgay = jFormattedTextField1.getText(); 
     String[] parts = textNgay.split(" / ");
@@ -1395,32 +1458,267 @@ public class MainFrame extends javax.swing.JFrame {
             java.util.prefs.Preferences prefs = java.util.prefs.Preferences.userNodeForPackage(gui.user.DangNhapFrm.class);
             String savedUser = prefs.get("saved_user", null);
             String savedPass = prefs.get("saved_pass", null);
+=======
+            javax.swing.JButton btnDay = new javax.swing.JButton();
+            btnDay.setPreferredSize(new java.awt.Dimension(140, 55));
+            btnDay.setFocusPainted(false);
+>>>>>>> 859d8dc6309af9675e64cfe87d33ebfb0fa53455
             
-            if (savedUser != null && savedPass != null) {
-                bll.NguoiDungBUS bus = new bll.NguoiDungBUS();
-                model.NguoiDung nd = bus.checkLogin(savedUser, savedPass);
-                if (nd != null) {
-                    new MainFrame(nd).setVisible(true);
-                    return;
-                }
+            boolean isSelected = d.isEqual(centerDate);
+            if (isSelected) {
+                btnDay.setBackground(new java.awt.Color(255, 193, 7)); 
+                btnDay.setForeground(new java.awt.Color(18, 32, 64)); 
+                btnDay.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(18, 32, 64), 2));
+            } else {
+                btnDay.setBackground(java.awt.Color.WHITE);
+                btnDay.setForeground(java.awt.Color.DARK_GRAY);
+                btnDay.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(220, 220, 220), 1));
             }
-            new MainFrame().setVisible(true);
-        });
+
+            btnDay.setText("<html><center><b>" + d.format(dowFmt) + "</b><br>" + d.format(dayFmt) + "</center></html>");
+            btnDay.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+            
+            btnDay.addActionListener(e -> {
+                if (isSearchingVe) currentSearchDateVe = d;
+                else currentSearchDateDi = d;
+                updateSearchUI();
+            });
+
+            pnlDateRibbon.add(btnDay);
+        }
+        pnlDateRibbon.revalidate();
+        pnlDateRibbon.repaint();
     }
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private void updateSearchUI() {
+        model.SanBay sbDi = (model.SanBay) cbCities1.getSelectedItem();
+        model.SanBay sbDen = (model.SanBay) cbCities.getSelectedItem();
+        
+        if (sbDi == null || sbDen == null || sbDi.getMaSanBay().isEmpty() || sbDen.getMaSanBay().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn đầy đủ Điểm đi và Điểm đến!");
+            return;
+        }
+
+        java.time.LocalDate dateToSearch = isSearchingVe ? currentSearchDateVe : currentSearchDateDi;
+        String from = isSearchingVe ? sbDen.getMaSanBay() : sbDi.getMaSanBay();
+        String to = isSearchingVe ? sbDi.getMaSanBay() : sbDen.getMaSanBay();
+        String fromName = isSearchingVe ? sbDen.getTenSanBay() : sbDi.getTenSanBay();
+        String toName = isSearchingVe ? sbDi.getTenSanBay() : sbDen.getTenSanBay();
+
+        renderDateRibbon(dateToSearch);
+        renderMatrixFlights(dateToSearch, from, to, fromName, toName);
+    }
+
+    private void renderMatrixFlights(java.time.LocalDate searchDate, String maSanBayDi, String maSanBayDen, String tenSanBayDi, String tenSanBayDen) {
+        pnlKetQuaContainer.removeAll(); 
+        
+        bll.ChuyenBayBUS cbBUS = new bll.ChuyenBayBUS();
+        String ngayChuan = searchDate.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        java.util.ArrayList<model.ChuyenBay> dsCB = cbBUS.searchChuyenBay(maSanBayDi, maSanBayDen, ngayChuan);
+
+        if (dsCB == null || dsCB.isEmpty()) {
+            JLabel lblEmpty = new JLabel("Không tìm thấy chuyến bay nào trong ngày này.", SwingConstants.CENTER);
+            lblEmpty.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+            lblEmpty.setBorder(new EmptyBorder(50, 0, 50, 0));
+            pnlKetQuaContainer.add(lblEmpty);
+            pnlKetQuaContainer.revalidate();
+            pnlKetQuaContainer.repaint();
+            return;
+        }
+
+        for (model.ChuyenBay cb : dsCB) {
+            pnlKetQuaContainer.add(new FlightCard(cb, cbBUS, maSanBayDi, maSanBayDen, tenSanBayDi, tenSanBayDen));
+        }
+        
+        pnlKetQuaContainer.revalidate();
+        pnlKetQuaContainer.repaint();
+    }
+
+    class FlightCard extends JPanel {
+        private JPanel pnlDetails;
+        
+        public FlightCard(model.ChuyenBay cb, bll.ChuyenBayBUS cbBUS, String sbDi, String sbDen, String tenSanBayDi, String tenSanBayDen) {
+            setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+            setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(220, 220, 220))); 
+            
+            JPanel pnlMainRow = new JPanel(new GridLayout(1, 5, 2, 0));
+            pnlMainRow.setBackground(Color.WHITE);
+            pnlMainRow.setPreferredSize(new Dimension(1200, 80));
+            pnlMainRow.setMaximumSize(new Dimension(1200, 80));
+
+            FlightInfoCell cellInfo = new FlightInfoCell(cb);
+            pnlMainRow.add(cellInfo);
+
+            PriceCell cellEco = new PriceCell(cb, cbBUS, "ECO", "#4CAF50", "Phổ thông", new Color(240, 255, 240));
+            PriceCell cellPeco = new PriceCell(cb, cbBUS, "PECO", "#2196F3", "Phổ thông ĐB", new Color(240, 248, 255));
+            PriceCell cellBus = new PriceCell(cb, cbBUS, "BUS", "#F44336", "Thương gia", new Color(255, 240, 240));
+            PriceCell cellFst = new PriceCell(cb, cbBUS, "FST", "#FFC107", "Hạng nhất", new Color(255, 253, 230));
+
+            pnlMainRow.add(cellEco); pnlMainRow.add(cellPeco); pnlMainRow.add(cellBus); pnlMainRow.add(cellFst);
+
+            pnlDetails = new JPanel(new BorderLayout());
+            pnlDetails.setVisible(false);
+            pnlDetails.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 0, 2, 0, new Color(18, 32, 64)),
+                new EmptyBorder(15, 20, 15, 20)
+            ));
+
+            JLabel lblDetailsContent = new JLabel();
+            lblDetailsContent.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            pnlDetails.add(lblDetailsContent, BorderLayout.CENTER);
+
+            add(pnlMainRow);
+            add(pnlDetails);
+
+            long totalMinutes = java.time.Duration.between(cb.getNgayGioDi(), cb.getNgayGioDen()).toMinutes();
+            String durationStr = (totalMinutes / 60) + " giờ " + (totalMinutes % 60) + " phút";
+            java.time.format.DateTimeFormatter dateFmt = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            java.time.format.DateTimeFormatter timeFmt = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
+
+            String htmlFlightInfo = "<html><div style='padding: 5px;'>" +
+                "<b style='color:#dc2626; font-size:16px;'> Chuyến bay: " + cb.getMaChuyenBay() + "</b><br><br>" +
+                "<table cellpadding='4'><tr><td valign='top'><b style='color:#122040;'>Khởi hành:</b></td><td><b style='color:black; font-size:14px;'>" + cb.getNgayGioDi().format(timeFmt) + ", " + cb.getNgayGioDi().format(dateFmt) + "</b><br>" + tenSanBayDi + " (" + sbDi + ")</td></tr>" +
+                "<tr><td valign='top'><b style='color:#122040;'>Đến:</b></td><td><b style='color:black; font-size:14px;'>" + cb.getNgayGioDen().format(timeFmt) + ", " + cb.getNgayGioDen().format(dateFmt) + "</b><br>" + tenSanBayDen + " (" + sbDen + ")</td></tr></table><br>" +
+                "<span style='color:#d97706; font-weight:bold; font-size:13px;'>Thời gian bay: " + durationStr + " | Loại máy bay: Phản lực thương mại</span></div></html>";
+
+            cellInfo.addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override
+                public void mouseClicked(java.awt.event.MouseEvent e) {
+                    String currentSelectedClass = isSearchingVe ? hangVeSelectedVe : hangVeSelectedDi;
+                    
+                    if (pnlDetails.isVisible() && currentSelectedClass.equals("")) {
+                        pnlDetails.setVisible(false);
+                        cellInfo.resetUI();
+                    } else {
+                        cellEco.resetUI(); cellPeco.resetUI(); cellBus.resetUI(); cellFst.resetUI();
+                        cellInfo.setAsSelected();
+                        if(isSearchingVe) hangVeSelectedVe = ""; else hangVeSelectedDi = "";
+                        pnlDetails.setBackground(new Color(250, 250, 250)); 
+                        lblDetailsContent.setText(htmlFlightInfo);
+                        pnlDetails.setVisible(true);
+                    }
+                    FlightCard.this.revalidate();
+                    FlightCard.this.repaint();
+                }
+            });
+
+            java.awt.event.MouseAdapter clickAdapter = new java.awt.event.MouseAdapter() {
+                @Override
+                public void mouseClicked(java.awt.event.MouseEvent e) {
+                    PriceCell clickedCell = (PriceCell) e.getSource();
+                    if (clickedCell.isSoldOut) return;
+
+                    String currentSelectedClass = isSearchingVe ? hangVeSelectedVe : hangVeSelectedDi;
+
+                    if (pnlDetails.isVisible() && currentSelectedClass.equals(clickedCell.hangVeCode)) {
+                        pnlDetails.setVisible(false);
+                        clickedCell.resetUI();
+                        
+                        if (isSearchingVe) {
+                            cbSelectedVe = null; hangVeSelectedVe = ""; giaVeVe = BigDecimal.ZERO;
+                        } else {
+                            cbSelectedDi = null; hangVeSelectedDi = ""; giaVeDi = BigDecimal.ZERO;
+                        }
+                        updateFooterTotal(); 
+                    } else {
+                        cellInfo.resetUI(); 
+                        cellEco.resetUI(); cellPeco.resetUI(); cellBus.resetUI(); cellFst.resetUI();
+                        clickedCell.setAsSelected();
+                        pnlDetails.setBackground(clickedCell.highlightBgColor);
+
+                        String htmlTienIch = "<html><b style='font-size:16px; color:#122040;'>Bao gồm:</b><br><ul style='margin-left:20px;'>";
+                        if (clickedCell.hangVeCode.equals("ECO")) htmlTienIch += "<li>07kg hành lý xách tay</li><li>Không bao gồm hành lý ký gửi</li><li>Không có phòng chờ</li>";
+                        else if (clickedCell.hangVeCode.equals("PECO")) htmlTienIch += "<li>10kg hành lý xách tay</li><li>20kg hành lý ký gửi</li><li>Ưu tiên làm thủ tục</li>";
+                        else if (clickedCell.hangVeCode.equals("BUS")) htmlTienIch += "<li>14kg hành lý xách tay</li><li>30kg hành lý ký gửi</li><li>Sử dụng phòng chờ cao cấp</li>";
+                        else if (clickedCell.hangVeCode.equals("FST")) htmlTienIch += "<li>18kg hành lý xách tay</li><li>40kg hành lý ký gửi</li><li>Phòng chờ hạng sang VIP</li>";
+                        lblDetailsContent.setText(htmlTienIch + "</ul></html>");
+                        
+                        pnlDetails.setVisible(true);
+                        
+                        if (isSearchingVe) {
+                            cbSelectedVe = cb; hangVeSelectedVe = clickedCell.hangVeCode; giaVeVe = clickedCell.basePrice.multiply(BigDecimal.valueOf(soNL)); 
+                        } else {
+                            cbSelectedDi = cb; hangVeSelectedDi = clickedCell.hangVeCode; giaVeDi = clickedCell.basePrice.multiply(BigDecimal.valueOf(soNL)); 
+                        }
+                        updateFooterTotal();
+                    }
+                    FlightCard.this.revalidate();
+                    FlightCard.this.repaint();
+                }
+            };
+
+            cellEco.addMouseListener(clickAdapter); cellPeco.addMouseListener(clickAdapter);
+            cellBus.addMouseListener(clickAdapter); cellFst.addMouseListener(clickAdapter);
+        }
+    }
+
+    class FlightInfoCell extends JPanel {
+        public FlightInfoCell(model.ChuyenBay cb) {
+            setLayout(new BorderLayout());
+            setBackground(Color.WHITE);
+            setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, new Color(230, 230, 230)));
+            setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+            java.time.format.DateTimeFormatter timeFmt = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
+            JLabel lblInfo = new JLabel("<html><center><b style='font-size:18px; color:#122040;'>" + 
+                                        cb.getNgayGioDi().format(timeFmt) + "  " + cb.getNgayGioDen().format(timeFmt) + 
+                                        "</b><br><span style='color:gray; font-size:12px;'>Chuyến bay: " + cb.getMaChuyenBay() + "</span></center></html>");
+            lblInfo.setHorizontalAlignment(SwingConstants.CENTER);
+            add(lblInfo, BorderLayout.CENTER);
+
+            addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override public void mouseEntered(java.awt.event.MouseEvent e) { if(getBackground().equals(Color.WHITE)) setBackground(new Color(250, 250, 250)); }
+                @Override public void mouseExited(java.awt.event.MouseEvent e) { if(getBackground().equals(new Color(250, 250, 250))) setBackground(Color.WHITE); }
+            });
+        }
+        public void resetUI() { setBackground(Color.WHITE); setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, new Color(230, 230, 230))); }
+        public void setAsSelected() { setBackground(new Color(245, 247, 250)); setBorder(BorderFactory.createLineBorder(new Color(18, 32, 64), 2)); }
+    }
+
+    class PriceCell extends JPanel {
+        public boolean isSoldOut = false;
+        public String hangVeCode;
+        public Color highlightBgColor;
+        public BigDecimal basePrice; 
+
+        public PriceCell(model.ChuyenBay cb, bll.ChuyenBayBUS cbBUS, String hangVeCode, String textColor, String title, Color highlightBgColor) {
+            this.hangVeCode = hangVeCode; this.highlightBgColor = highlightBgColor;
+            setLayout(new BorderLayout()); setBackground(Color.WHITE); setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, new Color(230, 230, 230))); setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+            JLabel lblContent = new JLabel(); lblContent.setHorizontalAlignment(SwingConstants.CENTER);
+            try {
+                this.basePrice = cbBUS.tinhGiaVe(cb.getMaChuyenBay(), hangVeCode);
+                BigDecimal tongTien = this.basePrice.multiply(BigDecimal.valueOf(soNL));
+                lblContent.setText("<html><center><span style='color:" + textColor + "; font-size:13px; font-weight:bold;'>" + title + "</span><br>" +
+                   "<b style='color:#333; font-size:18px;'>" + String.format("%,d", tongTien.longValue()) + "</b><br><span style='color:gray; font-size:11px;'>VNĐ</span></center></html>");
+            } catch (Exception e) {
+                isSoldOut = true; setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); lblContent.setText("<html><center><b style='color:#ccc; font-size:15px;'>Hết vé</b></center></html>");
+            }
+            add(lblContent, BorderLayout.CENTER);
+            
+            addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override public void mouseEntered(java.awt.event.MouseEvent e) { if(!isSoldOut && getBackground().equals(Color.WHITE)) setBackground(new Color(248, 248, 248)); }
+                @Override public void mouseExited(java.awt.event.MouseEvent e) { if(!isSoldOut && getBackground().equals(new Color(248, 248, 248))) setBackground(Color.WHITE); }
+            });
+        }
+        public void resetUI() { if(!isSoldOut) { setBackground(Color.WHITE); setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, new Color(230, 230, 230))); } }
+        public void setAsSelected() { setBackground(highlightBgColor); setBorder(BorderFactory.createLineBorder(new Color(18, 32, 64), 2));  }
+    }
+
+    public static void main(String args[]) {
+        try { UIManager.setLookAndFeel(new com.formdev.flatlaf.FlatIntelliJLaf()); UIManager.put("Button.arc", 12); } catch (Exception ex) {}
+        java.awt.EventQueue.invokeLater(() -> new MainFrame().setVisible(true));
+    }
+
     private javax.swing.JButton btnDatCho;
-    private javax.swing.JButton btnDiary;
     private javax.swing.ButtonGroup btnGChuyenBay;
     private javax.swing.JButton btnHanhKhach;
     private javax.swing.JButton btnKhuyenMai;
     private javax.swing.JButton btnLogin;
     private javax.swing.JButton btnSignin;
-    private javax.swing.JButton btnVeMB;
     private javax.swing.JComboBox<String> cbCities;
     private javax.swing.JComboBox<String> cbCities1;
     private javax.swing.JComboBox<String> cbDonViTienTe;
-    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JCheckBox jCheckBox1;
@@ -1431,7 +1729,6 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JRadioButton jRadioButton1;
@@ -1440,5 +1737,4 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JPanel pnlHeader;
     private javax.swing.JPanel pnlMenuHeader;
     private javax.swing.JPanel pnlMultiCities;
-    // End of variables declaration//GEN-END:variables
 }

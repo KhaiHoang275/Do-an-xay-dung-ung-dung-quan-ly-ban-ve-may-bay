@@ -1,8 +1,6 @@
 package db;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class DBConnection {
     
@@ -33,6 +31,24 @@ public class DBConnection {
     public static void main(String[] args) {
         if (getConnection() != null) {
             System.out.println("Kết nối SQL Server thành công!");
+        }
+        try {
+            Connection conn = getConnection();
+
+            if (conn != null) {
+                System.out.println("Kết nối SQL Server thành công!");
+
+                Statement st = conn.createStatement();
+                ResultSet rs = st.executeQuery("SELECT DB_NAME(), @@SERVERNAME");
+
+                while (rs.next()) {
+                    System.out.println("Database: " + rs.getString(1));
+                    System.out.println("Server: " + rs.getString(2));
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
