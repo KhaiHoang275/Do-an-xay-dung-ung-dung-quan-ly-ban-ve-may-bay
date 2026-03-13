@@ -169,8 +169,9 @@ public class LichSuDatVePanel extends JPanel {
 
             JFrame doiVeFrame = new JFrame("Đổi Vé Máy Bay");
             doiVeFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            
-            doiVeFrame.add(new JLabel("Màn hình đổi vé (Đang tích hợp...)", SwingConstants.CENTER));
+
+            DoiVePanel doiVePanel = new DoiVePanel(maVe, maNguoiDung);
+            doiVeFrame.add(doiVePanel);
 
             doiVeFrame.setSize(1050, 800);
             doiVeFrame.setLocationRelativeTo(null);
