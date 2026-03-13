@@ -51,6 +51,8 @@ public class MainFrame extends javax.swing.JFrame {
         setupDatePicker(jFormattedTextField2);
         setupBusinessLogic();  
         
+        setLocationRelativeTo(null);
+        
         jButton2.setText(""); 
         try { jButton2.setIcon(new com.formdev.flatlaf.extras.FlatSVGIcon("svgmaterials/icons/bx-transfer.svg", 24, 24)); } catch (Exception e) {} 
         for(java.awt.event.ActionListener al : btnLogin.getActionListeners()) btnLogin.removeActionListener(al);
@@ -76,7 +78,8 @@ public class MainFrame extends javax.swing.JFrame {
         this.userHienTai = nd;
         setTitle("AirLiner - Xin chào: " + userHienTai.getUsername()); 
         
-        btnSignin.setVisible(false);
+        setLocationRelativeTo(null);
+        
         String chuCaiDau = "U";
         if (userHienTai.getUsername() != null && !userHienTai.getUsername().isEmpty()) {
             chuCaiDau = userHienTai.getUsername().substring(0, 1).toUpperCase();
@@ -128,7 +131,6 @@ public class MainFrame extends javax.swing.JFrame {
 
         for(java.awt.event.ActionListener al : btnLogin.getActionListeners()) btnLogin.removeActionListener(al);
         btnLogin.addActionListener(e -> avatarMenu.show(btnLogin, 0, btnLogin.getHeight()));
-        btnSignin.setVisible(false); 
 
         jButton2.setText(""); 
         try { jButton2.setIcon(new com.formdev.flatlaf.extras.FlatSVGIcon("svgmaterials/icons/bx-transfer.svg", 24, 24)); } catch (Exception e) {}
@@ -141,7 +143,6 @@ public class MainFrame extends javax.swing.JFrame {
         btnGChuyenBay = new javax.swing.ButtonGroup();
         pnlHeader = new javax.swing.JPanel();
         
-        // Khởi tạo Wrapper chứa ảnh nền
         pnlContentWrapper = new javax.swing.JPanel() {
             Image bgImage;
             {
@@ -184,13 +185,11 @@ public class MainFrame extends javax.swing.JFrame {
         btnKhuyenMai = new javax.swing.JButton();
         btnDatCho = new javax.swing.JButton();
         btnLogin = new javax.swing.JButton();
-        btnSignin = new javax.swing.JButton();
         cbDonViTienTe = new javax.swing.JComboBox<>();
         jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        // ĐÃ KHÔI PHỤC MÀU XANH ĐEN CHO NAVBAR
         pnlHeader.setBackground(new java.awt.Color(18, 32, 64));
         
         jLabel1.setFont(new java.awt.Font("VNI-Franko", 1, 32)); 
@@ -214,18 +213,14 @@ public class MainFrame extends javax.swing.JFrame {
         btnLogin.setBackground(new java.awt.Color(255, 255, 51));
         btnLogin.setFont(new java.awt.Font("Segoe UI", 1, 16)); 
         btnLogin.setForeground(new java.awt.Color(18, 32, 64));
-        btnLogin.setText("Đăng nhập");
-
-        btnSignin.setBackground(new java.awt.Color(255, 193, 7));
-        btnSignin.setFont(new java.awt.Font("Segoe UI", 1, 16)); 
-        btnSignin.setForeground(new java.awt.Color(18, 32, 64));
-        btnSignin.setText("Đăng ký");
+        btnLogin.setText("Đăng nhập / Đăng ký"); // ĐÃ SỬA: Đổi tên nút thành Đăng nhập / Đăng ký cho tiện lợi
 
         cbDonViTienTe.setBackground(new java.awt.Color(18, 32, 64));
         cbDonViTienTe.setForeground(Color.WHITE);
         cbDonViTienTe.setFont(new java.awt.Font("Segoe UI", 1, 14)); 
         cbDonViTienTe.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { " VND | VI", " USD | EN" }));
 
+        // ĐÃ SỬA: Bỏ hoàn toàn btnSignin khỏi GroupLayout
         javax.swing.GroupLayout pnlMenuHeaderLayout = new javax.swing.GroupLayout(pnlMenuHeader);
         pnlMenuHeader.setLayout(pnlMenuHeaderLayout);
         pnlMenuHeader.setOpaque(false);
@@ -239,8 +234,6 @@ public class MainFrame extends javax.swing.JFrame {
                 .addComponent(btnDatCho)
                 .addGap(18, 18, 18)
                 .addComponent(btnLogin)
-                .addGap(18, 18, 18)
-                .addComponent(btnSignin, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(20, Short.MAX_VALUE)
         );
         pnlMenuHeaderLayout.setVerticalGroup(
@@ -249,8 +242,7 @@ public class MainFrame extends javax.swing.JFrame {
                     .addComponent(cbDonViTienTe, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnKhuyenMai, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnDatCho, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnLogin, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnSignin, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btnLogin, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         javax.swing.GroupLayout pnlHeaderLayout = new javax.swing.GroupLayout(pnlHeader);
@@ -273,10 +265,8 @@ public class MainFrame extends javax.swing.JFrame {
                     .addGap(15, 15, 15))
         );
 
-        // GẮN HEADER VÀO PHÍA BẮC CỦA FRAME CHÍNH
         getContentPane().add(pnlHeader, java.awt.BorderLayout.NORTH);
         
-        // PNL CONTENT CHÍNH THỨC
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 20)); jLabel2.setText("Từ");
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 20)); jLabel3.setText("Đến");
 
@@ -398,7 +388,7 @@ public class MainFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>
 
-    private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {                                          
+    private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {                                         
         boolean isKhuHoi = jCheckBox1.isSelected();
         jFormattedTextField2.setEnabled(isKhuHoi); 
         if (isKhuHoi) {
@@ -440,9 +430,6 @@ public class MainFrame extends javax.swing.JFrame {
         jButton2.setForeground(java.awt.Color.WHITE);
     }  
 
-    // ==============================================================
-    // KHỞI TẠO BẢNG CHỨA CÁC THẺ GIAO DIỆN LƯỚI & THANH FOOTER THANH TOÁN
-    // ==============================================================
     private void initKetQuaPanel() {
         if (scrollPaneKetQua != null) return;
         
@@ -479,16 +466,15 @@ public class MainFrame extends javax.swing.JFrame {
         scrollPaneKetQua.setOpaque(false); scrollPaneKetQua.getViewport().setOpaque(false);
         scrollPaneKetQua.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS); 
         scrollPaneKetQua.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollPaneKetQua.setPreferredSize(new Dimension(1200, 380)); // Bóp lại tí để nhường chỗ cho Footer
+        scrollPaneKetQua.setPreferredSize(new Dimension(1200, 380)); 
         scrollPaneKetQua.setMaximumSize(new Dimension(1200, 380));
         scrollPaneKetQua.setBorder(BorderFactory.createEmptyBorder());
         scrollPaneKetQua.getVerticalScrollBar().setUnitIncrement(16);
         
-        // KHỞI TẠO STICKY FOOTER TỔNG TIỀN
         pnlStickyFooter = new JPanel(new FlowLayout(FlowLayout.RIGHT, 30, 15));
         pnlStickyFooter.setBackground(Color.WHITE);
         pnlStickyFooter.setBorder(BorderFactory.createMatteBorder(2, 0, 0, 0, new Color(200, 200, 200)));
-        pnlStickyFooter.setVisible(false); // Ẩn mặc định
+        pnlStickyFooter.setVisible(false);
         
         JPanel pnlTotalText = new JPanel(new GridLayout(2, 1));
         pnlTotalText.setOpaque(false);
@@ -509,7 +495,6 @@ public class MainFrame extends javax.swing.JFrame {
         pnlStickyFooter.add(pnlTotalText);
         pnlStickyFooter.add(btnFooterNext);
         
-        // Sự kiện khi bấm "Đi tiếp" ở Footer
         btnFooterNext.addActionListener(e -> processToNextStep());
     }
 
@@ -531,7 +516,6 @@ public class MainFrame extends javax.swing.JFrame {
         pnlContentWrapper.revalidate();
     }
 
-    // HÀM SWITCH PANEL GIỮ NGUYÊN NAVBAR
     private void switchPanel(JPanel newPanel) {
         pnlContentWrapper.removeAll();
         newPanel.setOpaque(false); 
@@ -556,11 +540,9 @@ public class MainFrame extends javax.swing.JFrame {
         model.DatVeSession newSession = new model.DatVeSession();
         newSession.maNguoiDung = (userHienTai != null) ? userHienTai.getMaNguoiDung() : "KHACH_LE"; 
         
-        // --- CHUYẾN ĐI ---
         newSession.maChuyenBay = cbSelectedDi.getMaChuyenBay();
         newSession.maHangVe = hangVeSelectedDi; 
         
-        // --- CHUYẾN VỀ (NẾU CÓ) ---
         if (jCheckBox1.isSelected() && cbSelectedVe != null) {
             newSession.maChuyenBayVe = cbSelectedVe.getMaChuyenBay();
             newSession.maHangVeVe = hangVeSelectedVe;
@@ -645,7 +627,6 @@ public class MainFrame extends javax.swing.JFrame {
             this.soEB = (int) spnEB.getValue();
             btnHanhKhach.setText(soNL + " Người lớn, " + soTE + " Trẻ em, " + soEB + " Em bé");
             
-            // Xóa state cũ nếu đổi khách
             giaVeDi = BigDecimal.ZERO; 
             giaVeVe = BigDecimal.ZERO; 
             cbSelectedDi = null; 
@@ -994,14 +975,16 @@ public class MainFrame extends javax.swing.JFrame {
     private void setupLogo() {
         jLabel1.setText(""); 
         try {
-            javax.swing.ImageIcon originalIcon = new javax.swing.ImageIcon("src/resources/images/finalLogo.png");
+            javax.swing.ImageIcon originalIcon = new javax.swing.ImageIcon("src/resources/images/logos.png");
             if (originalIcon.getIconWidth() > 0) {
-                java.awt.Image scaledImg = originalIcon.getImage().getScaledInstance(-1, 100, java.awt.Image.SCALE_FAST);
+                java.awt.Image scaledImg = originalIcon.getImage().getScaledInstance(-1, 80, java.awt.Image.SCALE_SMOOTH);
                 jLabel1.setIcon(new javax.swing.ImageIcon(scaledImg));
             } else {
                 jLabel1.setText("AirLiner");
             }
-        } catch (Exception e) {} 
+        } catch (Exception e) {
+            jLabel1.setText("AirLiner");
+        } 
 
         jLabel1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR)); 
         jLabel1.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -1418,7 +1401,7 @@ public class MainFrame extends javax.swing.JFrame {
                 this.basePrice = cbBUS.tinhGiaVe(cb.getMaChuyenBay(), hangVeCode);
                 BigDecimal tongTien = this.basePrice.multiply(BigDecimal.valueOf(soNL));
                 lblContent.setText("<html><center><span style='color:" + textColor + "; font-size:13px; font-weight:bold;'>" + title + "</span><br>" +
-                   "<b style='color:#333; font-size:18px;'>" + String.format("%,d", tongTien.longValue()) + "</b><br><span style='color:gray; font-size:11px;'>VNĐ</span></center></html>");
+                    "<b style='color:#333; font-size:18px;'>" + String.format("%,d", tongTien.longValue()) + "</b><br><span style='color:gray; font-size:11px;'>VNĐ</span></center></html>");
             } catch (Exception e) {
                 isSoldOut = true; setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); lblContent.setText("<html><center><b style='color:#ccc; font-size:15px;'>Hết vé</b></center></html>");
             }

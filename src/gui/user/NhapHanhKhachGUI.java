@@ -11,7 +11,6 @@ import java.awt.*;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -29,21 +28,18 @@ public class NhapHanhKhachGUI extends JPanel {
     public NhapHanhKhachGUI(DatVeSession session) {
         this.session = session;
         setLayout(new BorderLayout());
-        setOpaque(false); // Trong suốt để thấy nền từ MainFrame
+        setOpaque(false); 
 
-        // Khung cuộn nội dung
         JPanel scrollContent = new JPanel();
         scrollContent.setLayout(new BoxLayout(scrollContent, BoxLayout.Y_AXIS));
         scrollContent.setOpaque(false);
 
-        // 1. THANH TIẾN TRÌNH
         JPanel stepperWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         stepperWrapper.setOpaque(false);
         stepperWrapper.add(createStepper());
         scrollContent.add(stepperWrapper);
         scrollContent.add(Box.createVerticalStrut(30));
 
-        // 2. KHUNG CHỨA DANH SÁCH KHÁCH
         List<ThongTinHanhKhach> savedList = loadOldData();
 
         pnlContainer = new JPanel();
@@ -56,7 +52,6 @@ public class NhapHanhKhachGUI extends JPanel {
 
         scrollContent.add(pnlContainer);
 
-        // ĐÃ FIX LAYOUT: BỌC PANEL VÀO PHÍA BẮC (NORTH) ĐỂ LUÔN NẰM SÁT TRÊN CÙNG
         JPanel topAlignPanel = new JPanel(new BorderLayout());
         topAlignPanel.setOpaque(false);
         topAlignPanel.add(scrollContent, BorderLayout.NORTH);
@@ -102,7 +97,6 @@ public class NhapHanhKhachGUI extends JPanel {
         HanhKhachCard card = new HanhKhachCard(title, type, prefillData);
         listCards.add(card); 
         
-        // Khóa Width cố định ở giữa
         JPanel wrapper = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         wrapper.setOpaque(false);
         wrapper.add(card);
@@ -111,7 +105,6 @@ public class NhapHanhKhachGUI extends JPanel {
         pnlContainer.add(Box.createRigidArea(new Dimension(0, 20))); 
     }
 
-    // Hàm chuyển trang mượt mà
     private void switchPage(JPanel newPanel) {
         Container container = SwingUtilities.getAncestorOfClass(gui.user.MainFrame.class, this);
         if (container instanceof gui.user.MainFrame) {
@@ -143,15 +136,19 @@ public class NhapHanhKhachGUI extends JPanel {
         JLabel lblFooterTotal = new JLabel(vn.format(session.tongTienVe) + " VNĐ", SwingConstants.RIGHT); lblFooterTotal.setFont(new Font("Segoe UI", Font.BOLD, 24));
         pnlTotalText.add(lblTo); pnlTotalText.add(lblFooterTotal);
         
-        JButton btnNext = new JButton("Đi tiếp "); btnNext.setBackground(new Color(255, 193, 7)); btnNext.setForeground(new Color(18, 32, 64)); btnNext.setFont(new Font("Segoe UI", Font.BOLD, 16)); btnNext.setPreferredSize(new Dimension(230, 45));
+        JButton btnNext = new JButton("Đi tiếp"); btnNext.setBackground(new Color(255, 193, 7)); btnNext.setForeground(new Color(18, 32, 64)); btnNext.setFont(new Font("Segoe UI", Font.BOLD, 18)); btnNext.setPreferredSize(new Dimension(150, 45));
         btnNext.setCursor(new Cursor(Cursor.HAND_CURSOR)); btnNext.setFocusPainted(false);
         
         btnNext.addActionListener(e -> {
             try {
                 session.danhSachHanhKhach.clear();
-                for(HanhKhachCard card : listCards) session.danhSachHanhKhach.add(card.getData()); 
+                for(HanhKhachCard card : listCards) {
+                    session.danhSachHanhKhach.add(card.getData()); 
+                }
                 switchPage(new gui.DichVuHanhLyGUI(session));
-            } catch (Exception ex) { JOptionPane.showMessageDialog(this, ex.getMessage(), "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE); }
+            } catch (Exception ex) { 
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE); 
+            }
         });
         
         pnlRight.add(pnlTotalText); pnlRight.add(btnNext); footer.add(pnlRight, BorderLayout.EAST);
@@ -170,18 +167,20 @@ public class NhapHanhKhachGUI extends JPanel {
     }
 
     class HanhKhachCard extends JPanel {
-        private JTextField txtHoTen, txtCCCD, txtHoChieu; private JFormattedTextField txtNgaySinh; private JComboBox<String> cbGioiTinh; private String loaiHK;
+        private JTextField txtHoTen, txtCCCD, txtHoChieu; 
+        private JFormattedTextField txtNgaySinh; 
+        private JComboBox<String> cbGioiTinh; 
+        private String loaiHK;
         
         public HanhKhachCard(String title, String type, ThongTinHanhKhach prefillData) {
             this.loaiHK = type; setLayout(new GridBagLayout()); setBackground(Color.WHITE);
             setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(220,220,220), 1, true), BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(), " ✈ " + title, TitledBorder.LEFT, TitledBorder.TOP, new Font("Segoe UI", Font.BOLD, 18), PRIMARY_COLOR)));
             
-            // LÀM TO KHUNG THẺ HÀNH KHÁCH LÊN SIZE 1000px
             setPreferredSize(new Dimension(1000, 220));
             setMaximumSize(new Dimension(1000, 250));
             
             GridBagConstraints gbc = new GridBagConstraints(); 
-            gbc.insets = new Insets(15, 20, 15, 20); // Kéo giãn khoảng cách các hàng
+            gbc.insets = new Insets(15, 20, 15, 20); 
             gbc.fill = GridBagConstraints.HORIZONTAL;
 
             txtHoTen = createStyledTextField(); 
@@ -190,7 +189,7 @@ public class NhapHanhKhachGUI extends JPanel {
             txtNgaySinh = createStyledDateField();
             
             cbGioiTinh = new JComboBox<>(new String[]{"Nam", "Nữ"});
-            cbGioiTinh.setPreferredSize(new Dimension(250, 45)); // Làm to ComboBox
+            cbGioiTinh.setPreferredSize(new Dimension(250, 45)); 
             cbGioiTinh.setFont(new Font("Segoe UI", Font.PLAIN, 16));
             cbGioiTinh.setBackground(Color.WHITE);
             
@@ -212,10 +211,9 @@ public class NhapHanhKhachGUI extends JPanel {
             }
         }
         
-        // HÀM TẠO TEXTFIELD TO ĐẸP GIỐNG PANELUSERVEBAN
         private JTextField createStyledTextField() {
             JTextField txt = new JTextField();
-            txt.setPreferredSize(new Dimension(250, 45)); // Chiều cao 45px
+            txt.setPreferredSize(new Dimension(250, 45)); 
             txt.setFont(new Font("Segoe UI", Font.PLAIN, 16));
             txt.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)), BorderFactory.createEmptyBorder(5, 10, 5, 10)));
             return txt;
@@ -249,10 +247,54 @@ public class NhapHanhKhachGUI extends JPanel {
             } catch (Exception e) {}
         }
         
+        // ĐÃ SỬA: HÀM KIỂM TRA ĐỊNH DẠNG VÀ RÀNG BUỘC ĐỘ TUỔI CHẶT CHẼ
         public ThongTinHanhKhach getData() throws Exception {
-            String ten = txtHoTen.getText().trim(); String cccd = txtCCCD.getText().trim(); String ngaySinhStr = txtNgaySinh.getText().trim();
-            if(ten.isEmpty() || cccd.isEmpty() || ngaySinhStr.contains("_")) throw new Exception("Vui lòng điền đầy đủ thông tin cho khách: " + ten);
-            ThongTinHanhKhach hk = new ThongTinHanhKhach(); hk.setMaNguoiDung(session.maNguoiDung); hk.setHoTen(ten); hk.setCccd(cccd); hk.setHoChieu(txtHoChieu.getText().trim()); hk.setGioiTinh(cbGioiTinh.getSelectedItem().toString()); hk.setNgaySinh(LocalDate.parse(ngaySinhStr, DateTimeFormatter.ofPattern("dd/MM/yyyy"))); hk.setLoaiHanhKhach(this.loaiHK);
+            String ten = txtHoTen.getText().trim(); 
+            String cccd = txtCCCD.getText().trim(); 
+            String ngaySinhStr = txtNgaySinh.getText().trim();
+
+            if(ten.isEmpty() || cccd.isEmpty()) {
+                throw new Exception("Vui lòng điền đầy đủ Họ Tên và CCCD/Khai sinh cho khách: " + (ten.isEmpty() ? "Chưa nhập tên" : ten));
+            }
+            if(ngaySinhStr.contains("_")) {
+                throw new Exception("Vui lòng nhập đầy đủ ngày sinh cho khách: " + ten);
+            }
+
+            LocalDate ngaySinh;
+            try {
+                // Sử dụng "uuuu" và chế độ STRICT để chặn các ngày không có thực (VD: 32/12, 31/04)
+                java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("dd/MM/uuuu")
+                        .withResolverStyle(java.time.format.ResolverStyle.STRICT);
+                ngaySinh = LocalDate.parse(ngaySinhStr, formatter);
+            } catch (java.time.format.DateTimeParseException e) {
+                throw new Exception("Ngày sinh của khách '" + ten + "' không hợp lệ (VD: 28/02/2000). Vui lòng nhập đúng ngày thực tế!");
+            }
+
+            // Tính tuổi dựa vào năm hiện tại
+            int age = java.time.Period.between(ngaySinh, LocalDate.now()).getYears();
+
+            // Kiểm tra tuổi tối đa và giới hạn không được nhập ngày trong tương lai
+            if (age > 200 || age < 0) {
+                throw new Exception("Năm sinh của khách '" + ten + "' không hợp lý (Tuổi không được âm hoặc vượt quá 200 tuổi).");
+            }
+
+            // Kiểm tra loại hành khách
+            if (loaiHK.equals("Người lớn") && age < 12) {
+                throw new Exception("Khách '" + ten + "' là Người lớn, tuổi phải từ 12 trở lên (Tuổi hiện tại: " + age + ").");
+            } else if (loaiHK.equals("Trẻ em") && (age < 2 || age > 10)) { 
+                throw new Exception("Khách '" + ten + "' là Trẻ em, tuổi phải từ 2 đến 10 tuổi (Tuổi hiện tại: " + age + ").");
+            } else if (loaiHK.equals("Em bé") && age >= 2) {
+                throw new Exception("Khách '" + ten + "' là Em bé, tuổi phải dưới 2 tuổi (Tuổi hiện tại: " + age + ").");
+            }
+
+            ThongTinHanhKhach hk = new ThongTinHanhKhach(); 
+            hk.setMaNguoiDung(session.maNguoiDung); 
+            hk.setHoTen(ten); 
+            hk.setCccd(cccd); 
+            hk.setHoChieu(txtHoChieu.getText().trim()); 
+            hk.setGioiTinh(cbGioiTinh.getSelectedItem().toString()); 
+            hk.setNgaySinh(ngaySinh); 
+            hk.setLoaiHanhKhach(this.loaiHK);
             return hk;
         }
     }
