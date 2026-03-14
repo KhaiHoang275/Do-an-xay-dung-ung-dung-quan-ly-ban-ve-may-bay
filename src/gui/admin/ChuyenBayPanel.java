@@ -9,6 +9,8 @@ import model.TrangThaiChuyenBay;
 import model.TuyenBay;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
@@ -19,6 +21,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 
 public class ChuyenBayPanel extends JPanel {
@@ -32,7 +35,7 @@ public class ChuyenBayPanel extends JPanel {
 
     private ChuyenBayBUS chuyenBayBUS;
     private TuyenBayBUS tuyenBayBUS;
-    private MayBayBUS mayBayBUS; 
+    private MayBayBUS mayBayBUS;
 
     private final Color PRIMARY = new Color(220, 38, 38);
     private final Color BG_MAIN = new Color(245, 247, 250);
@@ -47,7 +50,7 @@ public class ChuyenBayPanel extends JPanel {
     public ChuyenBayPanel() {
         chuyenBayBUS = new ChuyenBayBUS();
         tuyenBayBUS = new TuyenBayBUS();
-        mayBayBUS = new MayBayBUS(); 
+        mayBayBUS = new MayBayBUS();
 
         setLayout(new BorderLayout(20, 20));
         setBackground(BG_MAIN);
@@ -73,10 +76,10 @@ public class ChuyenBayPanel extends JPanel {
 
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         searchPanel.setOpaque(false);
-        
+
         txtTimKiem = createTextField();
         txtTimKiem.setPreferredSize(new Dimension(140, 35));
-        
+
         cbTimKiemTrangThai = new JComboBox<>(new String[]{"Tất cả trạng thái", "Chưa khởi hành", "Đang bay", "Đã hạ cánh", "Bị hoãn", "Đã hủy", "Đã xóa"});
         cbTimKiemTrangThai.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         cbTimKiemTrangThai.setPreferredSize(new Dimension(140, 35));
@@ -126,16 +129,33 @@ public class ChuyenBayPanel extends JPanel {
         formPanel.setOpaque(false);
 
         txtMaChuyenBay = createTextField();
-        
+
         cbTuyenBay = new JComboBox<>();
         cbTuyenBay.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        
+
         cbMayBay = new JComboBox<>();
         cbMayBay.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        
+
         spinnerGioDi = createDateTimeSpinner();
         spinnerGioDen = createDateTimeSpinner();
-        
+
+        // ==================== THÊM GIỚI HẠN NGÀY TẠO MỚI ====================
+        SpinnerDateModel modelDi = (SpinnerDateModel) spinnerGioDi.getModel();
+        modelDi.setStart(getMinDateForGioDi());   // Không cho chọn ngày trước hôm nay khi tạo mới
+
+        SpinnerDateModel modelDen = (SpinnerDateModel) spinnerGioDen.getModel();
+        modelDen.setStart(getMinDateForGioDi());  // Tương tự cho ngày hạ cánh
+
+        // ==================== ĐỘNG UPDATE MIN CHO spinnerGioDen ====================
+        spinnerGioDi.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                Date gioDi = (Date) spinnerGioDi.getValue();
+                SpinnerDateModel modelDen = (SpinnerDateModel) spinnerGioDen.getModel();
+                modelDen.setStart(gioDi);  // Min của hạ cánh = giá trị cất cánh hiện tại
+            }
+        });
+
         cbTrangThai = new JComboBox<>(new String[]{"Chưa khởi hành", "Đang bay", "Đã hạ cánh", "Bị hoãn", "Đã hủy", "Đã xóa"});
         cbTrangThai.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
@@ -180,6 +200,16 @@ public class ChuyenBayPanel extends JPanel {
         add(formCard, BorderLayout.SOUTH);
 
         setupListeners();
+    }
+
+    // ====================== HÀM GIỚI HẠN NGÀY ======================
+    private Date getMinDateForGioDi() {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTime();   // Từ 00:00 ngày hôm nay
     }
 
     private JPanel createCardPanel() {
@@ -245,7 +275,7 @@ public class ChuyenBayPanel extends JPanel {
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
         for(int i = 0; i < table.getColumnCount(); i++) {
-             table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
     }
 
@@ -298,12 +328,12 @@ public class ChuyenBayPanel extends JPanel {
         tableModel.setRowCount(0);
         for (ChuyenBay cb : list) {
             tableModel.addRow(new Object[]{
-                cb.getMaChuyenBay(),
-                cb.getMaTuyenBay(),
-                cb.getMaMayBay(),
-                cb.getNgayGioDi() != null ? cb.getNgayGioDi().format(formatter) : "",
-                cb.getNgayGioDen() != null ? cb.getNgayGioDen().format(formatter) : "",
-                hienThiTrangThai(cb.getTrangThai())
+                    cb.getMaChuyenBay(),
+                    cb.getMaTuyenBay(),
+                    cb.getMaMayBay(),
+                    cb.getNgayGioDi() != null ? cb.getNgayGioDi().format(formatter) : "",
+                    cb.getNgayGioDen() != null ? cb.getNgayGioDen().format(formatter) : "",
+                    hienThiTrangThai(cb.getTrangThai())
             });
         }
     }
@@ -324,21 +354,28 @@ public class ChuyenBayPanel extends JPanel {
                 if (row >= 0) {
                     String maCB = tableModel.getValueAt(row, 0).toString();
                     ChuyenBay cb = chuyenBayBUS.getChuyenBayById(maCB);
-                    
+
                     if (cb != null) {
                         txtMaChuyenBay.setText(cb.getMaChuyenBay());
                         txtMaChuyenBay.setEditable(false);
-                        
+
                         setComboBoxSelectedByPrefix(cbTuyenBay, cb.getMaTuyenBay());
                         setComboBoxSelectedByPrefix(cbMayBay, cb.getMaMayBay());
                         cbTrangThai.setSelectedItem(hienThiTrangThai(cb.getTrangThai()));
-                        
+
                         if (cb.getNgayGioDi() != null) {
                             spinnerGioDi.setValue(Date.from(cb.getNgayGioDi().atZone(ZoneId.systemDefault()).toInstant()));
                         }
                         if (cb.getNgayGioDen() != null) {
                             spinnerGioDen.setValue(Date.from(cb.getNgayGioDen().atZone(ZoneId.systemDefault()).toInstant()));
                         }
+
+                        // Khi sửa → bỏ giới hạn ngày (cho phép ngày quá khứ)
+                        SpinnerDateModel modelDi = (SpinnerDateModel) spinnerGioDi.getModel();
+                        modelDi.setStart(null);
+
+                        SpinnerDateModel modelDen = (SpinnerDateModel) spinnerGioDen.getModel();
+                        modelDen.setStart(null);
                     }
                 }
             }
@@ -349,7 +386,7 @@ public class ChuyenBayPanel extends JPanel {
             if (isTrash) {
                 btnThem.setEnabled(false);
                 btnSua.setText("Khôi phục");
-                btnSua.setBackground(new Color(76, 175, 80)); 
+                btnSua.setBackground(new Color(76, 175, 80));
                 btnXoa.setEnabled(false);
                 cbTrangThai.setEnabled(false);
                 loadDataToTable(chuyenBayBUS.getChuyenBayTrongThungRac());
@@ -415,7 +452,7 @@ public class ChuyenBayPanel extends JPanel {
             }
             String maCB = txtMaChuyenBay.getText();
             int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn xóa chuyến bay " + maCB + "?", "Xác nhận", JOptionPane.YES_NO_OPTION);
-            
+
             if (confirm == JOptionPane.YES_OPTION) {
                 if (chuyenBayBUS.xoaChuyenBay(maCB)) {
                     JOptionPane.showMessageDialog(this, "Xóa thành công!");
@@ -430,34 +467,41 @@ public class ChuyenBayPanel extends JPanel {
             txtMaChuyenBay.setText("");
             txtMaChuyenBay.setEditable(true);
             txtTimKiem.setText("");
-            
+
             if(cbTuyenBay.getItemCount() > 0) cbTuyenBay.setSelectedIndex(0);
             if(cbMayBay.getItemCount() > 0) cbMayBay.setSelectedIndex(0);
             cbTrangThai.setSelectedIndex(0);
             cbTimKiemTrangThai.setSelectedIndex(0);
-            
+
             spinnerGioDi.setValue(new Date());
             spinnerGioDen.setValue(new Date());
-            
+
+            // Khi làm mới → quay lại chế độ không cho chọn ngày quá khứ
+            SpinnerDateModel modelDi = (SpinnerDateModel) spinnerGioDi.getModel();
+            modelDi.setStart(getMinDateForGioDi());
+
+            SpinnerDateModel modelDen = (SpinnerDateModel) spinnerGioDen.getModel();
+            modelDen.setStart(getMinDateForGioDi());
+
             table.clearSelection();
-            
+
             if (cboHienThi.getSelectedIndex() == 1) {
                 loadDataToTable(chuyenBayBUS.getChuyenBayTrongThungRac());
             } else {
                 loadDataToTable(chuyenBayBUS.getAllChuyenBay());
             }
         });
-        
+
         btnTimKiem.addActionListener(e -> {
             String keyword = txtTimKiem.getText();
             boolean isTrash = cboHienThi.getSelectedIndex() == 1;
-            
+
             String selectedStatusStr = cbTimKiemTrangThai.getSelectedItem().toString();
             TrangThaiChuyenBay filterStatus = null;
             if (!selectedStatusStr.equals("Tất cả trạng thái")) {
                 filterStatus = layTrangThaiTuUI(selectedStatusStr);
             }
-            
+
             ArrayList<ChuyenBay> ketQua = chuyenBayBUS.timKiemChuyenBay(keyword, filterStatus, isTrash);
             loadDataToTable(ketQua);
         });
@@ -473,7 +517,7 @@ public class ChuyenBayPanel extends JPanel {
 
         Date dateDi = (Date) spinnerGioDi.getValue();
         LocalDateTime ldtDi = dateDi.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-        
+
         Date dateDen = (Date) spinnerGioDen.getValue();
         LocalDateTime ldtDen = dateDen.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 

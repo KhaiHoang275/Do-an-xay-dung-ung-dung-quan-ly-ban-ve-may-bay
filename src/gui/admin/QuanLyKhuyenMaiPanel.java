@@ -15,6 +15,7 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -105,7 +106,7 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
     }
 
     // ========================================
-    // HEADER PANEL (Thêm cboMode)
+    // HEADER PANEL (Xóa phần trạng thái)
     // ========================================
     private JPanel createHeaderPanel() {
         JPanel headerPanel = new JPanel(new BorderLayout(10, 10));
@@ -154,6 +155,7 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
         cboMode.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         cboMode.addActionListener(e -> switchMode());
 
+        // Thêm cboLocTrangThai (sẽ di chuyển xuống dưới ở createTablePanel)
         cboLocTrangThai = new JComboBox<>(new String[]{"Tất cả", "Hoạt động", "Không hoạt động"});
         cboLocTrangThai.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         cboLocTrangThai.addActionListener(e -> locTheoTrangThai());
@@ -163,10 +165,7 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
         searchPanel.add(btnTimKiem);
         searchPanel.add(Box.createHorizontalStrut(20));
         searchPanel.add(new JLabel("Chế độ:"));
-        searchPanel.add(cboMode); // Thêm trước trạng thái
-        searchPanel.add(Box.createHorizontalStrut(20));
-        searchPanel.add(new JLabel("Trạng thái:"));
-        searchPanel.add(cboLocTrangThai);
+        searchPanel.add(cboMode); // Chỉ thêm chế độ, trạng thái di chuyển xuống dưới
 
         headerPanel.add(lblTitle, BorderLayout.NORTH);
         headerPanel.add(searchPanel, BorderLayout.SOUTH);
@@ -184,7 +183,7 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
     }
 
     // ========================================
-    // TABLE PANEL (HEADER NỔI BẬT)
+    // TABLE PANEL (Di chuyển trạng thái xuống đây, cùng hàng với lblTableTitle)
     // ========================================
     private JPanel createTablePanel() {
 
@@ -195,7 +194,10 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
                 BorderFactory.createEmptyBorder(15, 20, 15, 20)
         ));
 
-        // ===== TITLE =====
+        // ===== TABLE HEADER PANEL (Chứa lblTableTitle bên trái, filter trạng thái bên phải) =====
+        JPanel tableHeaderPanel = new JPanel(new BorderLayout());
+        tableHeaderPanel.setBackground(Color.WHITE);
+
         ImageIcon icon = null;
         URL resource = getClass().getResource("/resources/icons/icons8-test-passed-24.png");
         if (resource != null) {
@@ -213,6 +215,17 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
         JLabel lblTableTitle = new JLabel("DANH SÁCH MÃ KHUYẾN MÃI", icon, JLabel.LEFT);
         lblTableTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
         lblTableTitle.setForeground(PRIMARY_COLOR);
+
+        // Phần filter trạng thái (bên phải)
+        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        filterPanel.setBackground(Color.WHITE);
+        JLabel lblTrangThai = new JLabel("Trạng thái:");
+        lblTrangThai.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        filterPanel.add(lblTrangThai);
+        filterPanel.add(cboLocTrangThai);
+
+        tableHeaderPanel.add(lblTableTitle, BorderLayout.WEST);
+        tableHeaderPanel.add(filterPanel, BorderLayout.EAST);
 
         // ===== TABLE MODEL =====
         String[] columns = {
@@ -313,7 +326,7 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
         }
 
         // =========================================
-        // HEADER STYLE (CHỮ NỔI RÕ)
+        // HEADER STYLE (CHỮ NỔI BẬT)
         // =========================================
         JTableHeader header = table.getTableHeader();
 
@@ -380,7 +393,7 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1));
 
-        tablePanel.add(lblTableTitle, BorderLayout.NORTH);
+        tablePanel.add(tableHeaderPanel, BorderLayout.NORTH); // Thêm tableHeaderPanel thay vì chỉ lblTableTitle
         tablePanel.add(scrollPane, BorderLayout.CENTER);
 
         return tablePanel;
@@ -546,7 +559,13 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
     }
 
     private JSpinner createDateSpinner() {
-        SpinnerDateModel model = new SpinnerDateModel();
+        Calendar today = Calendar.getInstance();
+        today.set(Calendar.HOUR_OF_DAY, 0);
+        today.set(Calendar.MINUTE, 0);
+        today.set(Calendar.SECOND, 0);
+        today.set(Calendar.MILLISECOND, 0);
+
+        SpinnerDateModel model = new SpinnerDateModel(today.getTime(), today.getTime(), null, Calendar.DAY_OF_MONTH);
         JSpinner spinner = new JSpinner(model);
         JSpinner.DateEditor editor = new JSpinner.DateEditor(spinner, "dd/MM/yyyy");
         spinner.setEditor(editor);
@@ -968,6 +987,16 @@ public class QuanLyKhuyenMaiPanel extends JPanel {
         LocalDate ngayBD = new java.sql.Date(dateNgayBD.getTime()).toLocalDate();
         java.util.Date dateNgayKT = (java.util.Date) spinnerNgayKT.getValue();
         LocalDate ngayKT = new java.sql.Date(dateNgayKT.getTime()).toLocalDate();
+
+        LocalDate today = LocalDate.now();
+
+        if (ngayBD.isBefore(today)) {
+            throw new IllegalArgumentException("Ngày bắt đầu phải từ ngày hiện tại trở đi!");
+        }
+
+        if (ngayKT.isBefore(today)) {
+            throw new IllegalArgumentException("Ngày kết thúc phải từ ngày hiện tại trở đi!");
+        }
 
         if (ngayBD.isAfter(ngayKT)) {
             throw new IllegalArgumentException("Ngày bắt đầu phải trước hoặc bằng ngày kết thúc!");

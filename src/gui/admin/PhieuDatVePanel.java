@@ -86,14 +86,14 @@ public class PhieuDatVePanel extends JPanel {
     private JPanel initTableVe() {
         modelVe = new DefaultTableModel(
                 new String[]{
-                "Mã vé",
-                "Sân bay đi",
-                "Sân bay đến",
-                "Ngày giờ đi",
-                "Loại HK",
-                "Loại vé",
-                "Giá vé",
-                "Trạng thái"
+                        "Mã vé",
+                        "Sân bay đi",
+                        "Sân bay đến",
+                        "Ngày giờ đi",
+                        "Loại HK",
+                        "Loại vé",
+                        "Giá vé",
+                        "Trạng thái"
                 }, 0
         ) {
             @Override
@@ -116,11 +116,11 @@ public class PhieuDatVePanel extends JPanel {
         JButton btnThoat = new JButton("Thoát");
         btnThoat.addActionListener(e -> {
             modelVe.setRowCount(0);
-            panelVe.setVisible(false); 
+            panelVe.setVisible(false);
         });
 
         JPanel top = new JPanel(new BorderLayout());
-        top.add(new JLabel("Danh sách Phiếu đặt vé"), BorderLayout.WEST);
+        top.add(new JLabel("Chi tiết vé của phiếu đặt"), BorderLayout.WEST);   // ← ĐÃ SỬA Ở ĐÂY
         top.add(btnThoat, BorderLayout.EAST);
 
         panelVe = new JPanel(new BorderLayout());
@@ -134,33 +134,43 @@ public class PhieuDatVePanel extends JPanel {
     }
 
     private JPanel initSearchBar() {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT,10,10));
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
 
         JLabel lblSearch = new JLabel("Tìm (Mã PNR):");
         lblSearch.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        panel.add(lblSearch);
+        panel.add(Box.createHorizontalStrut(10));
 
         txtSearchPNR = new JTextField(20);
+        txtSearchPNR.setMaximumSize(new Dimension(200, 35));
+        panel.add(txtSearchPNR);
+
+        panel.add(Box.createHorizontalStrut(15));
 
         JButton btnSearch = new JButton("Tìm kiếm");
-        btnSearch.setBackground(new Color(40,70,130));
+        btnSearch.setBackground(new Color(40, 70, 130));
         btnSearch.setForeground(Color.WHITE);
+        btnSearch.setFocusPainted(false);
+        btnSearch.setMaximumSize(new Dimension(120, 35));
+        panel.add(btnSearch);
+
+        panel.add(Box.createHorizontalStrut(30));
 
         JLabel lblTrangThai = new JLabel("Trạng thái:");
+        lblTrangThai.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        panel.add(lblTrangThai);
+        panel.add(Box.createHorizontalStrut(10));
 
         cboTrangThai = new JComboBox<>(new String[]{
-                "Tất cả",
-                "Chưa thanh toán",
-                "Đã thanh toán",
-                "Đã hủy"
+                "Tất cả", "Chưa thanh toán", "Đã thanh toán", "Đã hủy"
         });
+        cboTrangThai.setMaximumSize(new Dimension(160, 35));
+        panel.add(cboTrangThai);
 
         btnSearch.addActionListener(e -> timPhieu());
-
-        panel.add(lblSearch);
-        panel.add(txtSearchPNR);
-        panel.add(btnSearch);
-        panel.add(lblTrangThai);
-        panel.add(cboTrangThai);
 
         return panel;
     }
@@ -223,7 +233,6 @@ public class PhieuDatVePanel extends JPanel {
         String trangThai = cboTrangThai.getSelectedItem().toString();
 
         tableModel.setRowCount(0);
-
         List<PhieuDatVe> list = phieuDAO.locPhieu(maPNR, trangThai);
 
         for (PhieuDatVe p : list) {
@@ -235,5 +244,16 @@ public class PhieuDatVePanel extends JPanel {
                     p.getTrangThaiThanhToan()
             });
         }
-}
+
+        // ================= FIX: Tự động hiển thị chi tiết khi tìm được đúng 1 phiếu =================
+        modelVe.setRowCount(0);           // Xóa dữ liệu cũ
+        panelVe.setVisible(false);
+
+        if (tableModel.getRowCount() == 1) {
+            // Tự động chọn dòng đầu tiên (rất hữu ích khi tìm theo Mã PNR)
+            table.setRowSelectionInterval(0, 0);
+            // Listener sẽ tự động gọi loadVeTheoPhieu() và setVisible(true)
+        }
+        // Nếu tìm được nhiều phiếu → người dùng click tay để xem chi tiết (tránh nhầm)
+    }
 }
