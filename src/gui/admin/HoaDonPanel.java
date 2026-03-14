@@ -414,7 +414,6 @@ public class HoaDonPanel extends JPanel {
         });
 
         // ================= SỰ KIỆN NÚT XEM CHI TIẾT GỌI FORM THANH TOÁN =================
-       // ================= SỰ KIỆN NÚT XEM CHI TIẾT GỌI FORM THANH TOÁN =================
         btnThanhToan.addActionListener(e -> {
             int row = table.getSelectedRow();
             if (row < 0) {

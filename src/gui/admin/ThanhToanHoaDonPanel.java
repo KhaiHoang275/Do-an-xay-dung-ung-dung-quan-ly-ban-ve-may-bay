@@ -34,6 +34,7 @@ public class ThanhToanHoaDonPanel extends JPanel {
     private JLabel lblGiaVe, lblThue, lblDichVu, lblGiamGia, lblTongTien;
     private JComboBox<String> cboPhuongThuc;
     private JButton btnXuatPDF, btnDong;
+    private JLabel lblTienGhe;
 
     private final Color PRIMARY = new Color(220, 38, 38);
     private final Color BG_MAIN = new Color(245, 247, 250);
@@ -108,6 +109,7 @@ public class ThanhToanHoaDonPanel extends JPanel {
         rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
 
         lblGiaVe = createPriceLabel("0 VND");
+        lblTienGhe = createPriceLabel("0 VND");
         lblDichVu = createPriceLabel("0 VND");
         lblThue = createPriceLabel("0 VND");
         lblGiamGia = createPriceLabel("0 VND"); // BỔ SUNG: Khởi tạo nhãn Giảm giá
@@ -121,6 +123,7 @@ public class ThanhToanHoaDonPanel extends JPanel {
         cboPhuongThuc.setEnabled(false);
 
         rightPanel.add(createSummaryRow("Tổng Giá vé gốc:", lblGiaVe)); rightPanel.add(Box.createVerticalStrut(15));
+        rightPanel.add(createSummaryRow("Tổng tiền ghế:", lblTienGhe));
         rightPanel.add(createSummaryRow("Tổng DV bổ sung:", lblDichVu)); rightPanel.add(Box.createVerticalStrut(15));
         rightPanel.add(createSummaryRow("Thuế VAT (10%):", lblThue)); rightPanel.add(Box.createVerticalStrut(15));
         
@@ -148,6 +151,10 @@ public class ThanhToanHoaDonPanel extends JPanel {
         mainContent.add(leftPanel, BorderLayout.CENTER);
         mainContent.add(rightPanel, BorderLayout.EAST);
         add(mainContent, BorderLayout.CENTER);
+
+        lblTienGhe = createPriceLabel("0 VND");
+        rightPanel.add(createSummaryRow("Tổng tiền ghế:", lblTienGhe)); 
+        rightPanel.add(Box.createVerticalStrut(15));
 
         setupListeners();
     }
@@ -205,7 +212,6 @@ public class ThanhToanHoaDonPanel extends JPanel {
             }
         }
         
-        // GỌI DB ĐỂ LẤY DỮ LIỆU THẬT
         HoaDonBUS bus = new HoaDonBUS();
         ThanhToanDTO data = bus.layChiTietThanhToan(maPhieu); 
         
@@ -228,16 +234,19 @@ public class ThanhToanHoaDonPanel extends JPanel {
             BigDecimal thueVal = new BigDecimal(rawThue.isEmpty() ? "0" : rawThue);
             lblThue.setText(String.format("%,.0f VND", thueVal));
             
-            // BỔ SUNG: Truy vấn và hiển thị Tiền giảm giá
+            // --- PHẦN CẬP NHẬT MỚI ---
             HoaDonDAO dao = new HoaDonDAO();
+            BigDecimal tienGhe = dao.layTongTienGheCuaHoaDon(maHD);
+            lblTienGhe.setText(String.format("%,.0f VND", tienGhe));
+
             BigDecimal tienGiam = dao.layTienGiamGiaTuPhieuDat(maPhieu);
             if (tienGiam.compareTo(BigDecimal.ZERO) > 0) {
-                // Thêm dấu "-" phía trước để người dùng hiểu đây là khoản bị trừ đi
                 lblGiamGia.setText(String.format("-%,.0f VND", tienGiam));
-                lblGiamGia.setForeground(new Color(34, 197, 94)); // Đổi màu xanh lá cho nổi bật
+                lblGiamGia.setForeground(new Color(34, 197, 94));
             } else {
                 lblGiamGia.setText("0 VND");
             }
+            // -------------------------
             
             String rawTongTien = this.tongTien.replaceAll("[^0-9]", ""); 
             BigDecimal finalTotal = new BigDecimal(rawTongTien.isEmpty() ? "0" : rawTongTien);

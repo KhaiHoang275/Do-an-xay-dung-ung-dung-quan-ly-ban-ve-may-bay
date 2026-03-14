@@ -135,7 +135,6 @@ public class HoaDonDAO {
             pst.setBigDecimal(7, hd.getThue());
             // Cập nhật trường trangThai
             pst.setString(8, hd.getTrangThai());
-            // Khóa chính nằm cuối cùng (vị trí số 9)
             pst.setString(9, hd.getMaHoaDon()); 
             
             if (pst.executeUpdate() > 0) {
