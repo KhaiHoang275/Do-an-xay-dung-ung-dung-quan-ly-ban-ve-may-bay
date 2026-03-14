@@ -1,37 +1,40 @@
 package model;
+
 import java.math.BigDecimal;
 
 public class CTHoaDon {
-    private String maCTHD;     
-    private String maHoaDon;   
-    private String maVe;        
-    private BigDecimal soTien;  
-    private String maNguoiDung; 
+    private String maHoaDon;
+    private String maVe;
+    private BigDecimal donGiaVe;
+    private BigDecimal tienDichVu;
+    private BigDecimal thueVAT;
+    private BigDecimal thanhTien;
 
+    // Default constructor
     public CTHoaDon() {
     }
-    public CTHoaDon(String maCTHD, String maHoaDon, String maVe, BigDecimal soTien, String maNguoiDung) {
-        this.maCTHD = maCTHD;
+
+    // Parameterized constructor
+    public CTHoaDon(String maHoaDon, String maVe, BigDecimal donGiaVe, BigDecimal tienDichVu, BigDecimal thueVAT, BigDecimal thanhTien) {
         this.maHoaDon = maHoaDon;
         this.maVe = maVe;
-        this.soTien = soTien;
-        this.maNguoiDung = maNguoiDung;
+        this.donGiaVe = donGiaVe;
+        this.tienDichVu = tienDichVu;
+        this.thueVAT = thueVAT;
+        this.thanhTien = thanhTien;
     }
-    public CTHoaDon(CTHoaDon cthd){
-        this.maCTHD = cthd.maCTHD;
+
+    // Copy constructor
+    public CTHoaDon(CTHoaDon cthd) {
         this.maHoaDon = cthd.maHoaDon;
         this.maVe = cthd.maVe;
-        this.soTien = cthd.soTien;
-        this.maNguoiDung = cthd.maNguoiDung;
-    }
-    public String getMaCTHD() {
-        return maCTHD;
-    }
-
-    public void setMaCTHD(String maCTHD) {
-        this.maCTHD = maCTHD;
+        this.donGiaVe = cthd.donGiaVe;
+        this.tienDichVu = cthd.tienDichVu;
+        this.thueVAT = cthd.thueVAT;
+        this.thanhTien = cthd.thanhTien;
     }
 
+    // Getters and Setters
     public String getMaHoaDon() {
         return maHoaDon;
     }
@@ -48,24 +51,41 @@ public class CTHoaDon {
         this.maVe = maVe;
     }
 
-    public BigDecimal getSoTien() {
-        return soTien;
+    public BigDecimal getDonGiaVe() {
+        return donGiaVe;
     }
 
-    public void setSoTien(BigDecimal soTien) {
-        this.soTien = soTien;
+    public void setDonGiaVe(BigDecimal donGiaVe) {
+        this.donGiaVe = donGiaVe;
     }
 
-    public String getMaNguoiDung() {
-        return maNguoiDung;
+    public BigDecimal getTienDichVu() {
+        return tienDichVu;
     }
 
-    public void setMaNguoiDung(String maNguoiDung) {
-        this.maNguoiDung = maNguoiDung;
+    public void setTienDichVu(BigDecimal tienDichVu) {
+        this.tienDichVu = tienDichVu;
     }
-    @Override
+
+    public BigDecimal getThueVAT() {
+        return thueVAT;
+    }
+
+    public void setThueVAT(BigDecimal thueVAT) {
+        this.thueVAT = thueVAT;
+    }
+
+    public BigDecimal getThanhTien() {
+        return thanhTien;
+    }
+
+    public void setThanhTien(BigDecimal thanhTien) {
+        this.thanhTien = thanhTien;
+    }
+
+   @Override
     public String toString() {
-        return " " + maCTHD + " " + maHoaDon + " " + maVe 
-                + " " + soTien + " " + maNguoiDung + " ";
+        return " " + maHoaDon + " " + maVe + " " + donGiaVe 
+                + " " + tienDichVu + " " + thueVAT + " " + thanhTien + " ";
     }
 }

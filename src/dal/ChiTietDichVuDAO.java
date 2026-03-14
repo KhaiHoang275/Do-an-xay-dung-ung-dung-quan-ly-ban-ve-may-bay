@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.List;
 
 import db.DBConnection;
 import model.ChiTietDichVu;
@@ -24,7 +25,7 @@ public class ChiTietDichVuDAO {
                 ct.setThanhTien(rs.getBigDecimal("thanhTien"));
                 list.add(ct);
             }
-        } catch (Exception e) {
+        } catch (Exception e) {                  
             e.printStackTrace();
         }
         return list;
@@ -46,4 +47,66 @@ public class ChiTietDichVuDAO {
         }
         return isSuccess;
     }
+
+    // ============================================================
+    // BỔ SUNG HÀM selectByMaVe ĐỂ HẾT LỖI Ở TẦNG BUS
+    // ============================================================
+    public List<ChiTietDichVu> selectByMaVe(String maVe) {
+        List<ChiTietDichVu> list = new ArrayList<>();
+        try (Connection con = DBConnection.getConnection()) {
+            String sql = "SELECT * FROM ChiTietDichVu WHERE maVe = ?";
+            PreparedStatement pst = con.prepareStatement(sql);
+            pst.setString(1, maVe);
+            ResultSet rs = pst.executeQuery();
+            while (rs.next()) {
+                ChiTietDichVu ct = new ChiTietDichVu();
+                ct.setMaVe(rs.getString("maVe"));
+                ct.setMaDichVu(rs.getString("maDichVu"));
+                ct.setSoLuong(rs.getInt("soLuong"));
+                ct.setThanhTien(rs.getBigDecimal("thanhTien"));
+                list.add(ct);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // ============================================================
+    // BỔ SUNG HÀM delete ĐỂ HẾT LỖI Ở TẦNG BUS
+    // ============================================================
+    public boolean delete(String maVe, String maDichVu) {
+        boolean isSuccess = false;
+        try (Connection con = DBConnection.getConnection()) {
+            String sql = "DELETE FROM ChiTietDichVu WHERE maVe = ? AND maDichVu = ?";
+            PreparedStatement pst = con.prepareStatement(sql);
+            pst.setString(1, maVe);
+            pst.setString(2, maDichVu);
+            
+            if (pst.executeUpdate() > 0) isSuccess = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return isSuccess;
+    }
+
+    // HÀM CẬP NHẬT KHI KHÁCH MUA THÊM DỊCH VỤ ĐÃ CÓ
+    public boolean update(ChiTietDichVu ct) {
+        boolean isSuccess = false;
+        try (Connection con = DBConnection.getConnection()) {
+            String sql = "UPDATE ChiTietDichVu SET soLuong = ?, thanhTien = ? WHERE maVe = ? AND maDichVu = ?";
+            PreparedStatement pst = con.prepareStatement(sql);
+            
+            pst.setInt(1, ct.getSoLuong());
+            pst.setBigDecimal(2, ct.getThanhTien());
+            pst.setString(3, ct.getMaVe());
+            pst.setString(4, ct.getMaDichVu());
+            
+            if (pst.executeUpdate() > 0) isSuccess = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return isSuccess;
+    }
+    
 }

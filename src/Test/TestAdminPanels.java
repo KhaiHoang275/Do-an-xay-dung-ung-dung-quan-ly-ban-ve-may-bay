@@ -1,4 +1,4 @@
-package test;
+package Test;
 
 import gui.main.AdminMainFrame;
 import com.formdev.flatlaf.FlatIntelliJLaf;

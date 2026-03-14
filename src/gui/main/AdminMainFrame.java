@@ -312,4 +312,9 @@ public class AdminMainFrame extends JFrame {
         contentPanel.revalidate();
         contentPanel.repaint();
     }
+    public static void main(String[] args) {
+    SwingUtilities.invokeLater(() -> {
+        new AdminMainFrame().setVisible(true);
+    });
+}
 }

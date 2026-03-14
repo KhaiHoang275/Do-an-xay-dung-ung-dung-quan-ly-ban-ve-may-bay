@@ -65,9 +65,12 @@ public class HanhLyPanel extends JPanel {
         btnTimKiem = new JButton("Tìm kiếm");
         btnTimKiem.setPreferredSize(new Dimension(130, 35));
         btnTimKiem.setBackground(TABLE_HEADER);
+        btnTimKiem.setOpaque(true);
         btnTimKiem.setForeground(Color.WHITE);
         btnTimKiem.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btnTimKiem.setFocusPainted(false);
+        btnTimKiem = createButton("Tìm kiếm", BTN_UPDATE);
+        btnTimKiem.setPreferredSize(new Dimension(130, 35));
         try { setButtonIcon(btnTimKiem, "/resources/icons/icons8-search-24.png", 16); } catch (Exception e){}
 
         cboHienThi = new JComboBox<>(new String[]{"Đang hiển thị", "Thùng rác"});
@@ -111,11 +114,13 @@ public class HanhLyPanel extends JPanel {
         txtSoKg = createTextField();
         txtKichThuoc = createTextField();
         txtGiaTien = createTextField();
+        txtGiaTien.setEditable(false); // Khóa ô nhập
+        txtGiaTien.setBackground(new Color(235, 235, 235));
         txtGhiChu = createTextField();
         
-        cbTrangThai = new JComboBox<>(new String[]{"Chưa sử dụng", "Đã sử dụng", "Hủy"});
+       cbTrangThai = new JComboBox<>(new String[]{"Chua Check-in", "Đã Check-in", "Hủy"});
         cbTrangThai.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-
+        
         formPanel.add(createLabel("Mã Hành Lý:"));
         formPanel.add(txtMaHanhLy);
         formPanel.add(createLabel("Giá Tiền (VNĐ):"));
@@ -211,11 +216,20 @@ public class HanhLyPanel extends JPanel {
         table.setShowVerticalLines(false);
 
         JTableHeader header = table.getTableHeader();
-        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        header.setBackground(TABLE_HEADER);
-        header.setForeground(Color.WHITE);
         header.setPreferredSize(new Dimension(header.getWidth(), 40));
-        
+
+        // --- ĐOẠN SỬA LỖI TRẮNG BÓC TIÊU ĐỀ ---
+        DefaultTableCellRenderer headerRenderer = new DefaultTableCellRenderer();
+        headerRenderer.setBackground(TABLE_HEADER); // Màu xanh đen bạn đã khai báo
+        headerRenderer.setForeground(Color.WHITE);  // Chữ trắng
+        headerRenderer.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        headerRenderer.setHorizontalAlignment(JLabel.CENTER);
+
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setHeaderRenderer(headerRenderer);
+        }
+        // --------------------------------------
+
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
         for(int i = 0; i < table.getColumnCount(); i++){
@@ -380,33 +394,56 @@ public class HanhLyPanel extends JPanel {
             
             loadDataToTable(ketQua);
         });
+        // TỰ ĐỘNG NHẢY GIÁ TIỀN KHI NHẬP SỐ KG
+        txtSoKg.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            public void insertUpdate(javax.swing.event.DocumentEvent e) { tinhTien(); }
+            public void removeUpdate(javax.swing.event.DocumentEvent e) { tinhTien(); }
+            public void changedUpdate(javax.swing.event.DocumentEvent e) { tinhTien(); }
+
+            private void tinhTien() {
+                SwingUtilities.invokeLater(() -> {
+                    try {
+                        String text = txtSoKg.getText().trim();
+                        if (text.isEmpty()) {
+                            txtGiaTien.setText("0");
+                            return;
+                        }
+                        
+                        double kg = Double.parseDouble(text);
+                        long gia = 0;
+
+                        // Áp dụng Kịch bản 2: Tính theo gói
+                        if (kg <= 15) gia = 150000;
+                        else if (kg <= 20) gia = 200000;
+                        else if (kg <= 30) gia = 350000;
+                        else {
+                            // Quá 30kg: 350k + 50k cho mỗi kg vượt
+                            gia = 350000 + (long)((kg - 30) * 50000);
+                        }
+
+                        txtGiaTien.setText(String.valueOf(gia));
+                    } catch (NumberFormatException ex) {
+                        txtGiaTien.setText("0");
+                    }
+                });
+            }
+        });
     }
 
-    private HanhLy getFormInput() throws Exception {
+  private HanhLy getFormInput() throws Exception {
         String maHL = txtMaHanhLy.getText().trim();
         if (maHL.isEmpty()) throw new Exception("Mã hành lý không được để trống!");
         
         String maVe = txtMaVe.getText().trim();
+        if (maVe.isEmpty()) throw new Exception("Mã vé không được để trống!");
         
-        BigDecimal soKg = BigDecimal.ZERO;
-        try {
-            soKg = new BigDecimal(txtSoKg.getText().trim().isEmpty() ? "0" : txtSoKg.getText().trim());
-        } catch (NumberFormatException e) {
-            throw new Exception("Số Kg phải là số hợp lệ!");
-        }
+        BigDecimal soKg = new BigDecimal(txtSoKg.getText().trim().isEmpty() ? "0" : txtSoKg.getText().trim());
+        if (soKg.compareTo(BigDecimal.ZERO) <= 0) throw new Exception("Số Kg phải lớn hơn 0!");
 
-        String kichThuoc = txtKichThuoc.getText().trim();
-        
-        BigDecimal giaTien = BigDecimal.ZERO;
-        try {
-            giaTien = new BigDecimal(txtGiaTien.getText().trim().isEmpty() ? "0" : txtGiaTien.getText().trim());
-        } catch (NumberFormatException e) {
-            throw new Exception("Giá tiền phải là số hợp lệ!");
-        }
+        // Lấy giá tiền đã được tính tự động hiển thị trên ô text
+        BigDecimal giaTien = new BigDecimal(txtGiaTien.getText());
 
-        String trangThai = cbTrangThai.getSelectedItem().toString();
-        String ghiChu = txtGhiChu.getText().trim();
-
-        return new HanhLy(maHL, maVe, soKg, kichThuoc, giaTien, trangThai, ghiChu);
+        return new HanhLy(maHL, maVe, soKg, txtKichThuoc.getText().trim(), giaTien, 
+                          cbTrangThai.getSelectedItem().toString(), txtGhiChu.getText().trim());
     }
 }

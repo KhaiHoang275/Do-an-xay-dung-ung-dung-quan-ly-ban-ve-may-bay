@@ -25,12 +25,11 @@ public class HoaDonPanel extends JPanel {
     private DefaultTableModel tableModel;
     private JTextField txtMaHoaDon, txtMaPhieuDatVe, txtMaNV, txtTongTien, txtThue, txtTimKiem;
     private JSpinner spinnerNgayLap;
-    private JComboBox<String> cboPhuongThuc, cboDonViTienTe, cboHienThi;
-    private JButton btnThem, btnSua, btnXoa, btnLamMoi, btnTimKiem, btnThanhToan; 
+    private JComboBox<String> cboPhuongThuc, cboDonViTienTe, cboHienThi, cboTrangThai;
+    private JButton  btnSua, btnXoa, btnLamMoi, btnTimKiem, btnThanhToan; 
 
     private HoaDonBUS hoaDonBUS;
 
-    // Bảng màu chuẩn dự án
     private final Color PRIMARY = new Color(220, 38, 38);
     private final Color BG_MAIN = new Color(245, 247, 250);
     private final Color TABLE_HEADER = new Color(30, 41, 59);
@@ -53,7 +52,6 @@ public class HoaDonPanel extends JPanel {
     }
 
     private void initComponents() {
-        // ================= HEADER & SEARCH =================
         JPanel headerPanel = new JPanel(new BorderLayout(10, 10));
         headerPanel.setOpaque(false);
 
@@ -89,11 +87,10 @@ public class HoaDonPanel extends JPanel {
         headerPanel.add(searchPanel, BorderLayout.EAST);
         add(headerPanel, BorderLayout.NORTH);
 
-        // ================= TABLE =================
         JPanel tableCard = createCardPanel();
         tableCard.setLayout(new BorderLayout());
 
-        String[] columns = {"Mã Hóa Đơn", "Phiếu Đặt", "Mã NV", "Ngày Lập", "Tổng Tiền", "Phương Thức", "Tiền Tệ", "Thuế"};
+        String[] columns = {"Mã Hóa Đơn", "Phiếu Đặt", "Ngày Lập", "Mã NV", "Phương Thức", "Thuế", "Tổng Tiền", "Tiền Tệ", "Trạng Thái"};
         tableModel = new DefaultTableModel(columns, 0) {
             public boolean isCellEditable(int row, int column) { return false; }
         };
@@ -107,11 +104,10 @@ public class HoaDonPanel extends JPanel {
         tableCard.add(scrollPane, BorderLayout.CENTER);
         add(tableCard, BorderLayout.CENTER);
 
-        // ================= FORM =================
         JPanel formCard = createCardPanel();
         formCard.setLayout(new BorderLayout(20, 20));
 
-        JPanel formPanel = new JPanel(new GridLayout(4, 4, 15, 15));
+        JPanel formPanel = new JPanel(new GridLayout(5, 4, 15, 15));
         formPanel.setOpaque(false);
 
         txtMaHoaDon = createTextField();
@@ -119,12 +115,18 @@ public class HoaDonPanel extends JPanel {
         txtMaNV = createTextField();
         txtTongTien = createTextField();
         txtThue = createTextField();
+        txtTongTien.setEditable(false);
+        txtTongTien.setBackground(new Color(235, 235, 235)); 
+        txtThue.setEditable(false);
+        txtThue.setBackground(new Color(235, 235, 235));
         
         spinnerNgayLap = createDateTimeSpinner();
         
         cboPhuongThuc = new JComboBox<>(new String[]{"Tiền mặt", "Chuyển khoản", "Thẻ tín dụng", "Ví điện tử"});
         cboPhuongThuc.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        
+        cboTrangThai = new JComboBox<>(new String[]{"Đã thanh toán", "Chưa thanh toán", "Đã hủy"});
+        cboTrangThai.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+
         cboDonViTienTe = new JComboBox<>(new String[]{"VND", "USD"});
         cboDonViTienTe.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
@@ -148,26 +150,26 @@ public class HoaDonPanel extends JPanel {
         formPanel.add(createLabel("Đơn Vị Tiền Tệ:"));
         formPanel.add(cboDonViTienTe);
 
+        formPanel.add(createLabel("Trạng Thái:"));
+        formPanel.add(cboTrangThai);
+        formPanel.add(new JLabel("")); 
+        formPanel.add(new JLabel("")); 
+
         JPanel formWrapper = new JPanel(new BorderLayout());
         formWrapper.setOpaque(false);
         formWrapper.add(formPanel, BorderLayout.NORTH);
 
         formCard.add(formWrapper, BorderLayout.CENTER);
 
-        // ================= BUTTONS =================
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
         buttonPanel.setOpaque(false);
 
-        btnThem = createRoundedButton("Thêm", BTN_ADD, "/resources/icons/icons8-add-24.png", 20);
         btnSua = createRoundedButton("Cập nhật", BTN_UPDATE, "/resources/icons/icons8-update-24.png", 20);
         btnXoa = createRoundedButton("Xóa", BTN_DELETE, "/resources/icons/icons8-delete-24.png", 20);
         btnLamMoi = createRoundedButton("Làm mới", BTN_REFRESH, "/resources/icons/icons8-erase-24.png", 20);
+        btnThanhToan = createRoundedButton("Xem Chi Tiết Hóa Đơn", BTN_UPDATE, "/resources/icons/icons8-view-24.png", 20);
+        btnThanhToan.setPreferredSize(new Dimension(230, 40));      
         
-        // Thêm nút Thanh toán
-        btnThanhToan = createRoundedButton("Thanh toán & Xuất PDF", BTN_PAY, "/resources/icons/icons8-pdf-24.png", 20);
-        btnThanhToan.setPreferredSize(new Dimension(220, 40));
-
-        buttonPanel.add(btnThem);
         buttonPanel.add(btnSua);
         buttonPanel.add(btnXoa);
         buttonPanel.add(btnLamMoi);
@@ -180,7 +182,6 @@ public class HoaDonPanel extends JPanel {
         setupListeners();
     }
 
-    // NÚT BO TRÒN SIÊU MƯỢT
     private JButton createRoundedButton(String text, Color bgColor, String iconPath, int iconSize) {
         JButton btn = new JButton(text) {
             @Override
@@ -237,7 +238,7 @@ public class HoaDonPanel extends JPanel {
     private JTextField createTextField() {
         JTextField txt = new JTextField();
         txt.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txt.setPreferredSize(new Dimension(250, 35));
+        txt.setPreferredSize(new Dimension(240, 33));
         txt.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(200, 200, 200)),
                 BorderFactory.createEmptyBorder(5, 10, 5, 10)
@@ -264,10 +265,17 @@ public class HoaDonPanel extends JPanel {
         table.setShowVerticalLines(false);
 
         JTableHeader header = table.getTableHeader();
-        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        header.setBackground(TABLE_HEADER);
-        header.setForeground(Color.WHITE);
         header.setPreferredSize(new Dimension(header.getWidth(), 40));
+
+        DefaultTableCellRenderer headerRenderer = new DefaultTableCellRenderer();
+        headerRenderer.setBackground(TABLE_HEADER); 
+        headerRenderer.setForeground(Color.WHITE);  
+        headerRenderer.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        headerRenderer.setHorizontalAlignment(JLabel.CENTER); 
+
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setHeaderRenderer(headerRenderer);
+        }
 
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
@@ -280,46 +288,48 @@ public class HoaDonPanel extends JPanel {
         tableModel.setRowCount(0);
         if (list == null) return;
         for (HoaDon hd : list) {
-            tableModel.addRow(new Object[]{
-                    hd.getMaHoaDon(),
-                    hd.getMaPhieuDatVe(),
-                    hd.getMaNV(),
-                    hd.getNgayLap() != null ? hd.getNgayLap().format(formatter) : "",
-                    String.format("%,.0f", hd.getTongTien()),
-                    hd.getPhuongThuc(),
-                    hd.getDonViTienTe(),
-                    String.format("%,.0f", hd.getThue())
+           tableModel.addRow(new Object[]{
+                    hd.getMaHoaDon(),                                                
+                    hd.getMaPhieuDatVe(),                                             
+                    hd.getNgayLap() != null ? hd.getNgayLap().format(formatter) : "", 
+                    hd.getMaNV(),                                                 
+                    hd.getPhuongThuc(),                                            
+                    String.format("%,.0f", hd.getThue()),                            
+                    String.format("%,.0f", hd.getTongTien()),                         
+                    hd.getDonViTienTe(),                                              
+                    hd.getTrangThai()                                                 
             });
         }
     }
 
     private void setupListeners() {
-        table.addMouseListener(new MouseAdapter() {
+       table.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 int row = table.getSelectedRow();
                 if (row >= 0) {
                     txtMaHoaDon.setText(tableModel.getValueAt(row, 0).toString());
                     txtMaHoaDon.setEditable(false);
                     txtMaPhieuDatVe.setText(tableModel.getValueAt(row, 1) != null ? tableModel.getValueAt(row, 1).toString() : "");
-                    txtMaNV.setText(tableModel.getValueAt(row, 2) != null ? tableModel.getValueAt(row, 2).toString() : "");
                     
-                    // Parse Date
                     try {
-                        String dateStr = tableModel.getValueAt(row, 3).toString();
+                        String dateStr = tableModel.getValueAt(row, 2) != null ? tableModel.getValueAt(row, 2).toString() : "";
                         if (!dateStr.isEmpty()) {
                             LocalDateTime ldt = LocalDateTime.parse(dateStr, formatter);
                             spinnerNgayLap.setValue(Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant()));
                         }
                     } catch (Exception ex) {}
 
-                    String tongTienStr = tableModel.getValueAt(row, 4) != null ? tableModel.getValueAt(row, 4).toString().replace(",", "") : "0";
+                    txtMaNV.setText(tableModel.getValueAt(row, 3) != null ? tableModel.getValueAt(row, 3).toString() : "");
+                    cboPhuongThuc.setSelectedItem(tableModel.getValueAt(row, 4) != null ? tableModel.getValueAt(row, 4).toString() : "Tiền mặt");
+                    
+                    String thueStr = tableModel.getValueAt(row, 5) != null ? tableModel.getValueAt(row, 5).toString().replace(",", "") : "0";
+                    txtThue.setText(thueStr);
+
+                    String tongTienStr = tableModel.getValueAt(row, 6) != null ? tableModel.getValueAt(row, 6).toString().replace(",", "") : "0";
                     txtTongTien.setText(tongTienStr);
                     
-                    cboPhuongThuc.setSelectedItem(tableModel.getValueAt(row, 5) != null ? tableModel.getValueAt(row, 5).toString() : "Tiền mặt");
-                    cboDonViTienTe.setSelectedItem(tableModel.getValueAt(row, 6) != null ? tableModel.getValueAt(row, 6).toString() : "VND");
-                    
-                    String thueStr = tableModel.getValueAt(row, 7) != null ? tableModel.getValueAt(row, 7).toString().replace(",", "") : "0";
-                    txtThue.setText(thueStr);
+                    cboDonViTienTe.setSelectedItem(tableModel.getValueAt(row, 7) != null ? tableModel.getValueAt(row, 7).toString() : "VND");
+                    cboTrangThai.setSelectedItem(tableModel.getValueAt(row, 8) != null ? tableModel.getValueAt(row, 8).toString() : "Đã thanh toán");
                 }
             }
         });
@@ -327,27 +337,13 @@ public class HoaDonPanel extends JPanel {
         cboHienThi.addActionListener(e -> {
             boolean isTrash = cboHienThi.getSelectedIndex() == 1;
             if (isTrash) {
-                btnThem.setEnabled(false);
                 btnSua.setEnabled(false);
                 btnXoa.setEnabled(false);
                 tableModel.setRowCount(0); 
             } else {
-                btnThem.setEnabled(true);
                 btnSua.setEnabled(true);
                 btnXoa.setEnabled(true);
                 loadDataToTable(hoaDonBUS.docDanhSachHoaDon());
-            }
-        });
-
-        // CÁC SỰ KIỆN CRUD: THÊM, SỬA, XÓA, LÀM MỚI
-        btnThem.addActionListener(e -> {
-            try {
-                HoaDon hd = getFormInput();
-                String result = hoaDonBUS.themHoaDon(hd);
-                JOptionPane.showMessageDialog(this, result);
-                if (result.contains("Thành công")) btnLamMoi.doClick();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE);
             }
         });
 
@@ -417,29 +413,33 @@ public class HoaDonPanel extends JPanel {
             loadDataToTable(ketQua);
         });
 
-        // ================= SỰ KIỆN NÚT THANH TOÁN =================
+        // ================= SỰ KIỆN NÚT XEM CHI TIẾT GỌI FORM THANH TOÁN =================
         btnThanhToan.addActionListener(e -> {
             int row = table.getSelectedRow();
             if (row < 0) {
-                JOptionPane.showMessageDialog(this, "Vui lòng click chọn một Hóa đơn trên bảng để thanh toán!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Vui lòng click chọn một Hóa đơn trên bảng để xem chi tiết!", "Thông báo", JOptionPane.WARNING_MESSAGE);
                 return;
             }
             
-            // 1. Lấy toàn bộ dữ liệu từ bảng tại dòng bạn vừa click
+            // Lấy thông tin dòng hiện tại
             String maHD = tableModel.getValueAt(row, 0).toString();
-            String maPhieu = tableModel.getValueAt(row, 1).toString();
-            String ngayLap = tableModel.getValueAt(row, 3) != null ? tableModel.getValueAt(row, 3).toString() : "";
-            String tongTien = tableModel.getValueAt(row, 4) != null ? tableModel.getValueAt(row, 4).toString() : "0";
-            String phuongThuc = tableModel.getValueAt(row, 5) != null ? tableModel.getValueAt(row, 5).toString() : "";
-            String thue = tableModel.getValueAt(row, 7) != null ? tableModel.getValueAt(row, 7).toString() : "0";
-
-            // 2. Mở popup và TRUYỀN ĐÚNG 6 THAM SỐ VÀO FILE ThanhToanHoaDonPanel
-            JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Thanh Toán & Xuất Hóa Đơn (" + maHD + ")", true);
-            dialog.setSize(1050, 700);
-            dialog.setLocationRelativeTo(this);
+            String maPhieu = tableModel.getValueAt(row, 1) != null ? tableModel.getValueAt(row, 1).toString() : "";
+            String ngayLap = tableModel.getValueAt(row, 2) != null ? tableModel.getValueAt(row, 2).toString() : "";
+            String phuongThuc = tableModel.getValueAt(row, 4) != null ? tableModel.getValueAt(row, 4).toString() : "Tiền mặt";
+            String thue = tableModel.getValueAt(row, 5) != null ? tableModel.getValueAt(row, 5).toString().replace(",", "") : "0";
+            String tongTienHD = tableModel.getValueAt(row, 6).toString().replace(",", "");
             
-            dialog.add(new ThanhToanHoaDonPanel(maHD, maPhieu, ngayLap, tongTien, phuongThuc, thue, null));            
-            dialog.setVisible(true);
+            // Mở Popup Gọi Form ThanhToanHoaadmin (Đã bỏ session đi)
+            JDialog detailDialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Chi Tiết Hóa Đơn", true);
+            detailDialog.setSize(1000, 700);
+            detailDialog.setLocationRelativeTo(this);
+            
+            gui.admin.ThanhToanHoaDonPanel chiTietPanel = new gui.admin.ThanhToanHoaDonPanel(
+                maHD, maPhieu, ngayLap, tongTienHD, phuongThuc, thue
+            );
+            
+            detailDialog.add(chiTietPanel);
+            detailDialog.setVisible(true);
         });
     }
 
@@ -471,7 +471,17 @@ public class HoaDonPanel extends JPanel {
 
         String phuongThuc = cboPhuongThuc.getSelectedItem().toString();
         String donViTienTe = cboDonViTienTe.getSelectedItem().toString();
+        HoaDon hd = new HoaDon(); 
+                hd.setMaHoaDon(maHD);
+                hd.setMaPhieuDatVe(maPhieu);
+                hd.setMaNV(maNV);
+                hd.setTongTien(tongTien);
+                hd.setPhuongThuc(phuongThuc);
+                hd.setDonViTienTe(donViTienTe);
+                hd.setThue(thue);
+                hd.setTrangThai(cboTrangThai.getSelectedItem().toString());
+                hd.setNgayLap(ngayLap); 
 
-        return new HoaDon(maHD, maPhieu, maNV, ngayLap, tongTien, phuongThuc, donViTienTe, thue);
+                return hd;
     }
 }
