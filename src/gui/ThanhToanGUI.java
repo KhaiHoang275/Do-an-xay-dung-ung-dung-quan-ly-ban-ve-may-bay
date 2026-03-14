@@ -2,6 +2,7 @@ package gui;
 
 import dal.*;
 import model.*;
+import bll.ThuHangBUS; // Thêm import thư viện BUS của bạn
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
@@ -9,6 +10,7 @@ import java.awt.*;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -19,6 +21,8 @@ public class ThanhToanGUI extends JPanel {
 
     private DatVeSession session;
     private KhuyenMaiDAO kmDAO = new KhuyenMaiDAO();
+    private VeBanDAO veBanDAO = new VeBanDAO(); 
+    private ThuHangBUS thuHangBUS = new ThuHangBUS(); // Khởi tạo BUS xử lý hạng và điểm
     
     private JLabel lblTongVe, lblTongDV, lblGiamGia, lblTongThanhToan;
     private JComboBox<KhuyenMai> cboKhuyenMai;
@@ -26,6 +30,10 @@ public class ThanhToanGUI extends JPanel {
     
     private BigDecimal finalAmount = BigDecimal.ZERO;
     private BigDecimal thueVAT = BigDecimal.ZERO; 
+    
+    private Timer countdownTimer;
+    private int timeLeft = 600; 
+    private JLabel lblTimer;
 
     public ThanhToanGUI(DatVeSession session) {
         this.session = session;
@@ -35,6 +43,7 @@ public class ThanhToanGUI extends JPanel {
         initComponents();
         loadPromotions();
         updatePriceDisplay();
+        startCountdown(); 
     }
 
     private void initComponents() {
@@ -51,51 +60,63 @@ public class ThanhToanGUI extends JPanel {
         scrollContent.add(stepperWrapper);
         scrollContent.add(Box.createVerticalStrut(30));
 
-        JPanel pnlCenter = new JPanel(new GridLayout(1, 2, 25, 0));
+        JPanel pnlCenter = new JPanel(new GridLayout(1, 2, 30, 0));
         pnlCenter.setOpaque(false);
-        pnlCenter.setPreferredSize(new Dimension(1000, 500)); 
+        pnlCenter.setPreferredSize(new Dimension(1100, 500)); 
+
+        NumberFormat vn = NumberFormat.getInstance(new Locale("vi", "VN"));
+        
+        String hangVeDi = (session.maHangVe != null && !session.maHangVe.isEmpty()) ? session.maHangVe : "ECO";
+        BigDecimal refGiaDi = BigDecimal.ZERO;
+        try { refGiaDi = veBanDAO.tinhGiaVeFull(session.maChuyenBay, hangVeDi, "Người lớn"); } catch (Exception e){}
+        String strGiaDi = vn.format(refGiaDi) + " VNĐ";
 
         // ================= PANEL TRÁI =================
         JPanel pnlSummary = new JPanel();
         pnlSummary.setLayout(new BoxLayout(pnlSummary, BoxLayout.Y_AXIS));
         pnlSummary.setBackground(Color.WHITE);
-        pnlSummary.setBorder(createCustomTitledBorder("THÔNG TIN HÀNH TRÌNH & ĐẶT CHỖ"));
+        pnlSummary.setBorder(createCustomTitledBorder("THONG TIN HANH TRINH & DAT CHO"));
 
         pnlSummary.add(Box.createRigidArea(new Dimension(0, 10)));
-        pnlSummary.add(createSectionLabel("THÔNG TIN CHUYẾN ĐI"));
+        pnlSummary.add(createSectionLabel("- THONG TIN CHUYEN DI"));
         
         pnlSummary.add(createSummaryRow("Mã chuyến bay:", session.maChuyenBay != null ? session.maChuyenBay : "Chưa rõ"));
         
-        String hangVeDi = "Phổ thông";
-        if (session.maHangVe != null) { switch (session.maHangVe) { case "BUS": hangVeDi = "Thương gia"; break; case "FST": hangVeDi = "Hạng nhất"; break; case "PECO": hangVeDi = "Phổ thông đặc biệt"; break; } }
-        pnlSummary.add(createSummaryRow("Hạng vé:", hangVeDi));
+        String tenHangVeDi = "Phổ thông";
+        switch (hangVeDi) { case "BUS": tenHangVeDi = "Thương gia"; break; case "FST": tenHangVeDi = "Hạng nhất"; break; case "PECO": tenHangVeDi = "Phổ thông đặc biệt"; break; }
+        pnlSummary.add(createSummaryRow("Hạng vé:", tenHangVeDi));
         
         String loTrinh = (session.tenSanBayDi != null ? session.tenSanBayDi : "") + " -> " + (session.tenSanBayDen != null ? session.tenSanBayDen : "");
         pnlSummary.add(createSummaryRow("Lộ trình:", loTrinh)); 
         pnlSummary.add(createSummaryRow("Khởi hành:", (session.thoiGianDi != null ? session.thoiGianDi : "")));
+        pnlSummary.add(createSummaryRow("Giá vé/Người lớn:", strGiaDi)); 
 
         if ("Khứ hồi".equals(session.loaiVe)) {
             pnlSummary.add(Box.createRigidArea(new Dimension(0, 10)));
-            pnlSummary.add(createSectionLabel("THÔNG TIN CHUYẾN VỀ"));
+            pnlSummary.add(createSectionLabel("- THONG TIN CHUYEN VE"));
             
             String cbVe = (session.maChuyenBayVe != null && !session.maChuyenBayVe.isEmpty()) ? session.maChuyenBayVe : session.maChuyenBay;
             pnlSummary.add(createSummaryRow("Mã chuyến bay:", cbVe));
             
-            String hangVeVe = "Phổ thông";
-            String maHVV = (session.maHangVeVe != null && !session.maHangVeVe.isEmpty()) ? session.maHangVeVe : session.maHangVe;
-            if (maHVV != null) { switch (maHVV) { case "BUS": hangVeVe = "Thương gia"; break; case "FST": hangVeVe = "Hạng nhất"; break; case "PECO": hangVeVe = "Phổ thông đặc biệt"; break; } }
-            pnlSummary.add(createSummaryRow("Hạng vé:", hangVeVe));
+            String hangVeVe = (session.maHangVeVe != null && !session.maHangVeVe.isEmpty()) ? session.maHangVeVe : hangVeDi;
+            String tenHangVeVe = "Phổ thông";
+            switch (hangVeVe) { case "BUS": tenHangVeVe = "Thương gia"; break; case "FST": tenHangVeVe = "Hạng nhất"; break; case "PECO": tenHangVeVe = "Phổ thông đặc biệt"; break; }
+            pnlSummary.add(createSummaryRow("Hạng vé:", tenHangVeVe));
             
             String loTrinhVe = (session.tenSanBayDen != null ? session.tenSanBayDen : "") + " -> " + (session.tenSanBayDi != null ? session.tenSanBayDi : "");
             pnlSummary.add(createSummaryRow("Lộ trình:", loTrinhVe)); 
             pnlSummary.add(createSummaryRow("Khởi hành:", (session.thoiGianVe != null ? session.thoiGianVe : "")));
+            
+            BigDecimal refGiaVe = BigDecimal.ZERO;
+            try { refGiaVe = veBanDAO.tinhGiaVeFull(cbVe, hangVeVe, "Người lớn"); } catch (Exception e){}
+            pnlSummary.add(createSummaryRow("Giá vé/Người lớn:", vn.format(refGiaVe) + " VNĐ")); 
         }
 
         pnlSummary.add(Box.createRigidArea(new Dimension(0, 20)));
         JSeparator sep = new JSeparator(); sep.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1)); pnlSummary.add(sep);
         pnlSummary.add(Box.createRigidArea(new Dimension(0, 10)));
 
-        pnlSummary.add(createSectionLabel("DANH SÁCH HÀNH KHÁCH & GHẾ"));
+        pnlSummary.add(createSectionLabel("- DANH SACH HANH KHACH & GHE"));
         
         if(session.danhSachHanhKhach != null) {
             for(int i = 0; i < session.danhSachHanhKhach.size(); i++) {
@@ -106,7 +127,7 @@ public class ThanhToanGUI extends JPanel {
                     soGhe += " | Về: " + session.danhSachGhe.get(i + session.getTongSoHanhKhach()).getSoGhe();
                 }
 
-                JLabel lblHkInfo = new JLabel("<html><b>" + (i + 1) + ". " + hk.getHoTen() + "</b> (" + hk.getLoaiHanhKhach() + ")<br>&nbsp;&nbsp;&nbsp;Ghế: <font color='red'><b>" + soGhe + "</b></font></html>");
+                JLabel lblHkInfo = new JLabel("<html><b>" + (i + 1) + ". " + hk.getHoTen() + "</b> (" + hk.getLoaiHanhKhach() + ")<br>&nbsp;&nbsp;&nbsp;Ghế: <font color='#dc2626'><b>" + soGhe + "</b></font></html>");
                 lblHkInfo.setFont(new Font("Segoe UI", Font.PLAIN, 15)); lblHkInfo.setBorder(BorderFactory.createEmptyBorder(5, 15, 10, 0)); lblHkInfo.setAlignmentX(Component.LEFT_ALIGNMENT);
                 pnlSummary.add(lblHkInfo);
             }
@@ -117,12 +138,12 @@ public class ThanhToanGUI extends JPanel {
         JPanel pnlBilling = new JPanel();
         pnlBilling.setLayout(new BoxLayout(pnlBilling, BoxLayout.Y_AXIS));
         pnlBilling.setBackground(Color.WHITE);
-        pnlBilling.setBorder(createCustomTitledBorder("CHI TIẾT THANH TOÁN"));
+        pnlBilling.setBorder(createCustomTitledBorder("CHI TIET THANH TOAN"));
 
         lblTongVe = createPriceLabel("Tiền vé cơ bản: 0 VNĐ");
         lblTongDV = createPriceLabel("Hành lý & Dịch vụ: 0 VNĐ");
         lblGiamGia = createPriceLabel("Giảm giá: 0 VNĐ");
-        lblTongThanhToan = new JLabel("TỔNG CỘNG: 0 VNĐ"); lblTongThanhToan.setFont(new Font("Segoe UI", Font.BOLD, 24)); lblTongThanhToan.setForeground(new Color(220, 38, 38));
+        lblTongThanhToan = new JLabel("<html>TỔNG CỘNG (Gồm 10% VAT):<br><span style='font-size:24px; color:#dc2626;'>0 VNĐ</span></html>"); 
 
         cboKhuyenMai = new JComboBox<>(); cboKhuyenMai.setMaximumSize(new Dimension(400, 45)); 
         cboKhuyenMai.setFont(new Font("Segoe UI", Font.PLAIN, 15)); cboKhuyenMai.setBackground(Color.WHITE);
@@ -173,15 +194,16 @@ public class ThanhToanGUI extends JPanel {
     private JPanel createStepper() {
         JPanel pnlStepper = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10)); pnlStepper.setBackground(new Color(18, 32, 64, 200)); pnlStepper.setBorder(BorderFactory.createEmptyBorder(10, 30, 10, 30));
         Font fontStep = new Font("Segoe UI", Font.BOLD, 16); Font fontArrow = new Font("Segoe UI", Font.BOLD, 18);
-        JLabel step1 = new JLabel("1. Chuyến bay"); step1.setForeground(Color.WHITE); step1.setFont(fontStep); JLabel arr1 = new JLabel(" "); arr1.setForeground(Color.WHITE); arr1.setFont(fontArrow);
-        JLabel step2 = new JLabel("2. Hành khách"); step2.setForeground(Color.WHITE); step2.setFont(fontStep); JLabel arr2 = new JLabel(" "); arr2.setForeground(Color.WHITE); arr2.setFont(fontArrow);
-        JLabel step3 = new JLabel("3. Dịch vụ"); step3.setForeground(Color.WHITE); step3.setFont(fontStep); JLabel arr3 = new JLabel(" "); arr3.setForeground(Color.WHITE); arr3.setFont(fontArrow);
-        JLabel step4 = new JLabel("4. Thanh toán"); step4.setForeground(new Color(255, 193, 7)); step4.setFont(fontStep);
+        JLabel step1 = new JLabel("1. Chuyen bay"); step1.setForeground(Color.WHITE); step1.setFont(fontStep); JLabel arr1 = new JLabel(" > "); arr1.setForeground(Color.WHITE); arr1.setFont(fontArrow);
+        JLabel step2 = new JLabel("2. Hanh khach"); step2.setForeground(Color.WHITE); step2.setFont(fontStep); JLabel arr2 = new JLabel(" > "); arr2.setForeground(Color.WHITE); arr2.setFont(fontArrow);
+        JLabel step3 = new JLabel("3. Dich vu"); step3.setForeground(Color.WHITE); step3.setFont(fontStep); JLabel arr3 = new JLabel(" > "); arr3.setForeground(Color.WHITE); arr3.setFont(fontArrow);
+        JLabel step4 = new JLabel("4. Thanh toan"); step4.setForeground(new Color(255, 193, 7)); step4.setFont(fontStep);
         pnlStepper.add(step1); pnlStepper.add(arr1); pnlStepper.add(step2); pnlStepper.add(arr2); pnlStepper.add(step3); pnlStepper.add(arr3); pnlStepper.add(step4);
         return pnlStepper;
     }
 
     private void switchPage(JPanel newPanel) {
+        if (countdownTimer != null) countdownTimer.stop(); 
         Container container = SwingUtilities.getAncestorOfClass(gui.user.MainFrame.class, this);
         if (container instanceof gui.user.MainFrame) {
             gui.user.MainFrame mainFrame = (gui.user.MainFrame) container;
@@ -201,22 +223,61 @@ public class ThanhToanGUI extends JPanel {
         }
     }
 
+    private void startCountdown() {
+        countdownTimer = new Timer(1000, e -> {
+            timeLeft--;
+            if (timeLeft <= 0) {
+                countdownTimer.stop();
+                handleTimeout();
+            } else {
+                int minutes = timeLeft / 60;
+                int seconds = timeLeft % 60;
+                lblTimer.setText(String.format("Thời gian giữ vé còn lại %02d:%02d", minutes, seconds));
+            }
+        });
+        countdownTimer.start();
+    }
+
+    private void handleTimeout() {
+        JOptionPane.showMessageDialog(this, "Đã hết thời gian giữ vé (10 phút). Giao dịch đã bị hủy, vui lòng đặt lại vé!", "Hết thời gian", JOptionPane.WARNING_MESSAGE);
+        Window window = SwingUtilities.getWindowAncestor(this);
+        if (window instanceof JFrame) {
+            model.NguoiDung userDaDangNhap = null;
+            if (session != null && session.maNguoiDung != null && !session.maNguoiDung.equals("KHACH_LE")) {
+                try {
+                    for (model.NguoiDung nd : new dal.NguoiDungDAO().selectAll()) {
+                        if (nd.getMaNguoiDung().equals(session.maNguoiDung)) {
+                            userDaDangNhap = nd; break;
+                        }
+                    }
+                } catch (Exception ex) {}
+            }
+            if (userDaDangNhap != null) { new gui.user.MainFrame(userDaDangNhap).setVisible(true); } 
+            else { new gui.user.MainFrame().setVisible(true); }
+            window.dispose();
+        }
+    }
+
     private JPanel createStickyFooter() {
         JPanel footer = new JPanel(new BorderLayout()); footer.setBackground(Color.WHITE); footer.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(2, 0, 0, 0, new Color(200, 200, 200)), new EmptyBorder(10, 50, 10, 50)));
-        
-        JButton btnQuayLai = new JButton("Quay lại"); 
+        JButton btnQuayLai = new JButton("Quay lai Dich vu"); 
         btnQuayLai.setBackground(Color.WHITE); btnQuayLai.setForeground(new Color(100, 100, 100)); btnQuayLai.setFont(new Font("Segoe UI", Font.BOLD, 16)); btnQuayLai.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 2)); btnQuayLai.setPreferredSize(new Dimension(200, 45));
         btnQuayLai.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        
         btnQuayLai.addActionListener(e -> switchPage(new gui.DichVuHanhLyGUI(session)));
-        
         footer.add(btnQuayLai, BorderLayout.WEST);
 
         JPanel pnlRight = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 0)); pnlRight.setOpaque(false);
-        JButton btnNext = new JButton("Thanh toán"); btnNext.setBackground(new Color(34, 197, 94)); btnNext.setForeground(Color.WHITE); btnNext.setFont(new Font("Segoe UI", Font.BOLD, 18)); btnNext.setPreferredSize(new Dimension(280, 45));
-        btnNext.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        JPanel pnlAction = new JPanel(); pnlAction.setLayout(new BoxLayout(pnlAction, BoxLayout.Y_AXIS)); pnlAction.setOpaque(false);
+
+        lblTimer = new JLabel("Thời gian giữ vé còn lại 10:00");
+        lblTimer.setFont(new Font("Segoe UI", Font.PLAIN, 14)); lblTimer.setForeground(new Color(245, 158, 11)); lblTimer.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JButton btnNext = new JButton("Thanh toan"); 
+        btnNext.setBackground(new Color(244, 67, 54)); btnNext.setForeground(Color.WHITE); btnNext.setFont(new Font("Segoe UI", Font.BOLD, 18)); btnNext.setPreferredSize(new Dimension(280, 45)); btnNext.setMaximumSize(new Dimension(280, 45)); btnNext.setCursor(new Cursor(Cursor.HAND_CURSOR)); btnNext.setAlignmentX(Component.CENTER_ALIGNMENT);
         btnNext.addActionListener(e -> processBooking());
-        pnlRight.add(btnNext); footer.add(pnlRight, BorderLayout.EAST);
+
+        pnlAction.add(lblTimer); pnlAction.add(Box.createVerticalStrut(5)); pnlAction.add(btnNext);
+        pnlRight.add(pnlAction); footer.add(pnlRight, BorderLayout.EAST);
         return footer;
     }
 
@@ -268,19 +329,19 @@ public class ThanhToanGUI extends JPanel {
         lblTongDV.setText("Hành lý & Dịch vụ: " + vn.format(sv) + " VNĐ");
         if (session.khuyenMaiApDung != null) { lblGiamGia.setText("Giảm giá (" + session.khuyenMaiApDung.getMaKhuyenMai() + "): -" + vn.format(discount) + " VNĐ"); } 
         else { lblGiamGia.setText("Giảm giá: 0 VNĐ"); }
-        lblTongThanhToan.setText("TỔNG CỘNG (Gồm 10% VAT): " + vn.format(finalAmount) + " VNĐ");
+        lblTongThanhToan.setText("<html>TỔNG CỘNG (Gồm 10% VAT):<br><span style='font-size:24px; color:#dc2626;'>" + vn.format(finalAmount) + " VNĐ</span></html>");
     }
 
     private void processBooking() {
-        int confirm = JOptionPane.showConfirmDialog(this, "Xác nhận thanh toán số tiền: " + lblTongThanhToan.getText() + "?", "Xác nhận", JOptionPane.YES_NO_OPTION);
+        int confirm = JOptionPane.showConfirmDialog(this, "Xác nhận thanh toán số tiền: " + lblTongThanhToan.getText().replaceAll("<[^>]*>", "") + "?", "Xác nhận", JOptionPane.YES_NO_OPTION);
         if(confirm != JOptionPane.YES_OPTION) return;
+
+        if (countdownTimer != null) countdownTimer.stop(); 
 
         Connection conn = null;
         String generatedMaPDV = ""; 
         String generatedMaHD = "";  
         String ptThanhToan = radTienMat.isSelected() ? "Tiền mặt" : (radQR.isSelected() ? "Mã QR" : "Thẻ tín dụng");
-
-        String maBac = "SILVER"; // GẮN CHUẨN TH001 TRONG DB
 
         try {
             conn = db.DBConnection.getConnection();
@@ -289,6 +350,7 @@ public class ThanhToanGUI extends JPanel {
             dal.PhieuDatVeDAO pdvDAO = new dal.PhieuDatVeDAO();
             generatedMaPDV = pdvDAO.generateMaPhieuDatVe(conn); 
 
+            // 1. TẠO PHIẾU ĐẶT VÉ
             String sqlPDV = "INSERT INTO PhieuDatVe (maPhieuDatVe, maNguoiDung, tongTien, ngayDat, soLuongVe, trangThaiThanhToan, maKhuyenMai) VALUES (?, ?, ?, ?, ?, ?, ?)";
             try (PreparedStatement ps = conn.prepareStatement(sqlPDV)) {
                 ps.setString(1, generatedMaPDV); ps.setString(2, session.maNguoiDung); ps.setBigDecimal(3, finalAmount); ps.setDate(4, java.sql.Date.valueOf(java.time.LocalDate.now())); ps.setInt(5, session.getTongSoHanhKhach()); ps.setString(6, "Đã thanh toán");
@@ -296,12 +358,15 @@ public class ThanhToanGUI extends JPanel {
                 ps.executeUpdate();
             }
 
-            String sqlHK = "INSERT INTO ThongTinHanhKhach (maHK, maNguoiDung, hoTen, cccd, hoChieu, gioiTinh, ngaySinh, loaiHanhKhach, maThuHang, diemTichLuy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            // ================= SQL QUERIES CHO HÀNH KHÁCH & VÉ =================
+            String sqlCheckCCCD = "SELECT maHK, hoTen, diemTichLuy FROM ThongTinHanhKhach WHERE cccd = ?";
+            String sqlUpdateKhachCu = "UPDATE ThongTinHanhKhach SET diemTichLuy = ?, maThuHang = ? WHERE maHK = ?";
+            String sqlInsertKhachMoi = "INSERT INTO ThongTinHanhKhach (maHK, maNguoiDung, hoTen, cccd, hoChieu, gioiTinh, ngaySinh, loaiHanhKhach, maThuHang, diemTichLuy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            
             String sqlVe = "INSERT INTO VeBan (maVe, maPhieuDatVe, maHK, maChuyenBay, maGhe, maHangVe, loaiHK, loaiVe, giaVe, trangThaiVe) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             String sqlGhe = "UPDATE GheMayBay SET trangThai = 'DA_DAT' WHERE maGhe = ?";
 
             String loaiVeAnToan = (session.loaiVe != null) ? session.loaiVe : "Một chiều";
-
             dal.VeBanDAO veBanDAO = new dal.VeBanDAO();
             String currentMaVe = veBanDAO.generateMaVe(conn); 
             
@@ -312,59 +377,101 @@ public class ThanhToanGUI extends JPanel {
             }
 
             int tongKhach = session.getTongSoHanhKhach();
+            String maHangVeDi = (session.maHangVe != null && !session.maHangVe.isEmpty()) ? session.maHangVe : "ECO";
+            boolean isKhuHoi = "Khứ hồi".equals(session.loaiVe);
+            String maCBVe = isKhuHoi ? ((session.maChuyenBayVe != null && !session.maChuyenBayVe.isEmpty()) ? session.maChuyenBayVe : session.maChuyenBay) : null;
+            String maHangVeVe = isKhuHoi ? ((session.maHangVeVe != null && !session.maHangVeVe.isEmpty()) ? session.maHangVeVe : maHangVeDi) : null;
 
             for (int i = 0; i < tongKhach; i++) {
                 ThongTinHanhKhach hk = session.danhSachHanhKhach.get(i);
                 
-                try {
-                    String prefixHK = currentMaHK.substring(0, 2); 
-                    int numberPartHK = Integer.parseInt(currentMaHK.substring(2)); 
-                    numberPartHK++; currentMaHK = String.format("%s%03d", prefixHK, numberPartHK); 
-                } catch (Exception e) {}
-                hk.setMaHK(currentMaHK);
-
-                // 1. LƯU HỒ SƠ HÀNH KHÁCH
-                try (PreparedStatement psHK = conn.prepareStatement(sqlHK)) {
-                    psHK.setString(1, hk.getMaHK()); psHK.setString(2, session.maNguoiDung); psHK.setString(3, hk.getHoTen()); psHK.setString(4, hk.getCccd()); psHK.setString(5, hk.getHoChieu()); psHK.setString(6, hk.getGioiTinh());
-                    if (hk.getNgaySinh() != null) psHK.setDate(7, java.sql.Date.valueOf(hk.getNgaySinh())); else psHK.setNull(7, java.sql.Types.DATE);
-                    psHK.setString(8, hk.getLoaiHanhKhach() != null ? hk.getLoaiHanhKhach() : "Người lớn");
-                    psHK.setString(9, maBac); 
-                    psHK.setInt(10, 0);
-                    psHK.executeUpdate();
+                // A. TÍNH TỔNG TIỀN VÉ CỦA KHÁCH NÀY ĐỂ QUY ĐỔI ĐIỂM
+                GheMayBay gheDi = session.danhSachGhe.get(i);
+                BigDecimal giaThucTeDi = BigDecimal.ZERO;
+                try { giaThucTeDi = veBanDAO.tinhGiaVeFull(session.maChuyenBay, maHangVeDi, hk.getLoaiHanhKhach()); } catch(Exception e){}
+                
+                BigDecimal giaThucTeVe = BigDecimal.ZERO;
+                if (isKhuHoi && session.danhSachGhe.size() > i + tongKhach) {
+                    try { giaThucTeVe = veBanDAO.tinhGiaVeFull(maCBVe, maHangVeVe, hk.getLoaiHanhKhach()); } catch(Exception e){}
                 }
 
-                // 2. LƯU VÉ LƯỢT ĐI
-                GheMayBay gheDi = session.danhSachGhe.get(i);
-                String maHangVeDi = (session.maHangVe != null) ? session.maHangVe : "ECO";
+                BigDecimal tongTienKhachNay = giaThucTeDi.add(giaThucTeVe);
                 
+                // DÙNG HÀM BUS ĐỂ QUY ĐỔI ĐIỂM
+                int diemCongThem = thuHangBUS.tinhDiemCongThem(tongTienKhachNay.doubleValue());
+
+                // B. KIỂM TRA TRÙNG CCCD (TÌM KHÁCH CŨ)
+                boolean isOldCustomer = false;
+                int diemHienTai = 0;
+                
+                try (PreparedStatement psCheck = conn.prepareStatement(sqlCheckCCCD)) {
+                    psCheck.setString(1, hk.getCccd());
+                    try (ResultSet rsCheck = psCheck.executeQuery()) {
+                        if (rsCheck.next()) {
+                            isOldCustomer = true;
+                            hk.setMaHK(rsCheck.getString("maHK"));
+                            hk.setHoTen(rsCheck.getString("hoTen")); // Ép tên theo CSDL
+                            diemHienTai = rsCheck.getInt("diemTichLuy");
+                        }
+                    }
+                }
+
+                // C. CỘNG ĐIỂM & CHỐT HẠNG
+                if (isOldCustomer) {
+                    int diemMoi = diemHienTai + diemCongThem;
+                    // Dùng BUS xác định hạng mới dựa trên tổng điểm mới
+                    model.ThuHang hangMoi = thuHangBUS.xacDinhThuHang(diemMoi);
+                    String maHangMoi = (hangMoi != null) ? hangMoi.getMaThuHang() : "SILVER";
+
+                    try (PreparedStatement psUpdate = conn.prepareStatement(sqlUpdateKhachCu)) {
+                        psUpdate.setInt(1, diemMoi);
+                        psUpdate.setString(2, maHangMoi);
+                        psUpdate.setString(3, hk.getMaHK());
+                        psUpdate.executeUpdate();
+                    }
+                } else {
+                    // Khách hoàn toàn mới
+                    try {
+                        String prefixHK = currentMaHK.substring(0, 2); 
+                        int numberPartHK = Integer.parseInt(currentMaHK.substring(2)); 
+                        numberPartHK++; currentMaHK = String.format("%s%03d", prefixHK, numberPartHK); 
+                    } catch (Exception e) {}
+                    hk.setMaHK(currentMaHK);
+
+                    model.ThuHang hangKhoiDau = thuHangBUS.xacDinhThuHang(diemCongThem);
+                    String maHangMoi = (hangKhoiDau != null) ? hangKhoiDau.getMaThuHang() : "SILVER";
+
+                    // INSERT KHÁCH MỚI
+                    try (PreparedStatement psHK = conn.prepareStatement(sqlInsertKhachMoi)) {
+                        psHK.setString(1, hk.getMaHK()); psHK.setString(2, session.maNguoiDung); psHK.setString(3, hk.getHoTen()); psHK.setString(4, hk.getCccd()); psHK.setString(5, hk.getHoChieu()); psHK.setString(6, hk.getGioiTinh());
+                        if (hk.getNgaySinh() != null) psHK.setDate(7, java.sql.Date.valueOf(hk.getNgaySinh())); else psHK.setNull(7, java.sql.Types.DATE);
+                        psHK.setString(8, hk.getLoaiHanhKhach() != null ? hk.getLoaiHanhKhach() : "Người lớn");
+                        psHK.setString(9, maHangMoi); 
+                        psHK.setInt(10, diemCongThem); // Điểm khởi đầu
+                        psHK.executeUpdate();
+                    }
+                }
+
+                // D. LƯU VÉ LƯỢT ĐI
                 try (PreparedStatement psVe = conn.prepareStatement(sqlVe)) {
                     psVe.setString(1, currentMaVe); psVe.setString(2, generatedMaPDV); psVe.setString(3, hk.getMaHK()); 
                     psVe.setString(4, session.maChuyenBay); psVe.setString(5, gheDi.getMaGhe()); psVe.setString(6, maHangVeDi); 
                     psVe.setString(7, hk.getLoaiHanhKhach() != null ? hk.getLoaiHanhKhach() : "Người lớn"); psVe.setString(8, loaiVeAnToan);
-                    BigDecimal giaTungVe = session.tongTienVe.divide(new BigDecimal(tongKhach * ("Khứ hồi".equals(session.loaiVe) ? 2 : 1)), 2, java.math.RoundingMode.HALF_UP);
-                    psVe.setBigDecimal(9, giaTungVe); 
-                    
-                    // ================= ĐÃ SỬA LẠI THÀNH "Đã thanh toán" ĐỂ KHÔNG BỊ LỖI CHECK CONSTRAINT =================
+                    psVe.setBigDecimal(9, giaThucTeDi); // LƯU GIÁ THẬT
                     psVe.setString(10, "Đã thanh toán"); 
                     psVe.executeUpdate();
                 }
                 try { String p = currentMaVe.substring(0, 2); int n = Integer.parseInt(currentMaVe.substring(2)); currentMaVe = String.format("%s%03d", p, n + 1); } catch (Exception e) {}
                 try (PreparedStatement psGhe = conn.prepareStatement(sqlGhe)) { psGhe.setString(1, gheDi.getMaGhe()); psGhe.executeUpdate(); }
 
-                // 3. LƯU VÉ LƯỢT VỀ (NẾU CÓ KHỨ HỒI)
-                if ("Khứ hồi".equals(session.loaiVe) && session.maChuyenBayVe != null && session.danhSachGhe.size() > i + tongKhach) {
+                // E. LƯU VÉ LƯỢT VỀ (NẾU CÓ)
+                if (isKhuHoi && session.danhSachGhe.size() > i + tongKhach) {
                     GheMayBay gheVe = session.danhSachGhe.get(i + tongKhach);
-                    String maHangVeVe = (session.maHangVeVe != null && !session.maHangVeVe.isEmpty()) ? session.maHangVeVe : "ECO";
-                    String maCBVe = (session.maChuyenBayVe != null && !session.maChuyenBayVe.isEmpty()) ? session.maChuyenBayVe : session.maChuyenBay;
-
                     try (PreparedStatement psVe = conn.prepareStatement(sqlVe)) {
                         psVe.setString(1, currentMaVe); psVe.setString(2, generatedMaPDV); psVe.setString(3, hk.getMaHK()); 
                         psVe.setString(4, maCBVe); psVe.setString(5, gheVe.getMaGhe()); psVe.setString(6, maHangVeVe); 
                         psVe.setString(7, hk.getLoaiHanhKhach() != null ? hk.getLoaiHanhKhach() : "Người lớn"); psVe.setString(8, loaiVeAnToan);
-                        BigDecimal giaTungVe = session.tongTienVe.divide(new BigDecimal(tongKhach * 2), 2, java.math.RoundingMode.HALF_UP);
-                        psVe.setBigDecimal(9, giaTungVe); 
-                        
-                        // ================= ĐÃ SỬA LẠI THÀNH "Đã thanh toán" =================
+                        psVe.setBigDecimal(9, giaThucTeVe); // LƯU GIÁ THẬT
                         psVe.setString(10, "Đã thanh toán"); 
                         psVe.executeUpdate();
                     }
@@ -373,6 +480,7 @@ public class ThanhToanGUI extends JPanel {
                 }
             }
 
+            // LƯU HÓA ĐƠN
             String sqlMaxHD = "SELECT MAX(maHoaDon) FROM HoaDon";
             try (PreparedStatement psMax = conn.prepareStatement(sqlMaxHD); java.sql.ResultSet rsMax = psMax.executeQuery()) {
                 if (rsMax.next() && rsMax.getString(1) != null) { String lastHD = rsMax.getString(1).substring(2); int num = Integer.parseInt(lastHD) + 1; generatedMaHD = String.format("HD%03d", num); } 
@@ -386,11 +494,11 @@ public class ThanhToanGUI extends JPanel {
 
             conn.commit(); 
 
-            JOptionPane.showMessageDialog(this, "🎉 CHÚC MỪNG BẠN ĐÃ ĐẶT VÉ THÀNH CÔNG!\nMã hóa đơn của bạn là: " + generatedMaHD, "Thành công", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, "CHUC MUNG BAN DA DAT VE THANH CONG!\nMã hóa đơn của bạn là: " + generatedMaHD, "Thành công", JOptionPane.INFORMATION_MESSAGE);
 
             String strNgayLap = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-            NumberFormat vn = NumberFormat.getInstance(new Locale("vi", "VN"));
-            String strTongTien = vn.format(finalAmount) + " VNĐ";
+            java.text.NumberFormat formatTien = java.text.NumberFormat.getInstance(new java.util.Locale("vi", "VN"));
+            String strTongTien = formatTien.format(finalAmount) + " VNĐ";
 
             switchPage(new gui.user.ThanhToanHoaDonPanel(generatedMaHD, generatedMaPDV, strNgayLap, strTongTien, ptThanhToan, "10%", session));
 
@@ -403,7 +511,27 @@ public class ThanhToanGUI extends JPanel {
         }
     }
 
-    private JPanel createSummaryRow(String label, String value) { JPanel p = new JPanel(new BorderLayout()); p.setOpaque(false); p.setBackground(Color.WHITE); p.setMaximumSize(new Dimension(800, 30)); JLabel l = new JLabel(label); l.setFont(new Font("Segoe UI", Font.BOLD, 15)); l.setPreferredSize(new Dimension(150, 25)); JLabel v = new JLabel(value); v.setFont(new Font("Segoe UI", Font.PLAIN, 15)); p.add(l, BorderLayout.WEST); p.add(v, BorderLayout.CENTER); return p; }
+    private JPanel createSummaryRow(String label, String value) { 
+        JPanel p = new JPanel(new BorderLayout(10, 0)); 
+        p.setOpaque(false); 
+        p.setBackground(Color.WHITE); 
+        p.setMaximumSize(new Dimension(800, Integer.MAX_VALUE)); 
+        
+        JLabel l = new JLabel(label); 
+        l.setFont(new Font("Segoe UI", Font.BOLD, 15)); 
+        l.setPreferredSize(new Dimension(150, 25)); 
+        l.setVerticalAlignment(SwingConstants.TOP); 
+        
+        JLabel v = new JLabel("<html><div style='width:260px;'>" + value + "</div></html>"); 
+        v.setFont(new Font("Segoe UI", Font.PLAIN, 15)); 
+        v.setVerticalAlignment(SwingConstants.TOP); 
+        
+        p.add(l, BorderLayout.WEST); 
+        p.add(v, BorderLayout.CENTER); 
+        p.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
+        return p; 
+    }
+    
     private JLabel createSectionLabel(String text) { JLabel label = new JLabel(text); label.setFont(new Font("Segoe UI", Font.BOLD, 16)); label.setForeground(new Color(28, 48, 96)); label.setBorder(BorderFactory.createEmptyBorder(10, 5, 10, 0)); label.setAlignmentX(Component.LEFT_ALIGNMENT); return label; }
     private JLabel createPriceLabel(String text) { JLabel l = new JLabel(text); l.setFont(new Font("Segoe UI", Font.PLAIN, 16)); l.setBorder(BorderFactory.createEmptyBorder(8, 0, 8, 0)); return l; }
     private TitledBorder createCustomTitledBorder(String title) { TitledBorder b = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)), title); b.setTitleFont(new Font("Segoe UI", Font.BOLD, 16)); b.setTitleColor(new Color(28, 48, 96)); b.setBorder(BorderFactory.createCompoundBorder(b.getBorder(), BorderFactory.createEmptyBorder(10, 15, 15, 15))); return b; }
