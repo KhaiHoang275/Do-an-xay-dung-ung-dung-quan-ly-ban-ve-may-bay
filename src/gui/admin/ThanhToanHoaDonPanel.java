@@ -24,7 +24,7 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 
-public class ThanhToanHoaadmin extends JPanel {
+public class ThanhToanHoaDonPanel extends JPanel {
 
     private String maHD, maPhieu, ngayLap, tongTien, phuongThuc, thue;
 
@@ -41,7 +41,7 @@ public class ThanhToanHoaadmin extends JPanel {
     private final Color BTN_PDF = new Color(234, 179, 8);       
     private final Color BTN_DELETE = new Color(239, 68, 68);    
 
-    public ThanhToanHoaadmin(String maHD, String maPhieu, String ngayLap, String tongTien, String phuongThuc, String thue) {
+    public ThanhToanHoaDonPanel(String maHD, String maPhieu, String ngayLap, String tongTien, String phuongThuc, String thue) {
         this.maHD = maHD;
         this.maPhieu = maPhieu;
         this.ngayLap = ngayLap;

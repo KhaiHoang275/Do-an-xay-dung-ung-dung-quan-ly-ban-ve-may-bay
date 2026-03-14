@@ -435,7 +435,7 @@ public class HoaDonPanel extends JPanel {
             detailDialog.setSize(1000, 700);
             detailDialog.setLocationRelativeTo(this);
             
-            gui.admin.ThanhToanHoaadmin chiTietPanel = new gui.admin.ThanhToanHoaadmin(
+            gui.admin.ThanhToanHoaDonPanel chiTietPanel = new gui.admin.ThanhToanHoaDonPanel(
                 maHD, maPhieu, ngayLap, tongTienHD, phuongThuc, thue
             );
             
