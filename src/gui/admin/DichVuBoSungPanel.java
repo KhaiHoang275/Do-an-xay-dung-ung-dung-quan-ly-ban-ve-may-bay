@@ -222,24 +222,29 @@ public class DichVuBoSungPanel extends JPanel {
         return txt;
     }
 
-    private void styleTable() {
+  private void styleTable() {
         table.setRowHeight(35);
         table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         table.setSelectionBackground(new Color(45, 72, 140));
         table.setSelectionForeground(Color.WHITE);
         table.setGridColor(new Color(230, 230, 230));
         table.setShowVerticalLines(false);
-
         JTableHeader header = table.getTableHeader();
-        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        header.setBackground(TABLE_HEADER);
-        header.setForeground(Color.WHITE);
         header.setPreferredSize(new Dimension(header.getWidth(), 40));
 
+        DefaultTableCellRenderer headerRenderer = new DefaultTableCellRenderer();
+        headerRenderer.setBackground(TABLE_HEADER); // Ép nền màu tối
+        headerRenderer.setForeground(Color.WHITE);  // Ép chữ màu trắng
+        headerRenderer.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        headerRenderer.setHorizontalAlignment(JLabel.CENTER); // Căn giữa chữ
+        
+        headerRenderer.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        header.setDefaultRenderer(headerRenderer);
+
         for (int i = 0; i < table.getColumnCount(); i++) {
-            DefaultTableCellRenderer renderer = new DefaultTableCellRenderer(); // Tạo mới ở đây
-            renderer.setHorizontalAlignment(JLabel.CENTER);
-            table.getColumnModel().getColumn(i).setCellRenderer(renderer);
+            DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer(); 
+            cellRenderer.setHorizontalAlignment(JLabel.CENTER);
+            table.getColumnModel().getColumn(i).setCellRenderer(cellRenderer);
         } 
     }
 

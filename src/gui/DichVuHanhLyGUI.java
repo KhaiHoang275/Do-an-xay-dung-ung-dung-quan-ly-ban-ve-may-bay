@@ -243,4 +243,5 @@ public class DichVuHanhLyGUI extends JPanel {
         public BaggageItem(String label, int kg, BigDecimal price) { this.label = label; this.kg = kg; this.price = price; }
         @Override public String toString() { return label; }
     }
+    
 }

@@ -10,7 +10,8 @@ public class CTHoaDonBUS {
 
     private CTHoaDonDAO ctHoaDonDAO;
     private ChiTietDichVuDAO chiTietDVDAO = new ChiTietDichVuDAO();
-
+    private dal.HanhLyDAO hanhLyDAO = new dal.HanhLyDAO();
+    
     public CTHoaDonBUS() {
         ctHoaDonDAO = new CTHoaDonDAO();
     }
@@ -51,9 +52,22 @@ public class CTHoaDonBUS {
         if (ct.getThanhTien() == null || ct.getThanhTien().compareTo(BigDecimal.ZERO) < 0) {
             return "Lỗi: Thành tiền không hợp lệ!";
         }
+      // 1. Tính tiền dịch vụ (Hành lý + Dịch vụ phụ)
+        BigDecimal tienDichVuThat = tinhTongTienDichVuCuaVe(ct.getMaVe());
+        ct.setTienDichVu(tienDichVuThat);
+
+        // 2. CÔNG THỨC MỚI: Thành tiền = Đơn giá vé + Tiền dịch vụ + Thuế VAT
+        BigDecimal thanhTienMoi = ct.getDonGiaVe()
+                                    .add(ct.getTienDichVu())
+                                    .add(ct.getThueVAT());
+        ct.setThanhTien(thanhTienMoi);
 
         boolean isSuccess = ctHoaDonDAO.insert(ct);
-        return isSuccess ? "Thành công" : "Lỗi: Thêm chi tiết hóa đơn thất bại!";
+        if(isSuccess) {
+            // Cập nhật lại hóa đơn tổng
+            new HoaDonBUS().capNhatTongTienVaThueTuDong(ct.getMaHoaDon());
+        }
+        return isSuccess ? "Thành công" : "Lỗi: Thêm chi tiết thất bại!";
     }
 
     // Xóa chi tiết hóa đơn (Dùng kết hợp mã hóa đơn và mã vé vì không còn maCTHD)
@@ -66,16 +80,35 @@ public class CTHoaDonBUS {
         }
         
         boolean isSuccess = ctHoaDonDAO.delete(maHoaDon, maVe);
+        if (isSuccess) {
+        new HoaDonBUS().capNhatTongTienVaThueTuDong(maHoaDon);
+    }
         return isSuccess ? "Thành công" : "Lỗi: Xóa chi tiết hóa đơn thất bại!";
     }
-        public BigDecimal tinhTongTienDichVuCuaVe(String maVe) {
-        List<model.ChiTietDichVu> ds = chiTietDVDAO.selectByMaVe(maVe);
+    public BigDecimal tinhTongTienDichVuCuaVe(String maVe) {
         BigDecimal tong = BigDecimal.ZERO;
-        for (model.ChiTietDichVu dv : ds) {
-            if (dv.getThanhTien() != null) {
-                tong = tong.add(dv.getThanhTien());
+
+        // 1. Cộng tiền các dịch vụ phụ (Giữ nguyên logic cũ của bạn)
+        List<model.ChiTietDichVu> dsDichVu = chiTietDVDAO.selectByMaVe(maVe);
+        if (dsDichVu != null) {
+            for (model.ChiTietDichVu dv : dsDichVu) {
+                if (dv.getThanhTien() != null) {
+                    tong = tong.add(dv.getThanhTien());
+                }
             }
         }
+
+        // 2. BỔ SUNG MỚI: Cộng thêm tiền Hành Lý ký gửi
+        // Giả sử trong HanhLyDAO bạn đã có hàm lấy danh sách hành lý theo mã vé
+        List<model.HanhLy> dsHanhLy = hanhLyDAO.selectByMaVe(maVe);
+        if (dsHanhLy != null) {
+            for (model.HanhLy hl : dsHanhLy) {
+                if (hl.getGiaTien() != null) {
+                    tong = tong.add(hl.getGiaTien());
+                }
+            }
+        }
+
         return tong;
     }
 }

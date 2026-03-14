@@ -89,4 +89,24 @@ public class ChiTietDichVuDAO {
         }
         return isSuccess;
     }
+
+    // HÀM CẬP NHẬT KHI KHÁCH MUA THÊM DỊCH VỤ ĐÃ CÓ
+    public boolean update(ChiTietDichVu ct) {
+        boolean isSuccess = false;
+        try (Connection con = DBConnection.getConnection()) {
+            String sql = "UPDATE ChiTietDichVu SET soLuong = ?, thanhTien = ? WHERE maVe = ? AND maDichVu = ?";
+            PreparedStatement pst = con.prepareStatement(sql);
+            
+            pst.setInt(1, ct.getSoLuong());
+            pst.setBigDecimal(2, ct.getThanhTien());
+            pst.setString(3, ct.getMaVe());
+            pst.setString(4, ct.getMaDichVu());
+            
+            if (pst.executeUpdate() > 0) isSuccess = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return isSuccess;
+    }
+    
 }

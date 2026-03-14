@@ -1,12 +1,11 @@
-package gui.user;
+package gui.admin;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import bll.HoaDonBUS;
+import dal.HoaDonDAO; // Đã import thêm DAO để lấy tiền giảm giá
 import model.ThanhToanDTO;
-import model.DatVeSession;
-import model.ThongTinHanhKhach;
 import java.awt.*;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -14,7 +13,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-// Thư viện iTextPDF
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Element;
@@ -26,14 +24,14 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 
-public class ThanhToanHoaDonPanel extends JPanel {
+public class ThanhToanHoaadmin extends JPanel {
 
     private String maHD, maPhieu, ngayLap, tongTien, phuongThuc, thue;
-    private DatVeSession session; 
 
     private JLabel valMaPhieu, valTenKH, valSDT, valEmail;
     private JLabel valTuyenBay, valMaVe, valGioDi, valGioDen;
-    private JLabel lblGiaVe, lblThue, lblDichVu, lblTongTien;
+    // BỔ SUNG: Thêm biến lblGiamGia
+    private JLabel lblGiaVe, lblThue, lblDichVu, lblGiamGia, lblTongTien;
     private JComboBox<String> cboPhuongThuc;
     private JButton btnXuatPDF, btnDong;
 
@@ -43,14 +41,13 @@ public class ThanhToanHoaDonPanel extends JPanel {
     private final Color BTN_PDF = new Color(234, 179, 8);       
     private final Color BTN_DELETE = new Color(239, 68, 68);    
 
-    public ThanhToanHoaDonPanel(String maHD, String maPhieu, String ngayLap, String tongTien, String phuongThuc, String thue, DatVeSession session) {
+    public ThanhToanHoaadmin(String maHD, String maPhieu, String ngayLap, String tongTien, String phuongThuc, String thue) {
         this.maHD = maHD;
         this.maPhieu = maPhieu;
         this.ngayLap = ngayLap;
         this.tongTien = tongTien;
         this.phuongThuc = phuongThuc;
         this.thue = thue;
-        this.session = session;
         
         setLayout(new BorderLayout(20, 20));
         setBackground(BG_MAIN);
@@ -63,7 +60,7 @@ public class ThanhToanHoaDonPanel extends JPanel {
     private void initComponents() {
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setOpaque(false);
-        JLabel lblTitle = new JLabel("CHI TIẾT THANH TOÁN - " + maHD, JLabel.LEFT);
+        JLabel lblTitle = new JLabel("CHI TIẾT HÓA ĐƠN - " + maHD, JLabel.LEFT);
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 26));
         lblTitle.setForeground(PRIMARY);
         try {
@@ -99,7 +96,7 @@ public class ThanhToanHoaDonPanel extends JPanel {
         valGioDi = createValueLabel(); valGioDen = createValueLabel(); 
         
         pnlChuyenBay.add(createDetailRow("Tuyến Bay:", valTuyenBay));
-        pnlChuyenBay.add(createDetailRow("Số Ghế:", valMaVe)); 
+        pnlChuyenBay.add(createDetailRow("Danh Sách Ghế:", valMaVe)); 
         pnlChuyenBay.add(createDetailRow("Thời Gian Đi:", valGioDi));
         pnlChuyenBay.add(createDetailRow("Thời Gian Đến:", valGioDen));
 
@@ -113,6 +110,7 @@ public class ThanhToanHoaDonPanel extends JPanel {
         lblGiaVe = createPriceLabel("0 VND");
         lblDichVu = createPriceLabel("0 VND");
         lblThue = createPriceLabel("0 VND");
+        lblGiamGia = createPriceLabel("0 VND"); // BỔ SUNG: Khởi tạo nhãn Giảm giá
         lblTongTien = createPriceLabel("0 VND");
         lblTongTien.setFont(new Font("Segoe UI", Font.BOLD, 24));
         lblTongTien.setForeground(PRIMARY);
@@ -122,9 +120,13 @@ public class ThanhToanHoaDonPanel extends JPanel {
         cboPhuongThuc.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
         cboPhuongThuc.setEnabled(false);
 
-        rightPanel.add(createSummaryRow("Giá vé gốc:", lblGiaVe)); rightPanel.add(Box.createVerticalStrut(15));
-        rightPanel.add(createSummaryRow("Dịch vụ bổ sung:", lblDichVu)); rightPanel.add(Box.createVerticalStrut(15));
+        rightPanel.add(createSummaryRow("Tổng Giá vé gốc:", lblGiaVe)); rightPanel.add(Box.createVerticalStrut(15));
+        rightPanel.add(createSummaryRow("Tổng DV bổ sung:", lblDichVu)); rightPanel.add(Box.createVerticalStrut(15));
         rightPanel.add(createSummaryRow("Thuế VAT (10%):", lblThue)); rightPanel.add(Box.createVerticalStrut(15));
+        
+        // BỔ SUNG: Thêm dòng Giảm giá vào giao diện
+        rightPanel.add(createSummaryRow("Giảm giá / Khuyến mãi:", lblGiamGia)); rightPanel.add(Box.createVerticalStrut(15));
+        
         JSeparator sep = new JSeparator(); sep.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
         rightPanel.add(sep); rightPanel.add(Box.createVerticalStrut(15));
         rightPanel.add(createSummaryRow("TỔNG TIỀN:", lblTongTien)); rightPanel.add(Box.createVerticalStrut(30));
@@ -135,7 +137,7 @@ public class ThanhToanHoaDonPanel extends JPanel {
         rightPanel.add(cboPhuongThuc); rightPanel.add(Box.createVerticalGlue()); 
 
         btnXuatPDF = createRoundedButton("Xem & Xuất PDF", BTN_PDF, null, 20);
-        btnDong = createRoundedButton("Về Trang Chủ", BTN_DELETE, null, 20);
+        btnDong = createRoundedButton("Đóng Khung", BTN_DELETE, null, 20);
 
         JPanel pnlButtons = new JPanel(new GridLayout(2, 1, 10, 15));
         pnlButtons.setOpaque(false);
@@ -192,14 +194,6 @@ public class ThanhToanHoaDonPanel extends JPanel {
         return btn;
     }
 
-    private String catLaySoGhe(String maGheTho) {
-        if (maGheTho == null) return "";
-        if (maGheTho.contains("_")) {
-            return maGheTho.substring(maGheTho.lastIndexOf("_") + 1);
-        }
-        return maGheTho;
-    }
-
     private void loadDynamicData() {
         valMaPhieu.setText(maPhieu);
         if (phuongThuc != null) {
@@ -211,143 +205,61 @@ public class ThanhToanHoaDonPanel extends JPanel {
             }
         }
         
-        // Lấy thông tin cơ bản từ Database
+        // GỌI DB ĐỂ LẤY DỮ LIỆU THẬT
         HoaDonBUS bus = new HoaDonBUS();
         ThanhToanDTO data = bus.layChiTietThanhToan(maPhieu); 
+        
         if (data != null) {
-            valSDT.setText(data.sdt != null ? data.sdt : "Chưa cập nhật");
-            valEmail.setText(data.email != null ? data.email : "Chưa cập nhật");
-            valTuyenBay.setText(data.tuyenBay != null ? data.tuyenBay : "N/A");
-            valGioDi.setText(data.gioDi != null ? data.gioDi : "N/A");
-            valGioDen.setText(data.gioDen != null ? data.gioDen : "N/A");
-        }
+            valSDT.setText(data.sdt);
+            valEmail.setText(data.email);
+            valTuyenBay.setText(data.tuyenBay);
+            valGioDi.setText(data.gioDi);
+            valGioDen.setText(data.gioDen);
+            valTenKH.setText(data.tenKH); 
+            valMaVe.setText(data.veGhe);  
 
-        // =========================================================
-        // SỬ DỤNG DỮ LIỆU TỪ SESSION ĐỂ TÍNH TIỀN CHÍNH XÁC NHẤT
-        // =========================================================
-        if (session != null) {
-            // Lấy chính xác số tiền vé đã tính (kể cả Hạng thương gia hay Phổ thông)
-            BigDecimal veGoc = (session.tongTienVe != null) ? session.tongTienVe : BigDecimal.ZERO;
+            BigDecimal veGoc = data.giaVeGoc != null ? data.giaVeGoc : BigDecimal.ZERO;
+            BigDecimal dvBS = data.tongTienDichVu != null ? data.tongTienDichVu : BigDecimal.ZERO;
             
-            // Lấy chính xác số tiền Dịch vụ (Hành lý + Đồ ăn...) đã chọn ở bước trước
-            BigDecimal dvBS = (session.tongTienDichVu != null) ? session.tongTienDichVu : BigDecimal.ZERO;
-            
-            // Lấy Khuyến mãi đã áp dụng
-            BigDecimal giamGia = BigDecimal.ZERO;
-            if (session.khuyenMaiApDung != null) {
-                if ("PHAN_TRAM".equals(session.khuyenMaiApDung.getLoaiKM()) || "Phần trăm".equalsIgnoreCase(session.khuyenMaiApDung.getLoaiKM())) {
-                    giamGia = veGoc.add(dvBS).multiply(session.khuyenMaiApDung.getGiaTri()).divide(new BigDecimal("100"));
-                } else {
-                    giamGia = session.khuyenMaiApDung.getGiaTri() != null ? session.khuyenMaiApDung.getGiaTri() : BigDecimal.ZERO;
-                }
-            }
-
-            BigDecimal tongTruocThue = veGoc.add(dvBS).subtract(giamGia);
-            if (tongTruocThue.compareTo(BigDecimal.ZERO) < 0) tongTruocThue = BigDecimal.ZERO;
-            
-            // Tổng tiền sau cùng truyền từ giao diện ThanhToanGUI sang
-            String rawTongTien = this.tongTien.replaceAll("[^0-9]", ""); 
-            BigDecimal finalTotal = new BigDecimal(rawTongTien.isEmpty() ? "0" : rawTongTien);
-            
-            // Thuế VAT = Tổng cuối - Tổng trước thuế
-            BigDecimal vat = finalTotal.subtract(tongTruocThue);
-            if(vat.compareTo(BigDecimal.ZERO) < 0) vat = BigDecimal.ZERO;
-
-            // HIỂN THỊ LÊN GIAO DIỆN
             lblGiaVe.setText(String.format("%,.0f VND", veGoc));
-            lblDichVu.setText(String.format("%,.0f VND", dvBS)); 
-            if (giamGia.compareTo(BigDecimal.ZERO) > 0) {
-                lblThue.setText(String.format("%,.0f VND", vat) + " (Đã giảm " + String.format("%,.0f", giamGia) + ")");
+            lblDichVu.setText(String.format("%,.0f VND", dvBS));
+            
+            String rawThue = this.thue.replaceAll("[^0-9]", "");
+            BigDecimal thueVal = new BigDecimal(rawThue.isEmpty() ? "0" : rawThue);
+            lblThue.setText(String.format("%,.0f VND", thueVal));
+            
+            // BỔ SUNG: Truy vấn và hiển thị Tiền giảm giá
+            HoaDonDAO dao = new HoaDonDAO();
+            BigDecimal tienGiam = dao.layTienGiamGiaTuPhieuDat(maPhieu);
+            if (tienGiam.compareTo(BigDecimal.ZERO) > 0) {
+                // Thêm dấu "-" phía trước để người dùng hiểu đây là khoản bị trừ đi
+                lblGiamGia.setText(String.format("-%,.0f VND", tienGiam));
+                lblGiamGia.setForeground(new Color(34, 197, 94)); // Đổi màu xanh lá cho nổi bật
             } else {
-                lblThue.setText(String.format("%,.0f VND", vat));
+                lblGiamGia.setText("0 VND");
             }
-            lblTongTien.setText(String.format("%,.0f VND", finalTotal));
-
-            // In danh sách khách hàng và số ghế (Cho phép nhiều khách)
-            if (session.danhSachHanhKhach != null) {
-                StringBuilder sbKhach = new StringBuilder("<html>");
-                StringBuilder sbGhe = new StringBuilder("<html>");
-
-                for (int i = 0; i < session.danhSachHanhKhach.size(); i++) {
-                    ThongTinHanhKhach hk = session.danhSachHanhKhach.get(i);
-                    String soGheSach = "Chưa chọn";
-                    if (session.danhSachGhe != null && i < session.danhSachGhe.size()) {
-                        soGheSach = catLaySoGhe(session.danhSachGhe.get(i).getSoGhe());
-                    }
-
-                    sbKhach.append("<b>").append(i + 1).append(". ").append(hk.getHoTen()).append("</b>")
-                           .append(" (").append(hk.getLoaiHanhKhach()).append(")<br>");
-                           
-                    sbGhe.append("Khách ").append(i + 1).append(": Ghế <b>").append(soGheSach).append("</b><br>");
-                }
-                sbKhach.append("</html>");
-                sbGhe.append("</html>");
-
-                valTenKH.setText(sbKhach.toString());
-                valMaVe.setText(sbGhe.toString());
-            }
-        } else {
-            // Hiển thị tạm nếu session null (ví dụ mở từ form Admin)
-            valTenKH.setText("Dữ liệu khách hàng cũ");
-            valMaVe.setText("Dữ liệu ghế cũ");
+            
             String rawTongTien = this.tongTien.replaceAll("[^0-9]", ""); 
             BigDecimal finalTotal = new BigDecimal(rawTongTien.isEmpty() ? "0" : rawTongTien);
             lblTongTien.setText(String.format("%,.0f VND", finalTotal));
+            
+        } else {
+            valTenKH.setText("Dữ liệu Lỗi/Trống");
+            valMaVe.setText("Dữ liệu Lỗi/Trống");
         }
     }
 
     private void setupListeners() {
-        // ==============================================================
-        // ĐÃ SỬA: KIỂM TRA ĐĂNG NHẬP TRƯỚC KHI TRỞ VỀ TRANG CHỦ
-        // ==============================================================
         btnDong.addActionListener(e -> {
             Window currentWindow = SwingUtilities.getWindowAncestor(this);
-            if (currentWindow != null) { currentWindow.dispose(); }
-            
-            for (Window w : Window.getWindows()) {
-                if (w.isDisplayable() && w instanceof JFrame) {
-                    w.dispose();
-                }
-            }
-            
-            // KIỂM TRA: Nếu có session và không phải khách lẻ thì khôi phục đăng nhập
-            if (session != null && session.maNguoiDung != null && !session.maNguoiDung.equals("KHACH_LE")) {
-                model.NguoiDung userDaDangNhap = null;
-                try {
-                    dal.NguoiDungDAO ndDAO = new dal.NguoiDungDAO();
-                    for (model.NguoiDung nd : ndDAO.selectAll()) {
-                        if (nd.getMaNguoiDung().equals(session.maNguoiDung)) {
-                            userDaDangNhap = nd;
-                            break;
-                        }
-                    }
-                } catch (Exception ex) {
-                    System.err.println("Lỗi khôi phục tài khoản: " + ex.getMessage());
-                }
-
-                if (userDaDangNhap != null) {
-                    gui.user.MainFrame newHome = new gui.user.MainFrame(userDaDangNhap); // Truyền user vào
-                    newHome.setLocationRelativeTo(null);
-                    newHome.setVisible(true);
-                } else {
-                    gui.user.MainFrame newHome = new gui.user.MainFrame();
-                    newHome.setLocationRelativeTo(null);
-                    newHome.setVisible(true); 
-                }
-            } else {
-                // Nếu là Khách lẻ mua vé thì về trang chủ mặc định
-                gui.user.MainFrame newHome = new gui.user.MainFrame();
-                newHome.setLocationRelativeTo(null);
-                newHome.setVisible(true); 
+            if (currentWindow != null) { 
+                currentWindow.dispose(); 
             }
         });
 
         btnXuatPDF.addActionListener(e -> xuatVaMoFilePDF());
     }
 
-    // ==============================================================
-    // XUẤT PDF GIỐNG HỆT UI (DANH SÁCH LINE GẠCH DƯỚI)
-    // ==============================================================
     private void xuatVaMoFilePDF() {
         JFileChooser fileChooser = new JFileChooser(); 
         fileChooser.setSelectedFile(new java.io.File("HoaDon_" + maHD + ".pdf"));
@@ -374,8 +286,7 @@ public class ThanhToanHoaDonPanel extends JPanel {
                 com.itextpdf.text.Font fontKey = new com.itextpdf.text.Font(bf, 12, com.itextpdf.text.Font.NORMAL, new BaseColor(100, 116, 139)); 
                 com.itextpdf.text.Font fontValue = new com.itextpdf.text.Font(bf, 12, com.itextpdf.text.Font.BOLD, new BaseColor(15, 23, 42)); 
 
-                // ---- TIÊU ĐỀ ----
-                Paragraph title = new Paragraph("CHI TIẾT THANH TOÁN - " + maHD, fontTitle);
+                Paragraph title = new Paragraph("CHI TIẾT HÓA ĐƠN - " + maHD, fontTitle);
                 title.setAlignment(Element.ALIGN_LEFT); 
                 document.add(title);
                 
@@ -385,69 +296,41 @@ public class ThanhToanHoaDonPanel extends JPanel {
                 subTitle.setSpacingAfter(20); 
                 document.add(subTitle);
 
-                // ================= MỤC 1: THÔNG TIN KHÁCH HÀNG =================
                 document.add(new Paragraph("THÔNG TIN KHÁCH HÀNG", fontHeader));
                 PdfPTable tblKH = new PdfPTable(2);
-                tblKH.setWidthPercentage(100); 
-                tblKH.setSpacingBefore(10); 
-                tblKH.setSpacingAfter(20); 
-                tblKH.setWidths(new float[]{3f, 7f});
+                tblKH.setWidthPercentage(100); tblKH.setSpacingBefore(10); tblKH.setSpacingAfter(20); tblKH.setWidths(new float[]{3f, 7f});
                 
-                StringBuilder pdfKhach = new StringBuilder();
-                if (session != null && session.danhSachHanhKhach != null) {
-                    for (int i = 0; i < session.danhSachHanhKhach.size(); i++) {
-                        ThongTinHanhKhach hk = session.danhSachHanhKhach.get(i);
-                        pdfKhach.append(i + 1).append(". ").append(hk.getHoTen())
-                                .append(" (").append(hk.getLoaiHanhKhach()).append(")");
-                        if(i < session.danhSachHanhKhach.size() - 1) pdfKhach.append("\n");
-                    }
-                } else {
-                    pdfKhach.append(valTenKH.getText().replaceAll("<[^>]*>", "")); 
-                }
+                String pdfKhach = valTenKH.getText().replaceAll("<[^>]*>", ""); 
                 
                 addPdfRow(tblKH, "Mã Phiếu Đặt:", valMaPhieu.getText(), fontKey, fontValue);
-                addPdfRow(tblKH, "Danh sách Khách:", pdfKhach.toString(), fontKey, fontValue);
+                addPdfRow(tblKH, "Danh sách Khách:", pdfKhach, fontKey, fontValue);
                 addPdfRow(tblKH, "Số Điện Thoại:", valSDT.getText(), fontKey, fontValue);
                 addPdfRow(tblKH, "Email:", valEmail.getText(), fontKey, fontValue);
                 document.add(tblKH);
 
-                // ================= MỤC 2: THÔNG TIN CHUYẾN BAY =================
                 document.add(new Paragraph("THÔNG TIN CHUYẾN BAY", fontHeader));
                 PdfPTable tblCB = new PdfPTable(2);
-                tblCB.setWidthPercentage(100); 
-                tblCB.setSpacingBefore(10); 
-                tblCB.setSpacingAfter(20);
-                tblCB.setWidths(new float[]{3f, 7f});
+                tblCB.setWidthPercentage(100); tblCB.setSpacingBefore(10); tblCB.setSpacingAfter(20); tblCB.setWidths(new float[]{3f, 7f});
                 
-                StringBuilder pdfGhe = new StringBuilder();
-                if (session != null && session.danhSachGhe != null) {
-                    for (int i = 0; i < session.danhSachGhe.size(); i++) {
-                        pdfGhe.append("Khách ").append(i + 1).append(": Ghế ")
-                              .append(catLaySoGhe(session.danhSachGhe.get(i).getSoGhe()));
-                        if(i < session.danhSachGhe.size() - 1) pdfGhe.append("\n");
-                    }
-                } else {
-                    pdfGhe.append(valMaVe.getText().replaceAll("<[^>]*>", ""));
-                }
+                String pdfGhe = valMaVe.getText().replaceAll("<[^>]*>", "");
                 
                 addPdfRow(tblCB, "Tuyến Bay:", valTuyenBay.getText(), fontKey, fontValue);
-                addPdfRow(tblCB, "Số Ghế:", pdfGhe.toString(), fontKey, fontValue);
+                addPdfRow(tblCB, "Danh Sách Ghế:", pdfGhe, fontKey, fontValue);
                 addPdfRow(tblCB, "Thời Gian Đi:", valGioDi.getText(), fontKey, fontValue);
                 addPdfRow(tblCB, "Thời Gian Đến:", valGioDen.getText(), fontKey, fontValue);
                 document.add(tblCB);
 
-                // ================= MỤC 3: TỔNG KẾT THANH TOÁN =================
                 document.add(new Paragraph("TỔNG KẾT THANH TOÁN", fontHeader));
                 PdfPTable tblTT = new PdfPTable(2);
-                tblTT.setWidthPercentage(100); 
-                tblTT.setSpacingBefore(10); 
-                tblTT.setSpacingAfter(20); 
-                tblTT.setWidths(new float[]{6f, 4f});
+                tblTT.setWidthPercentage(100); tblTT.setSpacingBefore(10); tblTT.setSpacingAfter(20); tblTT.setWidths(new float[]{6f, 4f});
 
                 addPdfRow(tblTT, "Phương thức TT:", cboPhuongThuc.getSelectedItem().toString(), fontKey, fontValue);
-                addPdfRow(tblTT, "Giá vé gốc:", lblGiaVe.getText(), fontKey, fontValue);
-                addPdfRow(tblTT, "Dịch vụ bổ sung:", lblDichVu.getText(), fontKey, fontValue);
+                addPdfRow(tblTT, "Tổng Giá vé gốc:", lblGiaVe.getText(), fontKey, fontValue);
+                addPdfRow(tblTT, "Tổng DV bổ sung:", lblDichVu.getText(), fontKey, fontValue);
                 addPdfRow(tblTT, "Thuế VAT (10%):", lblThue.getText(), fontKey, fontValue);
+                
+                // BỔ SUNG: Thêm dòng hiển thị Giảm giá vào File PDF
+                addPdfRow(tblTT, "Giảm giá / Khuyến mãi:", lblGiamGia.getText(), fontKey, fontValue);
 
                 PdfPCell c1 = new PdfPCell(new Phrase("TỔNG TIỀN:", new com.itextpdf.text.Font(bf, 14, com.itextpdf.text.Font.BOLD, BaseColor.BLACK))); 
                 c1.setBorder(Rectangle.BOTTOM); c1.setBorderColor(new BaseColor(241, 245, 249)); c1.setPaddingTop(12); c1.setPaddingBottom(12);
@@ -496,5 +379,4 @@ public class ThanhToanHoaDonPanel extends JPanel {
         table.addCell(cellKey);
         table.addCell(cellValue);
     }
-    
 }

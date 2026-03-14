@@ -69,6 +69,8 @@ public class HanhLyPanel extends JPanel {
         btnTimKiem.setForeground(Color.WHITE);
         btnTimKiem.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btnTimKiem.setFocusPainted(false);
+        btnTimKiem = createButton("Tìm kiếm", BTN_UPDATE);
+        btnTimKiem.setPreferredSize(new Dimension(130, 35));
         try { setButtonIcon(btnTimKiem, "/resources/icons/icons8-search-24.png", 16); } catch (Exception e){}
 
         cboHienThi = new JComboBox<>(new String[]{"Đang hiển thị", "Thùng rác"});
@@ -443,35 +445,5 @@ public class HanhLyPanel extends JPanel {
 
         return new HanhLy(maHL, maVe, soKg, txtKichThuoc.getText().trim(), giaTien, 
                           cbTrangThai.getSelectedItem().toString(), txtGhiChu.getText().trim());
-    }
-    // =======================================================
-    // HÀM MAIN ĐỂ CHẠY THỬ NGHIỆM (TEST)
-    // =======================================================
-    public static void main(String[] args) {
-        // Sử dụng luồng riêng cho GUI để đảm bảo tính ổn định
-        SwingUtilities.invokeLater(() -> {
-            try {
-                // Ép giao diện đẹp theo phong cách hệ điều hành đang dùng
-                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            // 1. Tạo khung cửa sổ chính
-            JFrame frame = new JFrame("Hệ Thống Quản Lý Hành Lý - Airline Manager");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(1200, 800); // Kích thước rộng rãi cho bảng 7 cột
-            frame.setLocationRelativeTo(null); // Hiện ra giữa màn hình
-
-            // 2. Nhét Panel của bạn vào
-            HanhLyPanel panel = new HanhLyPanel();
-            frame.add(panel);
-
-            // 3. Hiển thị phép màu!
-            frame.setVisible(true);
-            
-            // Thông báo mẹo nhỏ cho người dùng
-            System.out.println("Sẵn sàng! Hãy thử nhập số Kg (vd: 15, 25, 35) để thấy giá tiền nhảy tự động.");
-        });
     }
 }

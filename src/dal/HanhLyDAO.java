@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.List;
 
 import db.DBConnection;
 import model.HanhLy;
@@ -35,7 +36,7 @@ public class HanhLyDAO {
 
     public boolean insert(HanhLy hl) {
         boolean isSuccess = false;
-        try (Connection con =DBConnection.getConnection()) {
+        try (Connection con = DBConnection.getConnection()) {
             String sql = "INSERT INTO HanhLy (maHanhLy, maVe, soKg, kichThuoc, giaTien, trangThai, ghiChu) VALUES (?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement pst = con.prepareStatement(sql);
             pst.setString(1, hl.getMaHanhLy());
@@ -52,6 +53,7 @@ public class HanhLyDAO {
         }
         return isSuccess;
     }
+
     // ==========================================================
     // TÌM HÀNH LÝ THEO MÃ (Dùng để check trùng mã)
     // ==========================================================
@@ -122,5 +124,36 @@ public class HanhLyDAO {
             e.printStackTrace();
         }
         return isSuccess;
+    }
+
+    // ==========================================================
+    // LẤY DANH SÁCH HÀNH LÝ THEO MÃ VÉ
+    // ==========================================================
+    public List<model.HanhLy> selectByMaVe(String maVe) {
+        List<model.HanhLy> list = new ArrayList<>();
+        try (Connection con = DBConnection.getConnection()) {
+            String sql = "SELECT * FROM HanhLy WHERE maVe = ?";
+            PreparedStatement pst = con.prepareStatement(sql);
+            pst.setString(1, maVe);
+            ResultSet rs = pst.executeQuery();
+            
+            while (rs.next()) {
+                model.HanhLy hl = new model.HanhLy();
+                
+                // Đã sửa đồng bộ lấy dữ liệu kiểu BigDecimal và String cho khớp với Model
+                hl.setMaHanhLy(rs.getString("maHanhLy"));
+                hl.setMaVe(rs.getString("maVe"));
+                hl.setSoKg(rs.getBigDecimal("soKg")); 
+                hl.setKichThuoc(rs.getString("kichThuoc"));
+                hl.setGiaTien(rs.getBigDecimal("giaTien"));
+                hl.setTrangThai(rs.getString("trangThai"));
+                hl.setGhiChu(rs.getString("ghiChu"));
+                
+                list.add(hl);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 }

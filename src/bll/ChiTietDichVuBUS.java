@@ -1,7 +1,8 @@
 package bll;
 
 import dal.ChiTietDichVuDAO;
-import dal.DichVuBoSungDAO; // Thêm thư viện này để lấy đơn giá
+import dal.DichVuBoSungDAO;
+import dal.VeBanDAO;
 import model.ChiTietDichVu;
 import model.DichVuBoSung;
 
@@ -12,10 +13,12 @@ public class ChiTietDichVuBUS {
 
     private ChiTietDichVuDAO chiTietDAO;
     private DichVuBoSungDAO dichVuBoSungDAO; 
+    private VeBanDAO veBanDAO;
 
     public ChiTietDichVuBUS() {
         chiTietDAO = new ChiTietDichVuDAO();
         dichVuBoSungDAO = new DichVuBoSungDAO(); 
+        veBanDAO = new VeBanDAO();
     }
 
     public List<ChiTietDichVu> docDanhSachChiTiet() {
@@ -29,36 +32,60 @@ public class ChiTietDichVuBUS {
         return chiTietDAO.selectByMaVe(maVe); 
     }
 
-    // =========================================================
-    // HÀM NÀY ĐÃ ĐƯỢC NÂNG CẤP ĐỂ TỰ ĐỘNG TÍNH THÀNH TIỀN
-    // =========================================================
-    public String themChiTiet(ChiTietDichVu ct) {
+   public String themChiTiet(ChiTietDichVu ct) {
         // 1. Kiểm tra đầu vào cơ bản
+       // 1. Kiểm tra đầu vào cơ bản
         if (ct.getMaVe() == null || ct.getMaVe().trim().isEmpty()) {
             return "Lỗi: Mã vé không được để trống!";
         }
+        if (veBanDAO.selectById(ct.getMaVe()) == null) {
+            return "Lỗi: Mã vé '" + ct.getMaVe() + "' không tồn tại trong hệ thống. Vui lòng kiểm tra lại!";
+        }
+
         if (ct.getMaDichVu() == null || ct.getMaDichVu().trim().isEmpty()) {
             return "Lỗi: Mã dịch vụ không được để trống!";
         }
         if (ct.getSoLuong() <= 0) {
-            return "Lỗi: Số lượng phải lớn hơn 0!";
+            return "Lỗi: Số lượng thêm mới phải lớn hơn 0!";
         }
 
-        // 2. Tự động tính Thành tiền = Đơn giá * Số lượng
+        // 2. Lấy thông tin dịch vụ để tính tiền
         DichVuBoSung dv = dichVuBoSungDAO.selectById(ct.getMaDichVu());
-        if (dv == null) {
-            return "Lỗi: Không tìm thấy dịch vụ bổ sung này trong cơ sở dữ liệu!";
+        if (dv == null || dv.getDonGia() == null) { // Chống lỗi NullPointerException
+            return "Lỗi: Không tìm thấy dịch vụ hoặc dịch vụ chưa có giá!";
+        }
+        BigDecimal donGia = dv.getDonGia();
+
+        // 3. KIỂM TRA XEM VÉ ĐÃ CÓ DỊCH VỤ NÀY CHƯA
+        List<ChiTietDichVu> dsDaCo = chiTietDAO.selectByMaVe(ct.getMaVe());
+        ChiTietDichVu chiTietTonTai = null;
+        for (ChiTietDichVu item : dsDaCo) {
+            if (item.getMaDichVu().equals(ct.getMaDichVu())) {
+                chiTietTonTai = item;
+                break;
+            }
         }
 
-        BigDecimal donGia = dv.getDonGia();
-        BigDecimal thanhTien = donGia.multiply(new BigDecimal(ct.getSoLuong())); // Phép nhân tự động
-        ct.setThanhTien(thanhTien); // Gắn tiền vừa tính vào đối tượng
-
-        // 3. Đẩy xuống DAO để lưu vào CSDL
-        boolean isSuccess = chiTietDAO.insert(ct);
-        return isSuccess ? "Thành công" : "Lỗi: Thêm chi tiết dịch vụ thất bại!";
+        // 4. XỬ LÝ LƯU XUỐNG CSDL
+        if (chiTietTonTai != null) {
+            // TRƯỜNG HỢP ĐÃ TỒN TẠI: Cộng dồn số lượng và cập nhật
+            int soLuongMoi = chiTietTonTai.getSoLuong() + ct.getSoLuong();
+            BigDecimal thanhTienMoi = donGia.multiply(new BigDecimal(soLuongMoi));
+            
+            ct.setSoLuong(soLuongMoi);
+            ct.setThanhTien(thanhTienMoi);
+            
+            boolean isSuccess = chiTietDAO.update(ct); // Gọi hàm Update mới viết
+            return isSuccess ? "Thành công (Đã cộng dồn số lượng)" : "Lỗi: Cập nhật dịch vụ thất bại!";
+        } else {
+            // TRƯỜNG HỢP MUA MỚI: Tính tiền và Insert bình thường
+            BigDecimal thanhTien = donGia.multiply(new BigDecimal(ct.getSoLuong()));
+            ct.setThanhTien(thanhTien);
+            
+            boolean isSuccess = chiTietDAO.insert(ct);
+            return isSuccess ? "Thành công" : "Lỗi: Thêm chi tiết dịch vụ thất bại!";
+        }
     }
-
     public String xoaChiTiet(String maVe, String maDichVu) {
         if (maVe == null || maVe.trim().isEmpty() || maDichVu == null || maDichVu.trim().isEmpty()) {
             return "Lỗi: Mã vé hoặc mã dịch vụ không hợp lệ!";

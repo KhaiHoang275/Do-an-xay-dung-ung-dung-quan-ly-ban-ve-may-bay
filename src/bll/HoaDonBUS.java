@@ -97,34 +97,43 @@ public class HoaDonBUS {
         }
         return hoaDonDAO.getChiTietThanhToan(maPhieu);
     }
-    // =========================================================================
-    // HÀM TỰ ĐỘNG CỘNG DỒN TỔNG TIỀN VÀ THUẾ TỪ CHI TIẾT LÊN HÓA ĐƠN
-    // =========================================================================
-    public void capNhatTongTienVaThueTuDong(String maHoaDon) {
+  /**
+     * TÁC DỤNG: Tự động quét tất cả vé trong hóa đơn để tính lại Tổng tiền và Thuế.
+     * Logic: Tổng = (Tổng các Chi tiết vé) - (Tiền khuyến mãi thực tế).
+     * Đảm bảo: Không bị âm tiền và luôn đồng bộ với Database.
+     */
+     public void capNhatTongTienVaThueTuDong(String maHoaDon) {
         if (maHoaDon == null || maHoaDon.trim().isEmpty()) return;
 
-        // 1. Lấy tất cả chi tiết vé thuộc hóa đơn này
+        // 1. Lấy tổng thành tiền từ các vé (đã tính ở Bước 2)
         List<model.CTHoaDon> danhSachChiTiet = ctHoaDonDAO.selectByMaHoaDon(maHoaDon);
-        
-        BigDecimal tongTienMoi = BigDecimal.ZERO;
-        BigDecimal tongThueMoi = BigDecimal.ZERO;
+        BigDecimal tongThanhTienCacVe = BigDecimal.ZERO;
+        BigDecimal tongThue = BigDecimal.ZERO;
 
-        // 2. Chạy vòng lặp cộng dồn tất cả lại
         for (model.CTHoaDon ct : danhSachChiTiet) {
-            if (ct.getThanhTien() != null) {
-                tongTienMoi = tongTienMoi.add(ct.getThanhTien());
-            }
-            if (ct.getThueVAT() != null) {
-                tongThueMoi = tongThueMoi.add(ct.getThueVAT());
-            }
+            tongThanhTienCacVe = tongThanhTienCacVe.add(ct.getThanhTien());
+            tongThue = tongThue.add(ct.getThueVAT());
         }
 
-        // 3. Lấy hóa đơn gốc ra, set con số mới vào và lưu xuống Database
         HoaDon hd = hoaDonDAO.selectById(maHoaDon);
         if (hd != null) {
-            hd.setTongTien(tongTienMoi);
-            hd.setThue(tongThueMoi);
-            hoaDonDAO.update(hd); // Lưu thay đổi
+            // 2. Lấy tiền giảm giá
+            BigDecimal tienGiam = hoaDonDAO.layTienGiamGiaTuPhieuDat(hd.getMaPhieuDatVe());
+            
+            // 3. Lấy tổng tiền ghế của các vé trong hóa đơn
+            BigDecimal tongTienGhe = hoaDonDAO.layTongTienGheCuaHoaDon(maHoaDon);
+
+            // 4. CÔNG THỨC CHỐT: Tổng = Tổng thành tiền - Tiền giảm + Tổng tiền ghế
+            BigDecimal tongCuoiCung = tongThanhTienCacVe
+                                        .subtract(tienGiam)
+                                        .add(tongTienGhe);
+
+            // Chặn lỗi tiền âm
+            if (tongCuoiCung.compareTo(BigDecimal.ZERO) < 0) tongCuoiCung = BigDecimal.ZERO;
+
+            hd.setTongTien(tongCuoiCung);
+            hd.setThue(tongThue);
+            hoaDonDAO.update(hd);
         }
     }
 }
