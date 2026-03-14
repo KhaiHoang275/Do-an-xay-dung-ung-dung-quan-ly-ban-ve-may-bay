@@ -429,7 +429,7 @@ public class DangKyFrm extends javax.swing.JFrame {
                 hkNew.setMaHK(maHK);
                 hkNew.setMaNguoiDung(maND);
                 hkNew.setHoTen(fullName);
-                hkNew.setMaThuHang("TH001"); // Auto set hạng Bronze mặc định
+                hkNew.setMaThuHang("SILVER");
                 hkNew.setCccd("");
                 hkNew.setHoChieu("");
                 hkNew.setNgaySinh(java.time.LocalDate.of(2000, 1, 1)); 
