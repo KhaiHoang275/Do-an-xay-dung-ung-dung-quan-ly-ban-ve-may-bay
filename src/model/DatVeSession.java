@@ -10,6 +10,14 @@ public class DatVeSession {
     public String maChuyenBay;
     public String loaiVe;      // "Một chiều" hoặc "Khứ hồi"
     public String maHangVe;    // ECO, BUS...
+
+    public String tenSanBayDi;
+    public String tenSanBayDen;
+    public String thoiGianDi;
+
+    public String maChuyenBayVe; // Mã chuyến bay lượt về
+    public String maHangVeVe;    // Hạng vé lượt về
+    public String thoiGianVe;     // Thời gian chuyến bay lượt về
     
     // 2. Số lượng khách
     public int soNguoiLon = 0;

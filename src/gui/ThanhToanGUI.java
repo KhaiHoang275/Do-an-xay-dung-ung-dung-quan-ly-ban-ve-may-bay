@@ -223,33 +223,26 @@ public class ThanhToanGUI extends JPanel {
     private void loadPromotions() {
         cboKhuyenMai.removeAllItems();
         cboKhuyenMai.addItem(null); 
-
         try {
-      
-            List<KhuyenMai> list = kmDAO.getKhuyenMaiHopLe(); 
-            if(list != null && !list.isEmpty()) {
+            List<KhuyenMai> list = kmDAO.getAll();
+            if(list != null) {
                 for(KhuyenMai km : list) {
                     cboKhuyenMai.addItem(km); 
+                    if (session.khuyenMaiApDung != null && km.getMaKhuyenMai().equals(session.khuyenMaiApDung.getMaKhuyenMai())) cboKhuyenMai.setSelectedItem(km);
                 }
-            } else {
-                System.out.println("Không có mã KM nào khả dụng trong thời gian này.");
             }
-        } catch(Exception e) { System.err.println("Lỗi tải KM: " + e.getMessage()); }
+        } catch(Exception e) {}
 
         cboKhuyenMai.setRenderer(new DefaultListCellRenderer() {
             @Override public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (value instanceof KhuyenMai) {
-                    KhuyenMai km = (KhuyenMai) value;
-                    setText(km.getMaKhuyenMai() + " (Giảm " + km.getGiaTri() + ")");
-                } else {
-                    setText("--- Không áp dụng mã ---");
-                }
+                if (value instanceof KhuyenMai) { KhuyenMai km = (KhuyenMai) value; setText(km.getMaKhuyenMai() + " (Giảm " + km.getGiaTri() + ")"); } 
+                else { setText("--- Không áp dụng mã ---"); }
                 return this;
             }
         });
     }
-    
+
     private void updatePriceDisplay() {
         BigDecimal base = session.tongTienVe;
         BigDecimal sv = (session.tongTienDichVu != null) ? session.tongTienDichVu : BigDecimal.ZERO;
@@ -410,28 +403,8 @@ public class ThanhToanGUI extends JPanel {
         }
     }
 
-    private JPanel createSummaryRow(String label, String value) {
-        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        p.setOpaque(false);
-        p.setBackground(Color.WHITE);
-        JLabel l = new JLabel(label); l.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        JLabel v = new JLabel(value); v.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        p.add(l); p.add(v);
-        return p;
-    }
-
-    private JLabel createPriceLabel(String text) {
-        JLabel l = new JLabel(text);
-        l.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-        l.setBorder(BorderFactory.createEmptyBorder(8, 0, 8, 0));
-        return l;
-    }
-
-    private TitledBorder createCustomTitledBorder(String title) {
-        TitledBorder b = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)), title);
-        b.setTitleFont(new Font("Segoe UI", Font.BOLD, 15));
-        b.setTitleColor(new Color(28, 48, 96));
-        b.setBorder(BorderFactory.createCompoundBorder(b.getBorder(), BorderFactory.createEmptyBorder(10, 15, 15, 15)));
-        return b;
-    }
+    private JPanel createSummaryRow(String label, String value) { JPanel p = new JPanel(new BorderLayout()); p.setOpaque(false); p.setBackground(Color.WHITE); p.setMaximumSize(new Dimension(800, 30)); JLabel l = new JLabel(label); l.setFont(new Font("Segoe UI", Font.BOLD, 15)); l.setPreferredSize(new Dimension(150, 25)); JLabel v = new JLabel(value); v.setFont(new Font("Segoe UI", Font.PLAIN, 15)); p.add(l, BorderLayout.WEST); p.add(v, BorderLayout.CENTER); return p; }
+    private JLabel createSectionLabel(String text) { JLabel label = new JLabel(text); label.setFont(new Font("Segoe UI", Font.BOLD, 16)); label.setForeground(new Color(28, 48, 96)); label.setBorder(BorderFactory.createEmptyBorder(10, 5, 10, 0)); label.setAlignmentX(Component.LEFT_ALIGNMENT); return label; }
+    private JLabel createPriceLabel(String text) { JLabel l = new JLabel(text); l.setFont(new Font("Segoe UI", Font.PLAIN, 16)); l.setBorder(BorderFactory.createEmptyBorder(8, 0, 8, 0)); return l; }
+    private TitledBorder createCustomTitledBorder(String title) { TitledBorder b = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)), title); b.setTitleFont(new Font("Segoe UI", Font.BOLD, 16)); b.setTitleColor(new Color(28, 48, 96)); b.setBorder(BorderFactory.createCompoundBorder(b.getBorder(), BorderFactory.createEmptyBorder(10, 15, 15, 15))); return b; }
 }
